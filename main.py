@@ -117,8 +117,8 @@ class Wallet:
             if check_digit >= 9:
                 check_digit = check_digit % 9
 
-        wallet_address = f"DAG{check_digit}{public_key}"
-        return wallet_address
+        dag_addr = f"DAG{check_digit}{public_key}"
+        return dag_addr
 
 def main():
     bip39 = Bip39()
