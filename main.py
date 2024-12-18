@@ -67,20 +67,13 @@ class Bip32:
         """
         path = DERIVATION_PATH_MAP[derivation_path]
         path_parts = [int(part.strip("'")) for part in path.split("/")[1:]]
-        purpose = path_parts[0]
-        coin_type = path_parts[1]
-        account = path_parts[2]
+        purpose = path_parts[0] + 2**31
+        coin_type = path_parts[1] + 2**31
+        account = path_parts[2] + 2**31
         change = 0
         index = path_parts[3]
-        print(path_parts)
         root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
-        return root_key.ChildKey(
-            purpose + 2**31
-        ).ChildKey(
-            coin_type + 2**31
-        ).ChildKey(
-            account + 2**31
-        ).ChildKey(change).ChildKey(index).PrivateKey().hex()
+        return root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index).PrivateKey().hex()
 
     @staticmethod
     def get_public_key_from_private_hex(private_key_hex: str, compressed: bool = False) -> str:
