@@ -1,18 +1,11 @@
-from coincurve import PrivateKey
-from mnemonic import Mnemonic
-from bip32utils import BIP32Key
 from hashlib import sha256
 import base58
 
-class DERIVATION_PATH:
-    DAG = "DAG"
-    ETH = "ETH"
-    ETH_LEDGER = "ETH_LEDGER"
+from bip32utils import BIP32Key
+from coincurve import PrivateKey
+from mnemonic import Mnemonic
 
-
-class COIN:
-    DAG = 1137
-    ETH = 60
+from .constants import DERIVATION_PATH, COIN, PKCS_PREFIX
 
 # The derivation_path_map together with the seed can be used to derive the extended private key from the public_key
 # E.g. "m/44'/{COIN.DAG}'/0'/0" (account 0, index 0); "m/44'/{COIN.DAG}'/0'/1" (account 0, index 1)
@@ -21,9 +14,6 @@ DERIVATION_PATH_MAP = {
     DERIVATION_PATH.ETH: f"m/44'/{COIN.ETH}'/0'/0",
     DERIVATION_PATH.ETH_LEDGER: "m/44'/60'",
 }
-
-PKCS_PREFIX = "3056301006072a8648ce3d020106052b8104000a034200"  # Removed last 2 digits. 04 is part of Public Key.
-
 
 class Bip39:
     """Generate 12 or 24 words and derive entropy"""
@@ -124,23 +114,3 @@ class Wallet:
 
         dag_addr = f"DAG{check_digit}{public_key}"
         return dag_addr
-
-def main():
-    bip39 = Bip39()
-    bip32 = Bip32()
-    wallet = Wallet()
-    mnemonic_values = bip39.mnemonic()
-    private_key = bip32.get_private_key_from_seed(seed_bytes=mnemonic_values["seed"])
-    public_key = bip32.get_public_key_from_private_hex(private_key_hex=private_key)
-    dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)
-    print("Values:", mnemonic_values, "\nPrivate Key: " + private_key, "\nPublic Key: " + public_key, "\nDAG Address: " + dag_addr)
-    derived_seed = bip39.get_seed_from_mnemonic(words=mnemonic_values["words"])
-    derived_private_key = bip32.get_private_key_from_seed(seed_bytes=derived_seed)
-    derived_public_key = bip32.get_public_key_from_private_hex(private_key_hex=derived_private_key)
-    derived_dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=derived_public_key)
-    print(derived_dag_addr, derived_private_key, derived_public_key, derived_seed)
-if __name__ == "__main__":
-    main()
-
-
-
