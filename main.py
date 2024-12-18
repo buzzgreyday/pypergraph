@@ -1,3 +1,5 @@
+import hashlib
+
 from coincurve import PrivateKey
 from mnemonic import Mnemonic
 from bip32utils import BIP32Key
