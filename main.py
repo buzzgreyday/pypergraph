@@ -1,7 +1,16 @@
+import traceback
+
 import requests
 from pydantic import BaseModel
 
 from dag_keystore import Bip32, Bip39, Wallet
+
+BASE_URLS = {
+                "BLOCK_EXPLORER_URL": 'https://block-explorer.constellationnetwork.io',
+                "LOAD_BALANCER_URL": 'http://lb.constellationnetwork.io:9000',
+                "L0_URL": 'https://l0-lb-mainnet.constellationnetwork.io',
+                "L1_URL": 'https://l1-lb-mainnet.constellationnetwork.io',
+            }
 
 # dag4.dag-network.src.dto.v2.transactions.ts
 
@@ -43,13 +52,6 @@ class PostTransactionResponseV2(BaseModel):
 class GetTransactionResponseV2(BaseModel):
     data: TransactionV2
 
-# dag4.dag-network.src.DNC.ts
-class DNC:
-    BLOCK_EXPLORER_URL = 'https://block-explorer.constellationnetwork.io'
-    LOAD_BALANCER_URL = 'http://lb.constellationnetwork.io:9000'
-    L0_URL = 'http://13.52.246.74:9000'
-    L1_URL = 'http://13.52.246.74:9010'
-
 class RestApi:
     def __init__(self, base_url):
         self.base_url = base_url
@@ -61,14 +63,19 @@ class RestApi:
         return response.json()
 
 
-class L1Api:
-    def __init__(self, base_urls):
+class Api:
+    def __init__(self, base_urls=None):
         """
         Initialize with a dictionary of base URLs, where each key is a label for the URL.
         Example: {"main": "https://main-api.com", "backup": "https://backup-api.com"}
         """
+
+        if base_urls is None:
+            base_urls = BASE_URLS
+        # Use .items() to iterate over key-value pairs
         self.services = {key: RestApi(url) for key, url in base_urls.items()}
         self.current_service_key = next(iter(base_urls))  # Default to the first URL
+
 
     def set_service(self, key):
         """
@@ -85,10 +92,10 @@ class L1Api:
         """
         endpoint = f"/transactions/last-reference/{address}"
         response_data = self.services[self.current_service_key].get(endpoint)
+        print(response_data)
         return TransactionReference(**response_data)  # Parse the response into a TransactionReference
 
 def main():
-
     """Create wallet and test: This is done"""
     bip39 = Bip39()
     bip32 = Bip32()
@@ -105,6 +112,15 @@ def main():
     print(derived_dag_addr, derived_private_key, derived_public_key, derived_seed)
 
     """Get last reference"""
+    try:
+        api = Api()
+        api.set_service('L1_URL')
+        transaction_ref = api.get_address_last_accepted_transaction_ref(derived_dag_addr)
+        print(transaction_ref)
+    except requests.HTTPError as e:
+        print(f"HTTP error occurred with main service: {e}")
+    except ValueError as ve:
+        print(f"Validation error occurred: {ve}")
 
 if __name__ == "__main__":
     main()
