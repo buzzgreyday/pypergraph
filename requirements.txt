@@ -2,3 +2,5 @@ base58~=2.1.1
 coincurve~=20.0.0
 mnemonic~=0.21
 bip32utils~=0.3.post4
+requests~=2.32.3
+pydantic~=2.10.4
