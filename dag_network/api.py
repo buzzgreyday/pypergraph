@@ -1,5 +1,5 @@
-from dag_network import RestApi
-from dag_network import TransactionReference
+from dag_network.rest_api import RestApi
+from dag_network.transaction_models import TransactionReference
 
 class NetworkApi:
     def __init__(self, base_url: str):

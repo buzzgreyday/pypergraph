@@ -33,7 +33,7 @@ def main():
 
     """Get last reference"""
     try:
-        api = Api(BASE_URLS["L1_URL"])  # Pass a single URL instead of the whole dictionary
+        api = NetworkApi(BASE_URLS["L1_URL"])  # Pass a single URL instead of the whole dictionary
         transaction_ref = api.get_address_last_accepted_transaction_ref(derived_dag_addr)
         print(transaction_ref)
     except requests.HTTPError as e:
