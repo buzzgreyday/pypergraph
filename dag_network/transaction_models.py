@@ -37,3 +37,8 @@ class PostTransactionResponseV2(BaseModel):
 
 class GetTransactionResponseV2(BaseModel):
     data: TransactionV2
+
+class KeyTrio(BaseModel):
+    privateKey: str
+    publicKey: str
+    address: str

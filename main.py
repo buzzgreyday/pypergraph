@@ -1,7 +1,9 @@
+from typing import Optional
+
 import requests
 
 from dag_keystore import Bip32, Bip39, Wallet
-from dag_network import NetworkApi
+from dag_network import NetworkApi, PostTransactionV2, TransactionReference
 from dag_network import DEFAULT_L1_BASE_URL
 
 def main():
@@ -18,7 +20,7 @@ def main():
     derived_private_key = bip32.get_private_key_from_seed(seed_bytes=derived_seed)
     derived_public_key = bip32.get_public_key_from_private_hex(private_key_hex=derived_private_key)
     derived_dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=derived_public_key)
-    print(derived_dag_addr, derived_private_key, derived_public_key, derived_seed)
+    print("Success!" if derived_dag_addr == dag_addr else "Test failed")
 
     """Get last reference"""
     try:
@@ -29,6 +31,34 @@ def main():
         print(f"HTTP error occurred with main service: {e}")
     except ValueError as ve:
         print(f"Validation error occurred: {ve}")
+
+    """Generate signed transaction"""
+    # packages/dag4-wallet/src/dag-account.ts
+    class TransactionManager:
+        def __init__(self, network, key_store, address, key_trio):
+            self.network = network
+            self.key_store = key_store
+            self.address = address
+            self.key_trio = key_trio
+
+        async def generate_signed_transaction(
+                self,
+                to_address: str,
+                amount: float,
+                fee: float = 0,
+                last_ref: Optional[TransactionReference] = None
+        ) -> "PostTransactionV2":
+            if last_ref is None:
+                last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+
+            return self.key_store.generate_transaction_v2(
+                amount=amount,
+                to_address=to_address,
+                key_trio=self.key_trio,
+                last_ref=last_ref,
+                fee=fee,
+            )
+
 
 if __name__ == "__main__":
     main()
