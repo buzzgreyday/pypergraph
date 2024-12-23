@@ -1,6 +1,8 @@
 import requests
 from typing import Optional, Callable, Any, Dict
 
+from constants import DEFAULT_L1_BASE_URL
+
 
 class RestApiOptions:
     def __init__(self,
@@ -9,7 +11,7 @@ class RestApiOptions:
                  no_auth_header: bool = False,
                  transform_response: Optional[Callable] = None,
                  retry: int = 0):  # Default retries to 0
-        self.base_url = base_url or 'https://l1-lb-mainnet.constellationnetwork.io'  # Default base URL
+        self.base_url = base_url or DEFAULT_L1_BASE_URL  # Default base URL
         self.headers = headers or {}
         self.no_auth_header = no_auth_header
         self.transform_response = transform_response
@@ -59,7 +61,7 @@ class RestConfig:
 
     def get_default_base_url(self) -> str:
         # Replace with your application's default base URL
-        return 'https://l1-lb-mainnet.constellationnetwork.io'
+        return DEFAULT_L1_BASE_URL
 
     def get_default_protocol_client(self) -> Callable:
         # Default HTTP client using `requests`
