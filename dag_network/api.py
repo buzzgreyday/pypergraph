@@ -1,7 +1,7 @@
 from dag_network import RestApi
 from dag_network import TransactionReference
 
-class Api:
+class NetworkApi:
     def __init__(self, base_url: str):
         """
         Initialize with a single base URL, instead of a dictionary of base URLs.

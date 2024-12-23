@@ -1,7 +1,7 @@
 import requests
 
 from dag_keystore import Bip32, Bip39, Wallet
-from dag_network.api import Api
+from dag_network.api import NetworkApi
 
 BASE_URLS = {
                 "BLOCK_EXPLORER_URL": 'https://block-explorer.constellationnetwork.io',
