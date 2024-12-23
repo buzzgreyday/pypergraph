@@ -1,19 +1,8 @@
 import requests
 
 from dag_keystore import Bip32, Bip39, Wallet
-from dag_network.api import NetworkApi
-
-BASE_URLS = {
-                "BLOCK_EXPLORER_URL": 'https://block-explorer.constellationnetwork.io',
-                "LOAD_BALANCER_URL": 'http://lb.constellationnetwork.io:9000',
-                "L0_URL": 'https://l0-lb-mainnet.constellationnetwork.io',
-                "L1_URL": 'https://l1-lb-mainnet.constellationnetwork.io',
-            }
-
-# packages/dag4-core/src/cross-platform/api/rest.api.ts
-
-
-
+from dag_network import NetworkApi
+from dag_network import DEFAULT_L1_BASE_URL
 
 def main():
     """Create wallet and test: This is done"""
@@ -33,7 +22,7 @@ def main():
 
     """Get last reference"""
     try:
-        api = NetworkApi(BASE_URLS["L1_URL"])  # Pass a single URL instead of the whole dictionary
+        api = NetworkApi(DEFAULT_L1_BASE_URL)  # Pass a single URL instead of the whole dictionary
         transaction_ref = api.get_address_last_accepted_transaction_ref(derived_dag_addr)
         print(transaction_ref)
     except requests.HTTPError as e:

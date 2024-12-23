@@ -1,8 +1,7 @@
 import requests
 from typing import Optional, Callable, Any, Dict
 
-from constants import DEFAULT_L1_BASE_URL
-
+from .constants import DEFAULT_L1_BASE_URL
 
 class RestApiOptions:
     def __init__(self,
