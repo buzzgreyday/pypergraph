@@ -113,7 +113,9 @@ def main():
 
     """Get last reference"""
     try:
-        transaction_ref = Api().set_service('L1_URL').get_address_last_accepted_transaction_ref(derived_dag_addr)
+        api = Api()
+        api.set_service('L1_URL')
+        transaction_ref = api.get_address_last_accepted_transaction_ref(derived_dag_addr)
         print(transaction_ref)
     except requests.HTTPError as e:
         print(f"HTTP error occurred with main service: {e}")
