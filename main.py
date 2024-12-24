@@ -3,22 +3,18 @@ import array
 import struct
 from decimal import Decimal, ROUND_DOWN
 import random
-from typing import Optional, Dict, Any
 import hashlib
 from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.serialization import load_der_private_key
 from cryptography.hazmat.backends import default_backend
 
 import requests
 
 from dag_keystore import Bip32, Bip39, Wallet
-from dag_network import NetworkApi, PostTransactionV2, TransactionReference, Proof
+from dag_network import NetworkApi
 from dag_network import DEFAULT_L1_BASE_URL
 
 # packages/dag4-wallet/src/dag-account.ts
-
 
 MIN_SALT = 1  # Replace with the actual minimum salt value
 
@@ -90,14 +86,6 @@ class TransactionV2:
             str(len(salt)),
             salt
         ])
-
-    def set_encoded_hash_reference(self):
-        # NOOP
-        pass
-
-    def set_signature_batch_hash(self, hash_value):
-        # NOOP
-        pass
 
     def add_signature(self, proof):
         self.tx["proofs"].append(proof)
@@ -200,23 +188,6 @@ class TransactionGenerator:
             "signature": signature,
         }
 
-
-        # Assuming `tx_encode.get_v2_tx_from_post_transaction(tx)` returns a dictionary compatible with PostTransactionV2
-        #transaction_data = tx_encode.get_v2_tx_from_post_transaction(tx)
-
-        # Create a transaction object using the PostTransactionV2 model
-        #transaction = PostTransactionV2(**tx)
-
-        # Create a Proof object for the signature
-        #signature_elt = Proof(id=uncompressed_public_key[2:], signature=signature)
-
-        # Add the Proof to the transaction's proofs list by creating a new instance
-        #updated_transaction = transaction.copy(
-        #    update={"proofs": transaction.proofs + [signature_elt]}
-        #)
-
-        # `updated_transaction` now contains the added signature
-        #print(updated_transaction)
         tx.add_signature(proof=signature_elt)
         print(tx.__dict__)
 
@@ -257,11 +228,6 @@ class TransactionGenerator:
 
         # Return the prepared transaction data
         return tx, hash_
-        #return {
-        #    "tx": tx.get_post_transaction(),
-        #    "hash": hash_,
-        #    "rle": encoded_tx,
-        #}
 
     @staticmethod
     def _normalize_amount(value: float) -> int:
