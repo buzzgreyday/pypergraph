@@ -11,11 +11,11 @@ class NetworkApi:
         self.config = self.service.config  # Direct access to the configuration
 
     # dag4.dag-network.src.api.v2.l1-api.ts
-    def get_address_last_accepted_transaction_ref(self, address) -> TransactionReference:
+    def get_address_last_accepted_transaction_ref(self, address) -> dict:
         """
         Fetch the transaction reference and parse it into a TransactionReference object.
         """
         endpoint = f"/transactions/last-reference/{address}"
         response_data = self.service.get(endpoint)  # Directly use the service instance
         print(response_data)
-        return TransactionReference(**response_data)  # Parse the response into a TransactionReference
+        return TransactionReference(**response_data).dict()  # Parse the response into a TransactionReference
