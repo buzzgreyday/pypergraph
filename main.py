@@ -348,8 +348,10 @@ def main():
 
     """Generate signed transaction"""
     key_trio = {"address": dag_addr, "public_key": public_key, "private_key": private_key}
-    TransactionGenerator(use_fallback_lib=True).generate_transaction_with_hash_v2(amount=1, to_address="DAG4CKOFF", key_trio=key_trio, last_ref=transaction_ref, fee=0)
+    transaction_generator = TransactionGenerator(use_fallback_lib=True)
+    transaction_generator.generate_transaction_with_hash_v2(amount=1, to_address="DAG4CKOFF", key_trio=key_trio, last_ref=transaction_ref, fee=0)
 
+    """Post Transaction"""
 
 
 if __name__ == "__main__":
