@@ -235,23 +235,15 @@ class TransactionGenerator:
         return int(Decimal(value).scaleb(8).quantize(Decimal("1"), rounding=ROUND_DOWN))
 
     def sign(self, private_key: str, msg: str) -> str:
-        sha512_hash = self.sha512(msg)
+        from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
+        from sawtooth_signing.secp256k1 import Secp256k1PublicKey
+        checksum = hashlib.sha3_512(str(msg).encode()).hexdigest()
 
-        if self.use_fallback_lib:
-            # Use the fallback library for signing
-            ec_private_key = ec.derive_private_key(
-                int(private_key, 16), ec.SECP256K1(), default_backend()
-            )
-            signature = ec_private_key.sign(
-                sha512_hash, ec.ECDSA(hashes.SHA512())
-            )
-            return signature.hex()
-
-        # Use secp library for signing
-        from coincurve import PrivateKey
-        priv_key = PrivateKey(bytes.fromhex(private_key))
-        signature = priv_key.sign(sha512_hash, hasher=None)
-        return signature.hex()
+        private_key = Secp256k1PrivateKey.from_hex(hex_private_key)
+        message = private_key.secp256k1_private_key.ecdsa_sign(str(msg).encode())
+        serialized_message = private_key.secp256k1_private_key.ecdsa_serialize(msg)
+        hex_message = binascii.hexlify(serialized_message)
+        return msg, checksum, hex_message
 
     @staticmethod
     def sha512(message: str) -> bytes:
@@ -263,27 +255,12 @@ class TransactionGenerator:
         return hashlib.sha256(data).hexdigest()
 
     def verify(self, public_key: str, msg: str, signature: str) -> bool:
-        sha512_hash = self.sha512(msg)
-
-        if self.use_fallback_lib:
-            # Use fallback library for verification
-            ec_public_key = ec.EllipticCurvePublicKey.from_encoded_point(
-                ec.SECP256K1(), bytes.fromhex(public_key)
-            )
-            try:
-                ec_public_key.verify(
-                    bytes.fromhex(signature),
-                    sha512_hash,
-                    ec.ECDSA(hashes.SHA512())
-                )
-                return True
-            except Exception:
-                return False
-
-        # Use coincurve for verification
-        from coincurve import PublicKey
-        pub_key = PublicKey(bytes.fromhex(public_key))
-        return pub_key.verify(bytes.fromhex(signature), sha512_hash, hasher=None)
+        ##message is hex encoded
+        message = binascii.unhexlify(message)
+        public_key = Secp256k1PublicKey.from_hex(hex_public_key)
+        unserialized = public_key.secp256k1_public_key.ecdsa_deserialize(message)
+        result = public_key.secp256k1_public_key.ecdsa_verify(str(nonce).encode(), unserialized)
+        return result
 
 def main():
     print("pypergraph wallet (early alpha)")
