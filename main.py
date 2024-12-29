@@ -326,7 +326,7 @@ def main():
     print("Signature Returned by KeyStore.sign:", signature)
     print()
     success = KeyStore.verify(public_key_hex, tx_hash, signature)
-    print(success)
+    print("Verified by DAG4:", success.title())
     tx["proofs"].append({"id": public_key_hex[2:], "signature": signature})
     print("Tx to Post:", tx)
 
