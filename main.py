@@ -1,3 +1,4 @@
+import binascii
 import hashlib
 from decimal import Decimal, ROUND_DOWN
 
@@ -210,9 +211,43 @@ class KeyStore:
         }
 
     @staticmethod
-    def sign(private_key_hex: hex, tx_hash: hex):
-        pass
-        return
+    def sign(private_key_hex: hex, tx_hash: hex, public_key_hex: hex):
+        tx_hash_utf8_bytes = tx_hash.encode('utf-8')
+        print(f"txHash as UTF-8 bytes: {tx_hash_utf8_bytes.hex()}")
+
+        # For comparison, also log the original hex representation
+        print(f"Original txHash (hex): {tx_hash}")
+
+        # Calculate SHA-512 hash of the UTF-8 bytes
+        sha512_hash_of_tx_hash_utf8 = hashlib.sha512(tx_hash_utf8_bytes).digest()
+        sha512_hash_of_tx_hash_string = hashlib.sha512(tx_hash.encode('utf-8')).digest()
+        tx_hash_buffer = bytes.fromhex(tx_hash)
+        sha512_hash_of_tx_hash_buffer = hashlib.sha512(tx_hash_buffer).digest()
+
+        print(f"sha512HashOfTxHashUtf8: {sha512_hash_of_tx_hash_utf8.hex()}")
+        print(f"sha512HashOfTxHashString: {sha512_hash_of_tx_hash_string.hex()}")
+        print(f"sha512HashOfTxHashBuffer: {sha512_hash_of_tx_hash_buffer.hex()}")
+
+        # Signatures
+        private_key = PrivateKey(bytes.fromhex(private_key_hex))
+        signature_utf8_bytes = private_key.sign(sha512_hash_of_tx_hash_utf8)
+        signature_string = private_key.sign(sha512_hash_of_tx_hash_string)
+        signature_buffer = private_key.sign(sha512_hash_of_tx_hash_buffer)
+
+        print(f"signature utf-8 bytes: {binascii.hexlify(signature_utf8_bytes).decode('utf-8')}")
+        print(f"signature string: {signature_string.hex()}")
+        print(f"signature buffer: {signature_buffer.hex()}")
+
+        public_key = PublicKey(bytes.fromhex(public_key_hex))
+
+        signature_utf8_bytes_valid = public_key.verify(signature_utf8_bytes, sha512_hash_of_tx_hash_utf8)
+        signature_string_valid = public_key.verify(signature_string, sha512_hash_of_tx_hash_string)
+        signature_buffer_valid = public_key.verify(signature_buffer, sha512_hash_of_tx_hash_buffer)
+
+        print(f"signature utf8 bytes valid: {signature_utf8_bytes_valid}")
+        print(f"signature string valid: {signature_string_valid}")
+        print(f"signature buffer valid: {signature_buffer_valid}")
+        return binascii.hexlify(signature_utf8_bytes).decode('utf-8')
 
 
 
@@ -263,11 +298,10 @@ def main():
 
     private_key_hex = account["private_key"].to_hex()
     print("Private Key Hex:", private_key_hex)
-    signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash)
-
-
-
-
+    public_key_hex = account["public_key"].format(compressed=False).hex()
+    signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash, public_key_hex=public_key_hex)
+    print("Signature Returned by KeyStore.sign:", signature)
+    print()
 
     """Post Transaction"""
     #api.post_transaction(tx)
