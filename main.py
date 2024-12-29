@@ -223,7 +223,6 @@ class KeyStore:
         # # For comparison, also log the original hex representation
         print(f"Original txHash (hex): {tx_hash}")
 
-
         import subprocess
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
