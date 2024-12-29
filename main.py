@@ -199,6 +199,7 @@ class KeyStore:
 
 
         serialized_tx = TxEncode().kryo_serialize(msg=encoded_tx, set_references=True)
+        print("Serialized Tx:", serialized_tx)
         hash_value = hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest()
 
 
@@ -302,6 +303,7 @@ def main():
     print("Signature Returned by KeyStore.sign:", signature)
     print()
     tx["proofs"].append({"id": public_key_hex[2:], "signature": signature})
+    print("Tx to Post:", tx)
 
     """Post Transaction"""
     api.post_transaction(tx)
