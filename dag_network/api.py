@@ -17,5 +17,15 @@ class NetworkApi:
         """
         endpoint = f"/transactions/last-reference/{address}"
         response_data = self.service.get(endpoint)  # Directly use the service instance
-        print(response_data)
         return TransactionReference(**response_data).dict()  # Parse the response into a TransactionReference
+
+    def post_transaction(self, tx):
+        """
+        Post transaction
+        :param tx:
+        :return:
+        """
+
+        endpoint = "/transactions"
+        response_data = self.service.post(endpoint, tx)
+        print(response_data)

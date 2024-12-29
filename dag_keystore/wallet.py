@@ -52,7 +52,7 @@ class Bip32:
         return BIP32Key.fromEntropy(seed_bytes)
 
     @staticmethod
-    def get_private_key_from_seed(seed_bytes, derivation_path: str = DERIVATION_PATH.DAG) -> str:
+    def get_private_key_from_seed(seed_bytes, derivation_path: str = DERIVATION_PATH.DAG):
         """
         Derive the private key from a seed entropy using derived path.
 
@@ -68,10 +68,10 @@ class Bip32:
         change = 0
         index = path_parts[3]
         root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
-        return root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index).PrivateKey().hex()
+        return root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index).PrivateKey()
 
     @staticmethod
-    def get_public_key_from_private_hex(private_key_hex: str, compressed: bool = False) -> str:
+    def get_public_key_from_private_hex(private_key_hex: str, compressed: bool = False):
         """
         Derive the public key from a private key using secp256k1.
 
@@ -82,7 +82,7 @@ class Bip32:
         private_key_bytes = bytes.fromhex(private_key_hex)
         private_key = PrivateKey(private_key_bytes)
         public_key = private_key.public_key.format(compressed=compressed)
-        return public_key.hex()
+        return public_key
 
 
 class Wallet:

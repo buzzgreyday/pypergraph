@@ -72,16 +72,29 @@ class RestConfig:
         body = params.get("body")
         headers = {"Authorization": params.get("authToken")} if params.get("authToken") else {}
         query_params = params.get("queryParams", {})
+        #print(f"Sending {method} request to {url}")
+        #print(f"Headers: {headers}")
+        #print(f"Body: {body}")
+        #print(f"Query Params: {query_params}")
 
         try:
             response = requests.request(method, url, headers=headers, json=body, params=query_params)
+            #print("Response status:", response.status_code)
+            #print("Response headers:", response.headers)
+            #print("Response body:", response.text)  # Raw response body
             response.raise_for_status()
-            return response.json()
+
+            # Safely handle empty responses
+            if response.text.strip():  # If the response is not empty
+                return response.json()
+            else:
+                return {"message": "Empty response from server"}  # Default response for empty body
         except requests.RequestException as e:
             if self._error_hook:
                 self._error_hook(e)
             else:
                 raise e
+
 
 class RestApi:
     def __init__(self, base_url: str):
@@ -116,6 +129,7 @@ class RestApi:
 
     def post(self, url: str, data: Optional[Any] = None, options: Optional[RestApiOptions] = None,
              query_params: Optional[Dict[str, Any]] = None) -> Any:
+
         return self.http_request(url, 'POST', data, options, query_params)
 
     def get(self, url: str, query_params: Optional[Dict[str, Any]] = None,

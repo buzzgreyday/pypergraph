@@ -1,73 +1,89 @@
-# Generate transaction
-import array
-import struct
-from decimal import Decimal, ROUND_DOWN
-import random
 import hashlib
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
+from decimal import Decimal, ROUND_DOWN
 
-import requests
+from coincurve import PrivateKey, PublicKey
 
 from dag_keystore import Bip32, Bip39, Wallet
 from dag_network import NetworkApi
 from dag_network import DEFAULT_L1_BASE_URL
 
-# packages/dag4-wallet/src/dag-account.ts
+# prepareTx
+import random
+from decimal import Decimal
+from dataclasses import dataclass, field
+import struct
 
-MIN_SALT = 1  # Replace with the actual minimum salt value
+@dataclass
+class PostTransactionV2:
+    value: dict = field(default_factory=lambda: {
+        "source": None,
+        "destination": None,
+        "amount": None,
+        "fee": 0,
+        "parent": None,
+        "salt": None,
+    })
+    proofs: list = field(default_factory=list)
+
 
 class TransactionV2:
-    def __init__(self, from_address=None, to_address=None, amount=None, fee=0, last_tx_ref=None, salt=None):
-        self.tx = {
-            "value": {
-                "source": from_address,
-                "destination": to_address,
-                "amount": amount,
-                "fee": fee,
-                "parent": last_tx_ref,
-                "salt": salt or MIN_SALT + random.randint(0, 2**48 - 1)
-            },
-            "proofs": []
-        }
+    MIN_SALT = Decimal("1e8")
 
-    @staticmethod
-    def from_post_transaction(tx):
-        return TransactionV2(
+    def __init__(self, from_address=None, to_address=None, amount=None, fee=None, last_tx_ref=None, salt=None):
+        self.tx = PostTransactionV2()
+
+        if from_address:
+            self.tx.value["source"] = from_address
+        if to_address:
+            self.tx.value["destination"] = to_address
+        if amount is not None:
+            self.tx.value["amount"] = amount
+        if fee is not None:
+            self.tx.value["fee"] = fee
+        if last_tx_ref:
+            self.tx.value["parent"] = last_tx_ref
+        if salt is None:
+            salt = self.MIN_SALT + int(random.getrandbits(48))
+        self.tx.value["salt"] = salt
+
+    @classmethod
+    def from_post_transaction(cls, tx):
+        return cls(
+            amount=tx["value"]["amount"],
             from_address=tx["value"]["source"],
             to_address=tx["value"]["destination"],
-            amount=tx["value"]["amount"],
-            fee=tx["value"]["fee"],
             last_tx_ref=tx["value"]["parent"],
-            salt=tx["value"]["salt"]
+            salt=tx["value"]["salt"],
+            fee=tx["value"]["fee"],
         )
 
     @staticmethod
-    def to_hex_string(value):
-        value = Decimal(value)
-        if value < 0:
-            value += 1 << 64  # Handle negative values with two's complement
-        return hex(int(value))[2:]  # Convert to hex and strip "0x"
+    def to_hex_string(val):
+        val = Decimal(val)
+        if val < 0:
+            b_int = (1 << 64) + int(val)
+        else:
+            b_int = int(val)
+        return format(b_int, "x")
 
     def get_post_transaction(self):
         return {
             "value": {
-                **self.tx["value"],
-                "salt": str(self.tx["value"]["salt"]).replace("n", "")
+                **self.tx.value,
+                "salt": str(self.tx.value["salt"]).replace("n", ""),
             },
-            "proofs": list(self.tx["proofs"])
+            "proofs": self.tx.proofs.copy(),
         }
 
     def get_encoded(self):
         parent_count = "2"  # Always 2 parents
-        source_address = self.tx["value"]["source"]
-        dest_address = self.tx["value"]["destination"]
-        amount = self.to_hex_string(self.tx["value"]["amount"])
-        parent_hash = self.tx["value"]["parent"]["hash"]
-        ordinal = str(self.tx["value"]["parent"]["ordinal"])
-        fee = str(self.tx["value"]["fee"])
-        salt = self.to_hex_string(self.tx["value"]["salt"])
+        source_address = self.tx.value["source"]
+        dest_address = self.tx.value["destination"]
+        amount = format(self.tx.value["amount"], "x")  # amount as hex
+        parent_hash = self.tx.value["parent"]["hash"]
+        ordinal = str(self.tx.value["parent"]["ordinal"])
+        fee = str(self.tx.value["fee"])
+        salt = self.to_hex_string(self.tx.value["salt"])
 
         return "".join([
             parent_count,
@@ -84,217 +100,169 @@ class TransactionV2:
             str(len(fee)),
             fee,
             str(len(salt)),
-            salt
+            salt,
         ])
 
+    def set_encoded_hash_reference(self):
+        # NOOP
+        pass
+
+    def set_signature_batch_hash(self, hash_str):
+        # NOOP
+        pass
+
     def add_signature(self, proof):
-        self.tx["proofs"].append(proof)
+        self.tx.proofs.append(proof)
 
-class KryoSerializer:
+
+class TxEncode:
     @staticmethod
-    def utf8_length(value: int) -> bytes:
-        """
-        Encodes the given value into a custom UTF-8-like format.
-
-        :param value: The integer value to encode.
-        :return: A bytes object representing the encoded value.
-        """
-        if value < 0:
-            raise ValueError("Value must be non-negative.")
-
-        buffer = array.array('B')  # Create a buffer for byte values
-
-        if value >> 6 == 0:
-            # 1-byte encoding
-            buffer.append(value | 0x80)  # Set bit 8
-        elif value >> 13 == 0:
-            # 2-byte encoding
-            buffer.append((value & 0x3F) | 0x40 | 0x80)  # Set bits 7 and 8
-            buffer.append(value >> 6)
-        elif value >> 20 == 0:
-            # 3-byte encoding
-            buffer.append((value & 0x3F) | 0x40 | 0x80)  # Set bits 7 and 8
-            buffer.append(((value >> 6) & 0x7F) | 0x80)  # Set bit 8
-            buffer.append(value >> 13)
-        elif value >> 27 == 0:
-            # 4-byte encoding
-            buffer.append((value & 0x3F) | 0x40 | 0x80)  # Set bits 7 and 8
-            buffer.append(((value >> 6) & 0x7F) | 0x80)  # Set bit 8
-            buffer.append(((value >> 13) & 0x7F) | 0x80)  # Set bit 8
-            buffer.append(value >> 20)
-        else:
-            # 5-byte encoding
-            buffer.append((value & 0x3F) | 0x40 | 0x80)  # Set bits 7 and 8
-            buffer.append(((value >> 6) & 0x7F) | 0x80)  # Set bit 8
-            buffer.append(((value >> 13) & 0x7F) | 0x80)  # Set bit 8
-            buffer.append(((value >> 20) & 0x7F) | 0x80)  # Set bit 8
-            buffer.append(value >> 27)
-
-        return buffer.tobytes()
+    def get_tx_v2(amount, to_address, from_address, last_ref, fee=None):
+        return TransactionV2(
+            amount=amount,
+            to_address=to_address,
+            from_address=from_address,
+            last_tx_ref=last_ref,
+            fee=fee,
+        )
 
     def kryo_serialize(self, msg: str, set_references: bool = True) -> str:
         """
-        Serializes a message with a prefix for Kryo serialization.
+        Serialize a message using a custom kryo-like serialization method.
 
-        :param msg: The message to serialize.
-        :param set_references: Whether to include the reference flag in the prefix.
-        :return: The serialized string in hex format.
+        :param msg: The string message to serialize.
+        :param set_references: Whether to include references in the prefix.
+        :return: The serialized message as a hexadecimal string.
         """
         prefix = "03" + ("01" if set_references else "") + self.utf8_length(len(msg) + 1).hex()
         coded = msg.encode("utf-8").hex()
-
         return prefix + coded
 
-class TransactionGenerator:
-    def __init__(self, use_fallback_lib=False):
-        self.use_fallback_lib = use_fallback_lib
+    def utf8_length(self, value: int) -> bytes:
+        """
+        Encodes the length of a UTF8 string as a variable-length encoded integer.
 
-    def generate_transaction_with_hash_v2(
-            self,
-            amount: float,
-            to_address: str,
-            key_trio: dict,
-            last_ref: dict,
-            fee: float = 0
-    ):
-        from_address = key_trio.get("address")
-        public_key = key_trio.get("public_key")
-        private_key = key_trio.get("private_key")
+        :param value: The value to encode.
+        :return: The encoded length as a bytes object.
+        """
+        buffer = bytearray()
 
-        if not private_key:
-            raise ValueError("No private key set")
+        if value >> 6 == 0:
+            # Requires 1 byte
+            buffer.append(value | 0x80)  # Set bit 8.
+        elif value >> 13 == 0:
+            # Requires 2 bytes
+            buffer.append(value | 0x40 | 0x80)  # Set bits 7 and 8.
+            buffer.append(value >> 6)
+        elif value >> 20 == 0:
+            # Requires 3 bytes
+            buffer.append(value | 0x40 | 0x80)  # Set bits 7 and 8.
+            buffer.append((value >> 6) | 0x80)  # Set bit 8.
+            buffer.append(value >> 13)
+        elif value >> 27 == 0:
+            # Requires 4 bytes
+            buffer.append(value | 0x40 | 0x80)  # Set bits 7 and 8.
+            buffer.append((value >> 6) | 0x80)  # Set bit 8.
+            buffer.append((value >> 13) | 0x80)  # Set bit 8.
+            buffer.append(value >> 20)
+        else:
+            # Requires 5 bytes
+            buffer.append(value | 0x40 | 0x80)  # Set bits 7 and 8.
+            buffer.append((value >> 6) | 0x80)  # Set bit 8.
+            buffer.append((value >> 13) | 0x80)  # Set bit 8.
+            buffer.append((value >> 20) | 0x80)  # Set bit 8.
+            buffer.append(value >> 27)
 
-        if not public_key:
-            raise ValueError("No public key set")
+        return bytes(buffer)
 
-        # Prepare the transaction and hash
-        tx, hash_ = self.prepare_tx(amount, to_address, from_address, last_ref, fee)
-
-        # Sign the transaction hash
-        signature = self.sign(private_key, hash_)
-
-        # Handle uncompressed public key
-        uncompressed_public_key = (
-            "04" + public_key if len(public_key) == 128 else public_key
-        )
-
-        # Verify the signature
-        if not self.verify(uncompressed_public_key, hash_, signature):
-            raise ValueError("Sign-Verify failed")
-
-        # Construct the signature element
-        signature_elt = {
-            "id": uncompressed_public_key[2:],  # Remove the "04" prefix
-            "signature": signature,
-        }
-
-        tx.add_signature(proof=signature_elt)
-        print(tx.__dict__)
-
-        return {
-            "hash": hash_,
-            "transaction": tx.get_post_transaction(),
-        }
-
-    def prepare_tx(
-        self,
-        amount: float,
-        to_address: str,
-        from_address: str,
-        last_ref: dict,
-        fee: float = 0,
-    ) -> tuple:
+class KeyStore:
+    @staticmethod
+    def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0):
         if to_address == from_address:
-            raise ValueError("An address cannot send a transaction to itself")
+          raise ValueError('KeyStore :: An address cannot send a transaction to itself')
 
-        # Normalize to integer and preserve 8 decimals of precision
-        amount = self._normalize_amount(amount)
-        fee = self._normalize_amount(fee)
+        # normalize to integer and only preserve 8 decimals of precision
+        amount = int((Decimal(amount) * Decimal(1e8)).quantize(Decimal('1.'), rounding=ROUND_DOWN))
+        fee = int((Decimal(fee) * Decimal(1e8)).quantize(Decimal('1.'), rounding=ROUND_DOWN))
 
-        if amount < 1:
-            raise ValueError("Send amount must be greater than 1e-8")
+        if amount < 1e-8:
+          raise ValueError('KeyStore :: Send amount must be greater than 1e-8')
 
         if fee < 0:
-            raise ValueError("Send fee must be greater or equal to zero")
+          raise ValueError('KeyStore :: Send fee must be greater or equal to zero')
 
-        tx = TransactionV2(amount=amount, to_address=to_address, from_address=from_address, last_tx_ref=last_ref, fee=fee)
+        # Create transaction
+        tx = TxEncode.get_tx_v2(amount, to_address, from_address, last_ref, fee)
+
+        # Get encoded transaction
         encoded_tx = tx.get_encoded()
 
-        # Serialize the transaction
-        serialized_tx = KryoSerializer().kryo_serialize(encoded_tx)
 
-        # Calculate the hash
-        hash_ = self._sha256(bytes.fromhex(serialized_tx))
+        serialized_tx = TxEncode().kryo_serialize(msg=encoded_tx, set_references=True)
+        hash_value = hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest()
 
-        # Return the prepared transaction data
-        return tx, hash_
 
-    @staticmethod
-    def _normalize_amount(value: float) -> int:
-        # Normalize to an integer with 8 decimal places
-        return int(Decimal(value).scaleb(8).quantize(Decimal("1"), rounding=ROUND_DOWN))
 
-    def sign(self, private_key: str, msg: str) -> str:
-        from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
-        from sawtooth_signing.secp256k1 import Secp256k1PublicKey
-        checksum = hashlib.sha3_512(str(msg).encode()).hexdigest()
+        return {
+            "tx": tx.get_post_transaction(),
+            "hash": hash_value,
+            "rle": encoded_tx,
+        }
 
-        private_key = Secp256k1PrivateKey.from_hex(hex_private_key)
-        message = private_key.secp256k1_private_key.ecdsa_sign(str(msg).encode())
-        serialized_message = private_key.secp256k1_private_key.ecdsa_serialize(msg)
-        hex_message = binascii.hexlify(serialized_message)
-        return msg, checksum, hex_message
-
-    @staticmethod
-    def sha512(message: str) -> bytes:
-        return hashlib.sha512(message.encode('utf-8')).digest()
-
-    @staticmethod
-    def _sha256(data: bytes) -> str:
-        # Compute SHA-256 hash
-        return hashlib.sha256(data).hexdigest()
-
-    def verify(self, public_key: str, msg: str, signature: str) -> bool:
-        ##message is hex encoded
-        message = binascii.unhexlify(message)
-        public_key = Secp256k1PublicKey.from_hex(hex_public_key)
-        unserialized = public_key.secp256k1_public_key.ecdsa_deserialize(message)
-        result = public_key.secp256k1_public_key.ecdsa_verify(str(nonce).encode(), unserialized)
-        return result
 
 def main():
-    print("pypergraph wallet (early alpha)")
     """Create wallet and test: This is done"""
-    bip39 = Bip39()
-    bip32 = Bip32()
-    wallet = Wallet()
+    print("Step 1: Generating Keys and Address")
+    bip39 = Bip39(); bip32 = Bip32(); wallet = Wallet()
     mnemonic_values = bip39.mnemonic()
     private_key = bip32.get_private_key_from_seed(seed_bytes=mnemonic_values["seed"])
-    public_key = bip32.get_public_key_from_private_hex(private_key_hex=private_key)
-    dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)
-    print("Values:", mnemonic_values, "\nPrivate Key: " + private_key, "\nPublic Key: " + public_key, "\nDAG Address: " + dag_addr)
+    public_key = bip32.get_public_key_from_private_hex(private_key_hex=private_key.hex())
+    dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key.hex())
     derived_seed = bip39.get_seed_from_mnemonic(words=mnemonic_values["words"])
     derived_private_key = bip32.get_private_key_from_seed(seed_bytes=derived_seed)
-    derived_public_key = bip32.get_public_key_from_private_hex(private_key_hex=derived_private_key)
-    derived_dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=derived_public_key)
-    print("Success!" if derived_dag_addr == dag_addr else "Test failed")
+    derived_public_key = bip32.get_public_key_from_private_hex(private_key_hex=derived_private_key.hex())
+    derived_dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=derived_public_key.hex())
+    print("Success!" if derived_dag_addr == dag_addr else "Error!" and exit(1))
+    print()
 
     """Get last reference"""
-    try:
-        api = NetworkApi(DEFAULT_L1_BASE_URL)  # Pass a single URL instead of the whole dictionary
-        transaction_ref = api.get_address_last_accepted_transaction_ref(derived_dag_addr)
-        print(transaction_ref)
-    except requests.HTTPError as e:
-        print(f"HTTP error occurred with main service: {e}")
-    except ValueError as ve:
-        print(f"Validation error occurred: {ve}")
+    print("Step 2: Get Last Reference (L1 LB)")
+    api = NetworkApi(DEFAULT_L1_BASE_URL)  # Pass a single URL instead of the whole dictionary
+    transaction_ref = api.get_address_last_accepted_transaction_ref(derived_dag_addr)
+    print(f"Last reference: {transaction_ref}")
+    print()
 
     """Generate signed transaction"""
-    key_trio = {"address": dag_addr, "public_key": public_key, "private_key": private_key}
-    transaction_generator = TransactionGenerator(use_fallback_lib=True)
-    transaction_generator.generate_transaction_with_hash_v2(amount=1, to_address="DAG4CKOFF", key_trio=key_trio, last_ref=transaction_ref, fee=0)
+    print("Step 3: Generate Transaction.")
+    account = {"address": dag_addr, "public_key": PublicKey(bytes.fromhex(public_key.hex())), "private_key": PrivateKey(bytes.fromhex(private_key.hex()))}
+    print(f"Account: {account}")
+    print()
+
+    amount = 1  # 1 DAG
+    fee = 0.1  # Transaction fee
+    from_address = 'DAG53VFwtir9K3WfeCLU7EVsmhJGYZtwf9YJJE1J'
+    to_address = 'DAG4o8VYNg34Mnxp9mT4zDDCZTvrHWniscr3aAYv'
+    last_ref = {
+        "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "ordinal": 0,
+    }
+
+    result = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
+    tx = result["tx"]
+    tx_hash = result["hash"]
+    print("Prepared Tx:", tx)
+    print("Prepared Tx Hash:", tx_hash)
+    print("Encoded Tx:", result["rle"])
+    print()
+
+
 
     """Post Transaction"""
+    #api.post_transaction(tx)
+
+
+
+
 
 
 if __name__ == "__main__":
