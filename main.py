@@ -213,8 +213,23 @@ class KeyStore:
 
     @staticmethod
     def sign(private_key_hex: hex, tx_hash: hex):
-
         import subprocess
+
+        # Prepare the command to execute the sign.mjs script with arguments
+        command = [
+            'node',
+            '/home/mringdal/Development/pydag/signature.mjs',
+            private_key_hex,
+            tx_hash
+        ]
+        # Run the script and capture the result
+        result = subprocess.run(command, capture_output=True, text=True)
+        # Check if there was an error
+        if result.returncode != 0:
+            raise RuntimeError(f"Error in signing: {result.stderr}")
+
+        # This is the correct signature:
+        print("Lean Signature:", result.stdout.strip())
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
             'node',
