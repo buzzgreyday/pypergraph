@@ -47,7 +47,7 @@ import { sha256 } from '@noble/hashes/sha256';
     ]);
 
     // Output the DER-encoded signature as a hex string
-    console.log('DER-Encoded Signature:', sequence.toString('hex'));
+    console.log(sequence.toString('hex'));
 
   } catch (error) {
     console.log('Error during signing:', error.message || error);
