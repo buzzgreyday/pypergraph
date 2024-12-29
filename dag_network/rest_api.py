@@ -82,7 +82,6 @@ class RestConfig:
             #print("Response status:", response.status_code)
             #print("Response headers:", response.headers)
             #print("Response body:", response.text)  # Raw response body
-            response.raise_for_status()
 
             # Safely handle empty responses
             if response.text.strip():  # If the response is not empty

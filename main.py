@@ -247,7 +247,7 @@ class KeyStore:
         print(f"signature utf8 bytes valid: {signature_utf8_bytes_valid}")
         print(f"signature string valid: {signature_string_valid}")
         print(f"signature buffer valid: {signature_buffer_valid}")
-        return binascii.hexlify(signature_utf8_bytes).decode('utf-8')
+        return signature_string.hex()
 
 
 
@@ -302,9 +302,10 @@ def main():
     signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash, public_key_hex=public_key_hex)
     print("Signature Returned by KeyStore.sign:", signature)
     print()
+    tx["proofs"].append({"id": public_key_hex[2:], "signature": signature})
 
     """Post Transaction"""
-    #api.post_transaction(tx)
+    api.post_transaction(tx)
 
 
 
