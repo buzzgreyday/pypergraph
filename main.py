@@ -2,7 +2,10 @@ import binascii
 import hashlib
 from decimal import Decimal, ROUND_DOWN
 
+import secp256k1
 from coincurve import PrivateKey, PublicKey
+from ecdsa import SECP256k1, SigningKey
+from ecdsa.util import sigencode_der
 
 from dag_keystore import Bip32, Bip39, Wallet
 from dag_network import NetworkApi
@@ -218,46 +221,18 @@ class KeyStore:
         #
         # # For comparison, also log the original hex representation
         print(f"Original txHash (hex): {tx_hash}")
+        # Ensure tx_hash is in bytes
+        tx_hash_bytes = bytes.fromhex(tx_hash)
 
-        # Calculate SHA-512 hash of the UTF-8 bytes
-        sha512_hash_of_tx_hash_utf8 = hashlib.sha512(tx_hash_utf8_bytes).digest()
-        sha512_hash_of_tx_hash_string = hashlib.sha512(tx_hash.encode('utf-8')).digest()
-        tx_hash_buffer = bytes.fromhex(tx_hash)
-        sha512_hash_of_tx_hash_buffer = hashlib.sha512(tx_hash_buffer).digest()
+        # Convert private key from hex to bytes
+        private_key_bytes = bytes.fromhex(private_key_hex)
 
-        print(f"sha512HashOfTxHashUtf8: {sha512_hash_of_tx_hash_utf8.hex()}")
-        print(f"sha512HashOfTxHashString: {sha512_hash_of_tx_hash_string.hex()}")
-        print(f"sha512HashOfTxHashBuffer: {sha512_hash_of_tx_hash_buffer.hex()}")
+        # Create signing key from private key
+        sk = SigningKey.from_string(private_key_bytes, curve=SECP256k1, hashfunc=hashlib.sha512)
 
-        # Signatures
-        private_key = PrivateKey(bytes.fromhex(private_key_hex))
-        signature_utf8_bytes = private_key.sign(sha512_hash_of_tx_hash_utf8)
-        signature_string = private_key.sign(sha512_hash_of_tx_hash_string)
-        signature_buffer = private_key.sign(sha512_hash_of_tx_hash_buffer)
-
-        print(f"signature utf-8 bytes: {binascii.hexlify(signature_utf8_bytes).decode('utf-8')}")
-        print(f"signature string: {signature_string.hex()}")
-        print(f"signature buffer: {signature_buffer.hex()}")
-
-        public_key = PublicKey(bytes.fromhex(public_key_hex))
-
-        signature_utf8_bytes_valid = public_key.verify(signature_utf8_bytes, sha512_hash_of_tx_hash_utf8)
-        signature_string_valid = public_key.verify(signature_string, sha512_hash_of_tx_hash_string)
-        signature_buffer_valid = public_key.verify(signature_buffer, sha512_hash_of_tx_hash_buffer)
-
-        print(f"signature utf8 bytes valid: {signature_utf8_bytes_valid}")
-        print(f"signature string valid: {signature_string_valid}")
-        print(f"signature buffer valid: {signature_buffer_valid}")
-        from ecdsa import SigningKey, SECP256k1
-        from hashlib import sha256
-        private_key = SigningKey.from_string(bytes.fromhex(private_key_hex), curve=SECP256k1)
-        message_hash = bytes.fromhex(tx_hash)
-
-        # Generate signature
-        ecdsa_det_signature = private_key.sign_digest_deterministic(
-            message_hash, sigencode=lambda r, s, order: r.to_bytes(32, 'big') + s.to_bytes(32, 'big')
-        )
-        print("ECDSA Signature:", ecdsa_det_signature.hex())
+        # Sign the transaction hash
+        signature = sk.sign(tx_hash_bytes, sigencode=sigencode_der, hashfunc=hashlib.sha512)
+        print("ECDSA DER ENCODED:", signature.hex())
 
         import subprocess
         # Prepare the command to execute the sign.mjs script with arguments
@@ -275,8 +250,13 @@ class KeyStore:
         if result.returncode != 0:
             raise RuntimeError(f"Error in signing: {result.stderr}")
 
+        # This is the correct signature:
+        print("Correct Signature:", result.stdout.strip())
+
         # Return the signature (result.stdout contains the signature in hex)
-        return result.stdout.strip()
+        #The commented below ofcourse works!
+        #return result.stdout.strip()
+        return signature.hex()
 
     @staticmethod
     def verify(uncompressed_public_key, tx_hash, signature):
@@ -372,11 +352,11 @@ def main():
     }
 
     # Make the POST request
-    response = requests.post(url, headers=headers, json=tx)
+    # response = requests.post(url, headers=headers, json=tx)
 
     # Print the response
-    print("Status Code:", response.status_code)
-    print("Response Body:", response.json())
+    # print("Status Code:", response.status_code)
+    # print("Response Body:", response.json())
     # api.post_transaction(tx)
 
 if __name__ == "__main__":
