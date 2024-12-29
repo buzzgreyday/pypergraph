@@ -248,16 +248,16 @@ class KeyStore:
         print(f"signature utf8 bytes valid: {signature_utf8_bytes_valid}")
         print(f"signature string valid: {signature_string_valid}")
         print(f"signature buffer valid: {signature_buffer_valid}")
-        # from ecdsa import SigningKey, SECP256k1
-        # from hashlib import sha256
-        # private_key = SigningKey.from_string(bytes.fromhex(private_key_hex), curve=SECP256k1)
-        # message_hash = bytes.fromhex(tx_hash)
-        #
-        # # Generate signature
-        # ecdsa_det_signature = private_key.sign_digest_deterministic(
-        #     message_hash, sigencode=lambda r, s, order: r.to_bytes(32, 'big') + s.to_bytes(32, 'big')
-        # )
-        # print("ECDSA Signature:", ecdsa_det_signature.hex())
+        from ecdsa import SigningKey, SECP256k1
+        from hashlib import sha256
+        private_key = SigningKey.from_string(bytes.fromhex(private_key_hex), curve=SECP256k1)
+        message_hash = bytes.fromhex(tx_hash)
+
+        # Generate signature
+        ecdsa_det_signature = private_key.sign_digest_deterministic(
+            message_hash, sigencode=lambda r, s, order: r.to_bytes(32, 'big') + s.to_bytes(32, 'big')
+        )
+        print("ECDSA Signature:", ecdsa_det_signature.hex())
 
         import subprocess
         # Prepare the command to execute the sign.mjs script with arguments
