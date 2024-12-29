@@ -212,7 +212,7 @@ class KeyStore:
         }
 
     @staticmethod
-    def sign(private_key_hex: hex, tx_hash: hex, public_key_hex: hex):
+    def sign(private_key_hex: hex, tx_hash: hex):
 
         import subprocess
         # Prepare the command to execute the sign.mjs script with arguments
@@ -313,7 +313,7 @@ def main():
     private_key_hex = account["private_key"].to_hex()
     print("Private Key Hex:", private_key_hex)
     public_key_hex = account["public_key"].format(compressed=False).hex()
-    signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash, public_key_hex=public_key_hex)
+    signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash)
     print("Signature Returned by KeyStore.sign:", signature)
     print()
     success = KeyStore.verify(public_key_hex, tx_hash, signature)
