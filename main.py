@@ -2,6 +2,10 @@ import binascii
 import hashlib
 from decimal import Decimal, ROUND_DOWN
 
+import subprocess
+import sys
+import os
+
 import secp256k1
 from coincurve import PrivateKey, PublicKey
 
@@ -275,10 +279,8 @@ class KeyStore:
         # Return the signature (result.stdout contains the signature in hex)
         return result.stdout.strip()
 
-
-
-
 def main():
+
     """Create wallet and test: This is done"""
     print("Step 1: Generating Keys and Address")
     bip39 = Bip39(); bip32 = Bip32(); wallet = Wallet()
