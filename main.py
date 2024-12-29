@@ -209,6 +209,12 @@ class KeyStore:
             "rle": encoded_tx,
         }
 
+    @staticmethod
+    def sign(private_key_hex: hex, tx_hash: hex):
+        pass
+        return
+
+
 
 def main():
     """Create wallet and test: This is done"""
@@ -240,7 +246,7 @@ def main():
 
     amount = 1  # 1 DAG
     fee = 0.1  # Transaction fee
-    from_address = 'DAG53VFwtir9K3WfeCLU7EVsmhJGYZtwf9YJJE1J'
+    from_address = dag_addr
     to_address = 'DAG4o8VYNg34Mnxp9mT4zDDCZTvrHWniscr3aAYv'
     last_ref = {
         "hash": "0000000000000000000000000000000000000000000000000000000000000000",
@@ -254,6 +260,12 @@ def main():
     print("Prepared Tx Hash:", tx_hash)
     print("Encoded Tx:", result["rle"])
     print()
+
+    private_key_hex = account["private_key"].to_hex()
+    print("Private Key Hex:", private_key_hex)
+    signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash)
+
+
 
 
 
