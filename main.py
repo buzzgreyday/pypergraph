@@ -234,7 +234,7 @@ class KeyStore:
         print("Correct Signature:", result.stdout.strip())
 
         # Return the signature (result.stdout contains the signature in hex)
-        #The return result.stdout.strip() ofcourse works:
+        #The return result ofcourse works:
         return result.stdout.strip()
         #return signature.hex()
 
