@@ -84,6 +84,7 @@ class TransactionV2:
         ordinal = str(self.tx.value["parent"]["ordinal"])
         fee = str(self.tx.value["fee"])
         salt = self.to_hex_string(self.tx.value["salt"])
+        print(self)
 
         return "".join([
             parent_count,
@@ -198,7 +199,7 @@ class KeyStore:
         encoded_tx = tx.get_encoded()
 
 
-        serialized_tx = TxEncode().kryo_serialize(msg=encoded_tx, set_references=True)
+        serialized_tx = TxEncode().kryo_serialize(msg=encoded_tx, set_references=False)
         print("Serialized Tx:", serialized_tx)
         hash_value = hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest()
 
@@ -213,9 +214,9 @@ class KeyStore:
     @staticmethod
     def sign(private_key_hex: hex, tx_hash: hex, public_key_hex: hex):
         tx_hash_utf8_bytes = tx_hash.encode('utf-8')
-        print(f"txHash as UTF-8 bytes: {tx_hash_utf8_bytes.hex()}")
-
-        # For comparison, also log the original hex representation
+        # print(f"txHash as UTF-8 bytes: {tx_hash_utf8_bytes.hex()}")
+        #
+        # # For comparison, also log the original hex representation
         print(f"Original txHash (hex): {tx_hash}")
 
         # Calculate SHA-512 hash of the UTF-8 bytes
@@ -247,7 +248,58 @@ class KeyStore:
         print(f"signature utf8 bytes valid: {signature_utf8_bytes_valid}")
         print(f"signature string valid: {signature_string_valid}")
         print(f"signature buffer valid: {signature_buffer_valid}")
-        return signature_string.hex()
+        # from ecdsa import SigningKey, SECP256k1
+        # from hashlib import sha256
+        # private_key = SigningKey.from_string(bytes.fromhex(private_key_hex), curve=SECP256k1)
+        # message_hash = bytes.fromhex(tx_hash)
+        #
+        # # Generate signature
+        # ecdsa_det_signature = private_key.sign_digest_deterministic(
+        #     message_hash, sigencode=lambda r, s, order: r.to_bytes(32, 'big') + s.to_bytes(32, 'big')
+        # )
+        # print("ECDSA Signature:", ecdsa_det_signature.hex())
+
+        import subprocess
+        # Prepare the command to execute the sign.mjs script with arguments
+        command = [
+            'node',
+            '/home/mringdal/Development/pydag/sign.mjs',
+            private_key_hex,
+            tx_hash
+        ]
+
+        # Run the script and capture the result
+        result = subprocess.run(command, capture_output=True, text=True)
+
+        # Check if there was an error
+        if result.returncode != 0:
+            raise RuntimeError(f"Error in signing: {result.stderr}")
+
+        # Return the signature (result.stdout contains the signature in hex)
+        return result.stdout.strip()
+
+    @staticmethod
+    def verify(uncompressed_public_key, tx_hash, signature):
+        import subprocess
+        # Prepare the command to execute the sign.mjs script with arguments
+        command = [
+            'node',
+            '/home/mringdal/Development/pydag/verify.mjs',
+            uncompressed_public_key,
+            tx_hash,
+            signature
+        ]
+
+        # Run the script and capture the result
+        result = subprocess.run(command, capture_output=True, text=True)
+
+        # Check if there was an error
+        if result.returncode != 0:
+            raise RuntimeError(f"Error in signing: {result.stderr}")
+
+        # Return the signature (result.stdout contains the signature in hex)
+        return result.stdout.strip()
+
 
 
 
@@ -257,7 +309,9 @@ def main():
     bip39 = Bip39(); bip32 = Bip32(); wallet = Wallet()
     mnemonic_values = bip39.mnemonic()
     private_key = bip32.get_private_key_from_seed(seed_bytes=mnemonic_values["seed"])
+    print("Private Key:", private_key.hex())
     public_key = bip32.get_public_key_from_private_hex(private_key_hex=private_key.hex())
+    print("Public Key (Uncompressed):", public_key.hex())
     dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key.hex())
     derived_seed = bip39.get_seed_from_mnemonic(words=mnemonic_values["words"])
     derived_private_key = bip32.get_private_key_from_seed(seed_bytes=derived_seed)
@@ -302,16 +356,28 @@ def main():
     signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash, public_key_hex=public_key_hex)
     print("Signature Returned by KeyStore.sign:", signature)
     print()
+    success = KeyStore.verify(public_key_hex, tx_hash, signature)
+    print(success)
     tx["proofs"].append({"id": public_key_hex[2:], "signature": signature})
     print("Tx to Post:", tx)
 
     """Post Transaction"""
-    api.post_transaction(tx)
+    import requests
 
+    # Define the URL and headers
+    url = "https://l1-lb-mainnet.constellationnetwork.io/transactions"
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json"
+    }
 
+    # Make the POST request
+    response = requests.post(url, headers=headers, json=tx)
 
-
-
+    # Print the response
+    print("Status Code:", response.status_code)
+    print("Response Body:", response.json())
+    # api.post_transaction(tx)
 
 if __name__ == "__main__":
     main()
