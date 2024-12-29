@@ -7,6 +7,7 @@ import secp256k1
 from coincurve import PrivateKey, PublicKey
 from ecdsa import SECP256k1, SigningKey
 from ecdsa.util import sigencode_der
+from eth_hash.backends.pycryptodome import keccak256
 
 from dag_keystore import Bip32, Bip39, Wallet
 from dag_network import NetworkApi
@@ -88,7 +89,6 @@ class TransactionV2:
         ordinal = str(self.tx.value["parent"]["ordinal"])
         fee = str(self.tx.value["fee"])
         salt = self.to_hex_string(self.tx.value["salt"])
-        print(self)
 
         return "".join([
             parent_count,
@@ -223,6 +223,7 @@ class KeyStore:
         # # For comparison, also log the original hex representation
         print(f"Original txHash (hex): {tx_hash}")
 
+
         import subprocess
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
@@ -245,7 +246,6 @@ class KeyStore:
         # Return the signature (result.stdout contains the signature in hex)
         #The below return result ofcourse works:
         return result.stdout.strip()
-        #return compact_signature.hex()
 
     @staticmethod
     def verify(uncompressed_public_key, tx_hash, signature):
@@ -341,11 +341,11 @@ def main():
     }
 
     # Make the POST request
-    # response = requests.post(url, headers=headers, json=tx)
+    response = requests.post(url, headers=headers, json=tx)
 
     # Print the response
-    # print("Status Code:", response.status_code)
-    # print("Response Body:", response.json())
+    print("Status Code:", response.status_code)
+    print("Response Body:", response.json())
     # api.post_transaction(tx)
 
 if __name__ == "__main__":
