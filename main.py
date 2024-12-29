@@ -2,12 +2,8 @@ import binascii
 import hashlib
 from decimal import Decimal, ROUND_DOWN
 
-import coincurve
 import secp256k1
 from coincurve import PrivateKey, PublicKey
-from ecdsa import SECP256k1, SigningKey
-from ecdsa.util import sigencode_der
-from eth_hash.backends.pycryptodome import keccak256
 
 from dag_keystore import Bip32, Bip39, Wallet
 from dag_network import NetworkApi
@@ -217,11 +213,6 @@ class KeyStore:
 
     @staticmethod
     def sign(private_key_hex: hex, tx_hash: hex, public_key_hex: hex):
-        tx_hash_utf8_bytes = tx_hash.encode('utf-8')
-        # print(f"txHash as UTF-8 bytes: {tx_hash_utf8_bytes.hex()}")
-        #
-        # # For comparison, also log the original hex representation
-        print(f"Original txHash (hex): {tx_hash}")
 
         import subprocess
         # Prepare the command to execute the sign.mjs script with arguments
@@ -243,8 +234,9 @@ class KeyStore:
         print("Correct Signature:", result.stdout.strip())
 
         # Return the signature (result.stdout contains the signature in hex)
-        #The below return result ofcourse works:
+        #The return result.stdout.strip() ofcourse works:
         return result.stdout.strip()
+        #return signature.hex()
 
     @staticmethod
     def verify(uncompressed_public_key, tx_hash, signature):
