@@ -2,6 +2,7 @@ import binascii
 import hashlib
 from decimal import Decimal, ROUND_DOWN
 
+import coincurve
 import secp256k1
 from coincurve import PrivateKey, PublicKey
 from ecdsa import SECP256k1, SigningKey
@@ -221,18 +222,6 @@ class KeyStore:
         #
         # # For comparison, also log the original hex representation
         print(f"Original txHash (hex): {tx_hash}")
-        # Ensure tx_hash is in bytes
-        tx_hash_bytes = bytes.fromhex(tx_hash)
-
-        # Convert private key from hex to bytes
-        private_key_bytes = bytes.fromhex(private_key_hex)
-
-        # Create signing key from private key
-        sk = SigningKey.from_string(private_key_bytes, curve=SECP256k1, hashfunc=hashlib.sha512)
-
-        # Sign the transaction hash
-        signature = sk.sign(tx_hash_bytes, sigencode=sigencode_der, hashfunc=hashlib.sha512)
-        print("ECDSA DER ENCODED:", signature.hex())
 
         import subprocess
         # Prepare the command to execute the sign.mjs script with arguments
@@ -254,9 +243,9 @@ class KeyStore:
         print("Correct Signature:", result.stdout.strip())
 
         # Return the signature (result.stdout contains the signature in hex)
-        #The commented below ofcourse works!
-        #return result.stdout.strip()
-        return signature.hex()
+        #The below return result ofcourse works:
+        return result.stdout.strip()
+        #return compact_signature.hex()
 
     @staticmethod
     def verify(uncompressed_public_key, tx_hash, signature):
