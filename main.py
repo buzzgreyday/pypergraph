@@ -228,7 +228,7 @@ class KeyStore:
         # This is the non-dag4 signature:
         sig_new = result.stdout.strip()
         print("Non-DAG4 Signature:", sig_new)
-        print("(Seems to sometimes fail)")
+        print("(Seems to sometimes fail, though it passes the dag4 verify)")
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
             'node',
