@@ -217,7 +217,7 @@ class KeyStore:
             'node',
             '/home/mringdal/Development/pydag/signature.mjs',
             private_key_hex,
-            tx_hash
+            hashlib.sha512(tx_hash.encode('utf-8')).hexdigest()
         ]
         # Run the script and capture the result
         result = subprocess.run(command, capture_output=True, text=True)

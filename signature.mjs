@@ -26,11 +26,8 @@ import { sha256 } from '@noble/hashes/sha256';
     process.exit(1);
   }
 
-  // Calculate the SHA512 hash of the transaction hash
-  const sha512HashHex = jsSha512.sha512(txHash); // This returns a hex string
-
   // Convert the SHA512 hash (hex string) into a Buffer
-  const sha512Hash = Buffer.from(sha512HashHex, 'hex');
+  const sha512Hash = Buffer.from(txHash, 'hex');
 
   try {
     // Sign the SHA512 hash using the private key
