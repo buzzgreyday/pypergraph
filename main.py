@@ -10,7 +10,6 @@ import secp256k1
 from coincurve import PrivateKey, PublicKey
 
 from dag_keystore import Bip32, Bip39, Wallet
-from dag_network import NetworkApi
 from dag_network import DEFAULT_L1_BASE_URL
 
 import requests
@@ -109,14 +108,6 @@ class TransactionV2:
             str(len(salt)),
             salt,
         ])
-
-    def set_encoded_hash_reference(self):
-        # NOOP
-        pass
-
-    def set_signature_batch_hash(self, hash_str):
-        # NOOP
-        pass
 
     def add_signature(self, proof):
         self.tx.proofs.append(proof)
@@ -333,7 +324,9 @@ def main():
     print()
 
     private_key_hex = account["private_key"].to_hex()
+    private_key_pem = account["private_key"].to_pem()
     print("Private Key Hex:", private_key_hex)
+    print("Private Key PEM:", private_key_pem)
     public_key_hex = account["public_key"].format(compressed=False).hex()
     signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash)
     print("Signature Returned by KeyStore.sign:", signature)
