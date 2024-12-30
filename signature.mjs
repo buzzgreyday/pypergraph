@@ -35,12 +35,16 @@ import { sha256 } from '@noble/hashes/sha256';
   try {
     // Sign the SHA512 hash using the private key
     const sig = await secp.signAsync(sha512Hash, privateKey, {lowS: true});
-const { r, s } = sig;
+    const { r, s } = sig;
 
     const encodeInteger = (integer) => {
-      let hex = integer.toString(16).padStart(64, '0'); // Ensure 32 bytes
-      if (hex.startsWith('8') || hex.length % 2 !== 0) {
-        hex = '00' + hex; // Add leading zero for positive interpretation
+      let hex = integer.toString(16); // Convert to hex string
+      if (hex.length % 2 !== 0) {
+        hex = '0' + hex; // Ensure even-length hex
+      }
+      if (hex.startsWith('8') || hex.startsWith('9') || hex.startsWith('a') || hex.startsWith('b') ||
+          hex.startsWith('c') || hex.startsWith('d') || hex.startsWith('e') || hex.startsWith('f')) {
+        hex = '00' + hex; // Add leading zero to avoid negative interpretation
       }
       return Buffer.concat([Buffer.from([0x02, hex.length / 2]), Buffer.from(hex, 'hex')]);
     };
@@ -48,8 +52,10 @@ const { r, s } = sig;
     const encodedR = encodeInteger(r);
     const encodedS = encodeInteger(s);
 
+    // Calculate total sequence length
+    const totalLength = encodedR.length + encodedS.length;
     const sequence = Buffer.concat([
-      Buffer.from([0x30, encodedR.length + encodedS.length]), // Sequence + total length
+      Buffer.from([0x30, totalLength]), // Sequence tag + total length
       encodedR,
       encodedS
     ]);
