@@ -178,6 +178,93 @@ class TxEncode:
 
 class KeyStore:
     @staticmethod
+    def private_key_to_p12(private_key):
+        from cryptography.hazmat.primitives.serialization import (
+            pkcs12,
+            Encoding,
+            PrivateFormat,
+            NoEncryption,
+        )
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives.serialization import load_pem_private_key
+        from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
+        from cryptography.x509.oid import NameOID
+        import datetime
+
+        # Input: Private key PEM and optional certificate
+        private_key_pem = PrivateKey(private_key).to_pem()
+        private_key = load_pem_private_key(private_key_pem, password=None)
+
+        # Generate a self-signed certificate (optional)
+        subject = issuer = Name([
+            NameAttribute(NameOID.COMMON_NAME, u"My Name"),
+        ])
+
+        # Use timezone-aware UTC datetimes
+        current_time = datetime.datetime.now(datetime.UTC)
+        certificate = CertificateBuilder() \
+            .subject_name(subject) \
+            .issuer_name(issuer) \
+            .public_key(private_key.public_key()) \
+            .serial_number(random_serial_number()) \
+            .not_valid_before(current_time) \
+            .not_valid_after(current_time + datetime.timedelta(days=365 * 1000)) \
+            .sign(private_key, hashes.SHA256())
+
+        # Create PKCS#12 archive
+        p12_data = pkcs12.serialize_key_and_certificates(
+            name=b"MyKey",
+            key=private_key,
+            cert=certificate,
+            cas=None,
+            encryption_algorithm=NoEncryption()  # Use BestAvailableEncryption(b"password") for encrypted .p12
+        )
+
+        # Save the .p12 file
+        with open("my_certificate.p12", "wb") as p12_file:
+            p12_file.write(p12_data)
+
+        print("PKCS#12 file created as my_certificate.p12")
+
+    @staticmethod
+    def private_key_from_p12():
+        from cryptography.hazmat.primitives.serialization import pkcs12
+
+        # Load the .p12 file
+        with open("my_certificate.p12", "rb") as p12_file:
+            p12_data = p12_file.read()
+
+        # Load PKCS#12 data
+        password = None  # Replace with the password if the .p12 is encrypted
+        private_key, certificate, additional_certificates = pkcs12.load_key_and_certificates(
+            p12_data, password
+        )
+
+        # Extract the private key in PEM format
+        if private_key:
+            # Convert the private key to DER format
+            private_key_der = private_key.private_bytes(
+                encoding=Encoding.DER,
+                format=PrivateFormat.PKCS8,
+                encryption_algorithm=NoEncryption()
+            )
+
+            # Use coincurve to load the private key and get its raw format
+            coincurve_key = PrivateKey.from_der(private_key_der)
+            private_key_hex = coincurve_key.to_hex()
+
+            # Print or use the raw private key
+            print(f"Raw private key (hex): {private_key_hex}")
+
+            # Convert to bytes if needed
+            private_key_bytes = bytes.fromhex(private_key_hex)
+            print(f"Raw private key (bytes): {private_key_bytes}")
+            return private_key_hex
+        else:
+            print("No private key found in the .p12 file.")
+
+    @staticmethod
     def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0):
         if to_address == from_address:
           raise ValueError('KeyStore :: An address cannot send a transaction to itself')
@@ -212,7 +299,7 @@ class KeyStore:
         }
 
     @staticmethod
-    def sign(private_key_hex: hex, private_key_pem: bytes, tx_hash: hex):
+    def sign(private_key_hex: hex, tx_hash: hex):
 
         pk = secp256k1.PrivateKey(bytes.fromhex(private_key_hex))
         recoverable_sig = pk.ecdsa_sign(hashlib.sha512(tx_hash.encode('utf-8')).digest())
@@ -235,13 +322,9 @@ class KeyStore:
         if result.returncode != 0:
             raise RuntimeError(f"Error in signing: {result.stderr}")
 
-        # This is the non-dag4 signature:
-        sig_new = result.stdout.strip()
+        sig = result.stdout.strip()
 
-        # Return the signature (result.stdout contains the signature in hex)
-        #The return result ofcourse works:
-        #return result.stdout.strip()
-        return sig_new
+        return sig
 
 
 def main():
@@ -281,6 +364,8 @@ def main():
     print(f"Account: {account}")
     print()
 
+    KeyStore.private_key_to_p12(account["private_key"].secret)
+
     amount = 1  # 1 DAG
     fee = 0.1  # Transaction fee
     from_address = dag_addr
@@ -296,11 +381,10 @@ def main():
     print()
 
     private_key_hex = account["private_key"].to_hex()
-    private_key_pem = account["private_key"].to_pem()
+
     print("Private Key Hex:", private_key_hex)
-    print("Private Key PEM:", private_key_pem)
     public_key_hex = account["public_key"].format(compressed=False).hex()
-    signature = KeyStore.sign(private_key_hex=private_key_hex, private_key_pem=private_key_pem, tx_hash=tx_hash)
+    signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash)
     print("Signature Returned by KeyStore.sign:", signature)
     print()
     tx["proofs"].append({"id": public_key_hex[2:], "signature": signature})
