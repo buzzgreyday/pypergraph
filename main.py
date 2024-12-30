@@ -348,6 +348,21 @@ class KeyStore:
         wallet = Wallet()
         return wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)
 
+class API:
+    @staticmethod
+    def get_last_reference(dag_address: str):
+
+        endpoint = f"/transactions/last-reference/{dag_address}"
+        url = DEFAULT_L1_BASE_URL + endpoint
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            response.raise_for_status()
+
+
+
+
 
 def main():
 
@@ -357,20 +372,13 @@ def main():
     private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
     public_key = KeyStore.get_public_key_from_private_key(private_key.hex())
     dag_addr = KeyStore.get_dag_address_from_public_key(public_key=public_key.hex())
+    KeyStore.get_p12_from_private_key(private_key)
     print("Done!")
 
     """Get last reference"""
     print("Step 2: Get Last Reference")
-    endpoint = f"/transactions/last-reference/{dag_addr}"
-    url = DEFAULT_L1_BASE_URL + endpoint
-
-    # Make the POST request
-    response = requests.get(url)
-
-    # Print the response
-    print("Status Code:", response.status_code)
-    last_ref = response.json()
-    print()
+    last_ref = API.get_last_reference(dag_address=dag_addr)
+    print("Done!")
 
     """Generate signed transaction"""
     print("Step 3: Generate Transaction.")
@@ -378,20 +386,18 @@ def main():
     print(f"Account: {account}")
     print()
 
-    KeyStore.get_p12_from_private_key(account["private_key"].secret)
-
     amount = 1  # 1 DAG
     fee = 0.1  # Transaction fee
     from_address = dag_addr
     to_address = 'DAG4o8VYNg34Mnxp9mT4zDDCZTvrHWniscr3aAYv'
     last_ref = last_ref
 
-    result = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
-    tx = result["tx"]
-    tx_hash = result["hash"]
+    d = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
+    tx = d["tx"]
+    tx_hash = d["hash"]
     print("Prepared Tx:", tx)
     print("Prepared Tx Hash:", tx_hash)
-    print("Encoded Tx:", result["rle"])
+    print("Encoded Tx:", d["rle"])
     print()
 
     private_key_hex = account["private_key"].to_hex()
