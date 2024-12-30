@@ -359,11 +359,10 @@ def main():
     private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
     public_key = KeyStore.get_public_key_from_private_key(private_key.hex())
     dag_addr = KeyStore.get_dag_address_from_public_key(public_key=public_key.hex())
-
-    print()
+    print("Done!")
 
     """Get last reference"""
-    print("Step 2: Get Last Reference (L1 LB)")
+    print("Step 2: Get Last Reference")
     endpoint = f"/transactions/last-reference/{dag_addr}"
     url = DEFAULT_L1_BASE_URL + endpoint
 
