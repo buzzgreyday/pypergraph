@@ -395,19 +395,13 @@ def main():
     d = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
     tx = d["tx"]
     tx_hash = d["hash"]
-    print("Prepared Tx:", tx)
-    print("Prepared Tx Hash:", tx_hash)
-    print("Encoded Tx:", d["rle"])
-    print()
 
-    private_key_hex = account["private_key"].to_hex()
+    #private_key_hex = account["private_key"].to_hex()
 
-    print("Private Key Hex:", private_key_hex)
-    public_key_hex = account["public_key"].format(compressed=False).hex()
-    signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash)
+    signature = KeyStore.sign(private_key_hex=private_key.hex(), tx_hash=tx_hash)
     print("Signature Returned by KeyStore.sign:", signature)
     print()
-    tx["proofs"].append({"id": public_key_hex[2:], "signature": signature})
+    tx["proofs"].append({"id": public_key.hex()[2:], "signature": signature})
     print("Tx to Post:", tx)
 
     """Post Transaction"""
