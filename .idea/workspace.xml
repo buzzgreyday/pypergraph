@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="79a50a4e-a3ef-4693-b5e9-f187c0aedeec" name="Changes" comment="clean up">
+    <list default="true" id="79a50a4e-a3ef-4693-b5e9-f187c0aedeec" name="Changes" comment="p12 support">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
@@ -196,7 +196,15 @@
       <option name="project" value="LOCAL" />
       <updated>1735579045834</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="p12 support">
+      <option name="closed" value="true" />
+      <created>1735581773443</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1735581773443</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -208,6 +216,7 @@
     <MESSAGE value="Sign using js" />
     <MESSAGE value="Sign and verify using js bundle" />
     <MESSAGE value="clean up" />
-    <option name="LAST_COMMIT_MESSAGE" value="clean up" />
+    <MESSAGE value="p12 support" />
+    <option name="LAST_COMMIT_MESSAGE" value="p12 support" />
   </component>
 </project>

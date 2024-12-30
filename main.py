@@ -21,6 +21,8 @@ import random
 from decimal import Decimal
 from dataclasses import dataclass, field
 
+from hdwallet.cli.generate.mnemonic import generate_mnemonic
+
 
 @dataclass
 class PostTransactionV2:
@@ -178,7 +180,7 @@ class TxEncode:
 
 class KeyStore:
     @staticmethod
-    def private_key_to_p12(private_key):
+    def get_p12_from_private_key(private_key: bytes, destination: str = "wallet.p12"):
         from cryptography.hazmat.primitives.serialization import (
             pkcs12,
             Encoding,
@@ -198,7 +200,7 @@ class KeyStore:
 
         # Generate a self-signed certificate (optional)
         subject = issuer = Name([
-            NameAttribute(NameOID.COMMON_NAME, u"My Name"),
+            NameAttribute(NameOID.COMMON_NAME, u"Pypergraph Wallet v1"),
         ])
 
         # Use timezone-aware UTC datetimes
@@ -214,7 +216,7 @@ class KeyStore:
 
         # Create PKCS#12 archive
         p12_data = pkcs12.serialize_key_and_certificates(
-            name=b"MyKey",
+            name=b"pypergraph_wallet",
             key=private_key,
             cert=certificate,
             cas=None,
@@ -222,21 +224,23 @@ class KeyStore:
         )
 
         # Save the .p12 file
-        with open("my_certificate.p12", "wb") as p12_file:
+        with open(destination, "wb") as p12_file:
             p12_file.write(p12_data)
 
-        print("PKCS#12 file created as my_certificate.p12")
-
     @staticmethod
-    def private_key_from_p12():
+    def get_private_key_from_p12(destination: str = "wallet.p12", password: str | None = None):
+        """
+        :param destination: Fullpath to the p12 file
+        :param password: Encrypt the p12 with password (default: None | unencrypted)
+        :return: Private key as hex string
+        """
         from cryptography.hazmat.primitives.serialization import pkcs12
 
         # Load the .p12 file
-        with open("my_certificate.p12", "rb") as p12_file:
+        with open(destination, "rb") as p12_file:
             p12_data = p12_file.read()
 
         # Load PKCS#12 data
-        password = None  # Replace with the password if the .p12 is encrypted
         private_key, certificate, additional_certificates = pkcs12.load_key_and_certificates(
             p12_data, password
         )
@@ -254,18 +258,20 @@ class KeyStore:
             coincurve_key = PrivateKey.from_der(private_key_der)
             private_key_hex = coincurve_key.to_hex()
 
-            # Print or use the raw private key
-            print(f"Raw private key (hex): {private_key_hex}")
-
-            # Convert to bytes if needed
-            private_key_bytes = bytes.fromhex(private_key_hex)
-            print(f"Raw private key (bytes): {private_key_bytes}")
             return private_key_hex
         else:
-            print("No private key found in the .p12 file.")
+            raise ValueError("No private key found in the .p12 file.")
 
     @staticmethod
     def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0):
+        """
+        :param amount: Amount to send
+        :param to_address: Destionation DAG address
+        :param from_address: Source DAG address
+        :param last_ref: Dictionary with keys: ordinal, hash
+        :param fee: Transaction fee
+        :return: Dictionary with keys: tx, hash, rle
+        """
         if to_address == from_address:
           raise ValueError('KeyStore :: An address cannot send a transaction to itself')
 
@@ -285,9 +291,7 @@ class KeyStore:
         # Get encoded transaction
         encoded_tx = tx.get_encoded()
 
-
         serialized_tx = TxEncode().kryo_serialize(msg=encoded_tx, set_references=False)
-        print("Serialized Tx:", serialized_tx)
         hash_value = hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest()
 
 
@@ -299,14 +303,13 @@ class KeyStore:
         }
 
     @staticmethod
-    def sign(private_key_hex: hex, tx_hash: hex):
-
-        pk = secp256k1.PrivateKey(bytes.fromhex(private_key_hex))
-        recoverable_sig = pk.ecdsa_sign(hashlib.sha512(tx_hash.encode('utf-8')).digest())
-        der_sig = pk.ecdsa_serialize(recoverable_sig)
-        print("DER Sig:", hexlify(der_sig))
-
-
+    def sign(private_key_hex: str, tx_hash: str) -> str:
+        """
+        Signs DAG transaction using JavaScript
+        :param private_key_hex: Private key in hex format
+        :param tx_hash: Transaction hash from prepare_tx
+        :return: Signature supported by the transaction API (@noble/secp256k1 | Bouncy Castle)
+        """
         import subprocess
 
         # Prepare the command to execute the sign.mjs script with arguments
@@ -322,27 +325,44 @@ class KeyStore:
         if result.returncode != 0:
             raise RuntimeError(f"Error in signing: {result.stderr}")
 
-        sig = result.stdout.strip()
+        signature = result.stdout.strip()
 
-        return sig
+        return signature
+
+    @staticmethod
+    def get_mnemonic() -> dict:
+        """Returns mnemonic values in a dictionary with keys: mnemo, words, seed, entropy"""
+        bip39 = Bip39()
+        return bip39.mnemonic()
+
+    @staticmethod
+    def get_private_key_from_seed(seed: bytes) -> bytes:
+        """Returns private key in bytes"""
+        bip32 = Bip32()
+        return bip32.get_private_key_from_seed(seed_bytes=seed)
+
+    @staticmethod
+    def get_public_key_from_private_key(private_key: hex) -> bytes:
+        """Returns the public key in bytes"""
+        bip32 = Bip32()
+        return bip32.get_public_key_from_private_hex(private_key_hex=private_key)
+
+    @staticmethod
+    def get_dag_address_from_public_key(public_key: str) -> str:
+        """Returns DAG address as string"""
+        wallet = Wallet()
+        return wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)
 
 
 def main():
 
     """Create wallet and test: This is done"""
-    print("Step 1: Generating Keys and Address")
-    bip39 = Bip39(); bip32 = Bip32(); wallet = Wallet()
-    mnemonic_values = bip39.mnemonic()
-    private_key = bip32.get_private_key_from_seed(seed_bytes=mnemonic_values["seed"])
-    print("Private Key:", private_key.hex())
-    public_key = bip32.get_public_key_from_private_hex(private_key_hex=private_key.hex())
-    print("Public Key (Uncompressed):", public_key.hex())
-    dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key.hex())
-    derived_seed = bip39.get_seed_from_mnemonic(words=mnemonic_values["words"])
-    derived_private_key = bip32.get_private_key_from_seed(seed_bytes=derived_seed)
-    derived_public_key = bip32.get_public_key_from_private_hex(private_key_hex=derived_private_key.hex())
-    derived_dag_addr = wallet.get_dag_address_from_public_key_hex(public_key_hex=derived_public_key.hex())
-    print("Success!" if derived_dag_addr == dag_addr else "Error!" and exit(1))
+    print("Step 1: Create new wallet")
+    mnemonic_values = KeyStore.get_mnemonic()
+    private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
+    public_key = KeyStore.get_public_key_from_private_key(private_key.hex())
+    dag_addr = KeyStore.get_dag_address_from_public_key(public_key=public_key.hex())
+
     print()
 
     """Get last reference"""
