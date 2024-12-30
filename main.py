@@ -13,6 +13,8 @@ from dag_keystore import Bip32, Bip39, Wallet
 from dag_network import NetworkApi
 from dag_network import DEFAULT_L1_BASE_URL
 
+import requests
+
 # prepareTx
 import random
 from decimal import Decimal
@@ -299,9 +301,15 @@ def main():
 
     """Get last reference"""
     print("Step 2: Get Last Reference (L1 LB)")
-    api = NetworkApi(DEFAULT_L1_BASE_URL)  # Pass a single URL instead of the whole dictionary
-    transaction_ref = api.get_address_last_accepted_transaction_ref(derived_dag_addr)
-    print(f"Last reference: {transaction_ref}")
+    endpoint = f"/transactions/last-reference/{dag_addr}"
+    url = DEFAULT_L1_BASE_URL + endpoint
+
+    # Make the POST request
+    response = requests.get(url)
+
+    # Print the response
+    print("Status Code:", response.status_code)
+    last_ref = response.json()
     print()
 
     """Generate signed transaction"""
@@ -314,10 +322,7 @@ def main():
     fee = 0.1  # Transaction fee
     from_address = dag_addr
     to_address = 'DAG4o8VYNg34Mnxp9mT4zDDCZTvrHWniscr3aAYv'
-    last_ref = {
-        "hash": "0000000000000000000000000000000000000000000000000000000000000000",
-        "ordinal": 0,
-    }
+    last_ref = last_ref
 
     result = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
     tx = result["tx"]
@@ -339,8 +344,6 @@ def main():
     print("Tx to Post:", tx)
 
     """Post Transaction"""
-    import requests
-
     # Define the URL and headers
     url = "https://l1-lb-mainnet.constellationnetwork.io/transactions"
     headers = {
