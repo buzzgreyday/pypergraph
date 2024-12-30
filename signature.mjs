@@ -4,7 +4,10 @@ import { hmac } from '@noble/hashes/hmac';
 import { sha256 } from '@noble/hashes/sha256';
 
 (async () => {
-  secp.etc.hmacSha256Sync = (k, ...m) => hmac(sha256, k, secp.etc.concatBytes(...m));
+  // Set the async HMAC function
+  secp.etc.hmacSha256Async = async (key, ...messages) =>
+    hmac.create(sha256, key).update(secp.etc.concatBytes(...messages)).digest();
+
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
@@ -31,27 +34,28 @@ import { sha256 } from '@noble/hashes/sha256';
 
   try {
     // Sign the SHA512 hash using the private key
-    const sig = await secp.sign(sha512Hash, privateKey);
+    const sig = await secp.signAsync(sha512Hash, privateKey, {lowS: true});
+const { r, s } = sig;
 
-    // Convert the r and s values to hex and ensure they are padded to 32 bytes
-    const rHex = sig.r.toString(16).padStart(64, '0'); // Ensure 32 bytes
-    const sHex = sig.s.toString(16).padStart(64, '0'); // Ensure 32 bytes
+    const encodeInteger = (integer) => {
+      let hex = integer.toString(16).padStart(64, '0'); // Ensure 32 bytes
+      if (hex.startsWith('8') || hex.length % 2 !== 0) {
+        hex = '00' + hex; // Add leading zero for positive interpretation
+      }
+      return Buffer.concat([Buffer.from([0x02, hex.length / 2]), Buffer.from(hex, 'hex')]);
+    };
 
-    // DER encoding
+    const encodedR = encodeInteger(r);
+    const encodedS = encodeInteger(s);
+
     const sequence = Buffer.concat([
-      Buffer.from([0x30, 0x44]), // 0x30 (sequence) + length byte (0x44 for 68 bytes)
-      Buffer.from([0x02, 0x20]), // 0x02 (integer) + length of r (0x20 = 32 bytes)
-      Buffer.from(rHex, 'hex'),
-      Buffer.from([0x02, 0x20]), // 0x02 (integer) + length of s (0x20 = 32 bytes)
-      Buffer.from(sHex, 'hex')
+      Buffer.from([0x30, encodedR.length + encodedS.length]), // Sequence + total length
+      encodedR,
+      encodedS
     ]);
 
-    // Output the DER-encoded signature as a hex string
     console.log(sequence.toString('hex'));
-
   } catch (error) {
     console.log('Error during signing:', error.message || error);
   }
 })();
-
-

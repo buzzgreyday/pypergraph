@@ -247,6 +247,9 @@ class KeyStore:
         # This is the correct signature:
         print("Correct Signature:", result.stdout.strip())
 
+        if sig_new != result.stdout.strip():
+            print("WARNING: Signatures")
+
         # Return the signature (result.stdout contains the signature in hex)
         #The return result ofcourse works:
         #return result.stdout.strip()
