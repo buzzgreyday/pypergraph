@@ -21,9 +21,6 @@ import random
 from decimal import Decimal
 from dataclasses import dataclass, field
 
-from hdwallet.cli.generate.mnemonic import generate_mnemonic
-
-
 @dataclass
 class PostTransactionV2:
     value: dict = field(default_factory=lambda: {
@@ -384,7 +381,7 @@ def main():
     print(f"Account: {account}")
     print()
 
-    KeyStore.private_key_to_p12(account["private_key"].secret)
+    KeyStore.get_private_key_to_p12(account["private_key"].secret)
 
     amount = 1  # 1 DAG
     fee = 0.1  # Transaction fee
