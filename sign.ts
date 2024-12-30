@@ -32,6 +32,12 @@ import { sha256 } from '@noble/hashes/sha256';
   try {
     // Sign the SHA512 hash using the private key
     const sig = await secp.signAsync(sha512Hash, privateKey, {lowS: true});
+    const pubKey = secp.getPublicKey(privateKey);
+    const isValid = secp.verify(sig, sha512Hash, pubKey);
+    // Check if the signature is invalid
+    if (!isValid) {
+      throw new Error('Signature verification failed');
+    }
     const { r, s } = sig;
 
     const encodeInteger = (integer) => {

@@ -4,11 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="79a50a4e-a3ef-4693-b5e9-f187c0aedeec" name="Changes" comment="Clean up and sign testing">
-      <change afterPath="$PROJECT_DIR$/pysign.py" afterDir="false" />
+    <list default="true" id="79a50a4e-a3ef-4693-b5e9-f187c0aedeec" name="Changes" comment="Sign using js">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/signature.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/signature.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pysign.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sign.mjs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/signature.ts" beforeDir="false" afterPath="$PROJECT_DIR$/sign.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/verify.mjs" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -158,7 +160,15 @@
       <option name="project" value="LOCAL" />
       <updated>1735564943018</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Sign using js">
+      <option name="closed" value="true" />
+      <created>1735572904509</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1735572904509</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -167,6 +177,7 @@
     </ignored-roots>
     <MESSAGE value="Clean up" />
     <MESSAGE value="Clean up and sign testing" />
-    <option name="LAST_COMMIT_MESSAGE" value="Clean up and sign testing" />
+    <MESSAGE value="Sign using js" />
+    <option name="LAST_COMMIT_MESSAGE" value="Sign using js" />
   </component>
 </project>

@@ -225,7 +225,7 @@ class KeyStore:
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
             'node',
-            '/home/mringdal/Development/pydag/signature.bundle.js',
+            '/home/mringdal/Development/pydag/sign.bundle.js',
             private_key_hex,
             hashlib.sha512(tx_hash.encode('utf-8')).hexdigest()
         ]
@@ -237,55 +237,12 @@ class KeyStore:
 
         # This is the non-dag4 signature:
         sig_new = result.stdout.strip()
-        print("Non-DAG4 Signature:", sig_new)
-        print("(Seems to sometimes fail, though it passes the dag4 verify)")
-        # Prepare the command to execute the sign.mjs script with arguments
-        command = [
-            'node',
-            '/home/mringdal/Development/pydag/sign.mjs',
-            private_key_hex,
-            tx_hash
-        ]
-
-        # Run the script and capture the result
-        result = subprocess.run(command, capture_output=True, text=True)
-
-        # Check if there was an error
-        if result.returncode != 0:
-            raise RuntimeError(f"Error in signing: {result.stderr}")
-
-        # This is the correct signature:
-        print("Correct Signature:", result.stdout.strip())
-
-        if sig_new != result.stdout.strip():
-            print("WARNING: Signatures")
 
         # Return the signature (result.stdout contains the signature in hex)
         #The return result ofcourse works:
         #return result.stdout.strip()
         return sig_new
 
-    @staticmethod
-    def verify(uncompressed_public_key, tx_hash, signature):
-        import subprocess
-        # Prepare the command to execute the sign.mjs script with arguments
-        command = [
-            'node',
-            '/home/mringdal/Development/pydag/verify.mjs',
-            uncompressed_public_key,
-            tx_hash,
-            signature
-        ]
-
-        # Run the script and capture the result
-        result = subprocess.run(command, capture_output=True, text=True)
-
-        # Check if there was an error
-        if result.returncode != 0:
-            raise RuntimeError(f"Error in signing: {result.stderr}")
-
-        # Return the signature (result.stdout contains the signature in hex)
-        return result.stdout.strip()
 
 def main():
 
@@ -346,8 +303,6 @@ def main():
     signature = KeyStore.sign(private_key_hex=private_key_hex, private_key_pem=private_key_pem, tx_hash=tx_hash)
     print("Signature Returned by KeyStore.sign:", signature)
     print()
-    success = KeyStore.verify(public_key_hex, tx_hash, signature)
-    print("Verified by DAG4:", success.title())
     tx["proofs"].append({"id": public_key_hex[2:], "signature": signature})
     print("Tx to Post:", tx)
 
