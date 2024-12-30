@@ -1,5 +1,6 @@
 import binascii
 import hashlib
+from binascii import hexlify
 from decimal import Decimal, ROUND_DOWN
 
 import subprocess
@@ -8,6 +9,7 @@ import os
 
 import secp256k1
 from coincurve import PrivateKey, PublicKey
+from coincurve.ecdsa import recoverable_convert, deserialize_recoverable
 
 from dag_keystore import Bip32, Bip39, Wallet
 from dag_network import DEFAULT_L1_BASE_URL
@@ -18,6 +20,7 @@ import requests
 import random
 from decimal import Decimal
 from dataclasses import dataclass, field
+
 
 @dataclass
 class PostTransactionV2:
@@ -210,12 +213,19 @@ class KeyStore:
 
     @staticmethod
     def sign(private_key_hex: hex, private_key_pem: bytes, tx_hash: hex):
+
+        pk = secp256k1.PrivateKey(bytes.fromhex(private_key_hex))
+        recoverable_sig = pk.ecdsa_sign(hashlib.sha512(tx_hash.encode('utf-8')).digest())
+        der_sig = pk.ecdsa_serialize(recoverable_sig)
+        print("DER Sig:", hexlify(der_sig))
+
+
         import subprocess
 
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
             'node',
-            '/home/mringdal/Development/pydag/signature.mjs',
+            '/home/mringdal/Development/pydag/signature.bundle.js',
             private_key_hex,
             hashlib.sha512(tx_hash.encode('utf-8')).hexdigest()
         ]
