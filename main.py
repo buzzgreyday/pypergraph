@@ -250,7 +250,7 @@ class KeyStore:
         # Return the signature (result.stdout contains the signature in hex)
         #The return result ofcourse works:
         #return result.stdout.strip()
-        return sig_new.hex()
+        return sig_new
 
     @staticmethod
     def verify(uncompressed_public_key, tx_hash, signature):
