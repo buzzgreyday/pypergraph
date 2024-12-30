@@ -129,7 +129,6 @@ class TxEncode:
     def kryo_serialize(self, msg: str, set_references: bool = True) -> str:
         """
         Serialize a message using a custom kryo-like serialization method.
-
         :param msg: The string message to serialize.
         :param set_references: Whether to include references in the prefix.
         :return: The serialized message as a hexadecimal string.
@@ -141,7 +140,6 @@ class TxEncode:
     def utf8_length(self, value: int) -> bytes:
         """
         Encodes the length of a UTF8 string as a variable-length encoded integer.
-
         :param value: The value to encode.
         :return: The encoded length as a bytes object.
         """
