@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@noble/hashes": "^1.6.1",
+    "@noble/secp256k1": "^2.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2",
+    "typescript": "^5.7.2"
+  }
+}
