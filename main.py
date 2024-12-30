@@ -209,7 +209,7 @@ class KeyStore:
         }
 
     @staticmethod
-    def sign(private_key_hex: hex, tx_hash: hex):
+    def sign(private_key_hex: hex, private_key_pem: bytes, tx_hash: hex):
         import subprocess
 
         # Prepare the command to execute the sign.mjs script with arguments
@@ -225,8 +225,10 @@ class KeyStore:
         if result.returncode != 0:
             raise RuntimeError(f"Error in signing: {result.stderr}")
 
-        # This is the correct signature:
-        print("Lean Signature:", result.stdout.strip())
+        # This is the non-dag4 signature:
+        sig_new = result.stdout.strip()
+        print("Non-DAG4 Signature:", sig_new)
+        print("(Seems to sometimes fail)")
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
             'node',
@@ -247,8 +249,8 @@ class KeyStore:
 
         # Return the signature (result.stdout contains the signature in hex)
         #The return result ofcourse works:
-        return result.stdout.strip()
-        #return signature.hex()
+        #return result.stdout.strip()
+        return sig_new.hex()
 
     @staticmethod
     def verify(uncompressed_public_key, tx_hash, signature):
@@ -328,7 +330,7 @@ def main():
     print("Private Key Hex:", private_key_hex)
     print("Private Key PEM:", private_key_pem)
     public_key_hex = account["public_key"].format(compressed=False).hex()
-    signature = KeyStore.sign(private_key_hex=private_key_hex, tx_hash=tx_hash)
+    signature = KeyStore.sign(private_key_hex=private_key_hex, private_key_pem=private_key_pem, tx_hash=tx_hash)
     print("Signature Returned by KeyStore.sign:", signature)
     print()
     success = KeyStore.verify(public_key_hex, tx_hash, signature)
