@@ -381,7 +381,7 @@ def main():
     print(f"Account: {account}")
     print()
 
-    KeyStore.get_private_key_to_p12(account["private_key"].secret)
+    KeyStore.get_p12_from_private_key(account["private_key"].secret)
 
     amount = 1  # 1 DAG
     fee = 0.1  # Transaction fee
