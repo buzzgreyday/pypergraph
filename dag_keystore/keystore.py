@@ -120,8 +120,7 @@ class KeyStore:
         encoded_tx = tx.get_encoded()
 
         serialized_tx = TxEncode().kryo_serialize(msg=encoded_tx, set_references=False)
-        hash_value = hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest()
-
+        hash_value = hashlib.sha512(hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest().encode("utf-8")).hexdigest()
 
 
         return {
@@ -145,7 +144,7 @@ class KeyStore:
             'node',
             '/home/mringdal/Development/pydag/js/sign.bundle.js',
             private_key_hex,
-            hashlib.sha512(tx_hash.encode('utf-8')).hexdigest()
+            tx_hash
         ]
         # Run the script and capture the result
         result = subprocess.run(command, capture_output=True, text=True)
