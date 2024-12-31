@@ -19,7 +19,6 @@ class API:
             response.raise_for_status()
 
 def main():
-
     """Create wallet and test: This is done"""
     print("Step 1: Create new wallet")
     mnemonic_values = KeyStore.get_mnemonic()
