@@ -14,11 +14,6 @@ DERIVATION_PATH_MAP = {
     DERIVATION_PATH.ETH_LEDGER: "m/44'/60'",
 }
 
-
-
-
-
-
 class Wallet:
     @staticmethod
     def get_dag_address_from_public_key_hex(public_key_hex: str) -> str:

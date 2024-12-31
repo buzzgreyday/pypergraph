@@ -11,8 +11,9 @@ import secp256k1
 from coincurve import PrivateKey, PublicKey
 from coincurve.ecdsa import recoverable_convert, deserialize_recoverable
 
-from dag_keystore import Bip32, Bip39, Wallet
+from dag_keystore import Bip32, Bip39
 from dag_network import DEFAULT_L1_BASE_URL
+from dag_wallet import Wallet
 
 import requests
 
