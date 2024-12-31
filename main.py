@@ -382,9 +382,6 @@ def main():
 
     """Generate signed transaction"""
     print("Step 3: Generate Transaction.")
-    account = {"address": dag_addr, "public_key": PublicKey(bytes.fromhex(public_key.hex())), "private_key": PrivateKey(bytes.fromhex(private_key.hex()))}
-    print(f"Account: {account}")
-    print()
 
     amount = 1  # 1 DAG
     fee = 0.1  # Transaction fee
@@ -396,11 +393,7 @@ def main():
     tx = d["tx"]
     tx_hash = d["hash"]
 
-    #private_key_hex = account["private_key"].to_hex()
-
     signature = KeyStore.sign(private_key_hex=private_key.hex(), tx_hash=tx_hash)
-    print("Signature Returned by KeyStore.sign:", signature)
-    print()
     tx["proofs"].append({"id": public_key.hex()[2:], "signature": signature})
     print("Tx to Post:", tx)
 

@@ -114,3 +114,25 @@ class Wallet:
 
         dag_addr = f"DAG{check_digit}{public_key}"
         return dag_addr
+
+    @staticmethod
+    def get_mnemonic_from_input():
+        """
+        Prompts the user to enter a mnemonic word seed, validates it, and returns it.
+        """
+        mnemo = Mnemonic("english")
+        while True:
+            user_input = input("Enter your mnemonic seed phrase: ").strip()
+
+            # Split the input into words and check length
+            words = user_input.split()
+            if len(words) not in (12, 15, 18, 21, 24):
+                print("Invalid seed length. It should have 12, 15, 18, 21, or 24 words. Please try again.")
+                continue
+
+            # Validate mnemonic
+            if mnemo.check(user_input):
+                print("Mnemonic is valid.")
+                return user_input
+            else:
+                print("Invalid mnemonic. Please ensure it is correct.")
