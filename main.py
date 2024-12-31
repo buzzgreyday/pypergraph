@@ -311,7 +311,7 @@ class KeyStore:
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
             'node',
-            '/home/mringdal/Development/pydag/sign.bundle.js',
+            '/home/mringdal/Development/pydag/js/sign.bundle.js',
             private_key_hex,
             hashlib.sha512(tx_hash.encode('utf-8')).hexdigest()
         ]

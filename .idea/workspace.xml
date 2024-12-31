@@ -5,12 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="79a50a4e-a3ef-4693-b5e9-f187c0aedeec" name="Changes" comment="refactor">
-      <change afterPath="$PROJECT_DIR$/dag_wallet/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dag_wallet/constants.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dag_keystore/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/dag_keystore/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dag_keystore/wallet.py" beforeDir="false" afterPath="$PROJECT_DIR$/dag_wallet/wallet.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sign.bundle.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/sign.bundle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sign.ts" beforeDir="false" afterPath="$PROJECT_DIR$/js/sign.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,6 +62,7 @@
       <recent name="$PROJECT_DIR$/dag_wallet" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/js" />
       <recent name="$PROJECT_DIR$/dag_wallet" />
     </key>
   </component>
@@ -289,7 +288,15 @@
       <option name="project" value="LOCAL" />
       <updated>1735605523114</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="refactor">
+      <option name="closed" value="true" />
+      <created>1735605980272</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1735605980272</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
