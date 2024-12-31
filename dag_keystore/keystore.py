@@ -91,14 +91,14 @@ class KeyStore:
             raise ValueError("No private key found in the .p12 file.")
 
     @staticmethod
-    def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0):
+    def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0) -> tuple:
         """
         :param amount: Amount to send
         :param to_address: Destionation DAG address
         :param from_address: Source DAG address
         :param last_ref: Dictionary with keys: ordinal, hash
         :param fee: Transaction fee
-        :return: Dictionary with keys: tx, hash, rle
+        :return: TransactionV2 object, sha512hash, rle
         """
         if to_address == from_address:
           raise ValueError('KeyStore :: An address cannot send a transaction to itself')
@@ -123,11 +123,8 @@ class KeyStore:
         hash_value = hashlib.sha512(hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest().encode("utf-8")).hexdigest()
 
 
-        return {
-            "tx": tx,
-            "hash": hash_value,
-            "rle": encoded_tx,
-        }
+        return tx, hash_value, encoded_tx
+
 
     @staticmethod
     def sign(private_key_hex: str, tx_hash: str) -> str:
