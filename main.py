@@ -47,8 +47,9 @@ def main():
     signature = KeyStore.sign(private_key_hex=private_key.hex(), tx_hash=tx_hash)
     tx["proofs"].append({"id": public_key.hex()[2:], "signature": signature})
     print("Tx to Post:", tx)
+    print()
 
-    """Post Transaction"""
+    print("Step 3: Post Transaction")
     # Define the URL and headers
     url = "https://l1-lb-mainnet.constellationnetwork.io/transactions"
     headers = {
