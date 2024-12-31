@@ -1,35 +1,10 @@
-import binascii
-import hashlib
-from binascii import hexlify
-from decimal import Decimal, ROUND_DOWN
-
-import subprocess
-import sys
-import os
-
-import secp256k1
-from coincurve import PrivateKey, PublicKey
-from coincurve.ecdsa import recoverable_convert, deserialize_recoverable
-
 from dag_keystore import Bip32, Bip39
 from dag_network import DEFAULT_L1_BASE_URL
 from dag_wallet import Wallet
 
 import requests
 
-# prepareTx
-import random
-from decimal import Decimal
-from dataclasses import dataclass, field
-
 from dag_keystore import KeyStore
-
-
-
-
-
-
-
 
 class API:
     @staticmethod
@@ -42,10 +17,6 @@ class API:
             return response.json()
         else:
             response.raise_for_status()
-
-
-
-
 
 def main():
 
