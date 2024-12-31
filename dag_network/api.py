@@ -15,6 +15,26 @@ class TransactionApiError(Exception):
 
 class API:
     @staticmethod
+    def handle_response(response):
+        if response.status_code == 200:
+            return response.json()
+        # Check for a 400 error
+        elif response.status_code == 400:
+            # Look for the specific error message in the 'errors' list
+            for error in response.json().get("errors", []):
+                if "InsufficientBalance" in error.get("message", ""):
+                    # Parse the amount and balance from the message
+                    message = error["message"]
+                    amount_str = message.split("amount=")[1].split(",")[0]
+                    balance_str = message.split("balance=")[1].strip("}")
+
+                    amount = int(amount_str)
+                    balance = int(balance_str)
+
+                    # Raise the custom exception
+                    raise TransactionApiError("Insufficient balance for transaction", response.status_code)
+
+    @staticmethod
     def get_last_reference(dag_address: str):
 
         endpoint = f"/transactions/last-reference/{dag_address}"
@@ -37,10 +57,5 @@ class API:
 
         # Make the POST request
         response = requests.post(url, headers=headers, json=tx)
-        if response.status_code == 200:
-            return response.json()
-        elif response.status_code in (400, 500):
-            print(response.json())
-            raise TransactionApiError("Error processing request", response.status_code)
-        else:
-            return response.json()
+        API.handle_response(response)
+
