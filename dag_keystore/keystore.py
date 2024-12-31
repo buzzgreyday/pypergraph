@@ -13,13 +13,12 @@ from cryptography.hazmat.primitives.serialization import pkcs12
 from coincurve import PrivateKey, PublicKey
 from decimal import Decimal, ROUND_DOWN
 
-
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode
 from dag_wallet import Wallet
+
 import datetime
 import hashlib
-
 
 class KeyStore:
     @staticmethod
