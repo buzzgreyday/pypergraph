@@ -3,11 +3,14 @@ from .constants import DEFAULT_L1_BASE_URL
 import requests
 
 class TransactionApiError(Exception):
-    def __init__(self, error_code):
+    def __init__(self, message, error_code):
+        self.message = message
         self.error = error_code
+        super().__init__(self.message)
+
 
     def __str__(self):
-        return f"Error processing request (status code: {self.error})"
+        return f"{self.message} (status code: {self.error})"
 
 
 class API:
@@ -38,6 +41,6 @@ class API:
             return response.json()
         elif response.status_code in (400, 500):
             print(response.json())
-            raise TransactionApiError(response.status_code)
+            raise TransactionApiError("Error processing request", response.status_code)
         else:
             return response.json()
