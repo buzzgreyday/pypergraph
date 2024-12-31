@@ -125,7 +125,7 @@ class KeyStore:
 
 
         return {
-            "tx": tx.get_post_transaction(),
+            "tx": tx,
             "hash": hash_value,
             "rle": encoded_tx,
         }

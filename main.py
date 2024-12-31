@@ -1,4 +1,4 @@
-from dag_keystore import Bip32, Bip39
+from dag_keystore import Bip32, Bip39, TransactionV2
 from dag_network import DEFAULT_L1_BASE_URL
 from dag_wallet import Wallet
 
@@ -45,8 +45,11 @@ def main():
     tx_hash = d["hash"]
 
     signature = KeyStore.sign(private_key_hex=private_key.hex(), tx_hash=tx_hash)
-    tx["proofs"].append({"id": public_key.hex()[2:], "signature": signature})
-    print("Tx to Post:", tx)
+    proof = {"id": public_key.hex()[2:], "signature": signature}
+    tx.add_proof(proof=proof)
+    post_tx = tx.get_post_transaction()
+    #tx["proofs"].append(proof)
+    print("Tx to Post:", post_tx)
     print()
 
     print("Step 3: Post Transaction")
@@ -58,7 +61,7 @@ def main():
     }
 
     # Make the POST request
-    response = requests.post(url, headers=headers, json=tx)
+    response = requests.post(url, headers=headers, json=post_tx)
 
     # Print the response
     print("Status Code:", response.status_code)

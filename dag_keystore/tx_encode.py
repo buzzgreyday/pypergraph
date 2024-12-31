@@ -35,17 +35,6 @@ class TransactionV2:
             salt = self.MIN_SALT + int(random.getrandbits(48))
         self.tx.value["salt"] = salt
 
-    @classmethod
-    def from_post_transaction(cls, tx):
-        return cls(
-            amount=tx["value"]["amount"],
-            from_address=tx["value"]["source"],
-            to_address=tx["value"]["destination"],
-            last_tx_ref=tx["value"]["parent"],
-            salt=tx["value"]["salt"],
-            fee=tx["value"]["fee"],
-        )
-
     @staticmethod
     def to_hex_string(val):
         val = Decimal(val)
@@ -55,14 +44,20 @@ class TransactionV2:
             b_int = int(val)
         return format(b_int, "x")
 
-    def get_post_transaction(self):
-        return {
+    def get_post_transaction(self, proof=None):
+        """
+        Returns the dictionary representation of the transaction, optionally including proofs.
+        """
+        post_transaction = {
             "value": {
                 **self.tx.value,
                 "salt": str(self.tx.value["salt"]).replace("n", ""),
             },
             "proofs": self.tx.proofs.copy(),
         }
+        if proof:
+            post_transaction["proofs"].append(proof)
+        return post_transaction
 
     def get_encoded(self):
         parent_count = "2"  # Always 2 parents
@@ -92,7 +87,10 @@ class TransactionV2:
             salt,
         ])
 
-    def add_signature(self, proof):
+    def add_proof(self, proof):
+        """
+        Adds a signature proof to the transaction.
+        """
         self.tx.proofs.append(proof)
 
 class TxEncode:
