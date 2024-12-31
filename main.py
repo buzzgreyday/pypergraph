@@ -19,7 +19,7 @@ class API:
             response.raise_for_status()
 
 def main():
-    """Create wallet and test: This is done"""
+    """Test stuff"""
     print("Step 1: Create new wallet")
     mnemonic_values = KeyStore.get_mnemonic()
     private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
@@ -28,12 +28,10 @@ def main():
     KeyStore.get_p12_from_private_key(private_key)
     print("Done!")
 
-    """Get last reference"""
     print("Step 2: Get Last Reference")
     last_ref = API.get_last_reference(dag_address=dag_addr)
     print("Done!")
 
-    """Generate signed transaction"""
     print("Step 3: Generate Transaction.")
 
     amount = 1  # 1 DAG
