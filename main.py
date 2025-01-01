@@ -23,9 +23,11 @@ def main():
     to_address = 'DAG4o8VYNg34Mnxp9mT4zDDCZTvrHWniscr3aAYv'
     last_ref = API.get_last_reference(dag_address=dag_addr)
     tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
+    pkey, der_key = KeyStore.get_private_key_from_p12()
     signature = KeyStore.sign(private_key_hex=private_key.hex(), tx_hash=tx_hash)
     proof = {"id": public_key.hex()[2:], "signature": signature}
     tx.add_proof(proof=proof)
+    print(tx.get_post_transaction())
     print("Done!")
     print("Step 3: Post Transaction")
     resp = API.post_transaction(tx.get_post_transaction())

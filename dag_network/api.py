@@ -34,6 +34,7 @@ class API:
                     # Raise the custom exception
                     raise TransactionApiError("Insufficient balance for transaction", response.status_code)
 
+
     @staticmethod
     def get_last_reference(dag_address: str):
 
@@ -57,5 +58,6 @@ class API:
 
         # Make the POST request
         response = requests.post(url, headers=headers, json=tx)
+        print(response.json())
         API.handle_response(response)
 

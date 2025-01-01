@@ -1,5 +1,6 @@
+import binascii
+
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
 from cryptography.x509.oid import NameOID
@@ -10,7 +11,7 @@ from cryptography.hazmat.primitives.serialization import (
             NoEncryption,
         )
 from cryptography.hazmat.primitives.serialization import pkcs12
-from coincurve import PrivateKey, PublicKey
+from coincurve import PrivateKey
 from decimal import Decimal, ROUND_DOWN
 
 from .bip import Bip39, Bip32
@@ -135,7 +136,6 @@ class KeyStore:
         :return: Signature supported by the transaction API (@noble/secp256k1 | Bouncy Castle)
         """
         import subprocess
-
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
             'node',
@@ -149,9 +149,10 @@ class KeyStore:
         if result.returncode != 0:
             raise RuntimeError(f"Error in signing: {result.stderr}")
 
-        signature = result.stdout.strip()
+        signature_js = result.stdout.strip()
+        print("JS Signature:", signature_js)
 
-        return signature
+        return signature_js
 
     @staticmethod
     def get_mnemonic() -> dict:
