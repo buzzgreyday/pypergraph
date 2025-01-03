@@ -11,6 +11,10 @@ from cryptography.hazmat.primitives.serialization import (
 from cryptography.hazmat.primitives.serialization import pkcs12
 from decimal import Decimal, ROUND_DOWN
 from ecdsa import SigningKey, SECP256k1
+from ecdsa.util import sigencode_der
+from pyasn1.codec.der.decoder import decode as der_decode
+from pyasn1.codec.der.encoder import encode as der_encode
+from pyasn1.type.univ import Sequence, Integer
 
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode
@@ -135,12 +139,7 @@ class KeyStore:
         :param tx_hash: Transaction hash from prepare_tx
         :return: Signature supported by the transaction API (@noble/secp256k1 | Bouncy Castle)
         """
-        from ecdsa import SigningKey, SECP256k1
-        from ecdsa.util import sigencode_der
-        import hashlib
-        from pyasn1.codec.der.decoder import decode as der_decode
-        from pyasn1.codec.der.encoder import encode as der_encode
-        from pyasn1.type.univ import Sequence, Integer
+
 
         # secp256k1 curve order
         SECP256K1_ORDER = SECP256k1.order
