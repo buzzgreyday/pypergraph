@@ -1,6 +1,7 @@
 from .constants import DEFAULT_L1_BASE_URL
+import aiohttp
+import asyncio
 
-import requests
 
 class TransactionApiError(Exception):
     def __init__(self, message, error_code):
@@ -8,22 +9,20 @@ class TransactionApiError(Exception):
         self.error = error_code
         super().__init__(self.message)
 
-
     def __str__(self):
         return f"{self.message} (status code: {self.error})"
 
 
 class API:
     @staticmethod
-    def handle_response(response):
-        if response.status_code == 200:
-            return response.json()
-        # Check for a 400 error
-        elif response.status_code == 400:
-            # Look for the specific error message in the 'errors' list
-            for error in response.json().get("errors", []):
+    async def handle_response(response):
+        if response.status == 200:
+            return await response.json()
+
+        elif response.status == 400:
+            response_data = await response.json()
+            for error in response_data.get("errors", []):
                 if "InsufficientBalance" in error.get("message", ""):
-                    # Parse the amount and balance from the message
                     message = error["message"]
                     amount_str = message.split("amount=")[1].split(",")[0]
                     balance_str = message.split("balance=")[1].strip("}")
@@ -31,33 +30,31 @@ class API:
                     amount = int(amount_str)
                     balance = int(balance_str)
 
-                    # Raise the custom exception
-                    raise TransactionApiError("Insufficient balance for transaction", response.status_code)
-
+                    raise TransactionApiError("Insufficient balance for transaction", response.status)
 
     @staticmethod
-    def get_last_reference(dag_address: str):
-
+    async def get_last_reference(dag_address: str):
         endpoint = f"/transactions/last-reference/{dag_address}"
         url = DEFAULT_L1_BASE_URL + endpoint
-        response = requests.get(url)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            response.raise_for_status()
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    response.raise_for_status()
 
     @staticmethod
-    def post_transaction(tx: dict):
-
-        endpoint = f"/transactions"
+    async def post_transaction(tx: dict):
+        endpoint = "/transactions"
         url = DEFAULT_L1_BASE_URL + endpoint
         headers = {
             "accept": "application/json",
             "Content-Type": "application/json"
         }
 
-        # Make the POST request
-        response = requests.post(url, headers=headers, json=tx)
-        print(response.json())
-        API.handle_response(response)
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=tx) as response:
+                print(await response.json())
+                await API.handle_response(response)
 

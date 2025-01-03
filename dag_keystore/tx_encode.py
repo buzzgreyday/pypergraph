@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass, field
 from decimal import Decimal
 import random
@@ -97,7 +98,7 @@ class TransactionV2:
         self.tx.proofs.append(proof)
 
     def send(self):
-        return API.post_transaction(self.get_post_transaction())
+        return asyncio.create_task(API.post_transaction(self.get_post_transaction()))
 
 class TxEncode:
     @staticmethod

@@ -1,3 +1,4 @@
+import asyncio
 from hashlib import sha256
 from typing import Optional
 
@@ -116,10 +117,10 @@ class Wallet:
             private_key=private_key
         )
 
-    def build_transaction(self, to_address: str, amount: float, fee: float = 0.0):
+    async def build_transaction(self, to_address: str, amount: float, fee: float = 0.0):
         from dag_network import API
         from_address = self.address
-        last_ref = API.get_last_reference(dag_address=self.address)
+        last_ref = await API.get_last_reference(dag_address=self.address)
         tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
         signature = KeyStore.sign(private_key_hex=self.private_key, tx_hash=tx_hash)
         proof = {"id": self.public_key[2:], "signature": signature}
