@@ -1,9 +1,4 @@
-import hashlib
-import hmac
-import secrets
-
 from bip32utils import BIP32Key
-from coincurve import PrivateKey
 from ecdsa import SigningKey, SECP256k1
 from mnemonic import Mnemonic
 
@@ -59,9 +54,6 @@ class Bip32:
         sk = SigningKey.from_string(private_key_bytes, curve=SECP256k1)
         private_key = sk
         public_key =  b'\x04' + private_key.get_verifying_key().to_string()
-        private_key = PrivateKey(private_key_bytes)
-        public_key_cc = private_key.public_key.format(compressed=compressed)  # Change to False for uncompressed
-        print("Public Key CC:", public_key_cc.hex())
         print("Public Key EC:", public_key.hex())
         return public_key.hex()
 
