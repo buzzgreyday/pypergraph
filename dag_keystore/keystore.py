@@ -136,7 +136,7 @@ class KeyStore:
         Signs DAG transaction using JavaScript
         :param private_key_hex: Private key in hex format
         :param tx_hash: Transaction hash from prepare_tx
-        :return: Signature supported by the transaction API (@noble/secp256k1 | Bouncy Castle)
+        :return: Signature supported by the transaction API (@noble/secp256k1)
         """
 
 
@@ -188,11 +188,7 @@ class KeyStore:
             canonical_signature_der = enforce_canonical_signature(signature_der)
             return canonical_signature_der.hex()
 
-        signature = sign_deterministic_canonical(private_key_hex, bytes.fromhex(tx_hash))
-
-        print("PY Signature:", signature)
-
-        return signature
+        return sign_deterministic_canonical(private_key_hex, bytes.fromhex(tx_hash))
 
     @staticmethod
     def get_mnemonic() -> dict:
@@ -218,3 +214,4 @@ class KeyStore:
         from dag_wallet import Wallet
 
         return Wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)
+

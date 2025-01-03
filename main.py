@@ -1,6 +1,3 @@
-from dag_keystore import KeyStore
-
-from dag_network import API
 from dag_wallet import Wallet
 
 
@@ -9,21 +6,16 @@ def main():
     print("Step 1: Create new wallet")
     wallet = Wallet.new()
     wallet = Wallet(address=wallet.address, public_key=wallet.public_key, private_key=wallet.private_key, words=wallet.words)
+    wallet = Wallet.from_mnemonic(wallet.words)
+    wallet = Wallet.from_private_key(wallet.private_key)
     print("Done!")
-    print("Step 2: Generate Transaction")
-    amount = 1  # 1 DAG
-    fee = 0.1  # Transaction fee
-    from_address = wallet.address
-    to_address = 'DAG4o8VYNg34Mnxp9mT4zDDCZTvrHWniscr3aAYv'
-    last_ref = API.get_last_reference(dag_address=wallet.address)
-    tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
-    signature = KeyStore.sign(private_key_hex=wallet.private_key, tx_hash=tx_hash)
-    proof = {"id": wallet.public_key[2:], "signature": signature}
-    tx.add_proof(proof=proof)
+    print("Step 2: Build Transaction")
+    tx = wallet.build_transaction(to_address='DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', amount=1.0, fee=0.0002)
     print(tx.get_post_transaction())
     print("Done!")
     print("Step 3: Post Transaction")
-    resp = API.post_transaction(tx.get_post_transaction())
+    resp = tx.send()
+    print(resp)
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@ import base58
 
 from mnemonic import Mnemonic
 
-from dag_keystore import KeyStore
+from dag_keystore import KeyStore, Bip39
 from .constants import DERIVATION_PATH, COIN, PKCS_PREFIX
 
 # The derivation_path_map together with the seed can be used to derive the extended private key from the public_key
@@ -87,4 +87,42 @@ class Wallet:
             private_key=private_key,
             words=mnemonic_values["words"]
         )
+
+    @classmethod
+    def from_mnemonic(cls, words: str):
+        """
+        :param words: String of 12 words
+        :return: Wallet object
+        """
+        mnemonic = Bip39()
+        seed_bytes = mnemonic.get_seed_from_mnemonic(words)
+        private_key = KeyStore.get_private_key_from_seed(seed_bytes)
+        public_key = KeyStore.get_public_key_from_private_key(private_key)
+        address = KeyStore.get_dag_address_from_public_key(public_key)
+        return cls(
+            address=address,
+            public_key=public_key,
+            private_key=private_key,
+            words=words
+        )
+
+    @classmethod
+    def from_private_key(cls, private_key: str):
+        public_key = KeyStore.get_public_key_from_private_key(private_key)
+        address = KeyStore.get_dag_address_from_public_key(public_key)
+        return cls(
+            address=address,
+            public_key=public_key,
+            private_key=private_key
+        )
+
+    def build_transaction(self, to_address: str, amount: float, fee: float = 0.0):
+        from dag_network import API
+        from_address = self.address
+        last_ref = API.get_last_reference(dag_address=self.address)
+        tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
+        signature = KeyStore.sign(private_key_hex=self.private_key, tx_hash=tx_hash)
+        proof = {"id": self.public_key[2:], "signature": signature}
+        tx.add_proof(proof=proof)
+        return tx
 

@@ -2,6 +2,9 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 import random
 
+from dag_network import API
+
+
 @dataclass
 class PostTransactionV2:
     value: dict = field(default_factory=lambda: {
@@ -92,6 +95,9 @@ class TransactionV2:
         Adds a signature proof to the transaction.
         """
         self.tx.proofs.append(proof)
+
+    def send(self):
+        return API.post_transaction(self.get_post_transaction())
 
 class TxEncode:
     @staticmethod
