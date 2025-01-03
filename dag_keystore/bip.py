@@ -51,8 +51,7 @@ class Bip32:
         :return: The public key as a hexadecimal string.
         """
         private_key_bytes = bytes.fromhex(private_key_hex)
-        sk = SigningKey.from_string(private_key_bytes, curve=SECP256k1)
-        private_key = sk
+        private_key = SigningKey.from_string(private_key_bytes, curve=SECP256k1)
         public_key =  b'\x04' + private_key.get_verifying_key().to_string()
         print("Public Key EC:", public_key.hex())
         return public_key.hex()

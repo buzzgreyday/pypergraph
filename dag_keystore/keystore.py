@@ -9,8 +9,8 @@ from cryptography.hazmat.primitives.serialization import (
             NoEncryption,
         )
 from cryptography.hazmat.primitives.serialization import pkcs12
-from coincurve import PrivateKey
 from decimal import Decimal, ROUND_DOWN
+from ecdsa import SigningKey, SECP256k1
 
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode
@@ -23,7 +23,9 @@ class KeyStore:
     @staticmethod
     def get_p12_from_private_key(private_key: bytes, destination: str = "wallet.p12"):
         # Input: Private key PEM and optional certificate
-        private_key_pem = PrivateKey(private_key).to_pem()
+
+        sk = SigningKey.from_string(private_key, curve=SECP256k1)
+        private_key_pem = sk.to_pem()
         private_key = load_pem_private_key(private_key_pem, password=None)
 
         # Generate a self-signed certificate (optional)
@@ -82,8 +84,8 @@ class KeyStore:
             )
 
             # Use coincurve to load the private key and get its raw format
-            coincurve_key = PrivateKey.from_der(private_key_der)
-            private_key_hex = coincurve_key.to_hex()
+            sk = SigningKey.from_der(private_key)
+            private_key_hex = sk.to_string().hex()
 
             return private_key_hex
         else:

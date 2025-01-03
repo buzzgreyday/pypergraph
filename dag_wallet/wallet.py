@@ -1,7 +1,6 @@
 from hashlib import sha256
 import base58
 
-from coincurve import PrivateKey
 from mnemonic import Mnemonic
 
 from .constants import DERIVATION_PATH, COIN, PKCS_PREFIX
