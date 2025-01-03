@@ -42,7 +42,7 @@ class Bip32:
         return root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index).PrivateKey()
 
     @staticmethod
-    def get_public_key_from_private_hex(private_key_hex: str, compressed: bool = False):
+    def get_public_key_from_private_hex(private_key_hex: str) -> str:
         """
         Derive the public key from a private key using secp256k1.
 

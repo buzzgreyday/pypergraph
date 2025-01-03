@@ -18,7 +18,6 @@ from pyasn1.type.univ import Sequence, Integer
 
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode
-from dag_wallet import Wallet
 
 import datetime
 import hashlib
@@ -202,13 +201,13 @@ class KeyStore:
         return bip39.mnemonic()
 
     @staticmethod
-    def get_private_key_from_seed(seed: bytes) -> bytes:
+    def get_private_key_from_seed(seed: bytes) -> str:
         """Returns private key in bytes"""
         bip32 = Bip32()
-        return bip32.get_private_key_from_seed(seed_bytes=seed)
+        return bip32.get_private_key_from_seed(seed_bytes=seed).hex()
 
     @staticmethod
-    def get_public_key_from_private_key(private_key: hex) -> bytes:
+    def get_public_key_from_private_key(private_key: hex) -> str:
         """Returns the public key in bytes"""
         bip32 = Bip32()
         return bip32.get_public_key_from_private_hex(private_key_hex=private_key)
@@ -216,5 +215,6 @@ class KeyStore:
     @staticmethod
     def get_dag_address_from_public_key(public_key: str) -> str:
         """Returns DAG address as string"""
-        wallet = Wallet()
-        return wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)
+        from dag_wallet import Wallet
+
+        return Wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)

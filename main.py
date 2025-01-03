@@ -1,26 +1,24 @@
 from dag_keystore import KeyStore
 
 from dag_network import API
+from dag_wallet import Wallet
 
 
 def main():
     """Test stuff"""
     print("Step 1: Create new wallet")
-    mnemonic_values = KeyStore.get_mnemonic()
-    private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
-    public_key = KeyStore.get_public_key_from_private_key(private_key.hex())
-    dag_addr = KeyStore.get_dag_address_from_public_key(public_key=public_key)
-    KeyStore.get_p12_from_private_key(private_key)
+    wallet = Wallet.new()
+    wallet = Wallet(address=wallet.address, public_key=wallet.public_key, private_key=wallet.private_key, words=wallet.words)
     print("Done!")
     print("Step 2: Generate Transaction")
     amount = 1  # 1 DAG
     fee = 0.1  # Transaction fee
-    from_address = dag_addr
+    from_address = wallet.address
     to_address = 'DAG4o8VYNg34Mnxp9mT4zDDCZTvrHWniscr3aAYv'
-    last_ref = API.get_last_reference(dag_address=dag_addr)
+    last_ref = API.get_last_reference(dag_address=wallet.address)
     tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
-    signature = KeyStore.sign(private_key_hex=private_key.hex(), tx_hash=tx_hash)
-    proof = {"id": public_key[2:], "signature": signature}
+    signature = KeyStore.sign(private_key_hex=wallet.private_key, tx_hash=tx_hash)
+    proof = {"id": wallet.public_key[2:], "signature": signature}
     tx.add_proof(proof=proof)
     print(tx.get_post_transaction())
     print("Done!")

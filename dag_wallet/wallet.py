@@ -1,8 +1,11 @@
 from hashlib import sha256
+from typing import Optional
+
 import base58
 
 from mnemonic import Mnemonic
 
+from dag_keystore import KeyStore
 from .constants import DERIVATION_PATH, COIN, PKCS_PREFIX
 
 # The derivation_path_map together with the seed can be used to derive the extended private key from the public_key
@@ -14,6 +17,13 @@ DERIVATION_PATH_MAP = {
 }
 
 class Wallet:
+
+    def __init__(self, address: str, public_key: str, private_key: str, words: Optional[str] = None):
+        self.address = address
+        self.public_key = public_key
+        self.private_key = private_key
+        self.words = words
+
     @staticmethod
     def get_dag_address_from_public_key_hex(public_key_hex: str) -> str:
         """
@@ -64,3 +74,17 @@ class Wallet:
                 return user_input
             else:
                 print("Invalid mnemonic. Please ensure it is correct.")
+
+    @classmethod
+    def new(cls):
+        mnemonic_values = KeyStore.get_mnemonic()
+        private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
+        public_key = KeyStore.get_public_key_from_private_key(private_key)
+        address = KeyStore.get_dag_address_from_public_key(public_key=public_key)
+        return cls(
+            address=address,
+            public_key=public_key,
+            private_key=private_key,
+            words=mnemonic_values["words"]
+        )
+
