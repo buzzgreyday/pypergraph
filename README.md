@@ -29,6 +29,14 @@ wallet = Wallet.from_mnemonic("abandon abandon abandon abandon abandon abandon a
 ```
 wallet = Wallet.from_private_key("SOME_VALID_PRIVATE_KEY")
 ```
+#### GET DAG WALLET ADDRESS
+```
+address = wallet.address
+```
+#### GET WALLET PUBLIC KEY
+```
+public_key = wallet.public_key
+```
 ### TRANSACTIONS
 #### CREATE A TRANSACTION
 ```
