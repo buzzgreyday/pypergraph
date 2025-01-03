@@ -1,5 +1,7 @@
 import binascii
+import traceback
 
+import coincurve.ecdsa
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
@@ -13,6 +15,9 @@ from cryptography.hazmat.primitives.serialization import (
 from cryptography.hazmat.primitives.serialization import pkcs12
 from coincurve import PrivateKey
 from decimal import Decimal, ROUND_DOWN
+
+from ecdsa import SigningKey, SECP256k1
+from ecdsa.util import sigencode_der
 
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode
@@ -135,6 +140,65 @@ class KeyStore:
         :param tx_hash: Transaction hash from prepare_tx
         :return: Signature supported by the transaction API (@noble/secp256k1 | Bouncy Castle)
         """
+        from ecdsa import SigningKey, SECP256k1
+        from ecdsa.util import sigencode_der
+        import hashlib
+        from pyasn1.codec.der.decoder import decode as der_decode
+        from pyasn1.codec.der.encoder import encode as der_encode
+        from pyasn1.type.univ import Sequence, Integer
+
+        # secp256k1 curve order
+        SECP256K1_ORDER = SECP256k1.order
+
+        def enforce_canonical_signature(signature: bytes) -> bytes:
+            """
+            Adjust the signature to ensure canonical form (s < curve_order / 2).
+            """
+            r, s = decode_der(signature)
+            if s > SECP256K1_ORDER // 2:
+                s = SECP256K1_ORDER - s
+            return encode_der(r, s)
+
+        def decode_der(signature: bytes):
+            """
+            Decode a DER-encoded signature to (r, s).
+            """
+            seq, _ = der_decode(signature, asn1Spec=Sequence())
+            r = int(seq[0])
+            s = int(seq[1])
+            return r, s
+
+        def encode_der(r: int, s: int) -> bytes:
+            """
+            Encode (r, s) back into DER format.
+            """
+            seq = Sequence()
+            seq.setComponentByPosition(0, Integer(r))
+            seq.setComponentByPosition(1, Integer(s))
+            return der_encode(seq)
+
+        def sign_deterministic_canonical(private_key_hex: str, tx_hash: bytes) -> str:
+            """
+            Create a deterministic and canonical secp256k1 signature.
+            """
+            # Create SigningKey object from private key hex
+            sk = SigningKey.from_string(bytes.fromhex(private_key_hex), curve=SECP256k1)
+
+            # Sign the prehashed message deterministically
+            signature_der = sk.sign_digest_deterministic(
+                tx_hash[:32],  # Truncate to 32 bytes if needed
+                hashfunc=hashlib.sha256,
+                sigencode=sigencode_der,
+            )
+
+            # Enforce canonicality
+            canonical_signature_der = enforce_canonical_signature(signature_der)
+            return canonical_signature_der.hex()
+
+        signature = sign_deterministic_canonical(private_key_hex, bytes.fromhex(tx_hash))
+
+        print("PY Signature:", signature)
+
         import subprocess
         # Prepare the command to execute the sign.mjs script with arguments
         command = [
