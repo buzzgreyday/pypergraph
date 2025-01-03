@@ -1,7 +1,3 @@
-import binascii
-import traceback
-
-import coincurve.ecdsa
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
@@ -15,9 +11,6 @@ from cryptography.hazmat.primitives.serialization import (
 from cryptography.hazmat.primitives.serialization import pkcs12
 from coincurve import PrivateKey
 from decimal import Decimal, ROUND_DOWN
-
-from ecdsa import SigningKey, SECP256k1
-from ecdsa.util import sigencode_der
 
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode
