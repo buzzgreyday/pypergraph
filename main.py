@@ -1,7 +1,3 @@
-from dag_network import DEFAULT_L1_BASE_URL
-
-import requests
-
 from dag_keystore import KeyStore
 
 from dag_network import API

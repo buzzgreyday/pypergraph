@@ -199,23 +199,6 @@ class KeyStore:
 
         print("PY Signature:", signature)
 
-        # import subprocess
-        # # Prepare the command to execute the sign.mjs script with arguments
-        # command = [
-        #     'node',
-        #     '/home/mringdal/Development/pydag/js/sign.bundle.js',
-        #     private_key_hex,
-        #     tx_hash
-        # ]
-        # # Run the script and capture the result
-        # result = subprocess.run(command, capture_output=True, text=True)
-        # # Check if there was an error
-        # if result.returncode != 0:
-        #     raise RuntimeError(f"Error in signing: {result.stderr}")
-        #
-        # signature_js = result.stdout.strip()
-        # print("JS Signature:", signature_js)
-
         return signature
 
     @staticmethod
