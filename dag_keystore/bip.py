@@ -4,6 +4,7 @@ import secrets
 
 from bip32utils import BIP32Key
 from coincurve import PrivateKey
+from ecdsa import SigningKey, SECP256k1
 from mnemonic import Mnemonic
 
 from .constants import DERIVATION_PATH, COIN, PKCS_PREFIX
@@ -55,9 +56,14 @@ class Bip32:
         :return: The public key as a hexadecimal string.
         """
         private_key_bytes = bytes.fromhex(private_key_hex)
+        sk = SigningKey.from_string(private_key_bytes, curve=SECP256k1)
+        private_key = sk
+        public_key =  b'\x04' + private_key.get_verifying_key().to_string()
         private_key = PrivateKey(private_key_bytes)
-        public_key = private_key.public_key.format(compressed=compressed)
-        return public_key
+        public_key_cc = private_key.public_key.format(compressed=compressed)  # Change to False for uncompressed
+        print("Public Key CC:", public_key_cc.hex())
+        print("Public Key EC:", public_key.hex())
+        return public_key.hex()
 
 class Bip39:
     """Generate 12 or 24 words and derive entropy"""
