@@ -136,7 +136,7 @@ class Wallet:
 
     def set_api(self, network=None, layer=None):
         """Update the API parameters."""
-        if network not in (None, "mainnet", "testnat", "integrationnet"):
+        if network not in (None, "mainnet", "testnet", "integrationnet"):
             raise ValueError(f"Network must be None or 'mainnet' or 'integrationnet' or 'testnet'")
         if layer not in (None, 0, 1):
             raise ValueError(f"Network must be None or integer 0 or 1")
