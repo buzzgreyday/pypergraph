@@ -6,7 +6,7 @@
 
 Pypergraph is a simple tool written in Python only, inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
 
-![Version](https://img.shields.io/badge/version-0.0.1-yellow.svg)
+![Version](https://img.shields.io/badge/version-0.0.2-yellow.svg)
 ![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 ---
 ## INSTALL
@@ -60,7 +60,7 @@ words = wallet.words
 
 #### GET DAG WALLET BALANCE
 ```
-wallet.get_address_balance()
+await wallet.get_address_balance()
 ```
 
 #### SET NON-DEFAULT DAG WALLET API
@@ -75,10 +75,10 @@ How to create a new transaction and send it.
 
 #### NEW TRANSACTION
 ```
-tx = wallet.build_transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, fee=0.0002)
+tx = await wallet.build_transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, fee=0.0002)
 ```
 
 #### SEND TRANSACTION
 ```
-response = wallet.send(tx)
+response = await wallet.send(tx)
 ```
