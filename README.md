@@ -82,3 +82,5 @@ tx = await wallet.transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, f
 ```
 response = await wallet.send(tx)
 ```
+---
+<a href="https://www.buymeacoffee.com/buzzgreyday" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
