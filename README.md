@@ -33,9 +33,17 @@ wallet = Wallet.from_private_key("SOME_VALID_PRIVATE_KEY")
 ```
 address = wallet.address
 ```
-#### GET WALLET PUBLIC KEY
+#### GET DAG WALLET PUBLIC KEY
 ```
 public_key = wallet.public_key
+```
+#### GET DAG WALLET PRIVATE KEY
+```
+private_key = wallet.private_key
+```
+#### GET DAG WALLET MNEMONIC PHRASE
+```
+words = wallet.words
 ```
 ### TRANSACTIONS
 #### CREATE A TRANSACTION
