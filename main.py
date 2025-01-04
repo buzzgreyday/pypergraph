@@ -1,5 +1,4 @@
 import asyncio
-from asyncio import create_task
 
 from dag_wallet import Wallet
 
@@ -8,6 +7,10 @@ async def main():
     """Test stuff"""
     print("Step 1: Create new wallet")
     wallet = Wallet.new()
+    print(wallet)
+    wallet = wallet.set_api("mainnet", 0)
+    print(wallet)
+
     wallet = Wallet(address=wallet.address, public_key=wallet.public_key, private_key=wallet.private_key, words=wallet.words)
     wallet = Wallet.from_mnemonic(wallet.words)
     wallet = Wallet.from_private_key(wallet.private_key)
@@ -17,7 +20,7 @@ async def main():
     print(tx.get_post_transaction())
     print("Done!")
     print("Step 3: Post Transaction")
-    resp = await tx.send()
+    resp = await wallet.send(tx)
     print(resp)
 
 if __name__ == "__main__":

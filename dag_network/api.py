@@ -14,6 +14,15 @@ class TransactionApiError(Exception):
 
 
 class API:
+
+    def __init__(self, network: str = "mainnet", layer: int = 1):
+        self.network = network
+        self.layer = layer
+        self.current_base_url = f"https://l{self.layer}-lb-{self.network}.constellationnetwork.io"
+
+    def __repr__(self):
+        return f"API(network={self.network}, layer={self.layer}, current_base_url={self.current_base_url}"
+
     @staticmethod
     async def handle_response(response):
         if response.status == 200:
@@ -32,10 +41,9 @@ class API:
 
                     raise TransactionApiError("Insufficient balance for transaction", response.status)
 
-    @staticmethod
-    async def get_last_reference(dag_address: str):
+    async def get_last_reference(self, dag_address: str):
         endpoint = f"/transactions/last-reference/{dag_address}"
-        url = DEFAULT_L1_BASE_URL + endpoint
+        url = self.current_base_url + endpoint
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
@@ -44,10 +52,9 @@ class API:
                 else:
                     response.raise_for_status()
 
-    @staticmethod
-    async def post_transaction(tx: dict):
+    async def post_transaction(self, tx: dict):
         endpoint = "/transactions"
-        url = DEFAULT_L1_BASE_URL + endpoint
+        url = self.current_base_url + endpoint
         headers = {
             "accept": "application/json",
             "Content-Type": "application/json"

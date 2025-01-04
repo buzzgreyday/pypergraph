@@ -7,6 +7,7 @@ import base58
 from mnemonic import Mnemonic
 
 from dag_keystore import KeyStore, Bip39
+from dag_network import API
 from .constants import DERIVATION_PATH, COIN, PKCS_PREFIX
 
 # The derivation_path_map together with the seed can be used to derive the extended private key from the public_key
@@ -19,11 +20,15 @@ DERIVATION_PATH_MAP = {
 
 class Wallet:
 
-    def __init__(self, address: str, public_key: str, private_key: str, words: Optional[str] = None):
+    def __init__(self, address: str, public_key: str, private_key: str, words: Optional[str] = None,  api=None):
         self.address = address
         self.public_key = public_key
         self.private_key = private_key
         self.words = words
+        self.api = api or API()  # Automatically set a default API instance
+
+    def __repr__(self):
+        return f"Wallet(address={self.address}, public_key={self.public_key}, private_key={self.private_key}, words={self.words}, api={self.api!r})"
 
     @staticmethod
     def get_dag_address_from_public_key_hex(public_key_hex: str) -> str:
@@ -118,12 +123,25 @@ class Wallet:
         )
 
     async def build_transaction(self, to_address: str, amount: float, fee: float = 0.0):
-        from dag_network import API
         from_address = self.address
-        last_ref = await API.get_last_reference(dag_address=self.address)
+        last_ref = await self.api.get_last_reference(dag_address=self.address)
         tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)
         signature = KeyStore.sign(private_key_hex=self.private_key, tx_hash=tx_hash)
         proof = {"id": self.public_key[2:], "signature": signature}
         tx.add_proof(proof=proof)
         return tx
+
+    def send(self, tx):
+        return asyncio.create_task(self.api.post_transaction(tx.get_post_transaction()))
+
+    def set_api(self, network=None, layer=None):
+        """Update the API parameters."""
+        if network not in (None, "mainnet", "testnat", "integrationnet"):
+            raise ValueError(f"Network must be None or 'mainnet' or 'integrationnet' or 'testnet'")
+        if layer not in (None, 0, 1):
+            raise ValueError(f"Network must be None or integer 0 or 1")
+        network = network or self.api.network
+        layer = layer if layer is not None else self.api.layer
+        self.api = API(network=network, layer=layer)
+        return self
 

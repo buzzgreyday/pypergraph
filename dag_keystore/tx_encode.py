@@ -97,8 +97,6 @@ class TransactionV2:
         """
         self.tx.proofs.append(proof)
 
-    def send(self):
-        return asyncio.create_task(API.post_transaction(self.get_post_transaction()))
 
 class TxEncode:
     @staticmethod

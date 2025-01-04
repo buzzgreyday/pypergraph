@@ -58,6 +58,11 @@ private_key = wallet.private_key
 words = wallet.words
 ```
 
+#### SET NON-DEFAULT DAG WALLET API
+> Default network is "mainnet" and layer is 1
+```
+wallet = wallet.set_api(network="testnet", layer=1)
+```
 
 ### TRANSACTION
 
@@ -70,5 +75,5 @@ tx = wallet.build_transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, f
 
 #### SEND TRANSACTION
 ```
-response = tx.send()
+response = wallet.send(tx)
 ```
