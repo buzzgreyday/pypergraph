@@ -21,7 +21,7 @@ pip install -r requirements.txt
 
 The following code is meant to demonstrate how easy interacting with the network is using Pypergraph. More extensive documentation coming.
 
-<p> ### WALLET
+### WALLET
 
 #### NEW WALLET
 ```
@@ -56,7 +56,8 @@ private_key = wallet.private_key
 #### GET DAG WALLET MNEMONIC PHRASE
 ```
 words = wallet.words
-```</p>
+```
+
 
 ### TRANSACTION
 
