@@ -90,5 +90,5 @@ class API:
         """
         url = f"{self.current_base_url}/transactions"
         headers = {"accept": "application/json", "Content-Type": "application/json"}
-        await self._fetch("POST", url, headers=headers, json=transaction_data)
+        return await self._fetch("POST", url, headers=headers, json=transaction_data)
 
