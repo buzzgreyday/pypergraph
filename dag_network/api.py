@@ -1,6 +1,4 @@
-from .constants import DEFAULT_L1_BASE_URL
 import aiohttp
-import asyncio
 
 
 class TransactionApiError(Exception):
@@ -19,6 +17,7 @@ class API:
         self.network = network
         self.layer = layer
         self.current_base_url = f"https://l{self.layer}-lb-{self.network}.constellationnetwork.io"
+        self.current_block_explorer_url = f"https://be-{self.network}.constellationnetwork.io"
 
     def __repr__(self):
         return f"API(network={self.network}, layer={self.layer}, current_base_url={self.current_base_url}"
@@ -41,10 +40,35 @@ class API:
 
                     raise TransactionApiError("Insufficient balance for transaction", response.status)
 
-    async def get_last_reference(self, dag_address: str):
-        endpoint = f"/transactions/last-reference/{dag_address}"
+    async def get_address_balance(self, hash: str):
+        """
+        :param hash: DAG address or public key
+        :return: dictionary
+        """
+        endpoint = f"/addresses/${hash}/balance"
+        url = self.current_block_explorer_url + endpoint
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    response.raise_for_status()
+
+    async def get_last_reference(self, hash: str):
+        endpoint = f"/transactions/last-reference/{hash}"
         url = self.current_base_url + endpoint
 
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    response.raise_for_status()
+
+    async def get_pending_transaction(self, hash: str):
+        endpoint = f"/transactions/{hash}"
+        url = self.current_base_url + endpoint
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 if response.status == 200:

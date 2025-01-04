@@ -58,6 +58,11 @@ private_key = wallet.private_key
 words = wallet.words
 ```
 
+#### GET DAG WALLET BALANCE
+```
+wallet.get_address_balance()
+```
+
 #### SET NON-DEFAULT DAG WALLET API
 > Default network is "mainnet" and layer is 1
 ```
