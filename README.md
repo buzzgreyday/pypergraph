@@ -4,7 +4,7 @@
 
 > **This tool is currently under development, contact me if you wish to contribute. Please do not rely on this for production purposes.**
 
-Pypergraph is a ***very*** simple tool written in Python only, inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
+Pypergraph is a simple tool written in Python only, inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
 
 ![Version](https://img.shields.io/badge/version-0.0.1-yellow.svg)
 ![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -18,6 +18,8 @@ pip install -r requirements.txt
 ```
 ---
 ## USAGE
+
+The following code is only meant to demonstrate interacting with the network is using Pypergraph. More extensive documentation coming.
 
 ### WALLET
 
