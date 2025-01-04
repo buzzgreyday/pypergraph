@@ -58,7 +58,7 @@ private_key = wallet.private_key
 words = wallet.words
 ```
 ---
-### BUILD AND SEND TRANSACTIONS
+### TRANSACTION
 
 How to create a new transaction and send it.
 
