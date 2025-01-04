@@ -1,17 +1,4 @@
 import aiohttp
-
-
-class TransactionApiError(Exception):
-    def __init__(self, message, error_code):
-        self.message = message
-        self.error = error_code
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f"{self.message} (status code: {self.error})"
-
-
-import aiohttp
 from typing import Any, Dict
 
 
