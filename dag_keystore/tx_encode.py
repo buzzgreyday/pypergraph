@@ -1,9 +1,6 @@
-import asyncio
 from dataclasses import dataclass, field
 from decimal import Decimal
 import random
-
-from dag_network import API
 
 
 @dataclass
@@ -120,7 +117,8 @@ class TxEncode:
         coded = msg.encode("utf-8").hex()
         return prefix + coded
 
-    def utf8_length(self, value: int) -> bytes:
+    @staticmethod
+    def utf8_length(value: int) -> bytes:
         """
         Encodes the length of a UTF8 string as a variable-length encoded integer.
         :param value: The value to encode.
