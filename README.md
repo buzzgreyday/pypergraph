@@ -19,39 +19,49 @@ pip install -r requirements.txt
 ## USAGE
 ---
 ### WALLET
+
 #### NEW WALLET
 ```
 wallet = Wallet.new()
 ```
+
 #### IMPORT WALLET FROM MNEMONIC PHRASE
 ```
 wallet = Wallet.from_mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon")
 ```
+
 #### IMPORT WALLET FROM PRIVATE KEY
 ```
 wallet = Wallet.from_private_key("SOME_VALID_PRIVATE_KEY")
 ```
+
 #### GET DAG WALLET ADDRESS
 ```
 address = wallet.address
 ```
+
 #### GET DAG WALLET PUBLIC KEY
 ```
 public_key = wallet.public_key
 ```
+
 #### GET DAG WALLET PRIVATE KEY
 ```
 private_key = wallet.private_key
 ```
+
 #### GET DAG WALLET MNEMONIC PHRASE
 ```
 words = wallet.words
 ```
+---
 ### TRANSACTIONS
+
 #### CREATE A TRANSACTION
 ```
 tx = wallet.build_transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, fee=0.0002)
 ```
+
 #### SEND TRANSACTION
 ```
 response = tx.send()
