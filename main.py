@@ -7,13 +7,6 @@ async def main():
     """Test stuff"""
     print("Step 1: Create new wallet")
     wallet = Wallet.new()
-    print(wallet)
-    wallet = wallet.set_api("mainnet", 0)
-    print(wallet)
-
-    wallet = Wallet(address=wallet.address, public_key=wallet.public_key, private_key=wallet.private_key, words=wallet.words)
-    wallet = Wallet.from_mnemonic(wallet.words)
-    wallet = Wallet.from_private_key(wallet.private_key)
     print("Done!")
     print("Step 2: Build Transaction")
     tx = await wallet.build_transaction(to_address='DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', amount=1.0, fee=0.0002)
