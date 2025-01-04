@@ -122,7 +122,7 @@ class Wallet:
             private_key=private_key
         )
 
-    async def build_transaction(self, to_address: str, amount: float, fee: float = 0.0):
+    async def transaction(self, to_address: str, amount: float, fee: float = 0.0):
         from_address = self.address
         last_ref = await self.api.get_last_reference(address_hash=self.address)
         tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref, fee)

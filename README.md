@@ -75,7 +75,7 @@ How to create a new transaction and send it.
 
 #### NEW TRANSACTION
 ```
-tx = await wallet.build_transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, fee=0.0002)
+tx = await wallet.transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, fee=0.0002)
 ```
 
 #### SEND TRANSACTION
