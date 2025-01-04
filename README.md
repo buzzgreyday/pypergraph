@@ -62,7 +62,7 @@ words = wallet.words
 
 How to create a new transaction and send it.
 
-#### CREATE A TRANSACTION
+#### NEW TRANSACTION
 ```
 tx = wallet.build_transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, fee=0.0002)
 ```
