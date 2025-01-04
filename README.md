@@ -60,7 +60,7 @@ words = wallet.words
 
 #### GET DAG WALLET BALANCE
 ```
-await wallet.get_address_balance()
+response = await wallet.get_address_balance()
 ```
 
 #### SET NON-DEFAULT DAG WALLET API
