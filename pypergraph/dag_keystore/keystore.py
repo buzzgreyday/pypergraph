@@ -3,8 +3,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives.serialization import (
-            pkcs12,
-            Encoding,
+    Encoding,
             PrivateFormat,
             NoEncryption,
         )
@@ -211,7 +210,7 @@ class KeyStore:
     @staticmethod
     def get_dag_address_from_public_key(public_key: str) -> str:
         """Returns DAG address as string"""
-        from dag_wallet import Wallet
+        from pypergraph.dag_wallet import Wallet
 
         return Wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)
 

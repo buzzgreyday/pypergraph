@@ -6,8 +6,8 @@ import base58
 
 from mnemonic import Mnemonic
 
-from dag_keystore import KeyStore, Bip39
-from dag_network import API
+from pypergraph.dag_keystore import KeyStore, Bip39
+from pypergraph.dag_network import API
 from .constants import DERIVATION_PATH, COIN, PKCS_PREFIX
 
 # The derivation_path_map together with the seed can be used to derive the extended private key from the public_key
