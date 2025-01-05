@@ -1,7 +1,7 @@
 Installation
 ============
 
-The package is not yet available on PyPi but will son be. You can try it out by running the commands below.
+The package is not yet available on PyPi. You can try it out by running the commands below.
 
 1. Clone the repository:
 
