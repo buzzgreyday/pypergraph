@@ -59,12 +59,13 @@ words = wallet.words
 ```
 
 #### GET DAG WALLET BALANCE
+> Default: returns a single float value
 ```
-response = await wallet.get_address_balance()
+balance = await wallet.get_address_balance()
 ```
 
 #### SET NON-DEFAULT DAG WALLET API
-> Default network is "mainnet" and layer is 1
+> Default: network="mainnet", layer=1
 ```
 wallet = wallet.set_api(network="testnet", layer=1)
 ```
