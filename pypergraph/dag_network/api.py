@@ -1,6 +1,8 @@
 import aiohttp
 from typing import Any, Dict
 
+from pypergraph.dag_network.models import Balance, LastReference
+
 
 class APIError(Exception):
     """Custom base exception for API-related errors."""
@@ -56,23 +58,26 @@ class API:
             async with session.request(method, url, **kwargs) as response:
                 return await self.handle_response(response)
 
-    async def get_address_balance(self, address_hash: str) -> Dict[str, Any]:
+    async def get_address_balance(self, address_hash: str, balance_only: bool = True) -> Balance | float:
         """
         Fetch the balance for a specific DAG address or public key.
+
         :param address_hash: DAG address or public key
-        :return: Dictionary containing the balance information.
+        :param balance_only: If True, return only the balance as a float. Otherwise, return a Balance object.
+        :return: Balance object or balance as a float.
         """
         url = f"{self.current_block_explorer_url}/addresses/{address_hash}/balance"
-        return await self._fetch("GET", url)
+        response = Balance(await self._fetch("GET", url))
+        return response.balance if balance_only else response
 
-    async def get_last_reference(self, address_hash: str) -> Dict[str, Any]:
+    async def get_last_reference(self, address_hash: str) -> LastReference:
         """
         Fetch the last reference for a specific DAG address.
         :param address_hash: DAG address or public key
         :return: Dictionary containing the last reference information.
         """
         url = f"{self.current_base_url}/transactions/last-reference/{address_hash}"
-        return await self._fetch("GET", url)
+        return LastReference(**await self._fetch("GET", url))
 
     async def get_pending_transaction(self, transaction_hash: str) -> Dict[str, Any]:
         """
