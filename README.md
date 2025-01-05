@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ---
 ## USAGE
 
-The following code is meant to demonstrate how easy interacting with the network is using Pypergraph. More extensive documentation coming.
+The following code is meant to demonstrate how easy interacting with the network is using Pypergraph. More extensive documentation coming. Full documentation will be up [here (still a work in progress)](https://pypergraph-dag.readthedocs.io/en/latest/index.html).
 
 ### WALLET
 

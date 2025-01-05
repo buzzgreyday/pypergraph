@@ -1,5 +1,4 @@
-# Core Sphinx package
-sphinx>=5.0
-
-# Read the Docs theme for Sphinx
-sphinx-rtd-theme>=1.2.0
+sphinx-autodoc-typehints
+sphinxcontrib-napoleon
+sphinx
+sphinx-rtd-theme
