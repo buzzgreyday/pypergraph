@@ -30,11 +30,13 @@ Basics
 .. code-block:: python
 
     private_key = wallet.private_key
+
 * **GET DAG WALLET MNEMONIC PHRASE**
 
 .. code-block:: python
 
     words = wallet.words
+
 * **GET DAG WALLET BALANCE**
 
     Default: returns a single float value
@@ -62,3 +64,4 @@ Basics
 .. code-block:: python
 
     response = await wallet.send(tx)
+
