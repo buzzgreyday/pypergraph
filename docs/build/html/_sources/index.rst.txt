@@ -11,7 +11,7 @@ pypergraph documentation
    :caption: Contents:
 
    introduction
+   basics
    installation
-
    pypergraph
    modules
