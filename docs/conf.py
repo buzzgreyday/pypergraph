@@ -15,7 +15,6 @@ release = '2025.0.0a3'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'myst-parser',
     'sphinx_rtd_theme',
 ]
 
