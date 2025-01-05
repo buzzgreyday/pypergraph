@@ -4,7 +4,7 @@
 
 > **This tool is currently under development, contact me if you wish to contribute. Please do not rely on this for production purposes just yet.**
 
-Pypergraph is a simple tool written in Python only, inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
+Pypergraph is a Python package that enables secure wallet functionalities and interaction with Constellation Network APIs. Inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
 
 ![Version](https://img.shields.io/badge/version-2025.0.0a3-yellow.svg)
 ![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
