@@ -17,4 +17,7 @@ documentation for details.
 
    pypergraph
    installation
+   modules
    pypergraph.dag_wallet
+   pypergraph.dag_keystore
+   pypergraph.dag_network
