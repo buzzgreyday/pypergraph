@@ -17,6 +17,7 @@ dependencies = [
     "pyasn1~=0.6.1",
     "aiohttp~=3.11.11"
 ]
+requires-python = ">=3.7"
 readme = "README.md"
 license = {file="LICENSE"}
 keywords = ["hypergraph", "dag", "constellation", "metagraph", "constellationnetwork", "cryptography", "crypto", "cryptocurrency", "wallet", "finance", "dag4", "dag4.js", "stardust", "collective"]
