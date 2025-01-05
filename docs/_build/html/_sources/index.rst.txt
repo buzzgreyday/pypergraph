@@ -1,6 +1,3 @@
-.. Pypergraph documentation master file, created by
-   sphinx-quickstart on Sun Jan  5 05:52:40 2025.
-
 Pypergraph
 ==========
 
