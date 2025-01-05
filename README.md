@@ -6,7 +6,7 @@
 
 Pypergraph is a simple tool written in Python only, inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
 
-![Version](https://img.shields.io/badge/version-0.0.2-yellow.svg)
+![Version](https://img.shields.io/badge/version-2025.0.0a3-yellow.svg)
 ![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 ---
 ## INSTALL
