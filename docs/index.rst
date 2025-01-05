@@ -10,9 +10,8 @@ This is the main page of the Pypergraph documentation.
    :maxdepth: 2
    :caption: Contents:
 
-   installation
-   usage
-   api
+   Installation
+   Wallet
 
 Installation
 ============
@@ -46,8 +45,8 @@ python -m venv venv
 pip install -r requirements.txt
 
 
-Usage
-=====
+Wallet
+======
 
 Here’s an example of how to use Pypergraph:
 
