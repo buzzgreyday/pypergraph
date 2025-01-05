@@ -1,7 +1,7 @@
 Installation
 ============
 
-To install Pypergraph, run the following commands:
+The package is not yet available on PyPi but will son be. You can try it out by running the commands below.
 
 1. Clone the repository:
 

@@ -1,4 +1,4 @@
-pypergraph package
+Pypergraph package
 ==================
 
 Subpackages
