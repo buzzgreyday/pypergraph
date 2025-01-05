@@ -50,16 +50,16 @@
 <li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.html">pypergraph.dag_network package</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">pypergraph.dag_wallet package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#pypergraph-dag-wallet-constants-module">pypergraph.dag_wallet.constants module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#pypergraph-dag-wallet-wallet-module">pypergraph.dag_wallet.wallet module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pypergraph.dag_wallet.constants">pypergraph.dag_wallet.constants module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pypergraph.dag_wallet.wallet">pypergraph.dag_wallet.wallet module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pypergraph.dag_wallet">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pypergraph.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#pypergraph-main-module">pypergraph.main module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#module-pypergraph.main">pypergraph.main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#module-pypergraph">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -72,17 +72,58 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pypergraph.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pypergraph.html#pypergraph-main-module">pypergraph.main module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pypergraph.html#module-contents">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.html#module-pypergraph.main">pypergraph.main module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.html#module-pypergraph">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">pypergraph.dag_wallet package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pypergraph-dag-wallet-constants-module">pypergraph.dag_wallet.constants module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pypergraph-dag-wallet-wallet-module">pypergraph.dag_wallet.wallet module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pypergraph.dag_wallet.constants">pypergraph.dag_wallet.constants module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pypergraph.dag_wallet.constants.COIN"><code class="docutils literal notranslate"><span class="pre">COIN</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.constants.COIN.DAG"><code class="docutils literal notranslate"><span class="pre">COIN.DAG</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.constants.COIN.ETH"><code class="docutils literal notranslate"><span class="pre">COIN.ETH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pypergraph.dag_wallet.constants.DERIVATION_PATH"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.constants.DERIVATION_PATH.DAG"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH.DAG</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.constants.DERIVATION_PATH.ETH"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH.ETH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.constants.DERIVATION_PATH.ETH_LEDGER"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH.ETH_LEDGER</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pypergraph.dag_wallet.wallet">pypergraph.dag_wallet.wallet module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet"><code class="docutils literal notranslate"><span class="pre">Wallet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet.from_mnemonic"><code class="docutils literal notranslate"><span class="pre">Wallet.from_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet.from_private_key"><code class="docutils literal notranslate"><span class="pre">Wallet.from_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet.get_address_balance"><code class="docutils literal notranslate"><span class="pre">Wallet.get_address_balance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet.get_dag_address_from_public_key_hex"><code class="docutils literal notranslate"><span class="pre">Wallet.get_dag_address_from_public_key_hex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet.get_mnemonic_from_input"><code class="docutils literal notranslate"><span class="pre">Wallet.get_mnemonic_from_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet.new"><code class="docutils literal notranslate"><span class="pre">Wallet.new()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet.send"><code class="docutils literal notranslate"><span class="pre">Wallet.send()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet.set_api"><code class="docutils literal notranslate"><span class="pre">Wallet.set_api()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.wallet.Wallet.transaction"><code class="docutils literal notranslate"><span class="pre">Wallet.transaction()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pypergraph.dag_wallet">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet"><code class="docutils literal notranslate"><span class="pre">Wallet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet.from_mnemonic"><code class="docutils literal notranslate"><span class="pre">Wallet.from_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet.from_private_key"><code class="docutils literal notranslate"><span class="pre">Wallet.from_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet.get_address_balance"><code class="docutils literal notranslate"><span class="pre">Wallet.get_address_balance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet.get_dag_address_from_public_key_hex"><code class="docutils literal notranslate"><span class="pre">Wallet.get_dag_address_from_public_key_hex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet.get_mnemonic_from_input"><code class="docutils literal notranslate"><span class="pre">Wallet.get_mnemonic_from_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet.new"><code class="docutils literal notranslate"><span class="pre">Wallet.new()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet.send"><code class="docutils literal notranslate"><span class="pre">Wallet.send()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet.set_api"><code class="docutils literal notranslate"><span class="pre">Wallet.set_api()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_wallet.Wallet.transaction"><code class="docutils literal notranslate"><span class="pre">Wallet.transaction()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pypergraph.dag_keystore.html">pypergraph.dag_keystore package</a></li>
@@ -119,14 +160,191 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="pypergraph-dag-wallet-constants-module">
-<h2>pypergraph.dag_wallet.constants module<a class="headerlink" href="#pypergraph-dag-wallet-constants-module" title="Link to this heading"></a></h2>
+<section id="module-pypergraph.dag_wallet.constants">
+<span id="pypergraph-dag-wallet-constants-module"></span><h2>pypergraph.dag_wallet.constants module<a class="headerlink" href="#module-pypergraph.dag_wallet.constants" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.constants.COIN">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_wallet.constants.</span></span><span class="sig-name descname"><span class="pre">COIN</span></span><a class="reference internal" href="_modules/pypergraph/dag_wallet/constants.html#COIN"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.constants.COIN" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.constants.COIN.DAG">
+<span class="sig-name descname"><span class="pre">DAG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1137</span></em><a class="headerlink" href="#pypergraph.dag_wallet.constants.COIN.DAG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.constants.COIN.ETH">
+<span class="sig-name descname"><span class="pre">ETH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#pypergraph.dag_wallet.constants.COIN.ETH" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.constants.DERIVATION_PATH">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_wallet.constants.</span></span><span class="sig-name descname"><span class="pre">DERIVATION_PATH</span></span><a class="reference internal" href="_modules/pypergraph/dag_wallet/constants.html#DERIVATION_PATH"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.constants.DERIVATION_PATH" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.constants.DERIVATION_PATH.DAG">
+<span class="sig-name descname"><span class="pre">DAG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DAG'</span></em><a class="headerlink" href="#pypergraph.dag_wallet.constants.DERIVATION_PATH.DAG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.constants.DERIVATION_PATH.ETH">
+<span class="sig-name descname"><span class="pre">ETH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ETH'</span></em><a class="headerlink" href="#pypergraph.dag_wallet.constants.DERIVATION_PATH.ETH" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.constants.DERIVATION_PATH.ETH_LEDGER">
+<span class="sig-name descname"><span class="pre">ETH_LEDGER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ETH_LEDGER'</span></em><a class="headerlink" href="#pypergraph.dag_wallet.constants.DERIVATION_PATH.ETH_LEDGER" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="pypergraph-dag-wallet-wallet-module">
-<h2>pypergraph.dag_wallet.wallet module<a class="headerlink" href="#pypergraph-dag-wallet-wallet-module" title="Link to this heading"></a></h2>
+<section id="module-pypergraph.dag_wallet.wallet">
+<span id="pypergraph-dag-wallet-wallet-module"></span><h2>pypergraph.dag_wallet.wallet module<a class="headerlink" href="#module-pypergraph.dag_wallet.wallet" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_wallet.wallet.</span></span><span class="sig-name descname"><span class="pre">Wallet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.from_mnemonic">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_mnemonic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.from_mnemonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.from_mnemonic" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>words</strong> – String of 12 words</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Wallet object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.from_private_key">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_private_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.from_private_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.from_private_key" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.get_address_balance">
+<span class="sig-name descname"><span class="pre">get_address_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dag_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_address_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.get_address_balance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.get_dag_address_from_public_key_hex">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_dag_address_from_public_key_hex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key_hex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_dag_address_from_public_key_hex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.get_dag_address_from_public_key_hex" title="Link to this definition"></a></dt>
+<dd><p>Derive the DAG address from the public key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>public_key_hex</strong> – The private key in hexadecimal format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The DAG address corresponding with the public key.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.get_mnemonic_from_input">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_mnemonic_from_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_mnemonic_from_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.get_mnemonic_from_input" title="Link to this definition"></a></dt>
+<dd><p>Prompts the user to enter a mnemonic word seed, validates it, and returns it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.new">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">new</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.new"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.new" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.send" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.set_api">
+<span class="sig-name descname"><span class="pre">set_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.set_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.set_api" title="Link to this definition"></a></dt>
+<dd><p>Update the API parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.transaction">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fee</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.transaction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="module-pypergraph.dag_wallet">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pypergraph.dag_wallet" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_wallet.</span></span><span class="sig-name descname"><span class="pre">Wallet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.from_mnemonic">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_mnemonic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.from_mnemonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.from_mnemonic" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>words</strong> – String of 12 words</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Wallet object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.from_private_key">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_private_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.from_private_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.from_private_key" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.get_address_balance">
+<span class="sig-name descname"><span class="pre">get_address_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dag_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_address_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.get_address_balance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.get_dag_address_from_public_key_hex">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_dag_address_from_public_key_hex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key_hex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_dag_address_from_public_key_hex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.get_dag_address_from_public_key_hex" title="Link to this definition"></a></dt>
+<dd><p>Derive the DAG address from the public key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>public_key_hex</strong> – The private key in hexadecimal format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The DAG address corresponding with the public key.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.get_mnemonic_from_input">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_mnemonic_from_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_mnemonic_from_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.get_mnemonic_from_input" title="Link to this definition"></a></dt>
+<dd><p>Prompts the user to enter a mnemonic word seed, validates it, and returns it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.new">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">new</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.new"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.new" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.send" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.set_api">
+<span class="sig-name descname"><span class="pre">set_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.set_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.set_api" title="Link to this definition"></a></dt>
+<dd><p>Update the API parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.transaction">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fee</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.transaction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
