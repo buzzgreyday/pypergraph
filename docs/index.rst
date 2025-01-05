@@ -1,18 +1,46 @@
 .. pypergraph documentation master file, created by
    sphinx-quickstart on Sun Jan  5 05:52:40 2025.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+ .. Pypergraph documentation master file, created by
+   sphinx-quickstart on Sat Jan  5 2025.
 
-pypergraph documentation
-========================
+Welcome to Pypergraph's documentation!
+=====================================
 
-
-
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
-
+This is the main page of the Pypergraph documentation.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   installation
+   usage
+   api
+
+Installation
+============
+
+To install Pypergraph, run the following command:
+```
+git clone https://github.com/buzzgreyday/pypergraph
+cd pypergraph
+python -m venv venv
+```
+Linux/MacOS:
+```
+source venv/bin/activate
+```
+Windows:
+```
+.\venv\Scripts\activate
+```
+```
+pip install -r requirements.txt
+```
+
+Usage
+=====
+
+```python
+import pypergraph
+
+# Your code goes here
