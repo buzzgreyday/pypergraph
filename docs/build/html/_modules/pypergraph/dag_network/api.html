@@ -44,8 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../pypergraph.html">Pypergraph package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pypergraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Pypergraph</a></li>
 </ul>
 
         </div>
@@ -155,7 +154,7 @@
 <span class="sd">        :return: Balance object or balance as a float.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_block_explorer_url</span><span class="si">}</span><span class="s2">/addresses/</span><span class="si">{</span><span class="n">address_hash</span><span class="si">}</span><span class="s2">/balance&quot;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">Balance</span><span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">))</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">balance</span> <span class="k">if</span> <span class="n">balance_only</span> <span class="k">else</span> <span class="n">response</span></div>
 
 

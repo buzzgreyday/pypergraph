@@ -44,8 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../pypergraph.html">Pypergraph package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pypergraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Pypergraph</a></li>
 </ul>
 
         </div>
@@ -205,6 +204,11 @@
 <a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.from_private_key">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_private_key</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">private_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Import a wallet from a private key</span>
+<span class="sd">        :param private_key: Hex</span>
+<span class="sd">        :return: Wallet object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">public_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_public_key_from_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
         <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
@@ -217,10 +221,18 @@
 <div class="viewcode-block" id="Wallet.transaction">
 <a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.transaction">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fee</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param to_address: The address to receive transaction</span>
+<span class="sd">        :param amount: Quantity to send to the address</span>
+<span class="sd">        :param fee: Tip the network</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">from_address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span>
         <span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_last_reference</span><span class="p">(</span><span class="n">address_hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
         <span class="n">tx</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">,</span> <span class="n">encoded_tx</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">prepare_tx</span><span class="p">(</span><span class="n">amount</span><span class="p">,</span> <span class="n">to_address</span><span class="p">,</span> <span class="n">from_address</span><span class="p">,</span> <span class="n">last_ref</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">fee</span><span class="p">)</span>
         <span class="n">signature</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">private_key_hex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">private_key</span><span class="p">,</span> <span class="n">tx_hash</span><span class="o">=</span><span class="n">tx_hash</span><span class="p">)</span>
+        <span class="c1"># Currently not working</span>
+        <span class="n">KeyStore</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">public_key_hex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span> <span class="n">tx_hash</span><span class="o">=</span><span class="n">tx_hash</span><span class="p">,</span> <span class="n">signature_hex</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
         <span class="n">proof</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="s2">&quot;signature&quot;</span><span class="p">:</span> <span class="n">signature</span><span class="p">}</span>
         <span class="n">tx</span><span class="o">.</span><span class="n">add_proof</span><span class="p">(</span><span class="n">proof</span><span class="o">=</span><span class="n">proof</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tx</span></div>

@@ -1,4 +1,4 @@
-pypergraph
+Pypergraph
 ==========
 
 .. toctree::

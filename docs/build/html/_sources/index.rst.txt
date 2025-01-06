@@ -13,5 +13,4 @@ Pypergraph Documentation
    introduction
    basics
    installation
-   pypergraph
    modules

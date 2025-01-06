@@ -114,6 +114,11 @@ class Wallet:
 
     @classmethod
     def from_private_key(cls, private_key: str):
+        """
+        Import a wallet from a private key
+        :param private_key: Hex
+        :return: Wallet object
+        """
         public_key = KeyStore.get_public_key_from_private_key(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
         return cls(
@@ -123,10 +128,18 @@ class Wallet:
         )
 
     async def transaction(self, to_address: str, amount: float, fee: float = 0.0):
+        """
+        :param to_address: The address to receive transaction
+        :param amount: Quantity to send to the address
+        :param fee: Tip the network
+        :return:
+        """
         from_address = self.address
         last_ref = await self.api.get_last_reference(address_hash=self.address)
         tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref.to_dict(), fee)
         signature = KeyStore.sign(private_key_hex=self.private_key, tx_hash=tx_hash)
+        # Currently not working
+        KeyStore.verify(public_key_hex=self.public_key, tx_hash=tx_hash, signature_hex=signature)
         proof = {"id": self.public_key[2:], "signature": signature}
         tx.add_proof(proof=proof)
         return tx

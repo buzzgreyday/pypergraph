@@ -9,8 +9,8 @@ from cryptography.hazmat.primitives.serialization import (
         )
 from cryptography.hazmat.primitives.serialization import pkcs12
 from decimal import Decimal, ROUND_DOWN
-from ecdsa import SigningKey, SECP256k1
-from ecdsa.util import sigencode_der
+from ecdsa import SigningKey, SECP256k1, VerifyingKey
+from ecdsa.util import sigencode_der, sigdecode_der
 from pyasn1.codec.der.decoder import decode as der_decode
 from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
@@ -97,7 +97,7 @@ class KeyStore:
     def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0) -> tuple:
         """
         :param amount: Amount to send
-        :param to_address: Destionation DAG address
+        :param to_address: Destination DAG address
         :param from_address: Source DAG address
         :param last_ref: Dictionary with keys: ordinal, hash
         :param fee: Transaction fee
@@ -191,7 +191,9 @@ class KeyStore:
 
     @staticmethod
     def get_mnemonic() -> dict:
-        """Returns mnemonic values in a dictionary with keys: mnemo, words, seed, entropy"""
+        """
+        Returns mnemonic values in a dictionary with keys: mnemo, words, seed, entropy
+        """
         bip39 = Bip39()
         return bip39.mnemonic()
 
