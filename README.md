@@ -6,6 +6,7 @@
 
 Pypergraph is a Python package that enables secure wallet functionalities and interaction with Constellation Network APIs. Inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
 
+[![Read the Docs](https://img.shields.io/readthedocs/pypergraph-dag)](https://pypergraph-dag.readthedocs.io)
 ![Version](https://img.shields.io/badge/version-2025.0.0a3-yellow.svg)
 ![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 ---
@@ -19,7 +20,7 @@ pip install -r requirements.txt
 ---
 ## USAGE
 
-The following code is meant to demonstrate how easy interacting with the network is using Pypergraph. More extensive documentation coming. Full documentation will be up [here (still a work in progress)](https://pypergraph-dag.readthedocs.io/en/latest/index.html).
+The following code is meant to demonstrate how easy interacting with the network is using Pypergraph. More extensive documentation coming. Full documentation available [here](https://pypergraph-dag.readthedocs.io/en/latest/index.html).
 
 ### WALLET
 
