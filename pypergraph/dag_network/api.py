@@ -73,6 +73,7 @@ class API:
     async def get_last_reference(self, address_hash: str) -> LastReference:
         """
         Fetch the last reference for a specific DAG address.
+
         :param address_hash: DAG address or public key
         :return: Dictionary containing the last reference information.
         """
@@ -82,6 +83,7 @@ class API:
     async def get_pending_transaction(self, transaction_hash: str) -> Dict[str, Any]:
         """
         Fetch details of a pending transaction.
+
         :param transaction_hash: Transaction hash
         :return: Dictionary containing transaction details.
         """
@@ -91,6 +93,7 @@ class API:
     async def post_transaction(self, transaction_data: Dict[str, Any]) -> None:
         """
         Submit a new transaction.
+
         :param transaction_data: Dictionary containing transaction details.
         """
         url = f"{self.current_base_url}/transactions"
