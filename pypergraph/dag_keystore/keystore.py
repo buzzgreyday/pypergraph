@@ -60,7 +60,7 @@ class KeyStore:
             p12_file.write(p12_data)
 
     @staticmethod
-    def get_private_key_from_p12(destination: str = "wallet.p12", password: str | None = None):
+    def get_private_key_from_p12(destination: str = "wallet.p12", password: str | None = None) -> str:
         """
         :param destination: Fullpath to the p12 file
         :param password: Encrypt the p12 with password (default: None | unencrypted)
@@ -142,16 +142,16 @@ class KeyStore:
         # secp256k1 curve order
         SECP256K1_ORDER = SECP256k1.order
 
-        def enforce_canonical_signature(signature: bytes) -> bytes:
+        def _enforce_canonical_signature(signature: bytes) -> bytes:
             """
             Adjust the signature to ensure canonical form (s < curve_order / 2).
             """
-            r, s = decode_der(signature)
+            r, s = _decode_der(signature)
             if s > SECP256K1_ORDER // 2:
                 s = SECP256K1_ORDER - s
-            return encode_der(r, s)
+            return _encode_der(r, s)
 
-        def decode_der(signature: bytes):
+        def _decode_der(signature: bytes):
             """
             Decode a DER-encoded signature to (r, s).
             """
@@ -160,7 +160,7 @@ class KeyStore:
             s = int(seq[1])
             return r, s
 
-        def encode_der(r: int, s: int) -> bytes:
+        def _encode_der(r: int, s: int) -> bytes:
             """
             Encode (r, s) back into DER format.
             """
@@ -184,7 +184,7 @@ class KeyStore:
             )
 
             # Enforce canonicality
-            canonical_signature_der = enforce_canonical_signature(signature_der)
+            canonical_signature_der = _enforce_canonical_signature(signature_der)
             return canonical_signature_der.hex()
 
         return sign_deterministic_canonical(private_key_hex, bytes.fromhex(tx_hash))
@@ -198,6 +198,7 @@ class KeyStore:
         :param signature_hex:
         :return: True if valid, False if invalid
         """
+
         vk = VerifyingKey.from_string(bytes.fromhex(public_key_hex), curve=SECP256k1)
         try:
             # Use verify_digest for prehashed input
@@ -211,6 +212,38 @@ class KeyStore:
             return False
 
     @staticmethod
+    def validate_dag_address(address: str) -> bool:
+        """
+        Validate DAG address
+        :param address: DAG address
+        :return: Boolean value
+        """
+        BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+        if not address:
+            return False
+
+        # Check length and prefix
+        if len(address) != 40 or not address.startswith("DAG"):
+            return False
+
+        # Check parity
+        try:
+            parity = int(address[3])
+            if parity < 0 or parity >= 10:
+                return False
+        except ValueError:
+            return False
+
+        # Validate Base58 characters in the remaining part
+        base58_part = address[4:]
+        for char in base58_part:
+            if char not in BASE58_ALPHABET:
+                return False
+
+        return True
+
+    @staticmethod
     def get_mnemonic() -> dict:
         """
         Returns mnemonic values in a dictionary with keys: mnemo, words, seed, entropy
@@ -220,13 +253,13 @@ class KeyStore:
 
     @staticmethod
     def get_private_key_from_seed(seed: bytes) -> str:
-        """Returns private key in bytes"""
+        """Returns private key in hex format"""
         bip32 = Bip32()
         return bip32.get_private_key_from_seed(seed_bytes=seed).hex()
 
     @staticmethod
     def get_public_key_from_private_key(private_key: hex) -> str:
-        """Returns the public key in bytes"""
+        """Returns the public key in hex format"""
         bip32 = Bip32()
         return bip32.get_public_key_from_private_hex(private_key_hex=private_key)
 
