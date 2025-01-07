@@ -111,8 +111,6 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_dag_address_from_public_key_hex</span><span class="p">(</span><span class="n">public_key_hex</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Derive the DAG address from the public key.</span>
-
 <span class="sd">        :param public_key_hex: The private key in hexadecimal format.</span>
 <span class="sd">        :return: The DAG address corresponding with the public key.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -205,7 +203,6 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_private_key</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">private_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Import a wallet from a private key</span>
 <span class="sd">        :param private_key: Hex</span>
 <span class="sd">        :return: Wallet object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -248,7 +245,7 @@
 <div class="viewcode-block" id="Wallet.set_api">
 <a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.set_api">[docs]</a>
     <span class="k">def</span> <span class="nf">set_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the API parameters.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Change network associated with the wallet.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">network</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;mainnet&quot;</span><span class="p">,</span> <span class="s2">&quot;testnet&quot;</span><span class="p">,</span> <span class="s2">&quot;integrationnet&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Network must be None or &#39;mainnet&#39; or &#39;integrationnet&#39; or &#39;testnet&#39;&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>

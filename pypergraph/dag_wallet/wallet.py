@@ -33,8 +33,6 @@ class Wallet:
     @staticmethod
     def get_dag_address_from_public_key_hex(public_key_hex: str) -> str:
         """
-        Derive the DAG address from the public key.
-
         :param public_key_hex: The private key in hexadecimal format.
         :return: The DAG address corresponding with the public key.
         """
@@ -115,7 +113,6 @@ class Wallet:
     @classmethod
     def from_private_key(cls, private_key: str):
         """
-        Import a wallet from a private key
         :param private_key: Hex
         :return: Wallet object
         """
@@ -149,7 +146,7 @@ class Wallet:
         return asyncio.create_task(self.api.post_transaction(tx.get_post_transaction()))
 
     def set_api(self, network=None, layer=None):
-        """Update the API parameters."""
+        """Change network associated with the wallet."""
         if network not in (None, "mainnet", "testnet", "integrationnet"):
             raise ValueError(f"Network must be None or 'mainnet' or 'integrationnet' or 'testnet'")
         if layer not in (None, 0, 1):
