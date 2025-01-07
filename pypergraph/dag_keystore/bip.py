@@ -66,12 +66,14 @@ class Bip39:
         if self.strength is None:
             raise ValueError(f"The value or Bip39(words={words} is unsupported. Supported: 12 or 24")
         if language not in Bip39.LANGUAGES:
-            ValueError(f"The language {language} isn't supported. Supported languages: {', '.join(Bip39.LANGUAGES)}")
+            raise ValueError(f"The language {language} isn't supported. Supported languages: {', '.join(Bip39.LANGUAGES)}")
         else:
             self.language = language
 
-    def mnemonic(self):
-
+    def mnemonic(self) -> dict:
+        """
+        :return: Dictionary with Mnemonic object, mnemonic phrase, mnemonic seed, mnemonic entropy.
+        """
         mnemo = Mnemonic(self.language)
         words = mnemo.generate(strength=self.strength)
         seed = mnemo.to_seed(words, passphrase="")

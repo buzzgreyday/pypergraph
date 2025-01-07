@@ -60,9 +60,9 @@ class Wallet:
     @staticmethod
     def get_mnemonic_from_input():
         """
-        Prompts the user to enter a mnemonic word seed, validates it, and returns it.
+        Prompts the user to enter a mnemonic seed phrase, validates it and returns it.
         """
-        mnemo = Mnemonic("english")
+
         while True:
             user_input = input("Enter your mnemonic seed phrase: ").strip()
 
@@ -71,13 +71,11 @@ class Wallet:
             if len(words) not in (12, 15, 18, 21, 24):
                 print("Invalid seed length. It should have 12, 15, 18, 21, or 24 words. Please try again.")
                 continue
+            valid = KeyStore.validate_mnemonic(mnemonic_phrase=user_input)
+            if not valid:
+                raise ValueError("Not a valid mnemonic.")
+            return user_input
 
-            # Validate mnemonic
-            if mnemo.check(user_input):
-                print("Mnemonic is valid.")
-                return user_input
-            else:
-                print("Invalid mnemonic. Please ensure it is correct.")
 
     @classmethod
     def new(cls):
@@ -85,6 +83,9 @@ class Wallet:
         private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
         public_key = KeyStore.get_public_key_from_private_key(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key=public_key)
+        valid = KeyStore.validate_dag_address(address=address)
+        if not valid:
+            raise ValueError("Not a valid DAG address.")
         return cls(
             address=address,
             public_key=public_key,

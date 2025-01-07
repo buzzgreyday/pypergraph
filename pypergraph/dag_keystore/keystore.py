@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives.serialization import pkcs12
 from decimal import Decimal, ROUND_DOWN
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
+from mnemonic import Mnemonic
 from pyasn1.codec.der.decoder import decode as der_decode
 from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
@@ -24,6 +25,13 @@ import hashlib
 class KeyStore:
     @staticmethod
     def get_p12_from_private_key(private_key: bytes, destination: str = "wallet.p12"):
+        """
+        Not in use for now.
+
+        :param private_key:
+        :param destination:
+        :return:
+        """
         # Input: Private key PEM and optional certificate
 
         sk = SigningKey.from_string(private_key, curve=SECP256k1)
@@ -62,9 +70,11 @@ class KeyStore:
     @staticmethod
     def get_private_key_from_p12(destination: str = "wallet.p12", password: str | None = None) -> str:
         """
-        :param destination: Fullpath to the p12 file
-        :param password: Encrypt the p12 with password (default: None | unencrypted)
-        :return: Private key as hex string
+        Not in use for now.
+
+        :param destination: Fullpath to the p12 file.
+        :param password: Encrypt the p12 with password (default: None | unencrypted).
+        :return: Private key as hex string.
         """
 
         # Load the .p12 file
@@ -96,12 +106,14 @@ class KeyStore:
     @staticmethod
     def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0) -> tuple:
         """
-        :param amount: Amount to send
-        :param to_address: Destination DAG address
-        :param from_address: Source DAG address
-        :param last_ref: Dictionary with keys: ordinal, hash
-        :param fee: Transaction fee
-        :return: TransactionV2 object, sha512hash, rle
+        Prepare a new transaction.
+
+        :param amount: Amount to send.
+        :param to_address: Destination DAG address.
+        :param from_address: Source DAG address.
+        :param last_ref: Dictionary with keys: ordinal, hash.
+        :param fee: Transaction fee.
+        :return: TransactionV2 object, sha512hash, rle.
         """
         if to_address == from_address:
           raise ValueError('KeyStore :: An address cannot send a transaction to itself')
@@ -125,16 +137,17 @@ class KeyStore:
         serialized_tx = TxEncode().kryo_serialize(msg=encoded_tx, set_references=False)
         hash_value = hashlib.sha512(hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest().encode("utf-8")).hexdigest()
 
-
         return tx, hash_value, encoded_tx
 
 
     @staticmethod
     def sign(private_key_hex: str, tx_hash: str) -> str:
         """
-        :param private_key_hex: Private key in hex format
-        :param tx_hash: Transaction hash from prepare_tx
-        :return: Signature supported by the transaction API (@noble/secp256k1)
+        Create transaction signature.
+
+        :param private_key_hex: Private key in hex format.
+        :param tx_hash: Transaction hash from prepare_tx.
+        :return: Signature supported by the transaction API (@noble/secp256k1).
         """
 
 
@@ -191,10 +204,12 @@ class KeyStore:
     @staticmethod
     def verify(public_key_hex, tx_hash, signature_hex) -> bool:
         """
+        Verify is the signature is valid.
+
         :param public_key_hex:
         :param tx_hash: Hex format
         :param signature_hex:
-        :return: True if valid, False if invalid
+        :return: True or False
         """
 
         vk = VerifyingKey.from_string(bytes.fromhex(public_key_hex), curve=SECP256k1)
@@ -212,8 +227,10 @@ class KeyStore:
     @staticmethod
     def validate_dag_address(address: str) -> bool:
         """
-        :param address: DAG address
-        :return: Boolean value
+        Validate DAG address.
+
+        :param address: DAG address.
+        :return: Boolean value.
         """
         BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
@@ -239,6 +256,20 @@ class KeyStore:
                 return False
 
         return True
+
+    @staticmethod
+    def validate_mnemonic(mnemonic_phrase: str) -> bool:
+        """
+        Validate mnemonic seed phrase.
+
+        :param mnemonic_phrase: String of words (default: 12).
+        :return: Boolean value.
+        """
+        mnemo = Mnemonic("english")
+        if mnemo.check(mnemonic_phrase):
+            return True
+        else:
+            return False
 
     @staticmethod
     def get_mnemonic() -> dict:
