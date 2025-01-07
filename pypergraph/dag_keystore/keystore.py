@@ -190,6 +190,27 @@ class KeyStore:
         return sign_deterministic_canonical(private_key_hex, bytes.fromhex(tx_hash))
 
     @staticmethod
+    def verify(public_key_hex, tx_hash, signature_hex) -> bool:
+        """
+        Verify if signature is valid
+        :param public_key_hex:
+        :param tx_hash: Hex format
+        :param signature_hex:
+        :return: True if valid, False if invalid
+        """
+        vk = VerifyingKey.from_string(bytes.fromhex(public_key_hex), curve=SECP256k1)
+        try:
+            # Use verify_digest for prehashed input
+            valid = vk.verify_digest(
+                bytes.fromhex(signature_hex),
+                bytes.fromhex(tx_hash)[:32],  # Prehashed hash
+                sigdecode=sigdecode_der
+            )
+            return valid
+        except Exception as e:
+            return False
+
+    @staticmethod
     def get_mnemonic() -> dict:
         """
         Returns mnemonic values in a dictionary with keys: mnemo, words, seed, entropy

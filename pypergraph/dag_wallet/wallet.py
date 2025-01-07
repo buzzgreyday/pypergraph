@@ -138,8 +138,9 @@ class Wallet:
         last_ref = await self.api.get_last_reference(address_hash=self.address)
         tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref.to_dict(), fee)
         signature = KeyStore.sign(private_key_hex=self.private_key, tx_hash=tx_hash)
-        # Currently not working
-        KeyStore.verify(public_key_hex=self.public_key, tx_hash=tx_hash, signature_hex=signature)
+        valid = KeyStore.verify(public_key_hex=self.public_key, tx_hash=tx_hash, signature_hex=signature)
+        if not valid:
+            raise ValueError("Invalid signature")
         proof = {"id": self.public_key[2:], "signature": signature}
         tx.add_proof(proof=proof)
         return tx
