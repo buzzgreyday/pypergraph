@@ -132,7 +132,6 @@ class KeyStore:
     @staticmethod
     def sign(private_key_hex: str, tx_hash: str) -> str:
         """
-        Signs DAG transaction using JavaScript
         :param private_key_hex: Private key in hex format
         :param tx_hash: Transaction hash from prepare_tx
         :return: Signature supported by the transaction API (@noble/secp256k1)
@@ -192,7 +191,6 @@ class KeyStore:
     @staticmethod
     def verify(public_key_hex, tx_hash, signature_hex) -> bool:
         """
-        Verify if signature is valid
         :param public_key_hex:
         :param tx_hash: Hex format
         :param signature_hex:
@@ -214,7 +212,6 @@ class KeyStore:
     @staticmethod
     def validate_dag_address(address: str) -> bool:
         """
-        Validate DAG address
         :param address: DAG address
         :return: Boolean value
         """
