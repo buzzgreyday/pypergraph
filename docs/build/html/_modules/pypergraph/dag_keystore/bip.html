@@ -76,15 +76,9 @@
 <span class="kn">from</span> <span class="nn">ecdsa</span> <span class="kn">import</span> <span class="n">SigningKey</span><span class="p">,</span> <span class="n">SECP256k1</span>
 <span class="kn">from</span> <span class="nn">mnemonic</span> <span class="kn">import</span> <span class="n">Mnemonic</span>
 
-<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">DERIVATION_PATH</span><span class="p">,</span> <span class="n">COIN</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">DERIVATION_PATH</span><span class="p">,</span> <span class="n">DERIVATION_PATH_MAP</span>
 
-<span class="c1"># The derivation_path_map together with the seed can be used to derive the extended private key from the public_key</span>
-<span class="c1"># E.g. &quot;m/44&#39;/{COIN.DAG}&#39;/0&#39;/0&quot; (account 0, index 0); &quot;m/44&#39;/{COIN.DAG}&#39;/0&#39;/1&quot; (account 0, index 1)</span>
-<span class="n">DERIVATION_PATH_MAP</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">DERIVATION_PATH</span><span class="o">.</span><span class="n">DAG</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;m/44&#39;/</span><span class="si">{</span><span class="n">COIN</span><span class="o">.</span><span class="n">DAG</span><span class="si">}</span><span class="s2">&#39;/0&#39;/0&quot;</span><span class="p">,</span>
-    <span class="n">DERIVATION_PATH</span><span class="o">.</span><span class="n">ETH</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;m/44&#39;/</span><span class="si">{</span><span class="n">COIN</span><span class="o">.</span><span class="n">ETH</span><span class="si">}</span><span class="s2">&#39;/0&#39;/0&quot;</span><span class="p">,</span>
-    <span class="n">DERIVATION_PATH</span><span class="o">.</span><span class="n">ETH_LEDGER</span><span class="p">:</span> <span class="s2">&quot;m/44&#39;/60&#39;&quot;</span><span class="p">,</span>
-<span class="p">}</span>
+
 
 <div class="viewcode-block" id="Bip32">
 <a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip32">[docs]</a>
@@ -132,7 +126,6 @@
 <span class="sd">        Derive the public key from a private key using secp256k1.</span>
 
 <span class="sd">        :param private_key_hex: The private key in hexadecimal format.</span>
-<span class="sd">        :param compressed: Whether to return a compressed public key.</span>
 <span class="sd">        :return: The public key as a hexadecimal string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">private_key_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">private_key_hex</span><span class="p">)</span>
@@ -176,6 +169,17 @@
     <span class="k">def</span> <span class="nf">get_seed_from_mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">mnemo</span> <span class="o">=</span> <span class="n">Mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">to_seed</span><span class="p">(</span><span class="n">words</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Bip39.validate_mnemonic">
+<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39.validate_mnemonic">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">validate_mnemonic</span><span class="p">(</span><span class="n">mnemonic_phrase</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;english&quot;</span><span class="p">):</span>
+        <span class="n">mnemo</span> <span class="o">=</span> <span class="n">Mnemonic</span><span class="p">(</span><span class="n">language</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">mnemonic_phrase</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
 </div>
 
 </pre></div>

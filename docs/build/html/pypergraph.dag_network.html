@@ -104,16 +104,6 @@
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.API">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.api.</span></span><span class="sig-name descname"><span class="pre">API</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mainnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#API"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.API" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pypergraph.dag_network.api.API.BASE_URL_TEMPLATE">
-<span class="sig-name descname"><span class="pre">BASE_URL_TEMPLATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://l{layer}-lb-{network}.constellationnetwork.io'</span></em><a class="headerlink" href="#pypergraph.dag_network.api.API.BASE_URL_TEMPLATE" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pypergraph.dag_network.api.API.BLOCK_EXPLORER_URL_TEMPLATE">
-<span class="sig-name descname"><span class="pre">BLOCK_EXPLORER_URL_TEMPLATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://be-{network}.constellationnetwork.io'</span></em><a class="headerlink" href="#pypergraph.dag_network.api.API.BLOCK_EXPLORER_URL_TEMPLATE" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.API.get_address_balance">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_address_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">balance_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pypergraph.dag_network.models.Balance" title="pypergraph.dag_network.models.Balance"><span class="pre">Balance</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#API.get_address_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.API.get_address_balance" title="Link to this definition"></a></dt>
@@ -167,11 +157,14 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.API.post_transaction">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#API.post_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.API.post_transaction" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#API.post_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.API.post_transaction" title="Link to this definition"></a></dt>
 <dd><p>Submit a new transaction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>transaction_data</strong> – Dictionary containing transaction details.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response from the API if no error is raised</p>
 </dd>
 </dl>
 </dd></dl>
@@ -217,7 +210,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.models.LastReference.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#LastReference.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.models.LastReference.to_dict" title="Link to this definition"></a></dt>
-<dd><p>Make LastReference return a dictionary with DAG address last transaction reference</p>
+<dd><p>Make LastReference object return a dictionary with the last transaction reference associated with the DAG wallet address.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Dictionary with keys “ordinal” and “hash”</p>
@@ -234,16 +227,6 @@
 <dt class="sig sig-object py" id="pypergraph.dag_network.API">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.</span></span><span class="sig-name descname"><span class="pre">API</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mainnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#API"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.API" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pypergraph.dag_network.API.BASE_URL_TEMPLATE">
-<span class="sig-name descname"><span class="pre">BASE_URL_TEMPLATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://l{layer}-lb-{network}.constellationnetwork.io'</span></em><a class="headerlink" href="#pypergraph.dag_network.API.BASE_URL_TEMPLATE" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pypergraph.dag_network.API.BLOCK_EXPLORER_URL_TEMPLATE">
-<span class="sig-name descname"><span class="pre">BLOCK_EXPLORER_URL_TEMPLATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://be-{network}.constellationnetwork.io'</span></em><a class="headerlink" href="#pypergraph.dag_network.API.BLOCK_EXPLORER_URL_TEMPLATE" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.API.get_address_balance">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_address_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">balance_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pypergraph.dag_network.models.Balance" title="pypergraph.dag_network.models.Balance"><span class="pre">Balance</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#API.get_address_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.API.get_address_balance" title="Link to this definition"></a></dt>
@@ -297,11 +280,14 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.API.post_transaction">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#API.post_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.API.post_transaction" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#API.post_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.API.post_transaction" title="Link to this definition"></a></dt>
 <dd><p>Submit a new transaction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>transaction_data</strong> – Dictionary containing transaction details.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response from the API if no error is raised</p>
 </dd>
 </dl>
 </dd></dl>
