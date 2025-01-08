@@ -17,9 +17,8 @@ from pyasn1.codec.der.decoder import decode as der_decode
 from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
 
-from . import TransactionV2
 from .bip import Bip39, Bip32
-from .tx_encode import TxEncode
+from .tx_encode import TxEncode, TransactionV2
 from .constants import BASE58_ALPHABET
 
 import datetime

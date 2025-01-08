@@ -1,10 +1,4 @@
-from .constants import DEFAULT_L0_BASE_URL, DEFAULT_L1_BASE_URL, BLOCK_EXPLORER_URL
+from .constants import BASE_URL_TEMPLATE, BLOCK_EXPLORER_URL_TEMPLATE
 from .api import API
 
-__all__ = [
-    "API",
-    "DEFAULT_L0_BASE_URL",
-    "DEFAULT_L1_BASE_URL",
-    "BLOCK_EXPLORER_URL",
-
-]
+__all__ = ["API", "BASE_URL_TEMPLATE", "BLOCK_EXPLORER_URL_TEMPLATE"]
