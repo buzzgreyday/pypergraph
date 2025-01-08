@@ -152,9 +152,7 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid seed length. It should have 12, 15, 18, 21, or 24 words. Please try again.&quot;</span><span class="p">)</span>
                 <span class="k">continue</span>
-            <span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_mnemonic</span><span class="p">(</span><span class="n">mnemonic_phrase</span><span class="o">=</span><span class="n">user_input</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not a valid mnemonic.&quot;</span><span class="p">)</span>
+
             <span class="k">return</span> <span class="n">user_input</span></div>
 
 
@@ -169,7 +167,7 @@
         <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="o">=</span><span class="n">public_key</span><span class="p">)</span>
         <span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_dag_address</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not a valid DAG address.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid DAG address.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span>
             <span class="n">public_key</span><span class="o">=</span><span class="n">public_key</span><span class="p">,</span>
@@ -186,6 +184,9 @@
 <span class="sd">        :param words: String of 12 words</span>
 <span class="sd">        :return: Wallet object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_mnemonic</span><span class="p">(</span><span class="n">mnemonic_phrase</span><span class="o">=</span><span class="n">words</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid mnemonic.&quot;</span><span class="p">)</span>
         <span class="n">mnemonic</span> <span class="o">=</span> <span class="n">Bip39</span><span class="p">()</span>
         <span class="n">seed_bytes</span> <span class="o">=</span> <span class="n">mnemonic</span><span class="o">.</span><span class="n">get_seed_from_mnemonic</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
         <span class="n">private_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_private_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="p">)</span>
