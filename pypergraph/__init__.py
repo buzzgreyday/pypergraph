@@ -1,3 +1,6 @@
-from .version import get_version
+from importlib.metadata import version, PackageNotFoundError
 
-__version__ = get_version()
+try:
+    __version__ = version("pypergraph")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
