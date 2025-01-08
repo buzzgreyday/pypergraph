@@ -1,3 +1,7 @@
+[tool.sphinx]
+source = "docs/source"
+build = "docs/build"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
