@@ -1,6 +1,7 @@
 import aiohttp
 from typing import Any, Dict
 
+from pypergraph.dag_network.constants import BASE_URL_TEMPLATE, BLOCK_EXPLORER_URL_TEMPLATE
 from pypergraph.dag_network.models import Balance, LastReference
 
 
@@ -17,14 +18,12 @@ class TransactionApiError(APIError):
 
 
 class API:
-    BASE_URL_TEMPLATE = "https://l{layer}-lb-{network}.constellationnetwork.io"
-    BLOCK_EXPLORER_URL_TEMPLATE = "https://be-{network}.constellationnetwork.io"
 
     def __init__(self, network: str = "mainnet", layer: int = 1):
         self.network = network
         self.layer = layer
-        self.current_base_url = self.BASE_URL_TEMPLATE.format(layer=self.layer, network=self.network)
-        self.current_block_explorer_url = self.BLOCK_EXPLORER_URL_TEMPLATE.format(network=self.network)
+        self.current_base_url = BASE_URL_TEMPLATE.format(layer=self.layer, network=self.network)
+        self.current_block_explorer_url = BLOCK_EXPLORER_URL_TEMPLATE.format(network=self.network)
 
     def __repr__(self) -> str:
         return (
@@ -93,11 +92,12 @@ class API:
         url = f"{self.current_base_url}/transactions/{transaction_hash}"
         return await self._fetch("GET", url)
 
-    async def post_transaction(self, transaction_data: Dict[str, Any]) -> None:
+    async def post_transaction(self, transaction_data: Dict[str, Any]):
         """
         Submit a new transaction.
 
         :param transaction_data: Dictionary containing transaction details.
+        :return: Response from the API if no error is raised
         """
         url = f"{self.current_base_url}/transactions"
         headers = {"accept": "application/json", "Content-Type": "application/json"}

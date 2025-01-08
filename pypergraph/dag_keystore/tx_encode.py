@@ -47,7 +47,8 @@ class TransactionV2:
 
     def get_post_transaction(self, proof=None):
         """
-        Returns the dictionary representation of the transaction, optionally including proofs.
+        :param proof:
+        :return: Dictionary representation of the transaction, optionally including proofs.
         """
         post_transaction = {
             "value": {
@@ -60,7 +61,10 @@ class TransactionV2:
             post_transaction["proofs"].append(proof)
         return post_transaction
 
-    def get_encoded(self):
+    def get_encoded(self) -> str:
+        """
+        :return: An encoded version of the transaction used for signing
+        """
         parent_count = "2"  # Always 2 parents
         source_address = self.tx.value["source"]
         dest_address = self.tx.value["destination"]
@@ -88,9 +92,11 @@ class TransactionV2:
             salt,
         ])
 
-    def add_proof(self, proof):
+    def add_proof(self, proof: dict):
         """
         Adds a signature proof to the transaction.
+
+        :param proof: The key "id" is the compressed public key (without 04 prefix), "signature" is self-explanatory
         """
         self.tx.proofs.append(proof)
 
@@ -108,7 +114,8 @@ class TxEncode:
 
     def kryo_serialize(self, msg: str, set_references: bool = True) -> str:
         """
-        Serialize a message using a custom kryo-like serialization method.
+        Serialize a message using a custom kryo-like serialization method. Used after encoding the message to sign.
+
         :param msg: The string message to serialize.
         :param set_references: Whether to include references in the prefix.
         :return: The serialized message as a hexadecimal string.
@@ -121,6 +128,7 @@ class TxEncode:
     def utf8_length(value: int) -> bytes:
         """
         Encodes the length of a UTF8 string as a variable-length encoded integer.
+
         :param value: The value to encode.
         :return: The encoded length as a bytes object.
         """

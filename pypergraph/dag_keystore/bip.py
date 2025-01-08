@@ -2,15 +2,9 @@ from bip32utils import BIP32Key
 from ecdsa import SigningKey, SECP256k1
 from mnemonic import Mnemonic
 
-from .constants import DERIVATION_PATH, COIN
+from .constants import DERIVATION_PATH, DERIVATION_PATH_MAP
 
-# The derivation_path_map together with the seed can be used to derive the extended private key from the public_key
-# E.g. "m/44'/{COIN.DAG}'/0'/0" (account 0, index 0); "m/44'/{COIN.DAG}'/0'/1" (account 0, index 1)
-DERIVATION_PATH_MAP = {
-    DERIVATION_PATH.DAG: f"m/44'/{COIN.DAG}'/0'/0",
-    DERIVATION_PATH.ETH: f"m/44'/{COIN.ETH}'/0'/0",
-    DERIVATION_PATH.ETH_LEDGER: "m/44'/60'",
-}
+
 
 class Bip32:
     @staticmethod
@@ -48,7 +42,6 @@ class Bip32:
         Derive the public key from a private key using secp256k1.
 
         :param private_key_hex: The private key in hexadecimal format.
-        :param compressed: Whether to return a compressed public key.
         :return: The public key as a hexadecimal string.
         """
         private_key_bytes = bytes.fromhex(private_key_hex)
@@ -83,3 +76,11 @@ class Bip39:
     def get_seed_from_mnemonic(self, words: str):
         mnemo = Mnemonic(self.language)
         return mnemo.to_seed(words)
+
+    @staticmethod
+    def validate_mnemonic(mnemonic_phrase: str, language: str = "english"):
+        mnemo = Mnemonic(language)
+        if mnemo.check(mnemonic_phrase):
+            return True
+        else:
+            return False

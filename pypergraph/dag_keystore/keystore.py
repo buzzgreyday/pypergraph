@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
@@ -11,13 +13,14 @@ from cryptography.hazmat.primitives.serialization import pkcs12
 from decimal import Decimal, ROUND_DOWN
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
-from mnemonic import Mnemonic
 from pyasn1.codec.der.decoder import decode as der_decode
 from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
 
+from . import TransactionV2
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode
+from .constants import BASE58_ALPHABET
 
 import datetime
 import hashlib
@@ -104,7 +107,7 @@ class KeyStore:
             raise ValueError("KeyStore :: No private key found in the .p12 file.")
 
     @staticmethod
-    def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0) -> tuple:
+    def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0) -> Tuple[TransactionV2, str, str]:
         """
         Prepare a new transaction.
 
@@ -149,7 +152,6 @@ class KeyStore:
         :param tx_hash: Transaction hash from prepare_tx.
         :return: Signature supported by the transaction API (@noble/secp256k1).
         """
-
 
         # secp256k1 curve order
         SECP256K1_ORDER = SECP256k1.order
@@ -221,7 +223,7 @@ class KeyStore:
                 sigdecode=sigdecode_der
             )
             return valid
-        except Exception as e:
+        except Exception:
             return False
 
     @staticmethod
@@ -232,7 +234,6 @@ class KeyStore:
         :param address: DAG address.
         :return: Boolean value.
         """
-        BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
         if not address:
             return False
@@ -265,35 +266,44 @@ class KeyStore:
         :param mnemonic_phrase: String of words (default: 12).
         :return: Boolean value.
         """
-        mnemo = Mnemonic("english")
-        if mnemo.check(mnemonic_phrase):
-            return True
-        else:
-            return False
+
+        return Bip39.validate_mnemonic(mnemonic_phrase=mnemonic_phrase)
+
 
     @staticmethod
     def get_mnemonic() -> dict:
         """
-        Returns mnemonic values in a dictionary with keys: mnemo, words, seed, entropy
+        :return: Mnemonic values in a dictionary with keys: mnemo, words, seed, entropy
         """
         bip39 = Bip39()
         return bip39.mnemonic()
 
     @staticmethod
     def get_private_key_from_seed(seed: bytes) -> str:
-        """Returns private key in hex format"""
+        """
+        Get private key from mnemonic seed (not phrase)
+
+        :param seed:
+        :return: Private key as hexadecimal string
+        """
         bip32 = Bip32()
         return bip32.get_private_key_from_seed(seed_bytes=seed).hex()
 
     @staticmethod
     def get_public_key_from_private_key(private_key: hex) -> str:
-        """Returns the public key in hex format"""
+        """
+        :param private_key:
+        :return: Public key (Node ID)
+        """
         bip32 = Bip32()
         return bip32.get_public_key_from_private_hex(private_key_hex=private_key)
 
     @staticmethod
     def get_dag_address_from_public_key(public_key: str) -> str:
-        """Returns DAG address as string"""
+        """
+        :param public_key:
+        :return: DAG address string
+        """
         from pypergraph.dag_wallet import Wallet
 
         return Wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)

@@ -26,11 +26,11 @@ class LastReference:
         self.hash = hash
 
     def __repr__(self):
-        return f"LastReference(ordinal={self.ordinal}, hash='{self.hash}'"
+        return f"LastReference(ordinal={self.ordinal}, hash='{self.hash}')"
 
     def to_dict(self) -> dict:
         """
-        Make LastReference return a dictionary with DAG address last transaction reference
+        Make LastReference object return a dictionary with the last transaction reference associated with the DAG wallet address.
 
         :return: Dictionary with keys "ordinal" and "hash"
         """
