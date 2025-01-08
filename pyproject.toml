@@ -35,6 +35,5 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://mringdal.com"
-Documentation = "https://github.com/buzzgreyday/README.md"
 Repository = "https://github.com/buzzgreyday/pypergraph.git"
 "Bug Tracker" = "https://github.com/buzzgreyday/pypergraph/issues"
