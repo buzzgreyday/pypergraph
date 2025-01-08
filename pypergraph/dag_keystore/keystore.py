@@ -3,7 +3,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives.serialization import (
-    Encoding,
+            Encoding,
             PrivateFormat,
             NoEncryption,
         )
@@ -101,7 +101,7 @@ class KeyStore:
 
             return private_key_hex
         else:
-            raise ValueError("No private key found in the .p12 file.")
+            raise ValueError("KeyStore :: No private key found in the .p12 file.")
 
     @staticmethod
     def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0) -> tuple:

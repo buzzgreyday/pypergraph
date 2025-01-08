@@ -67,7 +67,10 @@ class API:
         :return: Balance object or balance as a float.
         """
         url = f"{self.current_block_explorer_url}/addresses/{address_hash}/balance"
-        response = Balance(**await self._fetch("GET", url))
+        d = await self._fetch("GET", url)
+        data = d.get("data")
+        meta = d.get("meta", None)
+        response = Balance(data=data, meta=meta)
         return response.balance if balance_only else response
 
     async def get_last_reference(self, address_hash: str) -> LastReference:

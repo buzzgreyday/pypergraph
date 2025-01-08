@@ -71,9 +71,7 @@ class Wallet:
             if len(words) not in (12, 15, 18, 21, 24):
                 print("Invalid seed length. It should have 12, 15, 18, 21, or 24 words. Please try again.")
                 continue
-            valid = KeyStore.validate_mnemonic(mnemonic_phrase=user_input)
-            if not valid:
-                raise ValueError("Not a valid mnemonic.")
+
             return user_input
 
 
@@ -85,7 +83,7 @@ class Wallet:
         address = KeyStore.get_dag_address_from_public_key(public_key=public_key)
         valid = KeyStore.validate_dag_address(address=address)
         if not valid:
-            raise ValueError("Not a valid DAG address.")
+            raise ValueError("Wallet :: Not a valid DAG address.")
         return cls(
             address=address,
             public_key=public_key,
@@ -99,6 +97,9 @@ class Wallet:
         :param words: String of 12 words
         :return: Wallet object
         """
+        valid = KeyStore.validate_mnemonic(mnemonic_phrase=words)
+        if not valid:
+            raise ValueError("Wallet :: Not a valid mnemonic.")
         mnemonic = Bip39()
         seed_bytes = mnemonic.get_seed_from_mnemonic(words)
         private_key = KeyStore.get_private_key_from_seed(seed_bytes)
