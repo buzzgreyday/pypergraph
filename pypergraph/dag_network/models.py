@@ -1,3 +1,7 @@
+import json
+from typing import Dict, Any
+
+
 class Balance:
 
     def __init__(self, data: dict, meta: dict | None):
@@ -35,3 +39,33 @@ class LastReference:
         :return: Dictionary with keys "ordinal" and "hash"
         """
         return {'ordinal': self.ordinal, 'hash': f'{self.hash}'}
+
+
+class PostTransactionResponse:
+
+    def __init__(self, hash: str):
+        self.hash = hash
+
+    def __repr__(self):
+        return f"PostTransactionResponse(hash='{self.hash}')"
+
+
+class PendingTransaction:
+
+    def __init__(self, data: Dict[str, Any]):
+        transaction = data["transaction"]
+        self.source = transaction["source"]
+        self.destination = transaction["destination"]
+        self.amount = transaction["amount"]
+        self.fee = transaction["fee"]
+        self.parent_hash = transaction["parent"]["hash"]
+        self.parent_ordinal = transaction["parent"]["ordinal"]
+        self.salt = transaction["salt"]
+        self.transaction_hash = data["hash"]
+        self.status = data["status"]
+
+    def __repr__(self):
+        return (f"PendingTransaction(source={self.source}, destination={self.destination}, "
+                f"amount={self.amount}, fee={self.fee}, parent_hash={self.parent_hash}, "
+                f"parent_ordinal={self.parent_ordinal}, salt={self.salt}, "
+                f"transaction_hash={self.transaction_hash}, status={self.status})")

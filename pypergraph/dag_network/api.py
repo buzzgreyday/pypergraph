@@ -2,7 +2,7 @@ import aiohttp
 from typing import Any, Dict
 
 from pypergraph.dag_network.constants import BASE_URL_TEMPLATE, BLOCK_EXPLORER_URL_TEMPLATE
-from pypergraph.dag_network.models import Balance, LastReference
+from pypergraph.dag_network.models import Balance, LastReference, PostTransactionResponse, PendingTransaction
 
 
 class APIError(Exception):
@@ -36,8 +36,11 @@ class API:
         """Handle HTTP responses, raising custom exceptions for errors."""
         if response.status == 200:
             return await response.json()
+        elif response.status == 404:
+            return None
 
         response_data = await response.json()
+
         if response.status == 400:
             for error in response_data.get("errors", []):
                 if "InsufficientBalance" in error.get("message", ""):
@@ -48,6 +51,7 @@ class API:
                     balance = int(balance_str)  # Example: parse or log
 
                     raise TransactionApiError("Insufficient balance for transaction", response.status)
+
 
         response.raise_for_status()  # Raise for all other errors
 
@@ -82,7 +86,7 @@ class API:
         url = f"{self.current_base_url}/transactions/last-reference/{address_hash}"
         return LastReference(**await self._fetch("GET", url))
 
-    async def get_pending_transaction(self, transaction_hash: str) -> Dict[str, Any]:
+    async def get_pending_transaction(self, transaction_hash: str) -> PendingTransaction | None:
         """
         Fetch details of a pending transaction.
 
@@ -90,9 +94,11 @@ class API:
         :return: Dictionary containing transaction details.
         """
         url = f"{self.current_base_url}/transactions/{transaction_hash}"
-        return await self._fetch("GET", url)
+        pending = await self._fetch("GET", url)
 
-    async def post_transaction(self, transaction_data: Dict[str, Any]):
+        return PendingTransaction(pending) if pending else None
+
+    async def post_transaction(self, transaction_data: Dict[str, Any]) -> str:
         """
         Submit a new transaction.
 
@@ -101,5 +107,6 @@ class API:
         """
         url = f"{self.current_base_url}/transactions"
         headers = {"accept": "application/json", "Content-Type": "application/json"}
-        return await self._fetch("POST", url, headers=headers, json=transaction_data)
+        response = PostTransactionResponse(**await self._fetch("POST", url, headers=headers, json=transaction_data))
+        return response.hash
 

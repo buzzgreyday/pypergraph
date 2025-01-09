@@ -8,6 +8,7 @@ from pypergraph.dag_keystore import KeyStore, Bip39, TransactionV2
 from pypergraph.dag_network import API
 from .constants import PKCS_PREFIX
 
+
 class Wallet:
 
     def __init__(self, address: str, public_key: str, private_key: str, words: Optional[str] = None,  api=None):
@@ -177,7 +178,16 @@ class Wallet:
         Asynchronous method (used with await).
 
         :param dag_address:
-        :return: DAG wallet balance in float.
+        :return: Async task: DAG wallet balance in float.
         """
         dag_address = self.address if not dag_address else dag_address
         return asyncio.create_task(self.api.get_address_balance(dag_address))
+
+    def get_pending_transaction(self, transaction_hash: str):
+        """
+        Asynchronous method (used with await)
+
+        :param transaction_hash:
+        :return: Async task: pending transaction
+        """
+        return asyncio.create_task(self.api.get_pending_transaction(transaction_hash=transaction_hash))

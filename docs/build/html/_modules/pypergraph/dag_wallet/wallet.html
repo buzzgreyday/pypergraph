@@ -82,6 +82,7 @@
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network</span> <span class="kn">import</span> <span class="n">API</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">PKCS_PREFIX</span>
 
+
 <div class="viewcode-block" id="Wallet">
 <a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet">[docs]</a>
 <span class="k">class</span> <span class="nc">Wallet</span><span class="p">:</span>
@@ -279,10 +280,22 @@
 <span class="sd">        Asynchronous method (used with await).</span>
 
 <span class="sd">        :param dag_address:</span>
-<span class="sd">        :return: DAG wallet balance in float.</span>
+<span class="sd">        :return: Async task: DAG wallet balance in float.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dag_address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">dag_address</span> <span class="k">else</span> <span class="n">dag_address</span>
         <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="n">dag_address</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Wallet.get_pending_transaction">
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.get_pending_transaction">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_pending_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronous method (used with await)</span>
+
+<span class="sd">        :param transaction_hash:</span>
+<span class="sd">        :return: Async task: pending transaction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_pending_transaction</span><span class="p">(</span><span class="n">transaction_hash</span><span class="o">=</span><span class="n">transaction_hash</span><span class="p">))</span></div>
 </div>
 
 </pre></div>

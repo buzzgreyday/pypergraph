@@ -76,7 +76,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.constants</span> <span class="kn">import</span> <span class="n">BASE_URL_TEMPLATE</span><span class="p">,</span> <span class="n">BLOCK_EXPLORER_URL_TEMPLATE</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models</span> <span class="kn">import</span> <span class="n">Balance</span><span class="p">,</span> <span class="n">LastReference</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models</span> <span class="kn">import</span> <span class="n">Balance</span><span class="p">,</span> <span class="n">LastReference</span><span class="p">,</span> <span class="n">PostTransactionResponse</span><span class="p">,</span> <span class="n">PendingTransaction</span>
 
 
 <div class="viewcode-block" id="APIError">
@@ -120,8 +120,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle HTTP responses, raising custom exceptions for errors.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="n">response_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">response_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="p">[]):</span>
                 <span class="k">if</span> <span class="s2">&quot;InsufficientBalance&quot;</span> <span class="ow">in</span> <span class="n">error</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
@@ -132,6 +135,7 @@
                     <span class="n">balance</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">balance_str</span><span class="p">)</span>  <span class="c1"># Example: parse or log</span>
 
                     <span class="k">raise</span> <span class="n">TransactionApiError</span><span class="p">(</span><span class="s2">&quot;Insufficient balance for transaction&quot;</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+
 
         <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Raise for all other errors</span></div>
 
@@ -175,7 +179,7 @@
 
 <div class="viewcode-block" id="API.get_pending_transaction">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.API.get_pending_transaction">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_pending_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_pending_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PendingTransaction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch details of a pending transaction.</span>
 
@@ -183,12 +187,14 @@
 <span class="sd">        :return: Dictionary containing transaction details.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_base_url</span><span class="si">}</span><span class="s2">/transactions/</span><span class="si">{</span><span class="n">transaction_hash</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span></div>
+        <span class="n">pending</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">PendingTransaction</span><span class="p">(</span><span class="n">pending</span><span class="p">)</span> <span class="k">if</span> <span class="n">pending</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="API.post_transaction">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.API.post_transaction">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">post_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">post_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Submit a new transaction.</span>
 
@@ -197,7 +203,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_base_url</span><span class="si">}</span><span class="s2">/transactions&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span> <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">transaction_data</span><span class="p">)</span></div>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">PostTransactionResponse</span><span class="p">(</span><span class="o">**</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">transaction_data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">hash</span></div>
 </div>
 
 

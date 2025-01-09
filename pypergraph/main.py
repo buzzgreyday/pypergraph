@@ -1,24 +1,39 @@
 import asyncio
+from time import sleep
 
 from dag_wallet import Wallet
+from os import getenv
+
+ADDR = getenv("ADDR")
+TO_ADDR = getenv("TO_ADDR")
 
 
 async def main():
-    """Test stuff"""
-    #print("Step 1: Create new wallet")
-    #wallet = Wallet.new()
-    #print("Step 1: Import wallet:")
-    mnemonic_phrase = Wallet.get_mnemonic_from_input()
-    wallet = Wallet.from_mnemonic(mnemonic_phrase)
+    """Testing stuff here"""
+    # print("Step 1: Create new wallet")
+    # wallet = Wallet.new()
+    # print("Step 1: Import wallet:")
+    # mnemonic_phrase = Wallet.get_mnemonic_from_input()
+    print(ADDR, TO_ADDR)
+    wallet = Wallet.from_mnemonic(ADDR)
     balance = await wallet.get_address_balance()
     print("Balance:", balance, "$DAG")
     print("Done!")
     print("Step 2: Build Transaction")
-    tx = await wallet.transaction(to_address='DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', amount=1.0, fee=0.0002)
+    tx = await wallet.transaction(to_address=TO_ADDR, amount=1.0, fee=0.0002)
     print("Done!")
     print("Step 3: Post Transaction")
-    resp = await wallet.send(tx)
-    print(resp)
+    tx_hash = await wallet.send(tx)
+    print(f"Sending Transaction ({tx_hash})...")
+    while True:
+        t = 1
+        pending = await wallet.get_pending_transaction(
+            transaction_hash=tx_hash)
+        if not pending:
+            break
+        print(f"Transaction is currently \"{pending.status.lower()}\". Checking in {t}...")
+        sleep(t)
+    print("Transaction Sent!")
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -72,9 +72,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pypergraph.dag_network.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+
+
 <div class="viewcode-block" id="Balance">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.models.Balance">[docs]</a>
-<span></span><span class="k">class</span> <span class="nc">Balance</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">Balance</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ordinal&quot;</span><span class="p">]</span>
@@ -120,6 +124,42 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;ordinal&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="p">,</span> <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">}</span></div>
 </div>
+
+
+
+<div class="viewcode-block" id="PostTransactionResponse">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.models.PostTransactionResponse">[docs]</a>
+<span class="k">class</span> <span class="nc">PostTransactionResponse</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="nb">hash</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;PostTransactionResponse(hash=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s2">&#39;)&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="PendingTransaction">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.models.PendingTransaction">[docs]</a>
+<span class="k">class</span> <span class="nc">PendingTransaction</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="n">transaction</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;transaction&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">transaction</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destination</span> <span class="o">=</span> <span class="n">transaction</span><span class="p">[</span><span class="s2">&quot;destination&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amount</span> <span class="o">=</span> <span class="n">transaction</span><span class="p">[</span><span class="s2">&quot;amount&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fee</span> <span class="o">=</span> <span class="n">transaction</span><span class="p">[</span><span class="s2">&quot;fee&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent_hash</span> <span class="o">=</span> <span class="n">transaction</span><span class="p">[</span><span class="s2">&quot;parent&quot;</span><span class="p">][</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent_ordinal</span> <span class="o">=</span> <span class="n">transaction</span><span class="p">[</span><span class="s2">&quot;parent&quot;</span><span class="p">][</span><span class="s2">&quot;ordinal&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">salt</span> <span class="o">=</span> <span class="n">transaction</span><span class="p">[</span><span class="s2">&quot;salt&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transaction_hash</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PendingTransaction(source=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">, destination=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">destination</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;amount=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2">, fee=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fee</span><span class="si">}</span><span class="s2">, parent_hash=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_hash</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;parent_ordinal=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_ordinal</span><span class="si">}</span><span class="s2">, salt=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">salt</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;transaction_hash=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transaction_hash</span><span class="si">}</span><span class="s2">, status=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 
