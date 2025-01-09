@@ -60,7 +60,7 @@ words = wallet.words
 ```
 
 #### GET DAG WALLET BALANCE
-> Default: returns a single float value
+> Default: returns a float value
 ```
 balance = await wallet.get_address_balance()
 ```
