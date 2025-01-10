@@ -39,7 +39,7 @@ Basics
 
 * **GET DAG WALLET BALANCE**
 
-    Default: returns a single float value
+    Default: returns a float value
 
 .. code-block:: python
 
@@ -65,3 +65,18 @@ Basics
 
     response = await wallet.send(tx)
 
+* **GET PENDING TRANSACTION**
+
+    Default: returns an object if transaction is pending, None if transaction has been processed.
+
+.. code-block:: python
+
+   import asyncio
+
+   async def check_pending_transaction(wallet):
+       while True:
+           pending = await wallet.get_pending_transaction()
+           if not pending:
+               break
+           await asyncio.sleep(5)
+       print("Transaction sent.")
