@@ -75,7 +75,7 @@ Basics
 
    async def check_pending_transaction(wallet):
        while True:
-           pending = await wallet.get_pending_transaction()
+           pending = await wallet.get_pending_transaction(hash)
            if not pending:
                break
            await asyncio.sleep(5)
