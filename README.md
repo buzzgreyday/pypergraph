@@ -84,5 +84,19 @@ tx = await wallet.transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, f
 ```
 response = await wallet.send(tx)
 ```
+
+#### GET PENDING TRANSACTION
+> Default: returns an object if transaction is pending, None if transaction has been processed.
+```
+   import asyncio
+
+   async def check_pending_transaction(wallet):
+       while True:
+           pending = await wallet.get_pending_transaction()
+           if not pending:
+               break
+           await asyncio.sleep(5)
+       print("Transaction sent.")
+```
 ---
 <a href="https://www.buymeacoffee.com/buzzgreyday" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
