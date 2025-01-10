@@ -86,12 +86,6 @@ hash = await wallet.send(tx)
 ```
 
 #### GET PENDING TRANSACTION
-> Returns an object if the transaction is pending, None if transaction has been processed.
-```
-pending = await wallet.get_pending_transaction(hash)
-```
-
-#### GET PENDING TRANSACTION
 > Default: returns an object if transaction is pending, None if transaction has been processed.
 ```
    import asyncio
