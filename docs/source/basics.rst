@@ -39,19 +39,19 @@ Basics
 
 * **GET DAG WALLET BALANCE**
 
-    Default: returns a float value
+    **Default:** `dag_address=wallet.address, metagraph_id=None, balance_only=True`
 
 .. code-block:: python
 
     balance = await wallet.get_address_balance()
 
-* **SET NON-DEFAULT DAG WALLET API**
+* **SET NON-DEFAULT DAG WALLET NETWORK**
 
-    Default: network="mainnet", layer=1
+    **Default:** `network="mainnet", layer=1, host=None, metagraph_id=None`
 
 .. code-block:: python
 
-    wallet = wallet.set_api(network="testnet", layer=1)
+    wallet = wallet.set_network(network="testnet", layer=1)
 
 * **NEW TRANSACTION**
 
@@ -67,7 +67,7 @@ Basics
 
 * **GET PENDING TRANSACTION**
 
-    Default: returns an object if transaction is pending, None if transaction has been processed.
+    **Default:** returns an object if transaction is pending, None if transaction has been processed.
 
 .. code-block:: python
 

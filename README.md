@@ -7,7 +7,7 @@
 Pypergraph is a Python package that enables secure wallet functionalities and interaction with Constellation Network APIs. Inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
 
 [![Read the Docs](https://img.shields.io/readthedocs/pypergraph-dag)](https://pypergraph-dag.readthedocs.io)
-![Version](https://img.shields.io/badge/version-2025.0.0a5-yellow.svg)
+![Version](https://img.shields.io/badge/version-2025.0.0a6-yellow.svg)
 ![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 ---
 ## INSTALL
@@ -60,15 +60,15 @@ words = wallet.words
 ```
 
 #### GET DAG WALLET BALANCE
-> Default: returns a float value
+> **Default:** `dag_address=wallet.address, metagraph_id=None, balance_only=True`
 ```
 balance = await wallet.get_address_balance()
 ```
 
-#### SET NON-DEFAULT DAG WALLET API
-> Default: network="mainnet", layer=1
+#### SET NON-DEFAULT DAG WALLET NETWORK
+> **Default:** `network="mainnet", layer=1, host=None, metagraph_id=None`
 ```
-wallet = wallet.set_api(network="testnet", layer=1)
+wallet = wallet.set_network(network="testnet", layer=1)
 ```
 
 ### TRANSACTION
@@ -86,7 +86,7 @@ hash = await wallet.send(tx)
 ```
 
 #### GET PENDING TRANSACTION
-> Default: returns an object if transaction is pending, None if transaction has been processed.
+> Default: returns an object if transaction is pending, `None` if transaction has been processed.
 ```
    import asyncio
 

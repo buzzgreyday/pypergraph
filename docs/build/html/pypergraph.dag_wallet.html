@@ -135,11 +135,14 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.get_address_balance">
-<span class="sig-name descname"><span class="pre">get_address_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dag_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_address_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.get_address_balance" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_address_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dag_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_address_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.get_address_balance" title="Link to this definition"></a></dt>
 <dd><p>Asynchronous method (used with await).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dag_address</strong></p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metagraph_id</strong> – This identifier is the DAG address associated with the metagraph.</p></li>
+<li><p><strong>dag_address</strong></p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Async task: DAG wallet balance in float.</p>
@@ -212,14 +215,16 @@ Sends the transaction using the current wallet configuration.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.set_api">
-<span class="sig-name descname"><span class="pre">set_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.set_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.set_api" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.set_network">
+<span class="sig-name descname"><span class="pre">set_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.set_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.set_network" title="Link to this definition"></a></dt>
 <dd><p>Change the current network config. Choose the network associated with the wallet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>network</strong> – The network API to use with the wallet.</p></li>
-<li><p><strong>layer</strong> – The layer to use with the wallet.</p></li>
+<li><p><strong>network</strong> – The network API to use with the wallet: “testnet”, “integrationnet”, “mainnet” or “metagraph” (default: “mainnet”).</p></li>
+<li><p><strong>layer</strong> – The layer to use with the wallet: 0 or 1 (default: 1)</p></li>
+<li><p><strong>metagraph_id</strong> – DAG address associated with the metagraph (required if network=”metagraph”).</p></li>
+<li><p><strong>host</strong> – IP and port or URL associated with the network or metagraph (required if network=”metagraph”).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -284,11 +289,14 @@ Sends the transaction using the current wallet configuration.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.get_address_balance">
-<span class="sig-name descname"><span class="pre">get_address_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dag_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_address_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.get_address_balance" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_address_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dag_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.get_address_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.get_address_balance" title="Link to this definition"></a></dt>
 <dd><p>Asynchronous method (used with await).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dag_address</strong></p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metagraph_id</strong> – This identifier is the DAG address associated with the metagraph.</p></li>
+<li><p><strong>dag_address</strong></p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Async task: DAG wallet balance in float.</p>
@@ -361,14 +369,16 @@ Sends the transaction using the current wallet configuration.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.set_api">
-<span class="sig-name descname"><span class="pre">set_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.set_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.set_api" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.set_network">
+<span class="sig-name descname"><span class="pre">set_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.set_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.set_network" title="Link to this definition"></a></dt>
 <dd><p>Change the current network config. Choose the network associated with the wallet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>network</strong> – The network API to use with the wallet.</p></li>
-<li><p><strong>layer</strong> – The layer to use with the wallet.</p></li>
+<li><p><strong>network</strong> – The network API to use with the wallet: “testnet”, “integrationnet”, “mainnet” or “metagraph” (default: “mainnet”).</p></li>
+<li><p><strong>layer</strong> – The layer to use with the wallet: 0 or 1 (default: 1)</p></li>
+<li><p><strong>metagraph_id</strong> – DAG address associated with the metagraph (required if network=”metagraph”).</p></li>
+<li><p><strong>host</strong> – IP and port or URL associated with the network or metagraph (required if network=”metagraph”).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

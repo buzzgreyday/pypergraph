@@ -10,7 +10,7 @@ class APIError(Exception):
     pass
 
 
-class TransactionApiError(APIError):
+class TransactionError(APIError):
     """Custom exception for transaction-related errors."""
     def __init__(self, message: str, status: int):
         super().__init__(f"{message} (HTTP {status})")
@@ -20,17 +20,16 @@ class TransactionApiError(APIError):
 class API:
 
     def __init__(self, network: str = "mainnet", layer: int = 1, host: str | None = None, metagraph_id: str | None = None):
-        if network not in (None, "mainnet", "testnet", "integrationnet", "metagraph"):
-            raise ValueError(f"API :: Network must be None or 'mainnet' or 'integrationnet' or 'testnet' or 'metagraph")
-        elif network == "metagraph" and (not host or not metagraph_id):
-            raise ValueError("API :: Parameters 'host' and 'metagraph_id' are required with metagraph.")
+        if network not in (None, "mainnet", "testnet", "integrationnet"):
+            raise ValueError(f"API :: Network must be None or 'mainnet' or 'integrationnet' or 'testnet'.")
         elif layer not in (None, 0, 1):
             raise ValueError(f"API :: Not a valid layer, must be 0 or 1 integer.")
+        elif metagraph_id and not host:
+            raise ValueError(f"API :: The parameter 'host' can't be empty.")
         self.network = network
         self.layer = layer
-        self.metagraph_id = metagraph_id
+        self.metagraph_id = metagraph_id # If metagraph_id is set, then assume
         self.host = LB_URL_TEMPLATE.format(layer=self.layer, network=self.network) if not host else host
-        # TODO: add metagraph support for blockexplorer
         self.block_explorer_url = BLOCK_EXPLORER_URL_TEMPLATE.format(network=self.network)
 
     def __repr__(self) -> str:
@@ -58,8 +57,7 @@ class API:
                     amount = int(amount_str)  # Example: parse or log
                     balance = int(balance_str)  # Example: parse or log
 
-                    raise TransactionApiError("Insufficient balance for transaction", response.status)
-
+                    raise TransactionError("Insufficient balance for transaction", response.status)
 
         response.raise_for_status()  # Raise for all other errors
 
@@ -69,15 +67,18 @@ class API:
             async with session.request(method, url, **kwargs) as response:
                 return await self.handle_response(response)
 
-    async def get_address_balance(self, address_hash: str, balance_only: bool = True) -> Balance | float:
+    async def get_address_balance(self, dag_address: str, metagraph_id: str | None = None, balance_only: bool = True) -> Balance | float:
         """
         Fetch the balance for a specific DAG address or public key.
 
-        :param address_hash: DAG address or public key
+        :param metagraph_id: This identifier is the DAG address associated with a metagraph.
+        :param dag_address: DAG address or public key.
         :param balance_only: If True, return only the balance as a float. Otherwise, return a Balance object.
         :return: Balance object or balance as a float.
         """
-        url = f"{self.block_explorer_url}/addresses/{address_hash}/balance"
+
+        url = f"{self.block_explorer_url}/addresses/{dag_address}/balance" if not metagraph_id \
+            else f"{self.block_explorer_url}/currency/{metagraph_id}/addresses/{dag_address}/balance"
         d = await self._fetch("GET", url)
         data = d.get("data")
         meta = d.get("meta", None)

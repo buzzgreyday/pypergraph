@@ -115,7 +115,7 @@
 <ul>
 <li><p><strong>GET DAG WALLET BALANCE</strong></p>
 <blockquote>
-<div><p>Default: returns a float value</p>
+<div><p><strong>Default:</strong> <cite>dag_address=wallet.address, metagraph_id=None, balance_only=True</cite></p>
 </div></blockquote>
 </li>
 </ul>
@@ -123,13 +123,13 @@
 </pre></div>
 </div>
 <ul>
-<li><p><strong>SET NON-DEFAULT DAG WALLET API</strong></p>
+<li><p><strong>SET NON-DEFAULT DAG WALLET NETWORK</strong></p>
 <blockquote>
-<div><p>Default: network=”mainnet”, layer=1</p>
+<div><p><strong>Default:</strong> <cite>network=”mainnet”, layer=1, host=None, metagraph_id=None</cite></p>
 </div></blockquote>
 </li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wallet</span> <span class="o">=</span> <span class="n">wallet</span><span class="o">.</span><span class="n">set_api</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s2">&quot;testnet&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wallet</span> <span class="o">=</span> <span class="n">wallet</span><span class="o">.</span><span class="n">set_network</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s2">&quot;testnet&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -147,7 +147,7 @@
 <ul>
 <li><p><strong>GET PENDING TRANSACTION</strong></p>
 <blockquote>
-<div><p>Default: returns an object if transaction is pending, None if transaction has been processed.</p>
+<div><p><strong>Default:</strong> returns an object if transaction is pending, None if transaction has been processed.</p>
 </div></blockquote>
 </li>
 </ul>

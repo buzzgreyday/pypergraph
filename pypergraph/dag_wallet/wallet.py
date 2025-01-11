@@ -156,7 +156,7 @@ class Wallet:
         """
         return asyncio.create_task(self.api.post_transaction(tx.get_post_transaction()))
 
-    def set_api(self, network=None, layer=None, host=None, metagraph_id=None):
+    def set_network(self, network=None, layer=None, host=None, metagraph_id=None):
         """
         Change the current network config. Choose the network associated with the wallet.
 
@@ -166,6 +166,8 @@ class Wallet:
         :param host: IP and port or URL associated with the network or metagraph (required if network="metagraph").
         :return: Configured wallet object.
         """
+        if metagraph_id and not host:
+            raise ValueError(f"API :: The parameter 'host' can't be empty.")
         network = network or self.api.network
         layer = layer or self.api.layer
         host = host or self.api.host
@@ -173,15 +175,17 @@ class Wallet:
         self.api = API(network=network, layer=layer, host=host, metagraph_id=metagraph_id)
         return self
 
-    def get_address_balance(self, dag_address: str | None= None):
+    def get_address_balance(self, dag_address: str | None = None, metagraph_id: str | None = None):
         """
         Asynchronous method (used with await).
 
+        :param metagraph_id: This identifier is the DAG address associated with the metagraph.
         :param dag_address:
         :return: Async task: DAG wallet balance in float.
         """
         dag_address = self.address if not dag_address else dag_address
-        return asyncio.create_task(self.api.get_address_balance(dag_address))
+        metagraph_id = self.api.metagraph_id if not metagraph_id else metagraph_id
+        return asyncio.create_task(self.api.get_address_balance(dag_address=dag_address, metagraph_id=metagraph_id))
 
     def get_pending_transaction(self, transaction_hash: str):
         """
