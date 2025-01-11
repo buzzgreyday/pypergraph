@@ -163,7 +163,7 @@ class Wallet:
         :param network: The network API to use with the wallet: "testnet", "integrationnet", "mainnet" (default: "mainnet").
         :param layer: The layer to use with the wallet: 0 or 1 (default: 1)
         :param metagraph_id: DAG address associated with the metagraph (required if metagraph_id is set).
-        :param host: IP and port or URL associated with the network or metagraph (required if metagraph_id is set).
+        :param host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set).
         :return: Configured wallet object.
         """
         if metagraph_id and not host:
