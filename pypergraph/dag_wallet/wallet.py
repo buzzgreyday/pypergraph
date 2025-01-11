@@ -160,10 +160,10 @@ class Wallet:
         """
         Change the current network config. Choose the network associated with the wallet.
 
-        :param metagraph_id: Required if network="metagraph"
-        :param host: Required if network="metagraph"
-        :param network: The network API to use with the wallet.
-        :param layer: The layer to use with the wallet.
+        :param network: The network API to use with the wallet: "testnet", "integrationnet", "mainnet" or "metagraph" (default: "mainnet").
+        :param layer: The layer to use with the wallet: 0 or 1 (default: 1)
+        :param metagraph_id: DAG address associated with the metagraph (required if network="metagraph").
+        :param host: IP and port or URL associated with the network or metagraph (required if network="metagraph").
         :return: Configured wallet object.
         """
         network = network or self.api.network

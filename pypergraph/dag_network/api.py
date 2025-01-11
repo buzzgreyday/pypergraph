@@ -30,12 +30,13 @@ class API:
         self.layer = layer
         self.metagraph_id = metagraph_id
         self.host = LB_URL_TEMPLATE.format(layer=self.layer, network=self.network) if not host else host
+        # TODO: add metagraph support for blockexplorer
         self.block_explorer_url = BLOCK_EXPLORER_URL_TEMPLATE.format(network=self.network)
 
     def __repr__(self) -> str:
         return (
             f"API(network={self.network}, layer={self.layer}, "
-            f"current_base_url={self.host}, current_block_explorer_url={self.block_explorer_url})"
+            f"host={self.host}, current_block_explorer_url={self.block_explorer_url})"
         )
 
     @staticmethod
