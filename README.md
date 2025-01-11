@@ -60,7 +60,7 @@ words = wallet.words
 ```
 
 #### GET DAG WALLET BALANCE
-> **Default:** `dag_address=wallet.address, metagraph_id=None, balance_only=True`
+> **Default:** `dag_address=wallet.address, metagraph_id=None`
 ```
 balance = await wallet.get_address_balance()
 ```

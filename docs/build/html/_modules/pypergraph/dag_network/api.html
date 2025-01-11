@@ -163,7 +163,7 @@
 <span class="sd">        :param balance_only: If True, return only the balance as a float. Otherwise, return a Balance object.</span>
 <span class="sd">        :return: Balance object or balance as a float.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
+        <span class="c1"># TODO: These types of urls/endpoints should ofcourse be set/updated centrally.</span>
         <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">block_explorer_url</span><span class="si">}</span><span class="s2">/addresses/</span><span class="si">{</span><span class="n">dag_address</span><span class="si">}</span><span class="s2">/balance&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">metagraph_id</span> \
             <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">block_explorer_url</span><span class="si">}</span><span class="s2">/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/addresses/</span><span class="si">{</span><span class="n">dag_address</span><span class="si">}</span><span class="s2">/balance&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>

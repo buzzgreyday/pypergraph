@@ -152,15 +152,15 @@ class Wallet:
         Sends the transaction using the current wallet configuration.
 
         :param tx: Transaction object.
-        :return: Response from the configured API.
+        :return: Response from the configured network.
         """
         return asyncio.create_task(self.api.post_transaction(tx.get_post_transaction()))
 
     def set_network(self, network=None, layer=None, host=None, metagraph_id=None):
         """
-        Change the current network config. Choose the network associated with the wallet.
+        Choose the network and layer associated with the wallet.
 
-        :param network: The network API to use with the wallet: "testnet", "integrationnet", "mainnet" or "metagraph" (default: "mainnet").
+        :param network: The network API to use with the wallet: "testnet", "integrationnet", "mainnet" (default: "mainnet").
         :param layer: The layer to use with the wallet: 0 or 1 (default: 1)
         :param metagraph_id: DAG address associated with the metagraph (required if network="metagraph").
         :param host: IP and port or URL associated with the network or metagraph (required if network="metagraph").

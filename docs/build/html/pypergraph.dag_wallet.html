@@ -209,7 +209,7 @@ Sends the transaction using the current wallet configuration.</p>
 <dd class="field-odd"><p><strong>tx</strong> – Transaction object.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Response from the configured API.</p>
+<dd class="field-even"><p>Response from the configured network.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -217,11 +217,11 @@ Sends the transaction using the current wallet configuration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_wallet.wallet.Wallet.set_network">
 <span class="sig-name descname"><span class="pre">set_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.set_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.wallet.Wallet.set_network" title="Link to this definition"></a></dt>
-<dd><p>Change the current network config. Choose the network associated with the wallet.</p>
+<dd><p>Choose the network and layer associated with the wallet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>network</strong> – The network API to use with the wallet: “testnet”, “integrationnet”, “mainnet” or “metagraph” (default: “mainnet”).</p></li>
+<li><p><strong>network</strong> – The network API to use with the wallet: “testnet”, “integrationnet”, “mainnet” (default: “mainnet”).</p></li>
 <li><p><strong>layer</strong> – The layer to use with the wallet: 0 or 1 (default: 1)</p></li>
 <li><p><strong>metagraph_id</strong> – DAG address associated with the metagraph (required if network=”metagraph”).</p></li>
 <li><p><strong>host</strong> – IP and port or URL associated with the network or metagraph (required if network=”metagraph”).</p></li>
@@ -363,7 +363,7 @@ Sends the transaction using the current wallet configuration.</p>
 <dd class="field-odd"><p><strong>tx</strong> – Transaction object.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Response from the configured API.</p>
+<dd class="field-even"><p>Response from the configured network.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -371,11 +371,11 @@ Sends the transaction using the current wallet configuration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_wallet.Wallet.set_network">
 <span class="sig-name descname"><span class="pre">set_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_wallet/wallet.html#Wallet.set_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_wallet.Wallet.set_network" title="Link to this definition"></a></dt>
-<dd><p>Change the current network config. Choose the network associated with the wallet.</p>
+<dd><p>Choose the network and layer associated with the wallet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>network</strong> – The network API to use with the wallet: “testnet”, “integrationnet”, “mainnet” or “metagraph” (default: “mainnet”).</p></li>
+<li><p><strong>network</strong> – The network API to use with the wallet: “testnet”, “integrationnet”, “mainnet” (default: “mainnet”).</p></li>
 <li><p><strong>layer</strong> – The layer to use with the wallet: 0 or 1 (default: 1)</p></li>
 <li><p><strong>metagraph_id</strong> – DAG address associated with the metagraph (required if network=”metagraph”).</p></li>
 <li><p><strong>host</strong> – IP and port or URL associated with the network or metagraph (required if network=”metagraph”).</p></li>
