@@ -80,6 +80,8 @@ class API:
         #  not None use l0 for GET requests and l1 for POST requests by default, else use host with IP:PORT
         url = f"{self.block_explorer_url}/addresses/{dag_address}/balance" if not metagraph_id \
             else f"{self.block_explorer_url}/currency/{metagraph_id}/addresses/{dag_address}/balance"
+        # Looks like the block explorer doesn't handle requests as expected. Also, the PACA metagraph returns
+        # the balance from here: http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100/currency/{DAG_ADDRESS}/balance
         d = await self._fetch("GET", url)
         data = d.get("data")
         meta = d.get("meta", None)
