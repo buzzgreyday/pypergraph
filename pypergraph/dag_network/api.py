@@ -76,7 +76,7 @@ class API:
         :param balance_only: If True, return only the balance as a float. Otherwise, return a Balance object.
         :return: Balance object or balance as a float.
         """
-
+        # TODO: These types of urls/endpoints should ofcourse be set/updated centrally.
         url = f"{self.block_explorer_url}/addresses/{dag_address}/balance" if not metagraph_id \
             else f"{self.block_explorer_url}/currency/{metagraph_id}/addresses/{dag_address}/balance"
         d = await self._fetch("GET", url)
