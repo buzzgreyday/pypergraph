@@ -16,8 +16,8 @@ async def main():
     # mnemonic_phrase = Wallet.get_mnemonic_from_input()
     print(ADDR, TO_ADDR)
     wallet = Wallet.from_mnemonic(ADDR)
-    # balance = await wallet.get_address_balance(metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43")
-    # Block explorer doesn't handle requests as expected from the documentation, see API module
+    balance = await wallet.get_address_balance(metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43")
+    print("Balance: ", balance, "$PACA")
     print("Done!")
     print("Step 2: Build Transaction")
     tx = await wallet.transaction(to_address=TO_ADDR, amount=1.0, fee=0.0002)
