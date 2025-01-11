@@ -156,7 +156,7 @@ class Wallet:
         """
         return asyncio.create_task(self.api.post_transaction(tx.get_post_transaction()))
 
-    def set_api(self, network=None, layer=None):
+    def set_api(self, network=None, layer=None, host=None, metagraph_id=None):
         """
         Change the current network config. Choose the network associated with the wallet.
 
@@ -164,13 +164,11 @@ class Wallet:
         :param layer: The layer to use with the wallet.
         :return: Configured wallet object.
         """
-        if network not in (None, "mainnet", "testnet", "integrationnet"):
-            raise ValueError(f"Network must be None or 'mainnet' or 'integrationnet' or 'testnet'")
-        if layer not in (None, 0, 1):
-            raise ValueError(f"Network must be None or integer 0 or 1")
         network = network or self.api.network
-        layer = layer if layer is not None else self.api.layer
-        self.api = API(network=network, layer=layer)
+        layer = layer or self.api.layer
+        host = host or self.api.host
+        metagraph_id = metagraph_id or self.api.metagraph_id
+        self.api = API(network=network, layer=layer, host=host, metagraph_id=metagraph_id)
         return self
 
     def get_address_balance(self, dag_address: str | None= None):

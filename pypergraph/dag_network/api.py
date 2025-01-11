@@ -1,7 +1,7 @@
 import aiohttp
 from typing import Any, Dict
 
-from pypergraph.dag_network.constants import BASE_URL_TEMPLATE, BLOCK_EXPLORER_URL_TEMPLATE
+from pypergraph.dag_network.constants import LB_URL_TEMPLATE, BLOCK_EXPLORER_URL_TEMPLATE
 from pypergraph.dag_network.models import Balance, LastReference, PostTransactionResponse, PendingTransaction
 
 
@@ -19,16 +19,23 @@ class TransactionApiError(APIError):
 
 class API:
 
-    def __init__(self, network: str = "mainnet", layer: int = 1):
+    def __init__(self, network: str = "mainnet", layer: int = 1, host: str | None = None, metagraph_id: str | None = None):
+        if network not in (None, "mainnet", "testnet", "integrationnet", "metagraph"):
+            raise ValueError(f"API :: Network must be None or 'mainnet' or 'integrationnet' or 'testnet' or 'metagraph")
+        elif network == "metagraph" and (not host or not metagraph_id):
+            raise ValueError("API :: Parameters 'host' and 'metagraph_id' are required with metagraph.")
+        elif layer not in (None, 0, 1):
+            raise ValueError(f"API :: Not a valid layer, must be 0 or 1 integer.")
         self.network = network
         self.layer = layer
-        self.current_base_url = BASE_URL_TEMPLATE.format(layer=self.layer, network=self.network)
-        self.current_block_explorer_url = BLOCK_EXPLORER_URL_TEMPLATE.format(network=self.network)
+        self.metagraph_id = metagraph_id
+        self.host = LB_URL_TEMPLATE.format(layer=self.layer, network=self.network) if not host else host
+        self.block_explorer_url = BLOCK_EXPLORER_URL_TEMPLATE.format(network=self.network)
 
     def __repr__(self) -> str:
         return (
             f"API(network={self.network}, layer={self.layer}, "
-            f"current_base_url={self.current_base_url}, current_block_explorer_url={self.current_block_explorer_url})"
+            f"current_base_url={self.host}, current_block_explorer_url={self.block_explorer_url})"
         )
 
     @staticmethod
@@ -69,7 +76,7 @@ class API:
         :param balance_only: If True, return only the balance as a float. Otherwise, return a Balance object.
         :return: Balance object or balance as a float.
         """
-        url = f"{self.current_block_explorer_url}/addresses/{address_hash}/balance"
+        url = f"{self.block_explorer_url}/addresses/{address_hash}/balance"
         d = await self._fetch("GET", url)
         data = d.get("data")
         meta = d.get("meta", None)
@@ -83,7 +90,7 @@ class API:
         :param address_hash: DAG address or public key
         :return: Dictionary containing the last reference information.
         """
-        url = f"{self.current_base_url}/transactions/last-reference/{address_hash}"
+        url = f"{self.host}/transactions/last-reference/{address_hash}"
         return LastReference(**await self._fetch("GET", url))
 
     async def get_pending_transaction(self, transaction_hash: str) -> PendingTransaction | None:
@@ -93,7 +100,7 @@ class API:
         :param transaction_hash: Transaction hash
         :return: Dictionary containing transaction details.
         """
-        url = f"{self.current_base_url}/transactions/{transaction_hash}"
+        url = f"{self.host}/transactions/{transaction_hash}"
         pending = await self._fetch("GET", url)
 
         return PendingTransaction(pending) if pending else None
@@ -105,7 +112,7 @@ class API:
         :param transaction_data: Dictionary containing transaction details.
         :return: Response from the API if no error is raised
         """
-        url = f"{self.current_base_url}/transactions"
+        url = f"{self.host}/transactions"
         headers = {"accept": "application/json", "Content-Type": "application/json"}
         response = PostTransactionResponse(**await self._fetch("POST", url, headers=headers, json=transaction_data))
         return response.hash
