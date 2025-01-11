@@ -92,7 +92,7 @@
     <span class="c1"># mnemonic_phrase = Wallet.get_mnemonic_from_input()</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">ADDR</span><span class="p">,</span> <span class="n">TO_ADDR</span><span class="p">)</span>
     <span class="n">wallet</span> <span class="o">=</span> <span class="n">Wallet</span><span class="o">.</span><span class="n">from_mnemonic</span><span class="p">(</span><span class="n">ADDR</span><span class="p">)</span>
-    <span class="n">balance</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wallet</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">()</span>
+    <span class="n">balance</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wallet</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Balance:&quot;</span><span class="p">,</span> <span class="n">balance</span><span class="p">,</span> <span class="s2">&quot;$DAG&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done!&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Step 2: Build Transaction&quot;</span><span class="p">)</span>

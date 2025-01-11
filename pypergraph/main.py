@@ -16,7 +16,7 @@ async def main():
     # mnemonic_phrase = Wallet.get_mnemonic_from_input()
     print(ADDR, TO_ADDR)
     wallet = Wallet.from_mnemonic(ADDR)
-    balance = await wallet.get_address_balance()
+    balance = await wallet.get_address_balance(metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43")
     print("Balance:", balance, "$DAG")
     print("Done!")
     print("Step 2: Build Transaction")

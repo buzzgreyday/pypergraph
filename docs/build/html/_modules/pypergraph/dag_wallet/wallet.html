@@ -261,8 +261,8 @@
 
 <span class="sd">        :param network: The network API to use with the wallet: &quot;testnet&quot;, &quot;integrationnet&quot;, &quot;mainnet&quot; (default: &quot;mainnet&quot;).</span>
 <span class="sd">        :param layer: The layer to use with the wallet: 0 or 1 (default: 1)</span>
-<span class="sd">        :param metagraph_id: DAG address associated with the metagraph (required if network=&quot;metagraph&quot;).</span>
-<span class="sd">        :param host: IP and port or URL associated with the network or metagraph (required if network=&quot;metagraph&quot;).</span>
+<span class="sd">        :param metagraph_id: DAG address associated with the metagraph (required if metagraph_id is set).</span>
+<span class="sd">        :param host: IP and port or URL associated with the network or metagraph (required if metagraph_id is set).</span>
 <span class="sd">        :return: Configured wallet object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">metagraph_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">host</span><span class="p">:</span>
