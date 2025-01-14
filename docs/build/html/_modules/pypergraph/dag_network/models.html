@@ -74,7 +74,6 @@
   <h1>Source code for pypergraph.dag_network.models</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
 
-
 <div class="viewcode-block" id="Balance">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.models.Balance">[docs]</a>
 <span class="k">class</span> <span class="nc">Balance</span><span class="p">:</span>
@@ -87,6 +86,16 @@
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Balance(ordinal=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="si">}</span><span class="s2">, balance=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="si">}</span><span class="s2">, address=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="si">}</span><span class="s2">&#39;, meta=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+
+<div class="viewcode-block" id="Balance.get_endpoint">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.models.Balance.get_endpoint">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_endpoint</span><span class="p">(</span><span class="n">dag_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">metagraph_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/addresses/</span><span class="si">{</span><span class="n">dag_address</span><span class="si">}</span><span class="s2">/balance&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;/addresses/</span><span class="si">{</span><span class="n">dag_address</span><span class="si">}</span><span class="s2">/balance&quot;</span></div>
+
 
 <div class="viewcode-block" id="Balance.ddag_to_dag">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.models.Balance.ddag_to_dag">[docs]</a>
@@ -131,6 +140,7 @@
 <span class="k">class</span> <span class="nc">PostTransactionResponse</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="nb">hash</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
