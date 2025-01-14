@@ -1,6 +1,5 @@
 from typing import Dict, Any
 
-
 class Balance:
 
     def __init__(self, data: dict, meta: dict | None):
@@ -11,6 +10,13 @@ class Balance:
 
     def __repr__(self):
         return f"Balance(ordinal={self.ordinal}, balance={self.balance}, address='{self.address}', meta='{self.meta}')"
+
+    @staticmethod
+    def get_endpoint(dag_address: str, metagraph_id: str | None = None):
+        if metagraph_id:
+            return f"/currency/{metagraph_id}/addresses/{dag_address}/balance"
+        else:
+            return f"/addresses/{dag_address}/balance"
 
     @staticmethod
     def ddag_to_dag(balance):
@@ -43,6 +49,7 @@ class LastReference:
 class PostTransactionResponse:
 
     def __init__(self, hash: str):
+        print(hash)
         self.hash = hash
 
     def __repr__(self):

@@ -7,7 +7,7 @@
 Pypergraph is a Python package that enables secure wallet functionalities and interaction with Constellation Network APIs. Inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
 
 [![Read the Docs](https://img.shields.io/readthedocs/pypergraph-dag)](https://pypergraph-dag.readthedocs.io)
-![Version](https://img.shields.io/badge/version-2025.0.0a6-yellow.svg)
+![Version](https://img.shields.io/badge/version-2025.0.0a7-yellow.svg)
 ![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 ---
 ## INSTALL
@@ -66,9 +66,9 @@ balance = await wallet.get_address_balance()
 ```
 
 #### SET NON-DEFAULT DAG WALLET NETWORK
-> **Default:** `network="mainnet", layer=1, host=None, metagraph_id=None`
+> **Default:** `network="mainnet", l0_host=None, l1_host=None, metagraph_id=None`
 ```
-wallet = wallet.set_network(network="testnet", layer=1)
+wallet = wallet.set_network(network="testnet")
 ```
 
 ### TRANSACTION

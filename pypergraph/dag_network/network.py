@@ -1,41 +1,36 @@
 import aiohttp
 from typing import Any, Dict
 
-from pypergraph.dag_network.constants import LB_URL_TEMPLATE, BLOCK_EXPLORER_URL_TEMPLATE
 from pypergraph.dag_network.models import Balance, LastReference, PostTransactionResponse, PendingTransaction
 
 
-class APIError(Exception):
-    """Custom base exception for API-related errors."""
-    pass
-
-
-class TransactionError(APIError):
+class NetworkError(Exception):
     """Custom exception for transaction-related errors."""
     def __init__(self, message: str, status: int):
         super().__init__(f"{message} (HTTP {status})")
         self.status = status
 
 
-class API:
+class Network:
 
-    def __init__(self, network: str = "mainnet", layer: int = 1, host: str | None = None, metagraph_id: str | None = None):
-        if network not in (None, "mainnet", "testnet", "integrationnet"):
-            raise ValueError(f"API :: Network must be None or 'mainnet' or 'integrationnet' or 'testnet'.")
-        elif layer not in (None, 0, 1):
-            raise ValueError(f"API :: Not a valid layer, must be 0 or 1 integer.")
-        elif metagraph_id and not host:
+    def __init__(self, network: str = "mainnet", l0_host: str | None = None, l1_host: str | None = None, metagraph_id: str | None = None, l0_load_balancer: str | None = None, l1_load_balancer: str | None = None, block_explorer: str | None = None):
+        if network not in ("mainnet", "testnet", "integrationnet"):
+            raise ValueError(f"API :: Network must be 'mainnet' or 'integrationnet' or 'testnet'.")
+        elif metagraph_id and not (l0_host and l1_host):
             raise ValueError(f"API :: The parameter 'host' can't be empty.")
         self.network = network
-        self.layer = layer
-        self.metagraph_id = metagraph_id # If metagraph_id is set, then assume
-        self.host = LB_URL_TEMPLATE.format(layer=self.layer, network=self.network) if not host else host
-        self.block_explorer_url = BLOCK_EXPLORER_URL_TEMPLATE.format(network=self.network)
+        # TODO: Should not be hardcoded
+        self.l1_lb = l1_load_balancer or f"https://l1-lb-{self.network}.constellationnetwork.io"
+        self.l0_lb = l0_load_balancer or f"https://l0-lb-{self.network}.constellationnetwork.io"
+        self.be = block_explorer or f"https://be-{network}.constellationnetwork.io"
+        self.l0_host = l0_host or self.l0_lb
+        self.l1_host = l1_host or self.l1_lb
+        self.metagraph_id = metagraph_id
 
     def __repr__(self) -> str:
         return (
-            f"API(network={self.network}, layer={self.layer}, "
-            f"host={self.host}, current_block_explorer_url={self.block_explorer_url})"
+            f"Network(network={self.network}, l0_host={self.l0_host}, l1_host={self.l1_host}, metagraph_id={self.metagraph_id}, "
+            f"l0_load_balancer={self.l0_lb}, l1_load_balancer={self.l1_lb}, block_explorer={self.be})"
         )
 
     @staticmethod
@@ -45,21 +40,17 @@ class API:
             return await response.json()
         elif response.status == 404:
             return None
-
-        response_data = await response.json()
-
-        if response.status == 400:
-            for error in response_data.get("errors", []):
+        elif response.status == 400:
+            error_details = await response.json()
+            for error in error_details.get("errors", []):
                 if "InsufficientBalance" in error.get("message", ""):
-                    message = error["message"]
-                    amount_str = message.split("amount=")[1].split(",")[0]
-                    balance_str = message.split("balance=")[1].strip("}")
-                    amount = int(amount_str)  # Example: parse or log
-                    balance = int(balance_str)  # Example: parse or log
-
-                    raise TransactionError("Insufficient balance for transaction", response.status)
-
-        response.raise_for_status()  # Raise for all other errors
+                    raise NetworkError(f"Network :: Transaction failed due to insufficient funds.", status=response.status)
+                elif "TransactionLimited" in error.get("message", ""):
+                    raise NetworkError("Network :: Transaction failed due to rate limiting.", status=response.status)
+                else:
+                    raise NetworkError(f"Network :: Unknown error: {error}", status=response.status)
+        elif response.status == 500:
+            raise NetworkError(message="Network :: Internal server error, try again.", status=response.status)
 
     async def _fetch(self, method: str, url: str, **kwargs) -> Any:
         """Reusable method for making HTTP requests."""
@@ -76,10 +67,7 @@ class API:
         :param balance_only: If True, return only the balance as a float. Otherwise, return a Balance object.
         :return: Balance object or balance as a float.
         """
-        # TODO: These types of urls/endpoints should ofcourse be set/updated centrally. Also, if metagraph_id is
-        #  not None use l0 for GET requests and l1 for POST requests by default, else use host with IP:PORT
-        url = f"{self.block_explorer_url}/addresses/{dag_address}/balance" if not metagraph_id \
-            else f"{self.block_explorer_url}/currency/{metagraph_id}/addresses/{dag_address}/balance"
+        url = self.be + Balance.get_endpoint(dag_address=dag_address, metagraph_id=metagraph_id)
         d = await self._fetch("GET", url)
         data = d.get("data")
         meta = d.get("meta", None)
@@ -93,7 +81,7 @@ class API:
         :param address_hash: DAG address or public key
         :return: Dictionary containing the last reference information.
         """
-        url = f"{self.host}/transactions/last-reference/{address_hash}"
+        url = f"{self.l1_host}/transactions/last-reference/{address_hash}"
         return LastReference(**await self._fetch("GET", url))
 
     async def get_pending_transaction(self, transaction_hash: str) -> PendingTransaction | None:
@@ -103,7 +91,7 @@ class API:
         :param transaction_hash: Transaction hash
         :return: Dictionary containing transaction details.
         """
-        url = f"{self.host}/transactions/{transaction_hash}"
+        url = f"{self.l1_host}/transactions/{transaction_hash}"
         pending = await self._fetch("GET", url)
 
         return PendingTransaction(pending) if pending else None
@@ -115,7 +103,7 @@ class API:
         :param transaction_data: Dictionary containing transaction details.
         :return: Response from the API if no error is raised
         """
-        url = f"{self.host}/transactions"
+        url = f"{self.l1_host}/transactions"
         headers = {"accept": "application/json", "Content-Type": "application/json"}
         response = PostTransactionResponse(**await self._fetch("POST", url, headers=headers, json=transaction_data))
         return response.hash
