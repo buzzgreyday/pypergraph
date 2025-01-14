@@ -5,21 +5,21 @@ from typing import Optional
 import base58
 
 from pypergraph.dag_keystore import KeyStore, Bip39, TransactionV2
-from pypergraph.dag_network import API
+from pypergraph.dag_network import Network
 from .constants import PKCS_PREFIX
 
 
 class Wallet:
 
-    def __init__(self, address: str, public_key: str, private_key: str, words: Optional[str] = None,  api=None):
+    def __init__(self, address: str, public_key: str, private_key: str, words: Optional[str] = None,  network=None):
         self.address = address
         self.public_key = public_key
         self.private_key = private_key
         self.words = words
-        self.api = api or API()  # Automatically set a default API instance
+        self.network = network or Network()  # Automatically set a default API instance
 
     def __repr__(self):
-        return f"Wallet(address={self.address}, public_key={self.public_key}, private_key={self.private_key}, words={self.words}, api={self.api!r})"
+        return f"Wallet(address={self.address}, public_key={self.public_key}, private_key={self.private_key}, words={self.words}, network={self.network!r})"
 
     @staticmethod
     def get_dag_address_from_public_key_hex(public_key_hex: str) -> str:
@@ -136,7 +136,7 @@ class Wallet:
         :return: TransactionV2 object
         """
         from_address = self.address
-        last_ref = await self.api.get_last_reference(address_hash=self.address)
+        last_ref = await self.network.get_last_reference(address_hash=self.address)
         tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref.to_dict(), fee)
         signature = KeyStore.sign(private_key_hex=self.private_key, tx_hash=tx_hash)
         valid = KeyStore.verify(public_key_hex=self.public_key, tx_hash=tx_hash, signature_hex=signature)
@@ -154,25 +154,19 @@ class Wallet:
         :param tx: Transaction object.
         :return: Response from the configured network.
         """
-        return asyncio.create_task(self.api.post_transaction(tx.get_post_transaction()))
+        return asyncio.create_task(self.network.post_transaction(tx.get_post_transaction()))
 
-    def set_network(self, network=None, layer=None, host=None, metagraph_id=None):
+    def set_network(self, network: str = "mainnet", l0_host: str | None = None, l1_host: str | None = None, metagraph_id: str | None = None):
         """
         Choose the network and layer associated with the wallet.
 
         :param network: The network API to use with the wallet: "testnet", "integrationnet", "mainnet" (default: "mainnet").
-        :param layer: The layer to use with the wallet: 0 or 1 (default: 1)
         :param metagraph_id: DAG address associated with the metagraph (required if metagraph_id is set).
-        :param host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set).
+        :param l0_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set).
+        :param l1_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set).
         :return: Configured wallet object.
         """
-        if metagraph_id and not host:
-            raise ValueError(f"API :: The parameter 'host' can't be empty.")
-        network = network or self.api.network
-        layer = layer or self.api.layer
-        host = host or self.api.host
-        metagraph_id = metagraph_id or self.api.metagraph_id
-        self.api = API(network=network, layer=layer, host=host, metagraph_id=metagraph_id)
+        self.network = Network(network=network, l0_host=l0_host, l1_host=l1_host, metagraph_id=metagraph_id)
         return self
 
     def get_address_balance(self, dag_address: str | None = None, metagraph_id: str | None = None):
@@ -184,8 +178,8 @@ class Wallet:
         :return: Async task: DAG wallet balance in float.
         """
         dag_address = self.address if not dag_address else dag_address
-        metagraph_id = self.api.metagraph_id if not metagraph_id else metagraph_id
-        return asyncio.create_task(self.api.get_address_balance(dag_address=dag_address, metagraph_id=metagraph_id))
+        metagraph_id = self.network.metagraph_id if not metagraph_id else metagraph_id
+        return asyncio.create_task(self.network.get_address_balance(dag_address=dag_address, metagraph_id=metagraph_id))
 
     def get_pending_transaction(self, transaction_hash: str):
         """
@@ -194,4 +188,4 @@ class Wallet:
         :param transaction_hash:
         :return: Async task: pending transaction
         """
-        return asyncio.create_task(self.api.get_pending_transaction(transaction_hash=transaction_hash))
+        return asyncio.create_task(self.network.get_pending_transaction(transaction_hash=transaction_hash))

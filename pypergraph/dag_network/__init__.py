@@ -1,4 +1,3 @@
-from .constants import LB_URL_TEMPLATE, BLOCK_EXPLORER_URL_TEMPLATE
-from .api import API
+from .network import Network
 
-__all__ = ["API", "LB_URL_TEMPLATE", "BLOCK_EXPLORER_URL_TEMPLATE"]
+__all__ = ["Network"]

@@ -47,11 +47,11 @@ Basics
 
 * **SET NON-DEFAULT DAG WALLET NETWORK**
 
-    **Default:** `network="mainnet", layer=1, host=None, metagraph_id=None`
+    **Default:** `network="mainnet", l0_host=None, l1_host=None, metagraph_id=None`
 
 .. code-block:: python
 
-    wallet = wallet.set_network(network="testnet", layer=1)
+    wallet = wallet.set_network(network="testnet")
 
 * **NEW TRANSACTION**
 
