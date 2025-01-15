@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pypergraph &mdash; pypergraph 2025.0.0a3 documentation</title>
+  <title>Modules &mdash; pypergraph 2025.0.0a3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
@@ -20,7 +20,9 @@
       <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pypergraph.dag_keystore package" href="pypergraph.dag_keystore.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,11 +45,16 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pypergraph.html">pypergraph package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keystore.html">pypergraph.dag_keystore package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_network.html">pypergraph.dag_network package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_wallet.html">pypergraph.dag_wallet package</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -64,7 +71,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">pypergraph</li>
+      <li class="breadcrumb-item active">Modules</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -74,43 +81,214 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pypergraph">
-<h1>pypergraph<a class="headerlink" href="#pypergraph" title="Link to this heading"></a></h1>
+  <section id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pypergraph.html">pypergraph package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html">pypergraph.dag_keystore package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore.bip">pypergraph.dag_keystore.bip module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore.constants">pypergraph.dag_keystore.constants module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore.keystore">pypergraph.dag_keystore.keystore module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore.tx_encode">pypergraph.dag_keystore.tx_encode module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pypergraph.dag_keystore.html">pypergraph.dag_keystore package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keystore.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore.bip">pypergraph.dag_keystore.bip module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip32"><code class="docutils literal notranslate"><span class="pre">Bip32</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip32.get_private_key_from_seed"><code class="docutils literal notranslate"><span class="pre">Bip32.get_private_key_from_seed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip32.get_public_key_from_private_hex"><code class="docutils literal notranslate"><span class="pre">Bip32.get_public_key_from_private_hex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip32.get_root_key_from_seed"><code class="docutils literal notranslate"><span class="pre">Bip32.get_root_key_from_seed()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.html">pypergraph.dag_network package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#module-pypergraph.dag_network.network">pypergraph.dag_network.api module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#module-pypergraph.dag_network.models">pypergraph.dag_network.models module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#module-pypergraph.dag_network">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_wallet.html">pypergraph.dag_wallet package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#module-pypergraph.dag_wallet.constants">pypergraph.dag_wallet.constants module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#module-pypergraph.dag_wallet.wallet">pypergraph.dag_wallet.wallet module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#module-pypergraph.dag_wallet">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39"><code class="docutils literal notranslate"><span class="pre">Bip39</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39.LANGUAGES"><code class="docutils literal notranslate"><span class="pre">Bip39.LANGUAGES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39.get_seed_from_mnemonic"><code class="docutils literal notranslate"><span class="pre">Bip39.get_seed_from_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39.mnemonic"><code class="docutils literal notranslate"><span class="pre">Bip39.mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39.validate_mnemonic"><code class="docutils literal notranslate"><span class="pre">Bip39.validate_mnemonic()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#module-pypergraph.main">pypergraph.main module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pypergraph.html#pypergraph.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore.constants">pypergraph.dag_keystore.constants module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.constants.COIN"><code class="docutils literal notranslate"><span class="pre">COIN</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.constants.COIN.DAG"><code class="docutils literal notranslate"><span class="pre">COIN.DAG</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.constants.COIN.ETH"><code class="docutils literal notranslate"><span class="pre">COIN.ETH</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#module-pypergraph">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.constants.DERIVATION_PATH"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.constants.DERIVATION_PATH.DAG"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH.DAG</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.constants.DERIVATION_PATH.ETH"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH.ETH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.constants.DERIVATION_PATH.ETH_LEDGER"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH.ETH_LEDGER</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore.keystore">pypergraph.dag_keystore.keystore module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore"><code class="docutils literal notranslate"><span class="pre">KeyStore</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.get_dag_address_from_public_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_dag_address_from_public_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.get_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.get_p12_from_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_p12_from_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.get_private_key_from_p12"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_private_key_from_p12()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.get_private_key_from_seed"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_private_key_from_seed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.get_public_key_from_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_public_key_from_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.prepare_tx"><code class="docutils literal notranslate"><span class="pre">KeyStore.prepare_tx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.sign"><code class="docutils literal notranslate"><span class="pre">KeyStore.sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.validate_dag_address"><code class="docutils literal notranslate"><span class="pre">KeyStore.validate_dag_address()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.validate_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.validate_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.keystore.KeyStore.verify"><code class="docutils literal notranslate"><span class="pre">KeyStore.verify()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore.tx_encode">pypergraph.dag_keystore.tx_encode module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.PostTransactionV2"><code class="docutils literal notranslate"><span class="pre">PostTransactionV2</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.PostTransactionV2.proofs"><code class="docutils literal notranslate"><span class="pre">PostTransactionV2.proofs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.PostTransactionV2.value"><code class="docutils literal notranslate"><span class="pre">PostTransactionV2.value</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TransactionV2"><code class="docutils literal notranslate"><span class="pre">TransactionV2</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TransactionV2.MIN_SALT"><code class="docutils literal notranslate"><span class="pre">TransactionV2.MIN_SALT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TransactionV2.add_proof"><code class="docutils literal notranslate"><span class="pre">TransactionV2.add_proof()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TransactionV2.get_encoded"><code class="docutils literal notranslate"><span class="pre">TransactionV2.get_encoded()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TransactionV2.get_post_transaction"><code class="docutils literal notranslate"><span class="pre">TransactionV2.get_post_transaction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TransactionV2.to_hex_string"><code class="docutils literal notranslate"><span class="pre">TransactionV2.to_hex_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TxEncode"><code class="docutils literal notranslate"><span class="pre">TxEncode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TxEncode.get_tx_v2"><code class="docutils literal notranslate"><span class="pre">TxEncode.get_tx_v2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TxEncode.kryo_serialize"><code class="docutils literal notranslate"><span class="pre">TxEncode.kryo_serialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.tx_encode.TxEncode.utf8_length"><code class="docutils literal notranslate"><span class="pre">TxEncode.utf8_length()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keystore.html#module-pypergraph.dag_keystore">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip32"><code class="docutils literal notranslate"><span class="pre">Bip32</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip32.get_private_key_from_seed"><code class="docutils literal notranslate"><span class="pre">Bip32.get_private_key_from_seed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip32.get_public_key_from_private_hex"><code class="docutils literal notranslate"><span class="pre">Bip32.get_public_key_from_private_hex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip32.get_root_key_from_seed"><code class="docutils literal notranslate"><span class="pre">Bip32.get_root_key_from_seed()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip39"><code class="docutils literal notranslate"><span class="pre">Bip39</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip39.LANGUAGES"><code class="docutils literal notranslate"><span class="pre">Bip39.LANGUAGES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip39.get_seed_from_mnemonic"><code class="docutils literal notranslate"><span class="pre">Bip39.get_seed_from_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip39.mnemonic"><code class="docutils literal notranslate"><span class="pre">Bip39.mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip39.validate_mnemonic"><code class="docutils literal notranslate"><span class="pre">Bip39.validate_mnemonic()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.COIN"><code class="docutils literal notranslate"><span class="pre">COIN</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.COIN.DAG"><code class="docutils literal notranslate"><span class="pre">COIN.DAG</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.COIN.ETH"><code class="docutils literal notranslate"><span class="pre">COIN.ETH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.DERIVATION_PATH"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.DERIVATION_PATH.DAG"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH.DAG</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.DERIVATION_PATH.ETH"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH.ETH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.DERIVATION_PATH.ETH_LEDGER"><code class="docutils literal notranslate"><span class="pre">DERIVATION_PATH.ETH_LEDGER</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore"><code class="docutils literal notranslate"><span class="pre">KeyStore</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.get_dag_address_from_public_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_dag_address_from_public_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.get_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.get_p12_from_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_p12_from_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.get_private_key_from_p12"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_private_key_from_p12()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.get_private_key_from_seed"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_private_key_from_seed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.get_public_key_from_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_public_key_from_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.prepare_tx"><code class="docutils literal notranslate"><span class="pre">KeyStore.prepare_tx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.sign"><code class="docutils literal notranslate"><span class="pre">KeyStore.sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.validate_dag_address"><code class="docutils literal notranslate"><span class="pre">KeyStore.validate_dag_address()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.validate_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.validate_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore.verify"><code class="docutils literal notranslate"><span class="pre">KeyStore.verify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TransactionV2"><code class="docutils literal notranslate"><span class="pre">TransactionV2</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TransactionV2.MIN_SALT"><code class="docutils literal notranslate"><span class="pre">TransactionV2.MIN_SALT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TransactionV2.add_proof"><code class="docutils literal notranslate"><span class="pre">TransactionV2.add_proof()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TransactionV2.get_encoded"><code class="docutils literal notranslate"><span class="pre">TransactionV2.get_encoded()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TransactionV2.get_post_transaction"><code class="docutils literal notranslate"><span class="pre">TransactionV2.get_post_transaction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TransactionV2.to_hex_string"><code class="docutils literal notranslate"><span class="pre">TransactionV2.to_hex_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TxEncode"><code class="docutils literal notranslate"><span class="pre">TxEncode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TxEncode.get_tx_v2"><code class="docutils literal notranslate"><span class="pre">TxEncode.get_tx_v2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TxEncode.kryo_serialize"><code class="docutils literal notranslate"><span class="pre">TxEncode.kryo_serialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.TxEncode.utf8_length"><code class="docutils literal notranslate"><span class="pre">TxEncode.utf8_length()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pypergraph.dag_network.html">pypergraph.dag_network package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_network.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_network.html#module-pypergraph.dag_network.network">pypergraph.dag_network.api module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.network.Network"><code class="docutils literal notranslate"><span class="pre">Network</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.network.Network.get_address_balance"><code class="docutils literal notranslate"><span class="pre">Network.get_address_balance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.network.Network.get_last_reference"><code class="docutils literal notranslate"><span class="pre">Network.get_last_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.network.Network.get_pending_transaction"><code class="docutils literal notranslate"><span class="pre">Network.get_pending_transaction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.network.Network.handle_response"><code class="docutils literal notranslate"><span class="pre">Network.handle_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.network.Network.post_transaction"><code class="docutils literal notranslate"><span class="pre">Network.post_transaction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.network.NetworkError"><code class="docutils literal notranslate"><span class="pre">NetworkError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_network.html#module-pypergraph.dag_network.models">pypergraph.dag_network.models module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.models.Balance"><code class="docutils literal notranslate"><span class="pre">Balance</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.models.Balance.ddag_to_dag"><code class="docutils literal notranslate"><span class="pre">Balance.ddag_to_dag()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.models.Balance.get_endpoint"><code class="docutils literal notranslate"><span class="pre">Balance.get_endpoint()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.models.LastReference"><code class="docutils literal notranslate"><span class="pre">LastReference</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.models.LastReference.to_dict"><code class="docutils literal notranslate"><span class="pre">LastReference.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.models.PendingTransaction"><code class="docutils literal notranslate"><span class="pre">PendingTransaction</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.models.PostTransactionResponse"><code class="docutils literal notranslate"><span class="pre">PostTransactionResponse</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_network.html#module-pypergraph.dag_network">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.Network"><code class="docutils literal notranslate"><span class="pre">Network</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.Network.get_address_balance"><code class="docutils literal notranslate"><span class="pre">Network.get_address_balance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.Network.get_last_reference"><code class="docutils literal notranslate"><span class="pre">Network.get_last_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.Network.get_pending_transaction"><code class="docutils literal notranslate"><span class="pre">Network.get_pending_transaction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.Network.handle_response"><code class="docutils literal notranslate"><span class="pre">Network.handle_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.html#pypergraph.dag_network.Network.post_transaction"><code class="docutils literal notranslate"><span class="pre">Network.post_transaction()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pypergraph.dag_wallet.html">pypergraph.dag_wallet package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_wallet.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_wallet.html#module-pypergraph.dag_wallet.constants">pypergraph.dag_wallet.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_wallet.html#module-pypergraph.dag_wallet.wallet">pypergraph.dag_wallet.wallet module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet"><code class="docutils literal notranslate"><span class="pre">Wallet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.from_mnemonic"><code class="docutils literal notranslate"><span class="pre">Wallet.from_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.from_private_key"><code class="docutils literal notranslate"><span class="pre">Wallet.from_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.get_address_balance"><code class="docutils literal notranslate"><span class="pre">Wallet.get_address_balance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.get_dag_address_from_public_key_hex"><code class="docutils literal notranslate"><span class="pre">Wallet.get_dag_address_from_public_key_hex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.get_mnemonic_from_input"><code class="docutils literal notranslate"><span class="pre">Wallet.get_mnemonic_from_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.get_pending_transaction"><code class="docutils literal notranslate"><span class="pre">Wallet.get_pending_transaction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.new"><code class="docutils literal notranslate"><span class="pre">Wallet.new()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.send"><code class="docutils literal notranslate"><span class="pre">Wallet.send()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.set_network"><code class="docutils literal notranslate"><span class="pre">Wallet.set_network()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.transaction"><code class="docutils literal notranslate"><span class="pre">Wallet.transaction()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_wallet.html#module-pypergraph.dag_wallet">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet"><code class="docutils literal notranslate"><span class="pre">Wallet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.from_mnemonic"><code class="docutils literal notranslate"><span class="pre">Wallet.from_mnemonic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.from_private_key"><code class="docutils literal notranslate"><span class="pre">Wallet.from_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.get_address_balance"><code class="docutils literal notranslate"><span class="pre">Wallet.get_address_balance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.get_dag_address_from_public_key_hex"><code class="docutils literal notranslate"><span class="pre">Wallet.get_dag_address_from_public_key_hex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.get_mnemonic_from_input"><code class="docutils literal notranslate"><span class="pre">Wallet.get_mnemonic_from_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.get_pending_transaction"><code class="docutils literal notranslate"><span class="pre">Wallet.get_pending_transaction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.new"><code class="docutils literal notranslate"><span class="pre">Wallet.new()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.send"><code class="docutils literal notranslate"><span class="pre">Wallet.send()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.set_network"><code class="docutils literal notranslate"><span class="pre">Wallet.set_network()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.transaction"><code class="docutils literal notranslate"><span class="pre">Wallet.transaction()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -120,7 +298,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pypergraph.dag_keystore.html" class="btn btn-neutral float-right" title="pypergraph.dag_keystore package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
