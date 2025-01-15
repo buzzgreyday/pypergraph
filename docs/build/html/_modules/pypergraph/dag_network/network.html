@@ -8,6 +8,7 @@
   <title>pypergraph.dag_network.network &mdash; pypergraph 2025.0.0a3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
@@ -15,6 +16,7 @@
       <script src="../../../_static/documentation_options.js?v=d273756d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -44,7 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../pypergraph.html">Pypergraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pypergraph.html">pypergraph package</a></li>
 </ul>
 
         </div>
@@ -78,15 +80,18 @@
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models</span> <span class="kn">import</span> <span class="n">Balance</span><span class="p">,</span> <span class="n">LastReference</span><span class="p">,</span> <span class="n">PostTransactionResponse</span><span class="p">,</span> <span class="n">PendingTransaction</span>
 
 
+<div class="viewcode-block" id="NetworkError">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.network.NetworkError">[docs]</a>
 <span class="k">class</span> <span class="nc">NetworkError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom exception for transaction-related errors.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2"> (HTTP </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span></div>
+
 
 
 <div class="viewcode-block" id="Network">
-<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.Network">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.network.Network">[docs]</a>
 <span class="k">class</span> <span class="nc">Network</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mainnet&quot;</span><span class="p">,</span> <span class="n">l0_host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">l1_host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">l0_load_balancer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">l1_load_balancer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">block_explorer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -110,7 +115,7 @@
         <span class="p">)</span>
 
 <div class="viewcode-block" id="Network.handle_response">
-<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.Network.handle_response">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.network.Network.handle_response">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle HTTP responses, raising custom exceptions for errors.&quot;&quot;&quot;</span>
@@ -138,7 +143,7 @@
                 <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Network.get_address_balance">
-<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.Network.get_address_balance">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.network.Network.get_address_balance">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">balance_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Balance</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch the balance for a specific DAG address or public key.</span>
@@ -157,7 +162,7 @@
 
 
 <div class="viewcode-block" id="Network.get_last_reference">
-<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.Network.get_last_reference">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.network.Network.get_last_reference">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_last_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LastReference</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch the last reference for a specific DAG address.</span>
@@ -170,7 +175,7 @@
 
 
 <div class="viewcode-block" id="Network.get_pending_transaction">
-<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.Network.get_pending_transaction">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.network.Network.get_pending_transaction">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_pending_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PendingTransaction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch details of a pending transaction.</span>
@@ -185,7 +190,7 @@
 
 
 <div class="viewcode-block" id="Network.post_transaction">
-<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.Network.post_transaction">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.network.Network.post_transaction">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">post_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Submit a new transaction.</span>

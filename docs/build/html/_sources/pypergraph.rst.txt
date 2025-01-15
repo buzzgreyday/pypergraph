@@ -1,5 +1,5 @@
-Pypergraph
-==========
+pypergraph package
+==================
 
 Subpackages
 -----------
