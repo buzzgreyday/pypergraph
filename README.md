@@ -39,14 +39,9 @@ wallet = Wallet.from_mnemonic("abandon abandon abandon abandon abandon abandon a
 wallet = Wallet.from_private_key("SOME_VALID_PRIVATE_KEY")
 ```
 
-#### GET DAG WALLET ADDRESS
+#### GET DAG WALLET MNEMONIC PHRASE
 ```
-address = wallet.address
-```
-
-#### GET DAG WALLET PUBLIC KEY
-```
-public_key = wallet.public_key
+words = wallet.words
 ```
 
 #### GET DAG WALLET PRIVATE KEY
@@ -54,9 +49,14 @@ public_key = wallet.public_key
 private_key = wallet.private_key
 ```
 
-#### GET DAG WALLET MNEMONIC PHRASE
+#### GET DAG WALLET PUBLIC KEY
 ```
-words = wallet.words
+public_key = wallet.public_key
+```
+
+#### GET DAG WALLET ADDRESS
+```
+address = wallet.address
 ```
 
 #### GET DAG WALLET BALANCE

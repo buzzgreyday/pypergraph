@@ -7,18 +7,11 @@ Submodules
 pypergraph.dag\_network.api module
 ----------------------------------
 
-.. automodule:: pypergraph.dag_network.api
+.. automodule:: pypergraph.dag_network.network
    :members:
    :undoc-members:
    :show-inheritance:
 
-pypergraph.dag\_network.constants module
-----------------------------------------
-
-.. automodule:: pypergraph.dag_network.constants
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 pypergraph.dag\_network.models module
 -------------------------------------
