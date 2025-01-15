@@ -22,6 +22,25 @@ pip install -r requirements.txt
 
 The following code is meant to demonstrate how easy interacting with the network is using Pypergraph. More extensive documentation coming. Full documentation available [here](https://pypergraph-dag.readthedocs.io/en/latest/index.html).
 
+A Pypergraph wallet is essentially a Constellation **key trio** with the addition of a `words` variable (the mnemonic phrase) and a `network` object variable with the current network configuration of the `wallet` object.
+
+<details>
+<summary><strong>The Constellation Key Trio</strong></summary>
+
+In the Constellation Network, accounts are composed of a key trio consisting of the private key, public key, and an address.
+
+### Private Key
+The private key is a highly confidential piece of information that plays a crucial role in authenticating an address to the network. With the private key, you can execute sensitive actions like signing messages or sending transactions.
+
+### Public Key
+The public key serves as a unique identifier for nodes on the network and is derived from the private key. It is crucial for establishing trust relationships between nodes, enabling secure communication, and verifying digital signatures.
+
+### Address
+The address is the public-facing component of the Key Trio and represents a public wallet address for receiving payments or other digital transactions. It can be derived from either the private or public key and is widely used for peer-to-peer transactions. Sharing your address with others enables them to send you payments while keeping your private key confidential.
+
+Source: [Accounts and Keys](https://docs.constellationnetwork.io/metagraphs/accounts/)
+</details>
+
 ### WALLET
 
 #### NEW WALLET
