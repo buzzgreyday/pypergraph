@@ -22,6 +22,8 @@ pip install -r requirements.txt
 
 The following code is meant to demonstrate how easy interacting with the network is using Pypergraph. More extensive documentation coming. Full documentation available [here](https://pypergraph-dag.readthedocs.io/en/latest/index.html).
 
+### WALLET
+
 A Pypergraph wallet is essentially a Constellation **key trio** with the addition of a `words` variable (the mnemonic phrase) and a `network` object variable with the current network configuration of the `wallet` object.
 
 <details>
@@ -40,8 +42,6 @@ The address is the public-facing component of the Key Trio and represents a publ
 
 Source: [Accounts and Keys](https://docs.constellationnetwork.io/metagraphs/accounts/)
 </details>
-
-### WALLET
 
 #### NEW WALLET
 ```
