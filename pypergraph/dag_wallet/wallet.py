@@ -135,9 +135,9 @@ class Wallet:
         :param fee: Tip the network
         :return: TransactionV2 object
         """
-        from_address = self.address
         last_ref = await self.network.get_last_reference(address_hash=self.address)
-        tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount, to_address, from_address, last_ref.to_dict(), fee)
+        tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount=amount, to_address=to_address, from_address=self.address,
+                                                      last_ref=last_ref.to_dict(), fee=fee)
         signature = KeyStore.sign(private_key_hex=self.private_key, tx_hash=tx_hash)
         valid = KeyStore.verify(public_key_hex=self.public_key, tx_hash=tx_hash, signature_hex=signature)
         if not valid:

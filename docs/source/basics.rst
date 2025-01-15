@@ -28,7 +28,7 @@ A Pypergraph wallet is basically a Constellation ``key trio`` with the addition 
 
     wallet = Wallet.new()
 
-.. dropdown:: Code Example
+.. dropdown:: How is a new wallet object created?
     :animate: fade-in
 
     .. code-block:: python
@@ -51,8 +51,10 @@ A Pypergraph wallet is basically a Constellation ``key trio`` with the addition 
 
     wallet = Wallet.from_mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon")
 
-.. dropdown:: Code Example
+.. dropdown:: How is the private key, public key and DAG address derived from mnemonic phrase?
     :animate: fade-in
+
+    The private key, public key and DAG address is generated from a 12 word seed.
 
     .. code-block:: python
 
@@ -75,7 +77,7 @@ A Pypergraph wallet is basically a Constellation ``key trio`` with the addition 
 
     wallet = Wallet.from_private_key("SOME_VALID_PRIVATE_KEY")
 
-.. dropdown:: Code Example
+.. dropdown:: How is the public key and DAG address derived from a private key?
     :animate: fade-in
 
     .. code-block:: python
@@ -117,7 +119,7 @@ A Pypergraph wallet is basically a Constellation ``key trio`` with the addition 
 
     dag_address = wallet.address
 
-.. dropdown:: How ``address`` variable is derived
+.. dropdown:: How is a DAG address generated from a public key?
     :animate: fade-in
 
     The DAG address is derived from the public key and stored in the ``wallet.address`` object variable.
@@ -182,6 +184,21 @@ Pypergraph Transactions
 
     tx = await wallet.transaction(to_address='SOME_VALID_DAG_ADDRESS', amount=1.0, fee=0.0002)
 
+.. dropdown:: How is a transaction created?
+   :animate: fade-in
+
+   .. code-block:: python
+
+       last_ref = await self.network.get_last_reference(address_hash=self.address)
+       tx, tx_hash, encoded_tx = KeyStore.prepare_tx(amount=amount, to_address=to_address, from_address=self.address,
+                                                     last_ref=last_ref.to_dict(), fee=fee)
+       signature = KeyStore.sign(private_key_hex=self.private_key, tx_hash=tx_hash)
+       valid = KeyStore.verify(public_key_hex=self.public_key, tx_hash=tx_hash, signature_hex=signature)
+       if not valid:
+           raise ValueError("Wallet :: Invalid signature.")
+       proof = {"id": self.public_key[2:], "signature": signature}
+       tx.add_proof(proof=proof)
+
 -----
 
 * **SEND TRANSACTION**
@@ -200,7 +217,7 @@ Pypergraph Transactions
 
     pending = await wallet.get_pending_transaction(hash)
 
-.. dropdown:: Code Example
+.. dropdown:: How can I check if a transaction has been sent?
     :animate: fade-in
 
     The following code is an example of how to check if the transaction is processed or not.
