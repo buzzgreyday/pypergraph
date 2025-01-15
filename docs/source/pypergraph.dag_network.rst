@@ -4,7 +4,7 @@ pypergraph.dag\_network package
 Submodules
 ----------
 
-pypergraph.dag\_network.api module
+pypergraph.dag\_network.network module
 ----------------------------------
 
 .. automodule:: pypergraph.dag_network.network
