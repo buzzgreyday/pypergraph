@@ -69,6 +69,29 @@ if not valid:
 wallet = Wallet.from_mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon")
 ```
 
+<details>
+<summary><strong>How is the private key, public key and DAG address derived from the mnemonic phrase?</strong></summary>
+
+The private key, public key and DAG address is generated from a 12 word seed.
+
+```
+from pypergraph.dag_keystore import KeyStore, Bip39
+
+valid = KeyStore.validate_mnemonic(mnemonic_phrase=words)
+if not valid:
+    raise ValueError("Wallet :: Not a valid mnemonic.")
+mnemonic = Bip39()
+seed_bytes = mnemonic.get_seed_from_mnemonic(words)
+private_key = KeyStore.get_private_key_from_seed(seed_bytes)
+public_key = KeyStore.get_public_key_from_private_key(private_key)
+address = KeyStore.get_dag_address_from_public_key(public_key)
+valid = KeyStore.validate_dag_address(address=address)
+if not valid:
+    raise ValueError("Wallet :: Not a valid DAG address.")
+```
+
+</details>
+
 #### IMPORT WALLET FROM PRIVATE KEY
 ```
 wallet = Wallet.from_private_key("SOME_VALID_PRIVATE_KEY")
