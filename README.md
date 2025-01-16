@@ -10,6 +10,28 @@ Pypergraph is a Python package that enables secure wallet functionalities and in
 ![Version](https://img.shields.io/badge/version-2025.0.0a7-yellow.svg)
 ![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 ---
+
+## Table of Contents
+- [Pypergraph](#pypergraph)
+- [Install](#install)
+- [Usage](#usage)
+  - [Wallet](#wallet)
+    - [The Constellation Key Trio](#the-constellation-key-trio)
+    - [New Wallet](#new-wallet)
+    - [Import Wallet from Mnemonic Phrase](#import-wallet-from-mnemonic-phrase)
+    - [Import Wallet from Private Key](#import-wallet-from-private-key)
+    - [Get DAG Wallet Mnemonic Phrase](#get-dag-wallet-mnemonic-phrase)
+    - [Get DAG Wallet Private Key](#get-dag-wallet-private-key)
+    - [Get DAG Wallet Public Key](#get-dag-wallet-public-key)
+    - [Get DAG Wallet Address](#get-dag-wallet-address)
+    - [Get DAG Wallet Balance](#get-dag-wallet-balance)
+    - [Set Non-Default DAG Wallet Network](#set-non-default-dag-wallet-network)
+  - [Transaction](#transaction)
+    - [New Transaction](#new-transaction)
+    - [Send Transaction](#send-transaction)
+    - [Get Pending Transaction](#get-pending-transaction)
+- [Support](#support)
+
 ## INSTALL
 
 ```
