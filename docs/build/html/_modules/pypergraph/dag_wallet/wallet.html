@@ -82,7 +82,7 @@
 
 
 <div class="viewcode-block" id="Wallet">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet">[docs]</a>
 <span class="k">class</span> <span class="nc">Wallet</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">public_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">private_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">words</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="n">network</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -97,7 +97,7 @@
 
 
 <div class="viewcode-block" id="Wallet.new">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.new">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.new">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -121,7 +121,7 @@
 
 
 <div class="viewcode-block" id="Wallet.from_mnemonic">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.from_mnemonic">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.from_mnemonic">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_mnemonic</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">words</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -150,7 +150,7 @@
 
 
 <div class="viewcode-block" id="Wallet.from_private_key">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.from_private_key">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.from_private_key">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_private_key</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">private_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -172,7 +172,7 @@
 
 
 <div class="viewcode-block" id="Wallet.transaction">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.transaction">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.transaction">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fee</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TransactionV2</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param to_address: The address to receive transaction</span>
@@ -193,7 +193,7 @@
 
 
 <div class="viewcode-block" id="Wallet.send">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.send">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.send">[docs]</a>
     <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="p">:</span> <span class="n">TransactionV2</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Asynchronous method (used with await).</span>
@@ -206,7 +206,7 @@
 
 
 <div class="viewcode-block" id="Wallet.set_network">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.set_network">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.set_network">[docs]</a>
     <span class="k">def</span> <span class="nf">set_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mainnet&quot;</span><span class="p">,</span> <span class="n">l0_host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">l1_host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Choose the network and layer associated with the wallet.</span>
@@ -222,7 +222,7 @@
 
 
 <div class="viewcode-block" id="Wallet.get_address_balance">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.get_address_balance">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.get_address_balance">[docs]</a>
     <span class="k">def</span> <span class="nf">get_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag_address</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Asynchronous method (used with await).</span>
@@ -237,7 +237,7 @@
 
 
 <div class="viewcode-block" id="Wallet.get_pending_transaction">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.get_pending_transaction">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet.get_pending_transaction">[docs]</a>
     <span class="k">def</span> <span class="nf">get_pending_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Asynchronous method (used with await)</span>

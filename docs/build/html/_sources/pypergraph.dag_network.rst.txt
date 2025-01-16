@@ -1,11 +1,6 @@
 pypergraph.dag\_network package
 ===============================
 
-Submodules
-----------
-
-pypergraph.dag\_network.network module
---------------------------------------
 
 .. automodule:: pypergraph.dag_network.network
    :members:
@@ -13,19 +8,7 @@ pypergraph.dag\_network.network module
    :show-inheritance:
 
 
-pypergraph.dag\_network.models module
--------------------------------------
-
 .. automodule:: pypergraph.dag_network.models
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: pypergraph.dag_network
    :members:
    :undoc-members:
    :show-inheritance:

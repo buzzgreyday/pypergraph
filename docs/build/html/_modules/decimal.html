@@ -1,0 +1,215 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>decimal &mdash; pypergraph 2025.0.0a3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=d273756d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pypergraph
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pypergraph</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">decimal</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for decimal</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Decimal fixed-point and floating-point arithmetic.</span>
+
+<span class="sd">This is an implementation of decimal floating-point arithmetic based on</span>
+<span class="sd">the General Decimal Arithmetic Specification:</span>
+
+<span class="sd">    http://speleotrove.com/decimal/decarith.html</span>
+
+<span class="sd">and IEEE standard 854-1987:</span>
+
+<span class="sd">    http://en.wikipedia.org/wiki/IEEE_854-1987</span>
+
+<span class="sd">Decimal floating point has finite precision with arbitrarily large bounds.</span>
+
+<span class="sd">The purpose of this module is to support arithmetic using familiar</span>
+<span class="sd">&quot;schoolhouse&quot; rules and to avoid some of the tricky representation</span>
+<span class="sd">issues associated with binary floating point.  The package is especially</span>
+<span class="sd">useful for financial applications or for contexts where users have</span>
+<span class="sd">expectations that are at odds with binary floating point (for instance,</span>
+<span class="sd">in binary floating point, 1.00 % 0.1 gives 0.09999999999999995 instead</span>
+<span class="sd">of 0.0; Decimal(&#39;1.00&#39;) % Decimal(&#39;0.1&#39;) returns the expected</span>
+<span class="sd">Decimal(&#39;0.00&#39;)).</span>
+
+<span class="sd">Here are some examples of using the decimal module:</span>
+
+<span class="sd">&gt;&gt;&gt; from decimal import *</span>
+<span class="sd">&gt;&gt;&gt; setcontext(ExtendedContext)</span>
+<span class="sd">&gt;&gt;&gt; Decimal(0)</span>
+<span class="sd">Decimal(&#39;0&#39;)</span>
+<span class="sd">&gt;&gt;&gt; Decimal(&#39;1&#39;)</span>
+<span class="sd">Decimal(&#39;1&#39;)</span>
+<span class="sd">&gt;&gt;&gt; Decimal(&#39;-.0123&#39;)</span>
+<span class="sd">Decimal(&#39;-0.0123&#39;)</span>
+<span class="sd">&gt;&gt;&gt; Decimal(123456)</span>
+<span class="sd">Decimal(&#39;123456&#39;)</span>
+<span class="sd">&gt;&gt;&gt; Decimal(&#39;123.45e12345678&#39;)</span>
+<span class="sd">Decimal(&#39;1.2345E+12345680&#39;)</span>
+<span class="sd">&gt;&gt;&gt; Decimal(&#39;1.33&#39;) + Decimal(&#39;1.27&#39;)</span>
+<span class="sd">Decimal(&#39;2.60&#39;)</span>
+<span class="sd">&gt;&gt;&gt; Decimal(&#39;12.34&#39;) + Decimal(&#39;3.87&#39;) - Decimal(&#39;18.41&#39;)</span>
+<span class="sd">Decimal(&#39;-2.20&#39;)</span>
+<span class="sd">&gt;&gt;&gt; dig = Decimal(1)</span>
+<span class="sd">&gt;&gt;&gt; print(dig / Decimal(3))</span>
+<span class="sd">0.333333333</span>
+<span class="sd">&gt;&gt;&gt; getcontext().prec = 18</span>
+<span class="sd">&gt;&gt;&gt; print(dig / Decimal(3))</span>
+<span class="sd">0.333333333333333333</span>
+<span class="sd">&gt;&gt;&gt; print(dig.sqrt())</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; print(Decimal(3).sqrt())</span>
+<span class="sd">1.73205080756887729</span>
+<span class="sd">&gt;&gt;&gt; print(Decimal(3) ** 123)</span>
+<span class="sd">4.85192780976896427E+58</span>
+<span class="sd">&gt;&gt;&gt; inf = Decimal(1) / Decimal(0)</span>
+<span class="sd">&gt;&gt;&gt; print(inf)</span>
+<span class="sd">Infinity</span>
+<span class="sd">&gt;&gt;&gt; neginf = Decimal(-1) / Decimal(0)</span>
+<span class="sd">&gt;&gt;&gt; print(neginf)</span>
+<span class="sd">-Infinity</span>
+<span class="sd">&gt;&gt;&gt; print(neginf + inf)</span>
+<span class="sd">NaN</span>
+<span class="sd">&gt;&gt;&gt; print(neginf * inf)</span>
+<span class="sd">-Infinity</span>
+<span class="sd">&gt;&gt;&gt; print(dig / 0)</span>
+<span class="sd">Infinity</span>
+<span class="sd">&gt;&gt;&gt; getcontext().traps[DivisionByZero] = 1</span>
+<span class="sd">&gt;&gt;&gt; print(dig / 0)</span>
+<span class="sd">Traceback (most recent call last):</span>
+<span class="sd">  ...</span>
+<span class="sd">  ...</span>
+<span class="sd">  ...</span>
+<span class="sd">decimal.DivisionByZero: x / 0</span>
+<span class="sd">&gt;&gt;&gt; c = Context()</span>
+<span class="sd">&gt;&gt;&gt; c.traps[InvalidOperation] = 0</span>
+<span class="sd">&gt;&gt;&gt; print(c.flags[InvalidOperation])</span>
+<span class="sd">0</span>
+<span class="sd">&gt;&gt;&gt; c.divide(Decimal(0), Decimal(0))</span>
+<span class="sd">Decimal(&#39;NaN&#39;)</span>
+<span class="sd">&gt;&gt;&gt; c.traps[InvalidOperation] = 1</span>
+<span class="sd">&gt;&gt;&gt; print(c.flags[InvalidOperation])</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; c.flags[InvalidOperation] = 0</span>
+<span class="sd">&gt;&gt;&gt; print(c.flags[InvalidOperation])</span>
+<span class="sd">0</span>
+<span class="sd">&gt;&gt;&gt; print(c.divide(Decimal(0), Decimal(0)))</span>
+<span class="sd">Traceback (most recent call last):</span>
+<span class="sd">  ...</span>
+<span class="sd">  ...</span>
+<span class="sd">  ...</span>
+<span class="sd">decimal.InvalidOperation: 0 / 0</span>
+<span class="sd">&gt;&gt;&gt; print(c.flags[InvalidOperation])</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; c.flags[InvalidOperation] = 0</span>
+<span class="sd">&gt;&gt;&gt; c.traps[InvalidOperation] = 0</span>
+<span class="sd">&gt;&gt;&gt; print(c.divide(Decimal(0), Decimal(0)))</span>
+<span class="sd">NaN</span>
+<span class="sd">&gt;&gt;&gt; print(c.flags[InvalidOperation])</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">_decimal</span> <span class="kn">import</span> <span class="o">*</span>
+    <span class="kn">from</span> <span class="nn">_decimal</span> <span class="kn">import</span> <span class="n">__version__</span>
+    <span class="kn">from</span> <span class="nn">_decimal</span> <span class="kn">import</span> <span class="n">__libmpdec_version__</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">_pydecimal</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="n">_pydecimal</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="vm">__doc__</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="n">_pydecimal</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Michael Brummer Ringdal.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
