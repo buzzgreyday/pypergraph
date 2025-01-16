@@ -49,7 +49,7 @@ wallet = Wallet.new()
 ```
 <details>
 <summary><strong>How is a new wallet object created?</strong></summary>
-
+```
 from pypergraph.dag_keystore import KeyStore
 
 mnemonic_values = KeyStore.get_mnemonic()
@@ -59,6 +59,7 @@ address = KeyStore.get_dag_address_from_public_key(public_key=public_key)
 valid = KeyStore.validate_dag_address(address=address)
 if not valid:
     raise ValueError("Wallet :: Not a valid DAG address.")
+```
 </details>
 
 #### IMPORT WALLET FROM MNEMONIC PHRASE
