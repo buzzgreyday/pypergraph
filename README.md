@@ -2,9 +2,11 @@
 ---
 **Hypergraph Python Tool**
 
-> **This tool is currently in early development, contact me if you wish to contribute. Please do not rely on this for production purposes just yet.**
-
 Pypergraph is a Python package that enables secure wallet functionalities and interaction with Constellation Network APIs. Inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
+
+<div style="border: 2px solid #f5c518; border-radius: 5px; padding: 15px; background-color: #fffbea; color: #664d03; margin-bottom: 20px;">
+  <strong>Caution:</strong> This tool is currently in early development. <strong>Do not use it for production purposes</strong> as it may contain bugs or incomplete features. Contributions are welcome—please contact me if you'd like to get involved.
+</div>
 
 [![Read the Docs](https://img.shields.io/readthedocs/pypergraph-dag)](https://pypergraph-dag.readthedocs.io)
 ![Version](https://img.shields.io/badge/version-2025.0.0a7-yellow.svg)
