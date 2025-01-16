@@ -17,7 +17,6 @@ Pypergraph is a Python package that enables secure wallet functionalities and in
 - [Install](#install)
 - [Usage](#usage)
   - [Wallet](#wallet)
-    - [The Constellation Key Trio](#the-constellation-key-trio)
     - [New Wallet](#new-wallet)
     - [Import Wallet from Mnemonic Phrase](#import-wallet-from-mnemonic-phrase)
     - [Import Wallet from Private Key](#import-wallet-from-private-key)
@@ -31,7 +30,6 @@ Pypergraph is a Python package that enables secure wallet functionalities and in
     - [New Transaction](#new-transaction)
     - [Send Transaction](#send-transaction)
     - [Get Pending Transaction](#get-pending-transaction)
-- [Support](#support)
 
 ## INSTALL
 
