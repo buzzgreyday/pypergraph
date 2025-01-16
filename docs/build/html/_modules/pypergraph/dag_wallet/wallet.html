@@ -75,14 +75,10 @@
              
   <h1>Source code for pypergraph.dag_wallet.wallet</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha256</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-
-<span class="kn">import</span> <span class="nn">base58</span>
 
 <span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span><span class="p">,</span> <span class="n">Bip39</span><span class="p">,</span> <span class="n">TransactionV2</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network</span> <span class="kn">import</span> <span class="n">Network</span>
-<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">PKCS_PREFIX</span>
 
 
 <div class="viewcode-block" id="Wallet">
@@ -99,58 +95,6 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Wallet(address=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="si">}</span><span class="s2">, public_key=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="si">}</span><span class="s2">, private_key=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">private_key</span><span class="si">}</span><span class="s2">, words=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="si">}</span><span class="s2">, network=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="si">!r}</span><span class="s2">)&quot;</span>
 
-<div class="viewcode-block" id="Wallet.get_dag_address_from_public_key_hex">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.get_dag_address_from_public_key_hex">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_dag_address_from_public_key_hex</span><span class="p">(</span><span class="n">public_key_hex</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param public_key_hex: The private key as a hexadecimal string.</span>
-<span class="sd">        :return: The DAG address corresponding to the public key (node ID).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">public_key_hex</span><span class="p">)</span> <span class="o">==</span> <span class="mi">128</span><span class="p">:</span>
-            <span class="n">public_key</span> <span class="o">=</span> <span class="n">PKCS_PREFIX</span> <span class="o">+</span> <span class="s2">&quot;04&quot;</span> <span class="o">+</span> <span class="n">public_key_hex</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">public_key_hex</span><span class="p">)</span> <span class="o">==</span> <span class="mi">130</span> <span class="ow">and</span> <span class="n">public_key_hex</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;04&quot;</span><span class="p">:</span>
-            <span class="n">public_key</span> <span class="o">=</span> <span class="n">PKCS_PREFIX</span> <span class="o">+</span> <span class="n">public_key_hex</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not a valid public key&quot;</span><span class="p">)</span>
-
-        <span class="n">public_key</span> <span class="o">=</span> <span class="n">sha256</span><span class="p">(</span><span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">public_key</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
-        <span class="n">public_key</span> <span class="o">=</span> <span class="n">base58</span><span class="o">.</span><span class="n">b58encode</span><span class="p">(</span><span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">public_key</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-        <span class="n">public_key</span> <span class="o">=</span> <span class="n">public_key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span> <span class="o">-</span> <span class="mi">36</span><span class="p">:]</span>
-
-        <span class="n">check_digits</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">public_key</span> <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()])</span>
-        <span class="n">check_digit</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">check_digits</span><span class="p">:</span>
-            <span class="n">check_digit</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">check_digit</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">:</span>
-                <span class="n">check_digit</span> <span class="o">=</span> <span class="n">check_digit</span> <span class="o">%</span> <span class="mi">9</span>
-
-        <span class="n">dag_addr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;DAG</span><span class="si">{</span><span class="n">check_digit</span><span class="si">}{</span><span class="n">public_key</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">return</span> <span class="n">dag_addr</span></div>
-
-
-<div class="viewcode-block" id="Wallet.get_mnemonic_from_input">
-<a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.get_mnemonic_from_input">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_mnemonic_from_input</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Mostly for testing purposes. Prompts the user to enter a mnemonic seed phrase.</span>
-
-<span class="sd">        :return: A mnemonic phrase from user input (should be validated).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">user_input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter your mnemonic seed phrase: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-
-            <span class="c1"># Split the input into words and check length</span>
-            <span class="n">words</span> <span class="o">=</span> <span class="n">user_input</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid seed length. It should have 12, 15, 18, 21, or 24 words. Please try again.&quot;</span><span class="p">)</span>
-                <span class="k">continue</span>
-
-            <span class="k">return</span> <span class="n">user_input</span></div>
-
-
 
 <div class="viewcode-block" id="Wallet.new">
 <a class="viewcode-back" href="../../../pypergraph.dag_wallet.html#pypergraph.dag_wallet.wallet.Wallet.new">[docs]</a>
@@ -164,7 +108,7 @@
         <span class="n">mnemonic_values</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_mnemonic</span><span class="p">()</span>
         <span class="n">private_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_private_key_from_seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">mnemonic_values</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">])</span>
         <span class="n">public_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_public_key_from_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
-        <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="o">=</span><span class="n">public_key</span><span class="p">)</span>
+        <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key_hex</span><span class="o">=</span><span class="n">public_key</span><span class="p">)</span>
         <span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_dag_address</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid DAG address.&quot;</span><span class="p">)</span>
@@ -194,6 +138,9 @@
         <span class="n">private_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_private_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="p">)</span>
         <span class="n">public_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_public_key_from_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
         <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_dag_address</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid DAG address.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span>
             <span class="n">public_key</span><span class="o">=</span><span class="n">public_key</span><span class="p">,</span>
@@ -214,6 +161,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">public_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_public_key_from_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
         <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_dag_address</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid DAG address.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span>
             <span class="n">public_key</span><span class="o">=</span><span class="n">public_key</span><span class="p">,</span>

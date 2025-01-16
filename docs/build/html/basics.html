@@ -85,10 +85,14 @@
 <section id="pypergraph-wallets">
 <h2>Pypergraph Wallets<a class="headerlink" href="#pypergraph-wallets" title="Link to this heading"></a></h2>
 <p>A Pypergraph wallet is basically a Constellation <code class="docutils literal notranslate"><span class="pre">key</span> <span class="pre">trio</span></code> with the addition of a <code class="docutils literal notranslate"><span class="pre">words</span></code> variable (the mnemonic phrase) and a <code class="docutils literal notranslate"><span class="pre">network</span></code> object variable with the current network configuration of the <code class="docutils literal notranslate"><span class="pre">wallet</span></code> object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the Pypergraph package, <code class="docutils literal notranslate"><span class="pre">accounts</span></code> are referred to as <code class="docutils literal notranslate"><span class="pre">wallets</span></code>. Wallet methods can be imported from <a class="reference internal" href="pypergraph.dag_wallet.html#pypergraph.dag_wallet.Wallet" title="pypergraph.dag_wallet.Wallet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pypergraph.dag_wallet.Wallet</span></code></a> and key related methods from <a class="reference internal" href="pypergraph.dag_keystore.html#pypergraph.dag_keystore.KeyStore" title="pypergraph.dag_keystore.KeyStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">pypergraph.dag_keystore.KeyStore</span></code></a>.</p>
+</div>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">The Constellation Key Trio</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">In the Constellation Network, accounts are composed of a key trio consisting of the private key, public key, and an address.</p>
+<p class="sd-card-text">In the Constellation Network, accounts (or wallets) are composed of a key trio consisting of the private key, public key, and a DAG address.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
@@ -151,6 +155,9 @@ Address</label><div class="sd-tab-content docutils">
 <span class="n">private_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_private_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="p">)</span>
 <span class="n">public_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_public_key_from_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
 <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
+<span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_dag_address</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid DAG address.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -168,6 +175,9 @@ Address</label><div class="sd-tab-content docutils">
 
 <span class="n">public_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_public_key_from_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
 <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
+<span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_dag_address</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid DAG address.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -226,7 +236,7 @@ Address</label><div class="sd-tab-content docutils">
     <span class="k">if</span> <span class="n">check_digit</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">:</span>
         <span class="n">check_digit</span> <span class="o">=</span> <span class="n">check_digit</span> <span class="o">%</span> <span class="mi">9</span>
 
-<span class="n">dag_addr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;DAG</span><span class="si">{</span><span class="n">check_digit</span><span class="si">}{</span><span class="n">public_key</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">address</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;DAG</span><span class="si">{</span><span class="n">check_digit</span><span class="si">}{</span><span class="n">public_key</span><span class="si">}</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
 </div>

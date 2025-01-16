@@ -37,6 +37,14 @@ class LastReference:
     def __repr__(self):
         return f"LastReference(ordinal={self.ordinal}, hash='{self.hash}')"
 
+    @staticmethod
+    def get_endpoint(address: str):
+        """
+        :param address: DAG address.
+        :return: The endpoint to be added to the host.
+        """
+        return f"/transactions/last-reference/{address}"
+
     def to_dict(self) -> dict:
         """
         Make LastReference object return a dictionary with the last transaction reference associated with the DAG wallet address.
@@ -49,7 +57,6 @@ class LastReference:
 class PostTransactionResponse:
 
     def __init__(self, hash: str):
-        print(hash)
         self.hash = hash
 
     def __repr__(self):
@@ -75,3 +82,11 @@ class PendingTransaction:
                 f"amount={self.amount}, fee={self.fee}, parent_hash={self.parent_hash}, "
                 f"parent_ordinal={self.parent_ordinal}, salt={self.salt}, "
                 f"transaction_hash={self.transaction_hash}, status={self.status})")
+
+    @staticmethod
+    def get_endpoint(transaction_hash: str):
+        """
+        :param transaction_hash:
+        :return: The endpoint to ba added to host
+        """
+        return f"/transactions/{transaction_hash}"

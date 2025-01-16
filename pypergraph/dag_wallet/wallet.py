@@ -1,12 +1,8 @@
 import asyncio
-from hashlib import sha256
 from typing import Optional
-
-import base58
 
 from pypergraph.dag_keystore import KeyStore, Bip39, TransactionV2
 from pypergraph.dag_network import Network
-from .constants import PKCS_PREFIX
 
 
 class Wallet:
@@ -21,52 +17,6 @@ class Wallet:
     def __repr__(self):
         return f"Wallet(address={self.address}, public_key={self.public_key}, private_key={self.private_key}, words={self.words}, network={self.network!r})"
 
-    @staticmethod
-    def get_dag_address_from_public_key_hex(public_key_hex: str) -> str:
-        """
-        :param public_key_hex: The private key as a hexadecimal string.
-        :return: The DAG address corresponding to the public key (node ID).
-        """
-        if len(public_key_hex) == 128:
-            public_key = PKCS_PREFIX + "04" + public_key_hex
-        elif len(public_key_hex) == 130 and public_key_hex[:2] == "04":
-            public_key = PKCS_PREFIX + public_key_hex
-        else:
-            raise ValueError("Not a valid public key")
-
-        public_key = sha256(bytes.fromhex(public_key)).hexdigest()
-        public_key = base58.b58encode(bytes.fromhex(public_key)).decode()
-        public_key = public_key[len(public_key) - 36:]
-
-        check_digits = "".join([char for char in public_key if char.isdigit()])
-        check_digit = 0
-        for n in check_digits:
-            check_digit += int(n)
-            if check_digit >= 9:
-                check_digit = check_digit % 9
-
-        dag_addr = f"DAG{check_digit}{public_key}"
-        return dag_addr
-
-    @staticmethod
-    def get_mnemonic_from_input() -> str:
-        """
-        Mostly for testing purposes. Prompts the user to enter a mnemonic seed phrase.
-
-        :return: A mnemonic phrase from user input (should be validated).
-        """
-
-        while True:
-            user_input = input("Enter your mnemonic seed phrase: ").strip()
-
-            # Split the input into words and check length
-            words = user_input.split()
-            if len(words) not in (12, 15, 18, 21, 24):
-                print("Invalid seed length. It should have 12, 15, 18, 21, or 24 words. Please try again.")
-                continue
-
-            return user_input
-
 
     @classmethod
     def new(cls):
@@ -78,7 +28,7 @@ class Wallet:
         mnemonic_values = KeyStore.get_mnemonic()
         private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
         public_key = KeyStore.get_public_key_from_private_key(private_key)
-        address = KeyStore.get_dag_address_from_public_key(public_key=public_key)
+        address = KeyStore.get_dag_address_from_public_key(public_key_hex=public_key)
         valid = KeyStore.validate_dag_address(address=address)
         if not valid:
             raise ValueError("Wallet :: Not a valid DAG address.")
@@ -105,6 +55,9 @@ class Wallet:
         private_key = KeyStore.get_private_key_from_seed(seed_bytes)
         public_key = KeyStore.get_public_key_from_private_key(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
+        valid = KeyStore.validate_dag_address(address=address)
+        if not valid:
+            raise ValueError("Wallet :: Not a valid DAG address.")
         return cls(
             address=address,
             public_key=public_key,
@@ -122,6 +75,9 @@ class Wallet:
         """
         public_key = KeyStore.get_public_key_from_private_key(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
+        valid = KeyStore.validate_dag_address(address=address)
+        if not valid:
+            raise ValueError("Wallet :: Not a valid DAG address.")
         return cls(
             address=address,
             public_key=public_key,

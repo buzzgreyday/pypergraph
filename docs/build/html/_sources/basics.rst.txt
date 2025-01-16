@@ -5,10 +5,13 @@ Pypergraph Wallets
 ------------------
 A Pypergraph wallet is basically a Constellation ``key trio`` with the addition of a ``words`` variable (the mnemonic phrase) and a ``network`` object variable with the current network configuration of the ``wallet`` object.
 
+.. note::
+    In the Pypergraph package, ``accounts`` are referred to as ``wallets``. Wallet methods can be imported from :class:`pypergraph.dag_wallet.Wallet` and key related methods from :class:`pypergraph.dag_keystore.KeyStore`.
+
 .. dropdown:: The Constellation Key Trio
     :animate: fade-in
 
-    In the Constellation Network, accounts are composed of a key trio consisting of the private key, public key, and an address.
+    In the Constellation Network, accounts (or wallets) are composed of a key trio consisting of the private key, public key, and a DAG address.
 
     .. tab-set::
 
@@ -76,6 +79,9 @@ A Pypergraph wallet is basically a Constellation ``key trio`` with the addition 
         private_key = KeyStore.get_private_key_from_seed(seed_bytes)
         public_key = KeyStore.get_public_key_from_private_key(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
+        valid = KeyStore.validate_dag_address(address=address)
+        if not valid:
+            raise ValueError("Wallet :: Not a valid DAG address.")
 
 -----
 
@@ -94,6 +100,9 @@ A Pypergraph wallet is basically a Constellation ``key trio`` with the addition 
 
         public_key = KeyStore.get_public_key_from_private_key(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
+        valid = KeyStore.validate_dag_address(address=address)
+        if not valid:
+            raise ValueError("Wallet :: Not a valid DAG address.")
 
 -----
 
@@ -157,7 +166,7 @@ A Pypergraph wallet is basically a Constellation ``key trio`` with the addition 
             if check_digit >= 9:
                 check_digit = check_digit % 9
 
-        dag_addr = f"DAG{check_digit}{public_key}"
+        address = f"DAG{check_digit}{public_key}"
 
 -----
 

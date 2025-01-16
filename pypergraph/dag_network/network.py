@@ -67,7 +67,8 @@ class Network:
         :param balance_only: If True, return only the balance as a float. Otherwise, return a Balance object.
         :return: Balance object or balance as a float.
         """
-        url = self.be + Balance.get_endpoint(dag_address=dag_address, metagraph_id=metagraph_id)
+        endpoint = Balance.get_endpoint(dag_address=dag_address, metagraph_id=metagraph_id)
+        url = self.be + endpoint
         d = await self._fetch("GET", url)
         data = d.get("data")
         meta = d.get("meta", None)
@@ -81,7 +82,8 @@ class Network:
         :param address_hash: DAG address or public key
         :return: Dictionary containing the last reference information.
         """
-        url = f"{self.l1_host}/transactions/last-reference/{address_hash}"
+        endpoint = LastReference.get_endpoint(address=address_hash)
+        url = self.l1_host + endpoint
         return LastReference(**await self._fetch("GET", url))
 
     async def get_pending_transaction(self, transaction_hash: str) -> PendingTransaction | None:
@@ -91,9 +93,9 @@ class Network:
         :param transaction_hash: Transaction hash
         :return: Dictionary containing transaction details.
         """
-        url = f"{self.l1_host}/transactions/{transaction_hash}"
+        endpoint = PendingTransaction.get_endpoint(transaction_hash=transaction_hash)
+        url = self.l1_host + endpoint
         pending = await self._fetch("GET", url)
-
         return PendingTransaction(pending) if pending else None
 
     async def post_transaction(self, transaction_data: Dict[str, Any]) -> str:
@@ -103,7 +105,8 @@ class Network:
         :param transaction_data: Dictionary containing transaction details.
         :return: Response from the API if no error is raised
         """
-        url = f"{self.l1_host}/transactions"
+
+        url = self.l1_host + "/transactions"
         headers = {"accept": "application/json", "Content-Type": "application/json"}
         response = PostTransactionResponse(**await self._fetch("POST", url, headers=headers, json=transaction_data))
         return response.hash

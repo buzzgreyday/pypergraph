@@ -16,15 +16,22 @@ from ecdsa.util import sigencode_der, sigdecode_der
 from pyasn1.codec.der.decoder import decode as der_decode
 from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
+from hashlib import sha256
 
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode, TransactionV2
-from .constants import BASE58_ALPHABET
+from .constants import BASE58_ALPHABET, PKCS_PREFIX
 
 import datetime
 import hashlib
+import base58
+
 
 class KeyStore:
+    """
+    Methods dealing with keys.
+    """
+
     @staticmethod
     def get_p12_from_private_key(private_key: bytes, destination: str = "wallet.p12"):
         """
@@ -298,12 +305,30 @@ class KeyStore:
         return bip32.get_public_key_from_private_hex(private_key_hex=private_key)
 
     @staticmethod
-    def get_dag_address_from_public_key(public_key: str) -> str:
+    def get_dag_address_from_public_key(public_key_hex: str) -> str:
         """
-        :param public_key:
-        :return: DAG address string
+        :param public_key_hex: The private key as a hexadecimal string.
+        :return: The DAG address corresponding to the public key (node ID).
         """
-        from pypergraph.dag_wallet import Wallet
+        if len(public_key_hex) == 128:
+            public_key = PKCS_PREFIX + "04" + public_key_hex
+        elif len(public_key_hex) == 130 and public_key_hex[:2] == "04":
+            public_key = PKCS_PREFIX + public_key_hex
+        else:
+            raise ValueError("Not a valid public key")
 
-        return Wallet.get_dag_address_from_public_key_hex(public_key_hex=public_key)
+        public_key = sha256(bytes.fromhex(public_key)).hexdigest()
+        public_key = base58.b58encode(bytes.fromhex(public_key)).decode()
+        public_key = public_key[len(public_key) - 36:]
+
+        check_digits = "".join([char for char in public_key if char.isdigit()])
+        check_digit = 0
+        for n in check_digits:
+            check_digit += int(n)
+            if check_digit >= 9:
+                check_digit = check_digit % 9
+
+        address = f"DAG{check_digit}{public_key}"
+
+        return address
 

@@ -46,7 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../pypergraph.html">pypergraph package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Modules</a></li>
 </ul>
 
         </div>
@@ -153,7 +153,8 @@
 <span class="sd">        :param balance_only: If True, return only the balance as a float. Otherwise, return a Balance object.</span>
 <span class="sd">        :return: Balance object or balance as a float.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">be</span> <span class="o">+</span> <span class="n">Balance</span><span class="o">.</span><span class="n">get_endpoint</span><span class="p">(</span><span class="n">dag_address</span><span class="o">=</span><span class="n">dag_address</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="o">=</span><span class="n">metagraph_id</span><span class="p">)</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">Balance</span><span class="o">.</span><span class="n">get_endpoint</span><span class="p">(</span><span class="n">dag_address</span><span class="o">=</span><span class="n">dag_address</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="o">=</span><span class="n">metagraph_id</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">be</span> <span class="o">+</span> <span class="n">endpoint</span>
         <span class="n">d</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meta&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -170,7 +171,8 @@
 <span class="sd">        :param address_hash: DAG address or public key</span>
 <span class="sd">        :return: Dictionary containing the last reference information.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l1_host</span><span class="si">}</span><span class="s2">/transactions/last-reference/</span><span class="si">{</span><span class="n">address_hash</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">LastReference</span><span class="o">.</span><span class="n">get_endpoint</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address_hash</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1_host</span> <span class="o">+</span> <span class="n">endpoint</span>
         <span class="k">return</span> <span class="n">LastReference</span><span class="p">(</span><span class="o">**</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">))</span></div>
 
 
@@ -183,9 +185,9 @@
 <span class="sd">        :param transaction_hash: Transaction hash</span>
 <span class="sd">        :return: Dictionary containing transaction details.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l1_host</span><span class="si">}</span><span class="s2">/transactions/</span><span class="si">{</span><span class="n">transaction_hash</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">PendingTransaction</span><span class="o">.</span><span class="n">get_endpoint</span><span class="p">(</span><span class="n">transaction_hash</span><span class="o">=</span><span class="n">transaction_hash</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1_host</span> <span class="o">+</span> <span class="n">endpoint</span>
         <span class="n">pending</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">PendingTransaction</span><span class="p">(</span><span class="n">pending</span><span class="p">)</span> <span class="k">if</span> <span class="n">pending</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 
@@ -198,7 +200,8 @@
 <span class="sd">        :param transaction_data: Dictionary containing transaction details.</span>
 <span class="sd">        :return: Response from the API if no error is raised</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l1_host</span><span class="si">}</span><span class="s2">/transactions&quot;</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1_host</span> <span class="o">+</span> <span class="s2">&quot;/transactions&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span> <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">PostTransactionResponse</span><span class="p">(</span><span class="o">**</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">transaction_data</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">hash</span></div>

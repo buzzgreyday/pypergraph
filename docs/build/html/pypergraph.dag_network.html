@@ -49,22 +49,33 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="pypergraph.html">pypergraph package</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pypergraph.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_keystore.html">pypergraph.dag_keystore package</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pypergraph.dag_network package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-pypergraph.dag_network.network">pypergraph.dag_network.api module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-pypergraph.dag_network.models">pypergraph.dag_network.models module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-pypergraph.dag_network">Module contents</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keystore.html">pypergraph.dag_keystore package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pypergraph.dag_network package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pypergraph.dag_network.network">pypergraph.dag_network.network module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.network.Network"><code class="docutils literal notranslate"><span class="pre">Network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.network.NetworkError"><code class="docutils literal notranslate"><span class="pre">NetworkError</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_wallet.html">pypergraph.dag_wallet package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pypergraph.dag_network.models">pypergraph.dag_network.models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.models.Balance"><code class="docutils literal notranslate"><span class="pre">Balance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.models.LastReference"><code class="docutils literal notranslate"><span class="pre">LastReference</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.models.PendingTransaction"><code class="docutils literal notranslate"><span class="pre">PendingTransaction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.models.PostTransactionResponse"><code class="docutils literal notranslate"><span class="pre">PostTransactionResponse</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#module-pypergraph.main">pypergraph.main module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.html#module-pypergraph">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pypergraph.dag_network">Module contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.Balance"><code class="docutils literal notranslate"><span class="pre">Balance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.LastReference"><code class="docutils literal notranslate"><span class="pre">LastReference</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.Network"><code class="docutils literal notranslate"><span class="pre">Network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.PendingTransaction"><code class="docutils literal notranslate"><span class="pre">PendingTransaction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypergraph.dag_network.PostTransactionResponse"><code class="docutils literal notranslate"><span class="pre">PostTransactionResponse</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_wallet.html">pypergraph.dag_wallet package</a></li>
 </ul>
 </li>
 </ul>
@@ -83,7 +94,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="pypergraph.html">pypergraph package</a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Modules</a></li>
       <li class="breadcrumb-item active">pypergraph.dag_network package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/pypergraph.dag_network.rst.txt" rel="nofollow"> View page source</a>
@@ -100,7 +111,7 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
 <section id="module-pypergraph.dag_network.network">
-<span id="pypergraph-dag-network-api-module"></span><h2>pypergraph.dag_network.api module<a class="headerlink" href="#module-pypergraph.dag_network.network" title="Link to this heading"></a></h2>
+<span id="pypergraph-dag-network-network-module"></span><h2>pypergraph.dag_network.network module<a class="headerlink" href="#module-pypergraph.dag_network.network" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pypergraph.dag_network.network.Network">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.network.</span></span><span class="sig-name descname"><span class="pre">Network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mainnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_load_balancer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_load_balancer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#Network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.network.Network" title="Link to this definition"></a></dt>
@@ -205,6 +216,19 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.models.</span></span><span class="sig-name descname"><span class="pre">LastReference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ordinal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#LastReference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.models.LastReference" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_network.models.LastReference.get_endpoint">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#LastReference.get_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.models.LastReference.get_endpoint" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>address</strong> – DAG address.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The endpoint to be added to the host.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.models.LastReference.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#LastReference.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.models.LastReference.to_dict" title="Link to this definition"></a></dt>
 <dd><p>Make LastReference object return a dictionary with the last transaction reference associated with the DAG wallet address.</p>
@@ -221,6 +245,19 @@
 <dt class="sig sig-object py" id="pypergraph.dag_network.models.PendingTransaction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.models.</span></span><span class="sig-name descname"><span class="pre">PendingTransaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#PendingTransaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.models.PendingTransaction" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_network.models.PendingTransaction.get_endpoint">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#PendingTransaction.get_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.models.PendingTransaction.get_endpoint" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>transaction_hash</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The endpoint to ba added to host</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -232,6 +269,53 @@
 </section>
 <section id="module-pypergraph.dag_network">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pypergraph.dag_network" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.dag_network.Balance">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.</span></span><span class="sig-name descname"><span class="pre">Balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#Balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.Balance" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_network.Balance.ddag_to_dag">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ddag_to_dag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">balance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#Balance.ddag_to_dag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.Balance.ddag_to_dag" title="Link to this definition"></a></dt>
+<dd><p>Convert dDAG value to DAG value</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_network.Balance.get_endpoint">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dag_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#Balance.get_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.Balance.get_endpoint" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.dag_network.LastReference">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.</span></span><span class="sig-name descname"><span class="pre">LastReference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ordinal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#LastReference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.LastReference" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_network.LastReference.get_endpoint">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#LastReference.get_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.LastReference.get_endpoint" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>address</strong> – DAG address.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The endpoint to be added to the host.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_network.LastReference.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#LastReference.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.LastReference.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Make LastReference object return a dictionary with the last transaction reference associated with the DAG wallet address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with keys “ordinal” and “hash”</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="pypergraph.dag_network.Network">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.</span></span><span class="sig-name descname"><span class="pre">Network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mainnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_load_balancer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_load_balancer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#Network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.Network" title="Link to this definition"></a></dt>
@@ -302,6 +386,31 @@
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.dag_network.PendingTransaction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.</span></span><span class="sig-name descname"><span class="pre">PendingTransaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#PendingTransaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.PendingTransaction" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_network.PendingTransaction.get_endpoint">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#PendingTransaction.get_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.PendingTransaction.get_endpoint" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>transaction_hash</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The endpoint to ba added to host</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.dag_network.PostTransactionResponse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.</span></span><span class="sig-name descname"><span class="pre">PostTransactionResponse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/models.html#PostTransactionResponse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.PostTransactionResponse" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 </dd></dl>
 
 </section>

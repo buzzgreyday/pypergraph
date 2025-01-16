@@ -46,7 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../pypergraph.html">pypergraph package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Modules</a></li>
 </ul>
 
         </div>
@@ -124,6 +124,17 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;LastReference(ordinal=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="si">}</span><span class="s2">, hash=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
 
+<div class="viewcode-block" id="LastReference.get_endpoint">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.models.LastReference.get_endpoint">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_endpoint</span><span class="p">(</span><span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param address: DAG address.</span>
+<span class="sd">        :return: The endpoint to be added to the host.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;/transactions/last-reference/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
 <div class="viewcode-block" id="LastReference.to_dict">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.models.LastReference.to_dict">[docs]</a>
     <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -142,7 +153,6 @@
 <span class="k">class</span> <span class="nc">PostTransactionResponse</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="nb">hash</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -170,7 +180,18 @@
         <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PendingTransaction(source=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">, destination=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">destination</span><span class="si">}</span><span class="s2">, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;amount=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2">, fee=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fee</span><span class="si">}</span><span class="s2">, parent_hash=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_hash</span><span class="si">}</span><span class="s2">, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;parent_ordinal=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_ordinal</span><span class="si">}</span><span class="s2">, salt=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">salt</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;transaction_hash=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transaction_hash</span><span class="si">}</span><span class="s2">, status=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+                <span class="sa">f</span><span class="s2">&quot;transaction_hash=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transaction_hash</span><span class="si">}</span><span class="s2">, status=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PendingTransaction.get_endpoint">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.models.PendingTransaction.get_endpoint">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_endpoint</span><span class="p">(</span><span class="n">transaction_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param transaction_hash:</span>
+<span class="sd">        :return: The endpoint to ba added to host</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;/transactions/</span><span class="si">{</span><span class="n">transaction_hash</span><span class="si">}</span><span class="s2">&quot;</span></div>
+</div>
 
 </pre></div>
 
