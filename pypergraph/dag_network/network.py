@@ -1,6 +1,4 @@
 import warnings
-from http.client import responses
-
 import aiohttp
 from typing import Any, Dict
 
@@ -11,8 +9,6 @@ class Network:
 
     def __init__(self, network: str = "mainnet", l0_host: str | None = None, l1_host: str | None = None, metagraph_id: str | None = None, l0_load_balancer: str | None = None, l1_load_balancer: str | None = None, block_explorer: str | None = None):
 
-        _validate_network_params(network=network, metagraph_id=metagraph_id, l0_host=l0_host, l1_host=l1_host)
-
         self.network = network
         # TODO: Should not be hardcoded
         self.l1_lb = l1_load_balancer or f"https://l1-lb-{self.network}.constellationnetwork.io"
@@ -21,6 +17,8 @@ class Network:
         self.l0_host = l0_host #or self.l0_lb
         self.l1_host = l1_host #or self.l1_lb
         self.metagraph_id = metagraph_id
+
+        self._validate_network_params()
 
     def __repr__(self) -> str:
         return (
@@ -108,18 +106,26 @@ class Network:
         response = PostTransactionResponse(**await self._fetch("POST", url, headers=headers, json=transaction_data))
         return response.hash
 
-def _validate_network_params(network, metagraph_id, l0_host, l1_host):
-    if network not in {"mainnet", "testnet", "integrationnet"}:
-        raise ValueError("Network :: Parameter 'network' must be 'mainnet', 'testnet', or 'integrationnet'.")
+    def _validate_network_params(self):
+        if self.network not in {"mainnet", "testnet", "integrationnet"}:
+            raise ValueError("Network :: Parameter 'network' must be 'mainnet', 'testnet', or 'integrationnet'.")
 
-    if metagraph_id:
-        if not (l0_host and l1_host):
-            raise ValueError("'l0_host' and 'l1_host' must both be set if 'metagraph_id' is provided.")
-    else:
-        if l0_host or l1_host:
-            if not l0_host:
-                warnings.warn("'l1_host' is set but 'l0_host' and 'metagraph_id' is not.")
-            if not l1_host:
-                warnings.warn("'l0_host' is set but 'l1_host' and 'metagraph_id' is not.")
-            if l0_host and l1_host:
-                warnings.warn("Network hosts are set without a 'metagraph_id' parameter.")
+        if self.metagraph_id:
+            if not (self.l0_host and self.l1_host):
+                raise ValueError("'l0_host' and 'l1_host' must both be set if 'metagraph_id' is provided.")
+        else:
+            if self.l0_host or self.l1_host:
+                if not self.l0_host:
+                    warnings.warn("'l1_host' is set but 'l0_host' and 'metagraph_id' is not.")
+                if not self.l1_host:
+                    warnings.warn("'l0_host' is set but 'l1_host' and 'metagraph_id' is not.")
+                if self.l0_host and self.l1_host:
+                    warnings.warn("Network hosts are set without a 'metagraph_id' parameter.")
+        if self.l0_host:
+            if not self.l0_host.startswith("http"):
+                warnings.warn("adding default prefix 'http://' since 'l0_host' is set but missing 'http://' or 'https:// prefix.")
+                self.l0_host = "http://" + self.l0_host
+        if self.l1_host:
+            if not self.l1_host.startswith("http"):
+                warnings.warn("adding default prefix 'http://' since 'l1_host' is set but missing 'http://' or 'https:// prefix.")
+                self.l1_host = "http://" + self.l1_host
