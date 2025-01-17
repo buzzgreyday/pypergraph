@@ -47,7 +47,6 @@ class Bip32:
         private_key_bytes = bytes.fromhex(private_key_hex)
         private_key = SigningKey.from_string(private_key_bytes, curve=SECP256k1)
         public_key =  b'\x04' + private_key.get_verifying_key().to_string()
-        print("Public Key EC:", public_key.hex())
         return public_key.hex()
 
 class Bip39:
@@ -57,9 +56,9 @@ class Bip39:
     def __init__(self, words: int = 12, language: str = "english"):
         self.strength = 128 if words == 12 else 256 if words == 24 else None
         if self.strength is None:
-            raise ValueError(f"The value or Bip39(words={words} is unsupported. Supported: 12 or 24")
+            raise ValueError(f"Bip39 :: The value or Bip39(words={words} is unsupported. Supported: 12 or 24")
         if language not in Bip39.LANGUAGES:
-            raise ValueError(f"The language {language} isn't supported. Supported languages: {', '.join(Bip39.LANGUAGES)}")
+            raise ValueError(f"Bip39 :: The language {language} isn't supported. Supported languages: {', '.join(Bip39.LANGUAGES)}")
         else:
             self.language = language
 

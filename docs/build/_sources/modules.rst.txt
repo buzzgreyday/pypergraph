@@ -7,4 +7,3 @@ Modules
    pypergraph.dag_keystore
    pypergraph.dag_network
    pypergraph.dag_wallet
-   pypergraph.dag_core
