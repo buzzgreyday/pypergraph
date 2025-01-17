@@ -237,6 +237,10 @@ hash = await wallet.send(tx)
 #### GET PENDING TRANSACTION
 > Default: returns an object if transaction is pending, `None` if transaction has been processed.
 
+```
+pending = await wallet.get_pending_transaction(hash)
+```
+
 <details>
 <summary><strong>How can I check if a transaction was sent?</strong></summary>
 
