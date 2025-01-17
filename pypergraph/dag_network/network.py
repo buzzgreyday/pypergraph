@@ -117,8 +117,8 @@ def _validate_network_params(network, metagraph_id, l0_host, l1_host):
     else:
         if l0_host or l1_host:
             if not l0_host:
-                warnings.warn("'l0_host' is missing without a 'metagraph_id'.")
+                warnings.warn("'l1_host' is set but 'l0_host' and 'metagraph_id' is not.")
             if not l1_host:
-                warnings.warn("'l1_host' is missing without a 'metagraph_id'.")
+                warnings.warn("'l0_host' is set but 'l1_host' and 'metagraph_id' is not.")
             if l0_host and l1_host:
                 warnings.warn("Network hosts are set without a 'metagraph_id' parameter.")

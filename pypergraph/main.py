@@ -14,7 +14,7 @@ async def main():
     print("Step 1: Import wallet:")
     wallet = Wallet.from_mnemonic(WORDS)
     # TODO: Add sign data and dL1_host
-    wallet = wallet.set_network(l0_host="http://dormintnet-cl1-1183959999.us-west-2.elb.amazonaws.com:7000", metagraph_id="DAG5kfY9GoHF1CYaY8tuRJxmB3JSzAEARJEAkA2C")
+    wallet = wallet.set_network(l0_host="http://dormintnet-cl1-1183959999.us-west-2.elb.amazonaws.com:7000")
     #balance = await wallet.get_address_balance()
     #print("Balance: ", balance, "$iDAG")
     print("Done!")
