@@ -4,13 +4,7 @@ import aiohttp
 from typing import Any, Dict
 
 from pypergraph.dag_network.models import Balance, LastReference, PostTransactionResponse, PendingTransaction
-
-
-class NetworkError(Exception):
-    """Custom exception for transaction-related errors."""
-    def __init__(self, message: str, status: int):
-        super().__init__(f"{message} (HTTP {status})")
-        self.status = status
+from pypergraph.exceptions import NetworkError
 
 
 class Network:
