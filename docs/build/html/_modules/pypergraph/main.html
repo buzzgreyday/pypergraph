@@ -92,7 +92,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Step 1: Import wallet:&quot;</span><span class="p">)</span>
     <span class="n">wallet</span> <span class="o">=</span> <span class="n">Wallet</span><span class="o">.</span><span class="n">from_mnemonic</span><span class="p">(</span><span class="n">WORDS</span><span class="p">)</span>
     <span class="c1"># TODO: Add sign data and dL1_host</span>
-    <span class="n">wallet</span> <span class="o">=</span> <span class="n">wallet</span><span class="o">.</span><span class="n">set_network</span><span class="p">(</span><span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://dormintnet-cl1-1183959999.us-west-2.elb.amazonaws.com:7000&quot;</span><span class="p">)</span>
+    <span class="n">wallet</span> <span class="o">=</span> <span class="n">wallet</span><span class="o">.</span><span class="n">set_network</span><span class="p">(</span><span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://13.57.245.172:9100&quot;</span><span class="p">,</span> <span class="n">l1_host</span><span class="o">=</span><span class="s2">&quot;http://13.57.245.172:9200&quot;</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG3qrtBnL8Zc9QjTPX9YW9v79eJdFNeS6YnLWjK&quot;</span><span class="p">)</span>
     <span class="c1">#balance = await wallet.get_address_balance()</span>
     <span class="c1">#print(&quot;Balance: &quot;, balance, &quot;$iDAG&quot;)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done!&quot;</span><span class="p">)</span>
