@@ -1,5 +1,4 @@
 import asyncio
-from time import sleep
 
 from dag_wallet import Wallet
 from os import getenv
@@ -15,9 +14,9 @@ async def main():
     print("Step 1: Import wallet:")
     wallet = Wallet.from_mnemonic(WORDS)
     # TODO: Add sign data and dL1_host
-    wallet = wallet.set_network(network="integrationnet", l1_host="http://dormintnet-cl1-1183959999.us-west-2.elb.amazonaws.com:8000")
-    balance = await wallet.get_address_balance()
-    print("Balance: ", balance, "$iDAG")
+    wallet = wallet.set_network(l0_host="http://dormintnet-cl1-1183959999.us-west-2.elb.amazonaws.com:7000", metagraph_id="DAG5kfY9GoHF1CYaY8tuRJxmB3JSzAEARJEAkA2C")
+    #balance = await wallet.get_address_balance()
+    #print("Balance: ", balance, "$iDAG")
     print("Done!")
     print("Step 2: Build Transaction")
     tx = await wallet.transaction(to_address=TO_ADDR, amount=1.0, fee=0.002)

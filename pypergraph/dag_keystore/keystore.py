@@ -1,15 +1,15 @@
 from typing import Tuple
 
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.serialization import load_pem_private_key
-from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
-from cryptography.x509.oid import NameOID
-from cryptography.hazmat.primitives.serialization import (
-            Encoding,
-            PrivateFormat,
-            NoEncryption,
-        )
-from cryptography.hazmat.primitives.serialization import pkcs12
+# from cryptography.hazmat.primitives import hashes
+# from cryptography.hazmat.primitives.serialization import load_pem_private_key
+# from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
+# from cryptography.x509.oid import NameOID
+# from cryptography.hazmat.primitives.serialization import (
+#             Encoding,
+#             PrivateFormat,
+#             NoEncryption,
+#         )
+# from cryptography.hazmat.primitives.serialization import pkcs12
 from decimal import Decimal, ROUND_DOWN
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
@@ -22,7 +22,7 @@ from .bip import Bip39, Bip32
 from .tx_encode import TxEncode, TransactionV2
 from .constants import BASE58_ALPHABET, PKCS_PREFIX
 
-import datetime
+# import datetime
 import hashlib
 import base58
 
@@ -32,85 +32,85 @@ class KeyStore:
     Methods dealing with keys.
     """
 
-    @staticmethod
-    def get_p12_from_private_key(private_key: bytes, destination: str = "wallet.p12"):
-        """
-        Not in use for now.
-
-        :param private_key:
-        :param destination:
-        :return:
-        """
-        # Input: Private key PEM and optional certificate
-
-        sk = SigningKey.from_string(private_key, curve=SECP256k1)
-        private_key_pem = sk.to_pem()
-        private_key = load_pem_private_key(private_key_pem, password=None)
-
-        # Generate a self-signed certificate (optional)
-        subject = issuer = Name([
-            NameAttribute(NameOID.COMMON_NAME, u"Pypergraph Wallet v1"),
-        ])
-
-        # Use timezone-aware UTC datetimes
-        current_time = datetime.datetime.now(datetime.UTC)
-        certificate = CertificateBuilder() \
-            .subject_name(subject) \
-            .issuer_name(issuer) \
-            .public_key(private_key.public_key()) \
-            .serial_number(random_serial_number()) \
-            .not_valid_before(current_time) \
-            .not_valid_after(current_time + datetime.timedelta(days=365 * 1000)) \
-            .sign(private_key, hashes.SHA256())
-
-        # Create PKCS#12 archive
-        p12_data = pkcs12.serialize_key_and_certificates(
-            name=b"pypergraph_wallet",
-            key=private_key,
-            cert=certificate,
-            cas=None,
-            encryption_algorithm=NoEncryption()  # Use BestAvailableEncryption(b"password") for encrypted .p12
-        )
-
-        # Save the .p12 file
-        with open(destination, "wb") as p12_file:
-            p12_file.write(p12_data)
-
-    @staticmethod
-    def get_private_key_from_p12(destination: str = "wallet.p12", password: str | None = None) -> str:
-        """
-        Not in use for now.
-
-        :param destination: Fullpath to the p12 file.
-        :param password: Encrypt the p12 with password (default: None | unencrypted).
-        :return: Private key as hex string.
-        """
-
-        # Load the .p12 file
-        with open(destination, "rb") as p12_file:
-            p12_data = p12_file.read()
-
-        # Load PKCS#12 data
-        private_key, certificate, additional_certificates = pkcs12.load_key_and_certificates(
-            p12_data, password
-        )
-
-        # Extract the private key in PEM format
-        if private_key:
-            # Convert the private key to DER format
-            private_key_der = private_key.private_bytes(
-                encoding=Encoding.DER,
-                format=PrivateFormat.PKCS8,
-                encryption_algorithm=NoEncryption()
-            )
-
-            # Use coincurve to load the private key and get its raw format
-            sk = SigningKey.from_der(private_key)
-            private_key_hex = sk.to_string().hex()
-
-            return private_key_hex
-        else:
-            raise ValueError("KeyStore :: No private key found in the .p12 file.")
+    # @staticmethod
+    # def get_p12_from_private_key(private_key: bytes, destination: str = "wallet.p12"):
+    #     """
+    #     Not in use for now.
+    #
+    #     :param private_key:
+    #     :param destination:
+    #     :return:
+    #     """
+    #     # Input: Private key PEM and optional certificate
+    #
+    #     sk = SigningKey.from_string(private_key, curve=SECP256k1)
+    #     private_key_pem = sk.to_pem()
+    #     private_key = load_pem_private_key(private_key_pem, password=None)
+    #
+    #     # Generate a self-signed certificate (optional)
+    #     subject = issuer = Name([
+    #         NameAttribute(NameOID.COMMON_NAME, u"Pypergraph Wallet v1"),
+    #     ])
+    #
+    #     # Use timezone-aware UTC datetimes
+    #     current_time = datetime.datetime.now(datetime.UTC)
+    #     certificate = CertificateBuilder() \
+    #         .subject_name(subject) \
+    #         .issuer_name(issuer) \
+    #         .public_key(private_key.public_key()) \
+    #         .serial_number(random_serial_number()) \
+    #         .not_valid_before(current_time) \
+    #         .not_valid_after(current_time + datetime.timedelta(days=365 * 1000)) \
+    #         .sign(private_key, hashes.SHA256())
+    #
+    #     # Create PKCS#12 archive
+    #     p12_data = pkcs12.serialize_key_and_certificates(
+    #         name=b"pypergraph_wallet",
+    #         key=private_key,
+    #         cert=certificate,
+    #         cas=None,
+    #         encryption_algorithm=NoEncryption()  # Use BestAvailableEncryption(b"password") for encrypted .p12
+    #     )
+    #
+    #     # Save the .p12 file
+    #     with open(destination, "wb") as p12_file:
+    #         p12_file.write(p12_data)
+    #
+    # @staticmethod
+    # def get_private_key_from_p12(destination: str = "wallet.p12", password: str | None = None) -> str:
+    #     """
+    #     Not in use for now.
+    #
+    #     :param destination: Fullpath to the p12 file.
+    #     :param password: Encrypt the p12 with password (default: None | unencrypted).
+    #     :return: Private key as hex string.
+    #     """
+    #
+    #     # Load the .p12 file
+    #     with open(destination, "rb") as p12_file:
+    #         p12_data = p12_file.read()
+    #
+    #     # Load PKCS#12 data
+    #     private_key, certificate, additional_certificates = pkcs12.load_key_and_certificates(
+    #         p12_data, password
+    #     )
+    #
+    #     # Extract the private key in PEM format
+    #     if private_key:
+    #         # Convert the private key to DER format
+    #         private_key_der = private_key.private_bytes(
+    #             encoding=Encoding.DER,
+    #             format=PrivateFormat.PKCS8,
+    #             encryption_algorithm=NoEncryption()
+    #         )
+    #
+    #         # Use coincurve to load the private key and get its raw format
+    #         sk = SigningKey.from_der(private_key)
+    #         private_key_hex = sk.to_string().hex()
+    #
+    #         return private_key_hex
+    #     else:
+    #         raise ValueError("KeyStore :: No private key found in the .p12 file.")
 
     @staticmethod
     def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0) -> Tuple[TransactionV2, str, str]:
@@ -189,7 +189,7 @@ class KeyStore:
             seq.setComponentByPosition(1, Integer(s))
             return der_encode(seq)
 
-        def sign_deterministic_canonical(private_key_hex: str, tx_hash: bytes) -> str:
+        def _sign_deterministic_canonical(private_key_hex: str, tx_hash: bytes) -> str:
             """
             Create a deterministic and canonical secp256k1 signature.
             """
@@ -203,11 +203,10 @@ class KeyStore:
                 sigencode=sigencode_der,
             )
 
-            # Enforce canonicality
             canonical_signature_der = _enforce_canonical_signature(signature_der)
             return canonical_signature_der.hex()
 
-        return sign_deterministic_canonical(private_key_hex, bytes.fromhex(tx_hash))
+        return _sign_deterministic_canonical(private_key_hex=private_key_hex, tx_hash=bytes.fromhex(tx_hash))
 
     @staticmethod
     def verify(public_key_hex, tx_hash, signature_hex) -> bool:
@@ -315,7 +314,7 @@ class KeyStore:
         elif len(public_key_hex) == 130 and public_key_hex[:2] == "04":
             public_key = PKCS_PREFIX + public_key_hex
         else:
-            raise ValueError("Not a valid public key")
+            raise ValueError("KeyStore :: Not a valid public key.")
 
         public_key = sha256(bytes.fromhex(public_key)).hexdigest()
         public_key = base58.b58encode(bytes.fromhex(public_key)).decode()

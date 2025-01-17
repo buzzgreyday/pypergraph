@@ -1,11 +1,11 @@
 import warnings
+from http.client import responses
 
 import aiohttp
 from typing import Any, Dict
 
+from pypergraph.dag_core.exceptions import NetworkError
 from pypergraph.dag_network.models import Balance, LastReference, PostTransactionResponse, PendingTransaction
-from pypergraph.exceptions import NetworkError
-
 
 class Network:
 
@@ -65,6 +65,8 @@ class Network:
         endpoint = Balance.get_endpoint(dag_address=dag_address, metagraph_id=metagraph_id)
         url = self.be + endpoint
         d = await self._fetch("GET", url)
+        if not d:
+            raise NetworkError(message=f"Network :: Please ensure the wallet 'network' parameter match the host or Metagraph network. The wallet 'network' parameter is currently '{self.network}'.", status=404)
         data = d.get("data")
         meta = d.get("meta", None)
         response = Balance(data=data, meta=meta)
@@ -110,14 +112,8 @@ def _validate_network_params(network, metagraph_id, l0_host, l1_host):
     if network not in {"mainnet", "testnet", "integrationnet"}:
         raise ValueError("Network must be 'mainnet', 'testnet', or 'integrationnet'.")
 
-    if metagraph_id:
-        if not l0_host or not l1_host:
-            if not l0_host:
-                warnings.warn("Parameter 'l0_host' is missing.")
-            if not l1_host:
-                warnings.warn("Parameter 'l1_host' is missing.")
-            if not l0_host and not l1_host:
-                raise ValueError("'l0_host' and 'l1_host' must both be set if 'metagraph_id' is provided.")
+    if metagraph_id and not (l0_host and l1_host):
+        raise ValueError("'l0_host' and 'l1_host' must both be set if 'metagraph_id' is provided.")
     else:
         if l0_host or l1_host:
             if not l0_host:
