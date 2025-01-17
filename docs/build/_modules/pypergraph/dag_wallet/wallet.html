@@ -213,8 +213,8 @@
 
 <span class="sd">        :param network: The network API to use with the wallet: &quot;testnet&quot;, &quot;integrationnet&quot;, &quot;mainnet&quot; (default: &quot;mainnet&quot;).</span>
 <span class="sd">        :param metagraph_id: DAG address associated with the metagraph (required if metagraph_id is set).</span>
-<span class="sd">        :param l0_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set).</span>
-<span class="sd">        :param l1_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set).</span>
+<span class="sd">        :param l0_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set), including &quot;http//&quot; or &quot;https://&quot; prefix.</span>
+<span class="sd">        :param l1_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set), including &quot;http//&quot; or &quot;https://&quot; prefix.</span>
 <span class="sd">        :return: Configured wallet object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">l0_host</span><span class="o">=</span><span class="n">l0_host</span><span class="p">,</span> <span class="n">l1_host</span><span class="o">=</span><span class="n">l1_host</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="o">=</span><span class="n">metagraph_id</span><span class="p">)</span>
