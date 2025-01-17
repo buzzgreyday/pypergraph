@@ -112,8 +112,9 @@ def _validate_network_params(network, metagraph_id, l0_host, l1_host):
     if network not in {"mainnet", "testnet", "integrationnet"}:
         raise ValueError("Network must be 'mainnet', 'testnet', or 'integrationnet'.")
 
-    if metagraph_id and not (l0_host and l1_host):
-        raise ValueError("'l0_host' and 'l1_host' must both be set if 'metagraph_id' is provided.")
+    if metagraph_id:
+        if not (l0_host and l1_host):
+            raise ValueError("'l0_host' and 'l1_host' must both be set if 'metagraph_id' is provided.")
     else:
         if l0_host or l1_host:
             if not l0_host:
