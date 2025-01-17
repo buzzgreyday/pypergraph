@@ -65,9 +65,9 @@ class Network:
         endpoint = Balance.get_endpoint(dag_address=dag_address, l0_host=self.l0_host, metagraph_id=metagraph_id)
         url = self.l0_host + endpoint if self.l0_host else self.be + endpoint
         response = await self._fetch("GET", url)
-        if not d:
+        if not response:
             raise NetworkError(message=f"Network :: Please ensure the wallet 'network' parameter match the host or Metagraph network. The wallet 'network' parameter is currently '{self.network}'.", status=404)
-        response = Balance(response=d)
+        response = Balance(response=response)
         return response.balance if balance_only else response
 
     async def get_last_reference(self, address_hash: str) -> LastReference:
