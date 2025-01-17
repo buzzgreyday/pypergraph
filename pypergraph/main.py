@@ -13,10 +13,10 @@ async def main():
     # wallet = Wallet.new()
     print("Step 1: Import wallet:")
     wallet = Wallet.from_mnemonic(WORDS)
-    # TODO: Add sign data and dL1_host
-    wallet = wallet.set_network(l0_host="http://13.57.245.172:9100", l1_host="http://13.57.245.172:9200", metagraph_id="DAG3qrtBnL8Zc9QjTPX9YW9v79eJdFNeS6YnLWjK")
-    #balance = await wallet.get_address_balance()
-    #print("Balance: ", balance, "$iDAG")
+    # TODO: Add sign data and dL1_host, l0_host, l1_host stay None
+    wallet = wallet.set_network(network="integrationnet", l0_host="http://143.198.36.230:9000", l1_host="http://143.198.36.230:9010")
+    balance = await wallet.get_address_balance()
+    print("Balance: ", balance, "$CRAWL")
     print("Done!")
     print("Step 2: Build Transaction")
     tx = await wallet.transaction(to_address=TO_ADDR, amount=1.0, fee=0.002)

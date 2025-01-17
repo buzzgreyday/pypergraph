@@ -18,8 +18,8 @@ class Network:
         self.l1_lb = l1_load_balancer or f"https://l1-lb-{self.network}.constellationnetwork.io"
         self.l0_lb = l0_load_balancer or f"https://l0-lb-{self.network}.constellationnetwork.io"
         self.be = block_explorer or f"https://be-{network}.constellationnetwork.io"
-        self.l0_host = l0_host or self.l0_lb
-        self.l1_host = l1_host or self.l1_lb
+        self.l0_host = l0_host #or self.l0_lb
+        self.l1_host = l1_host #or self.l1_lb
         self.metagraph_id = metagraph_id
 
     def __repr__(self) -> str:
@@ -62,14 +62,12 @@ class Network:
         :param balance_only: If True, return only the balance as a float. Otherwise, return a Balance object.
         :return: Balance object or balance as a float.
         """
-        endpoint = Balance.get_endpoint(dag_address=dag_address, metagraph_id=metagraph_id)
-        url = self.be + endpoint
-        d = await self._fetch("GET", url)
+        endpoint = Balance.get_endpoint(dag_address=dag_address, l0_host=self.l0_host, metagraph_id=metagraph_id)
+        url = self.l0_host + endpoint if self.l0_host else self.be + endpoint
+        response = await self._fetch("GET", url)
         if not d:
             raise NetworkError(message=f"Network :: Please ensure the wallet 'network' parameter match the host or Metagraph network. The wallet 'network' parameter is currently '{self.network}'.", status=404)
-        data = d.get("data")
-        meta = d.get("meta", None)
-        response = Balance(data=data, meta=meta)
+        response = Balance(response=d)
         return response.balance if balance_only else response
 
     async def get_last_reference(self, address_hash: str) -> LastReference:
@@ -80,8 +78,11 @@ class Network:
         :return: Dictionary containing the last reference information.
         """
         endpoint = LastReference.get_endpoint(address=address_hash)
-        url = self.l1_host + endpoint
-        return LastReference(**await self._fetch("GET", url))
+        url = self.l1_host + endpoint if self.l1_host else self.l1_lb + endpoint
+        ref = await self._fetch("GET", url)
+        if not ref:
+            raise NetworkError(message=f"Network :: Could not get last reference.", status=404)
+        return LastReference(**ref)
 
     async def get_pending_transaction(self, transaction_hash: str) -> PendingTransaction | None:
         """
@@ -91,7 +92,7 @@ class Network:
         :return: Dictionary containing transaction details.
         """
         endpoint = PendingTransaction.get_endpoint(transaction_hash=transaction_hash)
-        url = self.l1_host + endpoint
+        url = self.l1_host + endpoint if self.l1_host else self.l1_lb + endpoint
         pending = await self._fetch("GET", url)
         return PendingTransaction(pending) if pending else None
 
@@ -102,15 +103,14 @@ class Network:
         :param transaction_data: Dictionary containing transaction details.
         :return: Response from the API if no error is raised
         """
-
-        url = self.l1_host + "/transactions"
+        url = self.l1_host + "/transactions" if self.l1_host else self.l1_lb + "/transactions"
         headers = {"accept": "application/json", "Content-Type": "application/json"}
         response = PostTransactionResponse(**await self._fetch("POST", url, headers=headers, json=transaction_data))
         return response.hash
 
 def _validate_network_params(network, metagraph_id, l0_host, l1_host):
     if network not in {"mainnet", "testnet", "integrationnet"}:
-        raise ValueError("Network must be 'mainnet', 'testnet', or 'integrationnet'.")
+        raise ValueError("Network :: Parameter 'network' must be 'mainnet', 'testnet', or 'integrationnet'.")
 
     if metagraph_id:
         if not (l0_host and l1_host):

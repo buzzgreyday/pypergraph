@@ -2,19 +2,30 @@ from typing import Dict, Any
 
 class Balance:
 
-    def __init__(self, data: dict, meta: dict | None):
-        self.ordinal: int = data["ordinal"]
-        self.balance: float = self.ddag_to_dag(data["balance"])
-        self.address: str = data["address"]
-        self.meta = meta if meta is not None else {}
+    def __init__(self, response: dict):
+        for key in response.keys():
+            if key == "data":
+                self.ordinal: int = response["data"]["ordinal"]
+                self.balance: float = self.ddag_to_dag(response["data"]["balance"])
+                self.address: str = response["data"]["address"]
+                self.meta = response["data"]["meta"]
+            else:
+                self.ordinal: int = response["ordinal"]
+                self.balance: float = self.ddag_to_dag(response["balance"])
+                self.address = None
+                self.meta = None
 
     def __repr__(self):
         return f"Balance(ordinal={self.ordinal}, balance={self.balance}, address='{self.address}', meta='{self.meta}')"
 
     @staticmethod
-    def get_endpoint(dag_address: str, metagraph_id: str | None = None):
-        if metagraph_id:
+    def get_endpoint(dag_address: str, l0_host: str | None = None, metagraph_id: str | None = None):
+        if l0_host and metagraph_id:
+            return f"/currency/{dag_address}/balance"
+        elif metagraph_id:
             return f"/currency/{metagraph_id}/addresses/{dag_address}/balance"
+        elif l0_host and not metagraph_id:
+            return f"/dag/{dag_address}/balance"
         else:
             return f"/addresses/{dag_address}/balance"
 
