@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional
+from typing import Optional, Self
 
 from pypergraph.dag_keystore import KeyStore, Bip39, TransactionV2
 from pypergraph.dag_network import Network
@@ -112,7 +112,7 @@ class Wallet:
         """
         return asyncio.create_task(self.network.post_transaction(tx.get_post_transaction()))
 
-    def set_network(self, network: str = "mainnet", l0_host: str | None = None, l1_host: str | None = None, metagraph_id: str | None = None):
+    def set_network(self, network: str = "mainnet", l0_host: str | None = None, l1_host: str | None = None, metagraph_id: str | None = None) -> Self:
         """
         Choose the network and layer associated with the wallet.
 
