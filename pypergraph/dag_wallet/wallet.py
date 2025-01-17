@@ -118,8 +118,8 @@ class Wallet:
 
         :param network: The network API to use with the wallet: "testnet", "integrationnet", "mainnet" (default: "mainnet").
         :param metagraph_id: DAG address associated with the metagraph (required if metagraph_id is set).
-        :param l0_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set).
-        :param l1_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set).
+        :param l0_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set), including "http//" or "https://" prefix.
+        :param l1_host: IP and PORT or URL associated with the network or metagraph (required if metagraph_id is set), including "http//" or "https://" prefix.
         :return: Configured wallet object.
         """
         self.network = Network(network=network, l0_host=l0_host, l1_host=l1_host, metagraph_id=metagraph_id)

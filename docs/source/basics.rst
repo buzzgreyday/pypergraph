@@ -182,7 +182,7 @@ A Pypergraph ``wallet`` is basically a Constellation Network Hypergraph ``accoun
 
 * **SET NON-DEFAULT DAG WALLET NETWORK**
 
-  Reconfigures the ``wallet.network`` object variable used to handle interaction with Constellation APIs. The parameters ``l0_host`` and ``l1_host`` is required if ``metagraph_id`` is set.
+  Reconfigures the ``wallet.network`` object variable used to handle interaction with Constellation APIs. The parameters ``l0_host`` and ``l1_host`` with "http//" or "https://" prefix is required if ``metagraph_id`` is set.
 
     **Default:** `network="mainnet", l0_host=None, l1_host=None, metagraph_id=None`
 
