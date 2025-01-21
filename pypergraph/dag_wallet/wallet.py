@@ -1,7 +1,7 @@
 import asyncio
 from typing import Optional, Self
 
-from pypergraph.dag_keystore import KeyStore, Bip39, TransactionV2
+from pypergraph.dag_keystore import KeyStore, KeyTrio, Bip39, TransactionV2
 from pypergraph.dag_network import Network
 
 
@@ -136,6 +136,13 @@ class Wallet:
         dag_address = self.address if not dag_address else dag_address
         metagraph_id = self.network.metagraph_id if not metagraph_id else metagraph_id
         return asyncio.create_task(self.network.get_address_balance(dag_address=dag_address, metagraph_id=metagraph_id))
+
+    def key_trio(self):
+        """
+        This object can be transformed to a dictionary with the '.to_dict()' method.
+        :return: KeyTrio object with 'private_key', 'public_key' and 'address'.
+        """
+        return KeyTrio(private_key=self.private_key, public_key=self.public_key, address=self.address)
 
     def get_pending_transaction(self, transaction_hash: str):
         """

@@ -14,9 +14,9 @@ async def main():
     print("Step 1: Import wallet:")
     wallet = Wallet.from_mnemonic(WORDS)
     # TODO: Add sign data and dL1_host
-    wallet = wallet.set_network(network="integrationnet", l0_host="143.198.36.230:9000", l1_host="143.198.36.230:9010")
+    wallet = wallet.set_network(network="integrationnet")
     balance = await wallet.get_address_balance()
-    print("Balance: ", balance, "$CRAWL")
+    print("Balance: ", balance, "$DAG")
     print("Done!")
     print("Step 2: Build Transaction")
     tx = await wallet.transaction(to_address=TO_ADDR, amount=1.0, fee=0.002)

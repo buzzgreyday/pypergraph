@@ -32,6 +32,8 @@ class KeyStore:
     Methods dealing with keys.
     """
 
+    PERSONAL_SIGN_PREFIX = "\u0019Constellation Signed Message:\n"
+    DATA_SIGN_PREFIX = "\u0019Constellation Signed Data:\n"
     # @staticmethod
     # def get_p12_from_private_key(private_key: bytes, destination: str = "wallet.p12"):
     #     """
@@ -149,6 +151,24 @@ class KeyStore:
         return tx, hash_value, encoded_tx
 
 
+    def data_sign(self, private_key, msg):
+        message = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
+        # Serialize
+        serialized_message = self.serialize(message)
+        hash_value = hashlib.sha256(bytes.fromhex(serialized_message)).hexdigest()
+        return self.sign(private_key, hash_value)
+
+
+    @staticmethod
+    def serialize(msg: str) -> str:
+        return msg.encode("utf-8").hex()
+
+
+    def personal_sign(self, msg, private_key):
+        message = f"{self.PERSONAL_SIGN_PREFIX}{len(msg)}\n{msg}"
+        return self.sign(private_key, message)
+
+
     @staticmethod
     def sign(private_key_hex: str, tx_hash: str) -> str:
         """
@@ -230,6 +250,10 @@ class KeyStore:
             return valid
         except Exception:
             return False
+
+    @staticmethod
+    def verify_data():
+        pass
 
     @staticmethod
     def validate_dag_address(address: str) -> bool:
