@@ -5,7 +5,7 @@ from pypergraph.dag_keystore import KeyStore, KeyTrio, Bip39, TransactionV2
 from pypergraph.dag_network import Network
 
 
-class Wallet:
+class Account:
 
     def __init__(self, address: str, public_key: str, private_key: str, words: Optional[str] = None,  network=None):
         self.address = address

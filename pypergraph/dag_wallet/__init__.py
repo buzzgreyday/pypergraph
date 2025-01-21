@@ -1,3 +1,3 @@
-from .wallet import Wallet
+from .account import Account
 
-__all__ = ["Wallet"]
+__all__ = ["Account"]

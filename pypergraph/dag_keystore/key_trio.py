@@ -6,7 +6,7 @@ class KeyTrio:
         """
 
         :param private_key: Private key in hex format.
-        :param public_key: Public key key in hex format.
+        :param public_key: Public keyin hex format.
         :param address: DAG address.
         """
         self.private_key = private_key

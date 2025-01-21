@@ -3,15 +3,14 @@ Basics
 
 Pypergraph Wallets
 ------------------
-A Pypergraph ``wallet`` is basically a Constellation Network Hypergraph ``account`` - or ``key trio`` - with the addition of a ``words`` variable (the mnemonic phrase) and a ``network`` object variable with the current network configuration of the ``wallet`` object.
 
 .. note::
-    In the Pypergraph package, ``accounts`` are referred to as ``wallets``. Wallet methods can be imported from :class:`pypergraph.dag_wallet.Wallet` and key related classes and methods are imported from :mod:`pypergraph.dag_keystore`.
+    Account methods can be imported from :class:`pypergraph.dag_wallet.Account` and key related classes and methods are imported from :mod:`pypergraph.dag_keystore`.
 
 .. dropdown:: The Constellation Key Trio
     :animate: fade-in
 
-    In the Constellation Network, accounts (or wallets) are composed of a key trio consisting of the private key, public key, and a DAG address.
+    In the Constellation Network, accounts are composed of a key trio consisting of the private key, public key, and a DAG address.
 
     .. tab-set::
 
@@ -37,7 +36,7 @@ A Pypergraph ``wallet`` is basically a Constellation Network Hypergraph ``accoun
 
 .. code-block:: python
 
-    wallet = Wallet.new()
+    wallet = Account.new()
 
 .. dropdown:: How is a new wallet object created?
     :animate: fade-in

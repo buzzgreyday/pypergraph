@@ -4,7 +4,7 @@
 
 Pypergraph is a Python package that enables secure wallet functionalities and interaction with Constellation Network APIs. Inspired by [DAG4.js](https://github.com/StardustCollective/dag4.js).
 
-> ⚠️ **Caution:** This tool is currently in early development.  
+> ⚠️ **Caution:** This tool is currently in early development. Changes will happen rapidly, as I develop.
 > **Do not use it for production purposes** as it may contain bugs or incomplete features. Contributions are welcome—please contact me if you'd like to get involved.
 
 [![Read the Docs](https://img.shields.io/readthedocs/pypergraph-dag)](https://pypergraph-dag.readthedocs.io)
@@ -46,8 +46,6 @@ The following code is meant to demonstrate how easy interacting with the network
 
 ### WALLET
 
-A Pypergraph `wallet` is essentially a Constellation Network Hypergraph `account`, or `key trio`, with the addition of a `words` variable (the mnemonic phrase) and a `network` object variable with the current network configuration of the `wallet` object.
-
 <details>
 <summary><strong>The Constellation Key Trio</strong></summary>
 
@@ -67,7 +65,7 @@ Source: [Accounts and Keys](https://docs.constellationnetwork.io/metagraphs/acco
 
 #### NEW WALLET
 ```
-wallet = Wallet.new()
+wallet = Account.new()
 ```
 <details>
 <summary><strong>How is a new wallet object created?</strong></summary>

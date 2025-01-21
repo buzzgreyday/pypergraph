@@ -1,6 +1,6 @@
 import asyncio
 
-from dag_wallet import Wallet
+from dag_wallet import Account
 from os import getenv
 
 WORDS = getenv("WORDS")
@@ -12,7 +12,7 @@ async def main():
     # print("Step 1: Create new wallet")
     # wallet = Wallet.new()
     print("Step 1: Import wallet:")
-    wallet = Wallet.from_mnemonic(WORDS)
+    wallet = Account.from_mnemonic(WORDS)
     # TODO: Add sign data and dL1_host
     wallet = wallet.set_network(network="integrationnet")
     balance = await wallet.get_address_balance()
