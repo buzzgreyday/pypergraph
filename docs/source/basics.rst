@@ -59,7 +59,7 @@ Pypergraph Wallets
 
 .. code-block:: python
 
-    wallet = Wallet.from_mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon")
+    wallet = Account.from_mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon")
 
 .. dropdown:: How is the private key, public key and DAG address derived from mnemonic phrase?
     :animate: fade-in
@@ -88,7 +88,7 @@ Pypergraph Wallets
 
 .. code-block:: python
 
-    wallet = Wallet.from_private_key("SOME_VALID_PRIVATE_KEY")
+    wallet = Account.from_private_key("SOME_VALID_PRIVATE_KEY")
 
 .. dropdown:: How is the public key and DAG address derived from a private key?
     :animate: fade-in

@@ -86,7 +86,7 @@ if not valid:
 
 #### IMPORT WALLET FROM MNEMONIC PHRASE
 ```
-wallet = Wallet.from_mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon")
+wallet = Account.from_mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon")
 ```
 
 <details>
@@ -114,7 +114,7 @@ if not valid:
 
 #### IMPORT WALLET FROM PRIVATE KEY
 ```
-wallet = Wallet.from_private_key("SOME_VALID_PRIVATE_KEY")
+wallet = Account.from_private_key("SOME_VALID_PRIVATE_KEY")
 ```
 
 <details>
