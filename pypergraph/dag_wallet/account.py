@@ -15,7 +15,7 @@ class Account:
         self.network = network or Network()  # Automatically set a default API instance
 
     def __repr__(self):
-        return f"Wallet(address={self.address}, public_key={self.public_key}, private_key={self.private_key}, words={self.words}, network={self.network!r})"
+        return f"Account(address={self.address}, public_key={self.public_key}, private_key={self.private_key}, words={self.words}, network={self.network!r})"
 
 
     @classmethod
