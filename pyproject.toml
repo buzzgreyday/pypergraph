@@ -19,7 +19,8 @@ dependencies = [
     "cryptography~=44.0.0",
     "ecdsa~=0.19.0",
     "pyasn1~=0.6.1",
-    "aiohttp~=3.11.11"
+    "aiohttp~=3.11.11",
+    "eth-account"
 ]
 requires-python = ">=3.7"
 readme = "README.md"
