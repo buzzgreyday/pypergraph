@@ -1,6 +1,7 @@
 import asyncio
 from pyee.asyncio import AsyncIOEventEmitter
 
+from pypergraph.dag_core import KeyringWalletType
 from pypergraph.dag_keyring import SingleAccountWallet, MultiChainWallet, Encryptor
 
 
@@ -29,7 +30,7 @@ class KeyringManager(AsyncIOEventEmitter):
     def __init__(self):
         super().__init__()
         self.encryptor = Encryptor()
-        # self.storage =
+        self.storage =
         self.wallets = []
         self.password = ""
         self.mem_store = ObservableStore({"is_unlocked": False, "wallets": []})
@@ -38,7 +39,7 @@ class KeyringManager(AsyncIOEventEmitter):
     def is_unlocked(self):
         return bool(self.password)
 
-    def clear_wallets(self):
+    async def clear_wallets(self):
         self.wallets = []
         # this.memStore.updateState({
         #     wallets: [],
@@ -90,7 +91,7 @@ class KeyringManager(AsyncIOEventEmitter):
     async def full_update(self):
 
         await self.persist_all_wallets(self.password)
-        self.update_mem_store_wallets()
+        await self.update_mem_store_wallets()
         #this.notifyUpdate();
         #}
 
@@ -110,7 +111,7 @@ class KeyringManager(AsyncIOEventEmitter):
         print(decryptedString)
         #await self.storage.set('vault', encryptedString);
 
-    def update_mem_store_wallets(self):
+    async def update_mem_store_wallets(self):
         wallets = [w.get_state() for w in self.wallets]
         self.mem_store.update_state({"wallets": wallets})
         print("Current Wallet State:", self.mem_store.get_state())
@@ -120,3 +121,55 @@ class KeyringManager(AsyncIOEventEmitter):
 
     def check_password(self, password):
         return bool(self.password == password)
+
+    def notify_update(self):
+        self.emit('update', self.mem_store.get_state())
+
+    async def login(self, password: str):
+        self.wallets = await self.unlock_wallets(password)
+        self.update_unlocked()
+        self.notify_update()
+
+    async def unlock_wallets(self, password: str):
+        raise NotImplementedError("KeyringManager :: This is not yet implemented.")
+        encrypted_vault = await self.storage.get('vault')
+        if not encrypted_vault:
+            # Support recovering wallets from migration
+            self.password = password
+            return []
+
+        await self.clear_wallets()
+        vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
+        self.password = password
+        self.wallets = [self._restore_wallet(w) for w in vault.wallets]
+        await self.update_mem_store_wallets()
+        return self.wallets
+
+    def update_unlocked(self):
+        self.mem_store.update_state({"is_unlocked": True})
+        self.emit('unlock')
+
+    async def _restore_wallet(self, w_data): # KeyringSerialized
+
+        if w_data.type == KeyringWalletType.MultiChainWallet.value:
+            wallet = MultiChainWallet()
+            wallet.deserialize(w_data)
+
+        elif w_data.type == KeyringWalletType.SingleAccountWallet.value:
+            wallet = SingleAccountWallet()
+            wallet.deserialize(w_data)
+
+        # else if (wData.type === KeyringWalletType.MultiAccountWallet) {
+        # wallet = new MultiAccountWallet();
+        # wallet.deserialize(wData);
+        # }
+        # else if (wData.type == = KeyringWalletType.MultiKeyWallet) {
+        # wallet = new MultiKeyWallet();
+        # wallet.deserialize(wData);
+        # }
+        else:
+            raise ValueError('KeyringManager :: Unknown Wallet type - ' + w_data.type + ', support types are [' + KeyringWalletType.MultiChainWallet.value + ',' + KeyringWalletType.SingleAccountWallet.value + ']')
+
+        self.wallets.append(wallet)
+
+        return wallet
