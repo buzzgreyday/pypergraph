@@ -539,7 +539,7 @@ class SingleAccountWallet:
     SID = 0
 
     def __init__(self):
-        self.type = KeyringWalletType.MultiChainWallet.value
+        self.type = KeyringWalletType.SingleAccountWallet.value
         self.id = f"{self.type}{self.SID + 1}"
         self.SID += 1
         self.supported_assets = []
