@@ -13,7 +13,7 @@ class EcdsaAccount:
         self.assets: Optional[List[Any]] = None
         self.bip44_index: Optional[int] = None
         self.decimals = 18 # Should be set dynamically
-        self.supported_assets = [KeyringAssetType.ETH.value]
+        self.supported_assets = [KeyringAssetType.ETH.value] # Assets can be found in accounts dir
         self.network = KeyringNetwork.Ethereum.value
         self.has_token_support = False
         self._provider = None
