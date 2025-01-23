@@ -12,7 +12,7 @@ class EcdsaAccount:
         self.wallet = None  # Placeholder for Wallet instance
         self.assets: Optional[List[Any]] = None
         self.bip44_index: Optional[int] = None
-        self.decimals = 8
+        self.decimals = 18 # Should be set dynamically
         self.supported_assets = [KeyringAssetType.ETH.value]
         self.network = KeyringNetwork.Ethereum.value
         self.has_token_support = False
