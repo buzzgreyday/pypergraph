@@ -29,6 +29,11 @@ async def main():
     root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
     root_key = root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index)
 
+    from pypergraph.dag_keyring.storage import StateStorageDb
+    print()
+    vault = await StateStorageDb().get()
+    print("vaulty:", vault)
+
     #s_wallet = await manager.create_single_account_wallet(label="", network=KeyringNetwork.Constellation.value,
     #                                                private_key=root_key.PrivateKey().hex())
     #d = manager.emit("new_single_account", "", KeyringNetwork.Constellation.value, root_key.PrivateKey().hex())
@@ -39,6 +44,7 @@ async def main():
     print()
     m = KeyringManager()
     await m.login('password')
+    await m.logout()
 
 if __name__ == "__main__":
 
