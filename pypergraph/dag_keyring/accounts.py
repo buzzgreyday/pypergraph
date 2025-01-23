@@ -88,7 +88,7 @@ class EcdsaAccount:
         return result
 
     def deserialize(self, data: Dict[str, Any]):
-        private_key = data.get("privateKey")
+        private_key = bytes.fromhex(data.get("privateKey"))
         public_key = data.get("publicKey")
         tokens = data.get("tokens")
         bip44_index = data.get("bip44Index")
@@ -98,6 +98,9 @@ class EcdsaAccount:
             if self.network == KeyringNetwork.Ethereum.value:
                 self.wallet = Account.from_key(private_key)
             elif self.network == KeyringNetwork.Constellation.value:
+                print(data)
+                print("Private Key:", private_key)
+                print()
                 self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
             #self.wallet = "THIS_IS_NOT_A_PRIVATE_KEY_WALLET"
         else:

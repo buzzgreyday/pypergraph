@@ -8,7 +8,7 @@ from cryptography.hazmat.backends import default_backend
 from base64 import b64encode, b64decode
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class Encryptor(Generic[T]):
@@ -21,21 +21,22 @@ class Encryptor(Generic[T]):
         salt = self.generate_salt()
 
         password_derived_key = self.key_from_password(password, salt)
-        payload = self.encrypt_with_key(password_derived_key, str(data))
-        payload['salt'] = salt
+        payload = self.encrypt_with_key(password_derived_key, data)
+        payload["salt"] = salt
 
         return json.dumps(payload)
 
-    async def decrypt(self, password: str, text: str) -> T:
+    async def decrypt(self, password: str, text: json) -> T:
         payload = json.loads(text) if isinstance(text, str) else text
-        salt = payload['salt']
+        salt = payload["salt"]
         key = self.key_from_password(password, salt)
 
         return self.decrypt_with_key(key, payload)
 
     def encrypt_with_key(self, key: bytes, data: T) -> dict:
-        text = json.dumps(data)
-        data_bytes = text.encode('utf-8')
+        text = str(data).replace("'", "\"")
+        print("Data to be encrypted", text)
+        data_bytes = text.encode("utf-8")
         iv = os.urandom(16)
 
         cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
@@ -43,16 +44,16 @@ class Encryptor(Generic[T]):
         ciphertext = encryptor.update(data_bytes) + encryptor.finalize()
 
         return {
-            'data': b64encode(ciphertext).decode('utf-8'),
-            'iv': b64encode(iv).decode('utf-8'),
-            'tag': b64encode(encryptor.tag).decode('utf-8')
+            "data": b64encode(ciphertext).decode("utf-8"),
+            "iv": b64encode(iv).decode("utf-8"),
+            "tag": b64encode(encryptor.tag).decode("utf-8")
         }
 
     def decrypt_with_key(self, key: bytes, payload: dict) -> T:
         try:
-            encrypted_data = b64decode(payload['data'])
-            iv = b64decode(payload['iv'])
-            tag = b64decode(payload['tag'])
+            encrypted_data = b64decode(payload["data"])
+            iv = b64decode(payload["iv"])
+            tag = b64decode(payload["tag"])
         except KeyError as e:
             raise ValueError(f"Missing field in payload: {e}")
         except Exception as e:
@@ -63,10 +64,10 @@ class Encryptor(Generic[T]):
 
         try:
             decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
+            print("Decrypted data:" , decrypted_data.decode("utf-8").replace("'", "\""))
         except Exception as e:
             raise ValueError("Decryption failed: Invalid tag or corrupted data.") from e
-
-        return json.loads(decrypted_data.decode('utf-8'))
+        return json.loads(decrypted_data.decode("utf-8").replace("'", "\""))
 
     @staticmethod
     def key_from_password(password: str, salt: str, iterations: int = 100_000) -> bytes:
@@ -95,7 +96,7 @@ class Encryptor(Generic[T]):
             iterations=iterations,
             backend=default_backend()
         )
-        return kdf.derive(password.encode('utf-8'))
+        return kdf.derive(password.encode("utf-8"))
 
     def generate_salt(self, byte_count: int = 32) -> str:
         return os.urandom(byte_count).hex()

@@ -29,8 +29,8 @@ class MultiChainWallet:
         return self.label
 
     def get_network(self):
-        ValueError('MultiChainWallet :: Does not support this method')
-        return ''
+        ValueError("MultiChainWallet :: Does not support this method")
+        return ""
 
     def get_state(self):
         return {
@@ -63,7 +63,7 @@ class MultiChainWallet:
                 self.keyrings[i].deserialize(r)
 
     def import_account(self, hd_path: str, label: str):
-        ValueError('MultiChainWallet :: Does not support importAccount')
+        ValueError("MultiChainWallet :: Does not support importAccount")
         return None
 
 
@@ -83,7 +83,7 @@ class MultiChainWallet:
         return account
 
     def remove_account(self, account): # IKeyAccount {
-        ValueError('MultiChainWallet :: Does not allow removing accounts.')
+        ValueError("MultiChainWallet :: Does not allow removing accounts.")
 
     def export_secret_key(self):
         return self.mnemonic
@@ -164,7 +164,7 @@ class SingleAccountWallet:
           self.supported_assets.append(KeyringAssetType.DAG)
 
     def import_account (self, hdPath: str, label: str):
-        ValueError('SimpleChainWallet :: does not support importAccount')
+        ValueError("SimpleChainWallet :: does not support importAccount")
         return None
 
     def get_accounts(self):

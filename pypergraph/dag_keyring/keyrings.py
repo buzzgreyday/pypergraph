@@ -68,7 +68,8 @@ class HdKeyring:
             self.network = data.get("network")
             self.accounts = []
             for d in data.get("accounts"):
-                account = self.add_account_at(d.get("bip44_index"))
+                print("Retored wallet:", d)
+                account = self.add_account_at(d.get("bip44Index"))
                 # TODO: Add ecdsa account and token support
                 account.set_tokens(d.get("tokens"))
                 self.accounts.append(account)
@@ -85,7 +86,7 @@ class HdKeyring:
         """
         accounts = []
         for i in range(number_of_accounts):
-            accounts.append({"bip44_index": i})
+            accounts.append({"bip44Index": i})
 
         return accounts
 
@@ -104,7 +105,8 @@ class HdKeyring:
         # TODO: This should be fitted to library
         #account = IKeyringAccount;
         if self.mnemonic:
-            private_key = self.root_key.PrivateKey()
+            private_key = self.root_key.PrivateKey().hex()
+            print(private_key)
             # Create account
             #account = {"privateKey": private_key, "bip44Index": index}
             #if self.network.value == KeyringNetwork.Constellation.value:
@@ -114,8 +116,8 @@ class HdKeyring:
                 account = EcdsaAccount().deserialize({ "privateKey": private_key, "bip44Index": index }) # Could also be DAG account should be set dynamically
             elif self.network == KeyringNetwork.Constellation.value:
                 account = DagAccount().deserialize({ "privateKey": private_key, "bip44Index": index })
-            #else:
-            #    raise ValueError(f"HDKeyRing :: network can't be '{self.network}'")
+            else:
+                raise ValueError(f"HDKeyRing :: network can't be '{self.network}'")
 
 
         else:
