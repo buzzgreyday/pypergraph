@@ -134,7 +134,6 @@ class EcdsaAccount:
         return self.wallet.address
 
     def get_public_key(self) -> str:
-        print(self.network, self.wallet.__dict__)
         return self.wallet.key
 
     def get_private_key(self) -> str:
@@ -190,7 +189,6 @@ class DagAccount(EcdsaAccount):
         :param public_key_hex: The private key as a hexadecimal string.
         :return: The DAG address corresponding to the public key (node ID).
         """
-        print(public_key_hex)
         if len(public_key_hex) == 128:
             public_key = PKCS_PREFIX + "04" + public_key_hex
         elif len(public_key_hex) == 130 and public_key_hex[:2] == "04":

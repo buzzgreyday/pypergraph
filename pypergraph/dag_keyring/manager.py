@@ -13,7 +13,7 @@ class ObservableStore:
         return self._state
 
     def update_state(self, new_state: dict):
-        self._state = new_state
+        self._state.update(new_state)
         self.notify_observers()
 
     def subscribe(self, callback):
@@ -22,43 +22,6 @@ class ObservableStore:
     def notify_observers(self):
         for observer in self._observers:
             observer(self._state)
-
-
-class KeyringVault:
-    def __init__(self, password: str, encryptor: Encryptor):
-        # Initialize the encrypted observable store
-        self.mem_store = ObservableStore({"is_unlocked": False, "wallets": []})
-        self.encryptor = encryptor
-        self.password = password
-
-    def add_wallet(self, wallet: str):
-        """Encrypt and add a wallet to the state."""
-        encrypted_wallet = self.encryptor.encrypt(self.password, wallet)
-        current_state = self.mem_store.get_state()
-
-        updated_wallets = current_state["wallets"] + [encrypted_wallet]
-        self.mem_store.update_state({**current_state, "wallets": updated_wallets})
-
-    def get_wallets(self):
-        """Decrypt and retrieve all wallets."""
-        current_state = self.mem_store.get_state()
-        return [
-            self.encryptor.decrypt(self.password, encrypted_wallet)
-            for encrypted_wallet in current_state["wallets"]
-        ]
-
-    def unlock(self, password: str) -> bool:
-        """Unlock the vault."""
-        if password == self.password:
-            current_state = self.mem_store.get_state()
-            self.mem_store.update_state({**current_state, "is_unlocked": True})
-            return True
-        return False
-
-    def lock(self):
-        """Lock the vault."""
-        current_state = self.mem_store.get_state()
-        self.mem_store.update_state({**current_state, "is_unlocked": False})
 
 # TODO: EVERYTHING NEEDS A CHECK. Manager has more methods than the ones below. This is only enough to create new wallets. We also need e.g. storage.
 class KeyringManager(AsyncIOEventEmitter):
@@ -150,7 +113,7 @@ class KeyringManager(AsyncIOEventEmitter):
     def update_mem_store_wallets(self):
         wallets = [w.get_state() for w in self.wallets]
         self.mem_store.update_state({"wallets": wallets})
-        print(self.mem_store.get_state())
+        print("Current Wallet State:", self.mem_store.get_state())
 
     def set_password(self, password):
         self.password = password
