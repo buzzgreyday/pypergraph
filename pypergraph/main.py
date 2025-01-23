@@ -38,8 +38,7 @@ async def main():
     print()
     print()
     m = KeyringManager()
-    wallets = await m.login('password')
-    print(wallets)
+    await m.login('password')
 
 if __name__ == "__main__":
 
