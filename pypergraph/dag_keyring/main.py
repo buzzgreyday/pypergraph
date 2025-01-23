@@ -393,6 +393,52 @@ class HdKeyring:
     def remove_account(self, account): # account is IKeyringAccount
         self.accounts = [acc for acc in self.accounts if acc != account] # orig. == account
 
+# rings.simple_keyring
+
+class SimpleKeyring:
+
+    account = None #IKeyringAccount;
+    network: KeyringNetwork = None #KeyringNetwork
+
+    def create_for_network(self, network, privateKey: str):
+        inst = SimpleKeyring()
+        inst.network = network
+        #inst.account = keyringRegistry.createAccount(network).create(privateKey)
+        inst.account = DagAccount().create(privateKey)
+        return inst
+
+
+    def get_state(self):
+        return {
+          "network": self.network,
+          "account": self.account.serialize(False)
+        }
+
+    def serialize(self):
+        return {
+          "network": self.network,
+          "accounts": [self.account.serialize(True)]
+        }
+
+    def deserialize(self, data: dict):
+        self.network = data.get("network")
+        #self.account = keyringRegistry.createAccount(data.get("network")).deserialize(data.get("accounts")[0])
+        print(data.get("accounts"))
+        self.account = EcdsaAccount().deserialize(data.get("accounts")[0])
+
+    def add_account_at(self, index: int):
+        pass
+        #throw error
+
+    def get_accounts(self):
+        return [self.account]
+
+    def get_account_by_address(self, address: str):
+        return self.account if address == self.account.get_address() else None
+
+    def remove_account(self, account):
+        pass
+     #throw error
 
 # wallets.multi_chain_wallet
 
@@ -485,6 +531,99 @@ class MultiChainWallet:
     def reset_sid(self):
         self.SID = 0
 
+# accounts.single_account_wallet
+
+# SingleKeyWallet
+class SingleAccountWallet:
+
+    SID = 0
+
+    def __init__(self):
+        self.type = KeyringWalletType.MultiChainWallet.value
+        self.id = f"{self.type}{self.SID + 1}"
+        self.SID += 1
+        self.supported_assets = []
+
+        self.keyring = None #SimpleKeyring
+        self.network = None #KeyringNetwork;
+        self.label: str = ""
+
+    def create(self, network, private_key: str, label: str):
+        if not private_key:
+            private_key = Account.create().key.hex()
+
+        self.deserialize({ "type": self.type, "label": label, "network": network, "secret": private_key })
+
+    def set_label(self, val: str):
+        self.label = val
+
+    def get_label(self) -> str:
+        return self.label
+
+    def get_network(self):
+        return self.network
+
+    def get_state(self):
+        return {
+            "id": self.id,
+            "type": self.type,
+            "label": self.label,
+            "supported_assets": self.supported_assets,
+            "accounts": [
+                {
+                    "address": a.get_address(),
+                    "network": a.get_network(),
+                    "tokens": a.get_tokens(),
+                }
+                for a in self.get_accounts()
+            ],
+        }
+
+    def serialize(self):
+        return {
+          "type": self.type,
+          "label": self.label,
+          "network": self.network,
+          "secret": self.export_secret_key()
+        }
+
+    def deserialize(self, data):
+
+        self.label = data.get("label")
+        self.network = data.get("network") or KeyringNetwork.Ethereum.value
+        self.keyring = SimpleKeyring()
+
+        self.keyring.deserialize({"network": self.network, "accounts": [{ "privateKey": data.get("secret") }]})
+
+        if self.network == KeyringNetwork.Ethereum.value:
+          self.supported_assets.append(KeyringAssetType.ETH.value)
+          self.supported_assets.append(KeyringAssetType.ERC20.value)
+
+        elif self.network == KeyringNetwork.Constellation.value:
+          self.supported_assets.append(KeyringAssetType.DAG)
+
+    def import_account (self, hdPath: str, label: str):
+        ValueError('SimpleChainWallet :: does not support importAccount')
+        return None
+
+    def get_accounts(self):
+        return self.keyring.getAccounts()
+
+    def get_account_by_address(self, address: str):
+        return self.keyring.get_account_by_address(address)
+
+    def remove_account(self, account):
+        # Does not support removing account
+        pass
+
+    def export_secret_key(self) -> str:
+        print(self.keyring.get_accounts()[0].__dict__)
+        return self.keyring.get_accounts()[0]
+
+    def reset_sid(self):
+        self.SID = 0
+
+# encryptor
 
 import os
 import json
@@ -633,6 +772,22 @@ class KeyringManager:
 
         return wallet
 
+    # creates a single wallet with one chain, creates first account by default, one per chain.
+    async def create_single_account_wallet(self, label: str, network: KeyringNetwork, private_key: str):
+
+        wallet = SingleAccountWallet()
+        label = label or 'Wallet #' + f"{len(self.wallets) + 1}"
+
+        wallet.create(network, private_key, label)
+        self.wallets.append(wallet)
+
+        # this.emit('newAccount', wallet.getAccounts()[0]);
+
+        await self.full_update()
+
+        return wallet
+
+
     async def full_update(self):
 
         await self.persist_all_wallets(self.password)
@@ -668,3 +823,4 @@ if __name__ == "__main__":
 
     manager = KeyringManager()
     asyncio.run(manager.create_or_restore_vault(label='', seed=WORDS, password='password'))
+    asyncio.run(manager.create_single_account_wallet(label="", network=KeyringNetwork.Constellation.value, private_key=""))
