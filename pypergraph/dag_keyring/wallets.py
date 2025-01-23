@@ -168,7 +168,7 @@ class SingleAccountWallet:
         return None
 
     def get_accounts(self):
-        return self.keyring.getAccounts()
+        return self.keyring.get_accounts()
 
     def get_account_by_address(self, address: str):
         return self.keyring.get_account_by_address(address)
@@ -178,7 +178,7 @@ class SingleAccountWallet:
         pass
 
     def export_secret_key(self) -> str:
-        return self.keyring.get_accounts()[0].wallet.key.hex()
+        return self.keyring.get_accounts()[0].wallet.to_string().hex()
 
     def reset_sid(self):
         self.SID = 0

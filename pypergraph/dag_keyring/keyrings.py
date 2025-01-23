@@ -110,7 +110,10 @@ class HdKeyring:
             #if self.network.value == KeyringNetwork.Constellation.value:
             #    account = DagAccount().deserialize({ "privateKey": private_key, "bip44Index": index })
             #elif self.network.value == KeyringNetwork.Ethereum.value:
-            account = EcdsaAccount().deserialize({ "privateKey": private_key, "bip44Index": index }) # Could also be DAG account should be set dynamically
+            if self.network == KeyringNetwork.Ethereum.value:
+                account = EcdsaAccount().deserialize({ "privateKey": private_key, "bip44Index": index }) # Could also be DAG account should be set dynamically
+            elif self.network == KeyringNetwork.Constellation.value:
+                account = DagAccount().deserialize({ "privateKey": private_key, "bip44Index": index })
             #else:
             #    raise ValueError(f"HDKeyRing :: network can't be '{self.network}'")
 
@@ -161,13 +164,14 @@ class HdKeyring:
 class SimpleKeyring:
 
     account = None #IKeyringAccount;
-    network: KeyringNetwork = None #KeyringNetwork
+    network: KeyringNetwork.Constellation.value #KeyringNetwork
 
     def create_for_network(self, network, privateKey: str):
         inst = SimpleKeyring()
         inst.network = network
         #inst.account = keyringRegistry.createAccount(network).create(privateKey)
         inst.account = DagAccount().create(privateKey)
+        print(DagAccount().create(privateKey).get_state())
         return inst
 
 
@@ -186,7 +190,7 @@ class SimpleKeyring:
     def deserialize(self, data: dict):
         self.network = data.get("network")
         #self.account = keyringRegistry.createAccount(data.get("network")).deserialize(data.get("accounts")[0])
-        self.account = EcdsaAccount().deserialize(data.get("accounts")[0])
+        self.account = DagAccount().deserialize(data.get("accounts")[0])
 
     def add_account_at(self, index: int):
         pass

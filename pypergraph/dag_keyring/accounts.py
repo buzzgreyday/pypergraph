@@ -3,10 +3,12 @@ import hashlib
 
 from typing import List, Optional, Dict, Any
 
+from ecdsa import SigningKey, SECP256k1
 from eth_account import Account
 from eth_account.messages import encode_defunct
 
 from pypergraph.dag_core import KeyringAssetType, KeyringNetwork
+from pypergraph.dag_core.constants import PKCS_PREFIX
 
 
 class EcdsaAccount:
@@ -93,7 +95,10 @@ class EcdsaAccount:
         label = data.get("label")
 
         if private_key:
-            self.wallet = Account.from_key(private_key)
+            if self.network == KeyringNetwork.Ethereum.value:
+                self.wallet = Account.from_key(private_key)
+            elif self.network == KeyringNetwork.Constellation.value:
+                self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
             #self.wallet = "THIS_IS_NOT_A_PRIVATE_KEY_WALLET"
         else:
             raise NotImplementedError("EcdsaAccount :: Wallet instance from public key isn't supported.")
@@ -125,10 +130,12 @@ class EcdsaAccount:
     #     return public_key_buffer.hex()
 
     def get_address(self) -> str:
-        return self.wallet.get_checksum_address_string()
+        #return self.wallet.get_checksum_address_string()
+        return self.wallet.address
 
     def get_public_key(self) -> str:
-        return self.wallet.get_public_key().hex()
+        print(self.network, self.wallet.__dict__)
+        return self.wallet.key
 
     def get_private_key(self) -> str:
         return self.wallet.get_private_key().hex()
@@ -163,6 +170,9 @@ class DagAccount(EcdsaAccount):
 
         return valid_len and valid_prefix and valid_parity and valid_base58
 
+    def get_public_key(self) -> str:
+        return self.wallet.get_verifying_key().to_string().hex()
+
     def get_address(self) -> str:
         return self.get_address_from_public_key(self.get_public_key())
 
@@ -176,18 +186,30 @@ class DagAccount(EcdsaAccount):
         return hashlib.sha256(data).hexdigest()
 
     def get_address_from_public_key(self, public_key_hex: str) -> str:
+        """
+        :param public_key_hex: The private key as a hexadecimal string.
+        :return: The DAG address corresponding to the public key (node ID).
+        """
+        print(public_key_hex)
         if len(public_key_hex) == 128:
-            public_key_hex = "04" + public_key_hex
+            public_key = PKCS_PREFIX + "04" + public_key_hex
+        elif len(public_key_hex) == 130 and public_key_hex[:2] == "04":
+            public_key = PKCS_PREFIX + public_key_hex
+        else:
+            raise ValueError("KeyStore :: Not a valid public key.")
 
-        pkcs_prefix = "3056301006072a8648ce3d020106052b8104000a034200"
-        public_key_hex = pkcs_prefix + public_key_hex
+        public_key = hashlib.sha256(bytes.fromhex(public_key)).hexdigest()
+        public_key = base58.b58encode(bytes.fromhex(public_key)).decode()
+        public_key = public_key[len(public_key) - 36:]
 
-        sha256_str = self.sha256(bytes.fromhex(public_key_hex))
-        bytes_hash = bytes.fromhex(sha256_str)
-        base58_encoded = base58.b58encode(bytes_hash).decode()
+        check_digits = "".join([char for char in public_key if char.isdigit()])
+        check_digit = 0
+        for n in check_digits:
+            check_digit += int(n)
+            if check_digit >= 9:
+                check_digit = check_digit % 9
 
-        end = base58_encoded[-36:]
-        sum_digits = sum(int(char) for char in end if char.isdigit())
-        par = sum_digits % 9
+        address = f"DAG{check_digit}{public_key}"
 
-        return f"DAG{par}{end}"
+        return address
+
