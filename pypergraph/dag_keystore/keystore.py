@@ -20,7 +20,7 @@ from hashlib import sha256
 
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode, TransactionV2
-from .constants import BASE58_ALPHABET, PKCS_PREFIX
+from pypergraph.dag_core.constants import BASE58_ALPHABET, PKCS_PREFIX
 
 # import datetime
 import hashlib

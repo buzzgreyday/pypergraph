@@ -1,9 +1,7 @@
 from bip32utils import BIP32Key
 from ecdsa import SigningKey, SECP256k1
 from mnemonic import Mnemonic
-
-from .constants import DERIVATION_PATH, DERIVATION_PATH_MAP
-
+from pypergraph.dag_core.constants import BIP_44_PATHS, DERIVATION_PATH
 
 
 class Bip32:
@@ -18,7 +16,7 @@ class Bip32:
         return BIP32Key.fromEntropy(seed_bytes)
 
     @staticmethod
-    def get_private_key_from_seed(seed_bytes, derivation_path: str = DERIVATION_PATH.DAG):
+    def get_private_key_from_seed(seed_bytes, derivation_path: str = DERIVATION_PATH.DAG.value):
         """
         Derive the private key from a seed entropy using derived path.
 
@@ -26,7 +24,7 @@ class Bip32:
         :param derivation_path: The derivation path.
         :return: The private key as a hexadecimal string.
         """
-        path = DERIVATION_PATH_MAP[derivation_path]
+        path = str(BIP_44_PATHS[derivation_path])
         path_parts = [int(part.strip("'")) for part in path.split("/")[1:]]
         purpose = path_parts[0] + 2**31
         coin_type = path_parts[1] + 2**31
