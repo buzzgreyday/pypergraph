@@ -1,6 +1,6 @@
 # accounts.ecdsa_accounts
+
 from eth_account import Account
-from abc import ABC, abstractmethod
 from typing import List, Optional, Dict, Any
 
 from eth_account.messages import encode_defunct
@@ -231,11 +231,10 @@ class COIN:
     DAG = 1137
     ETH = 60
 
-BIP_44_PATHS = {
-    "CONSTELLATION_PATH": f"m/44'/{COIN.DAG}'/0'/0",
-    "ETH_WALLET_PATH": f"m/44'/{COIN.ETH}'/0'/0",
-    "ETH_LEDGER_PATH": "m/44'/60'",
-}
+class BIP_44_PATHS(Enum):
+    CONSTELLATION_PATH = f"m/44'/{COIN.DAG}'/0'/0"
+    ETH_WALLET_PATH = f"m/44'/{COIN.ETH}'/0'/0"
+    ETH_LEDGER_PATH = "m/44'/60'"
 
 
 # NOTE: Ring determines the secret implementation: seed or privateKey
@@ -260,12 +259,22 @@ class HdKeyring:
         return inst
 
     @staticmethod
-    def create(mnemonic: str, hdPath: str, network: KeyringNetwork, number_of_accounts: int):
+    def create(mnemonic: str, hdPath: str, network, number_of_accounts: int):
         inst = HdKeyring()
         inst.mnemonic = mnemonic
         inst.hdPath = hdPath
+        path = hdPath
+        path_parts = [int(part.strip("'")) for part in path.split("/")[1:]]
+        purpose = path_parts[0] + 2 ** 31
+        coin_type = path_parts[1] + 2 ** 31
+        account = path_parts[2] + 2 ** 31
+        change = 0
+        index = path_parts[3]
+        print(path_parts[1])
         inst._init_from_mnemonic(mnemonic)
+        inst.root_key = inst.root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index)
         inst.deserialize( { "network": network, "accounts": inst.create_accounts(number_of_accounts) })
+        print(inst.root_key.PrivateKey().hex())
         return inst
 
     def getNetwork(self):
@@ -319,7 +328,6 @@ class HdKeyring:
     def add_account_at(self, index: int):
         index = index if index >= 0 else len(self.accounts)
 
-        print(index)
         try:
             if self.accounts[index]:
                 ValueError('HdKeyring :: Trying to add an account to an index already populated')
@@ -332,14 +340,12 @@ class HdKeyring:
             private_key = self.root_key.PrivateKey()
             # Create account
             #account = {"privateKey": private_key, "bip44Index": index}
-            #print(self.network.value, type(KeyringNetwork.Constellation.value))
             #if self.network.value == KeyringNetwork.Constellation.value:
             #    account = DagAccount().deserialize({ "privateKey": private_key, "bip44Index": index })
             #elif self.network.value == KeyringNetwork.Ethereum.value:
             account = EcdsaAccount().deserialize({ "privateKey": private_key, "bip44Index": index }) # Could also be DAG account should be set dynamically
             #else:
             #    raise ValueError(f"HDKeyRing :: network can't be '{self.network}'")
-            print(account.__dict__)
 
 
         else:
@@ -369,15 +375,7 @@ class HdKeyring:
         from mnemonic import Mnemonic
         self.mnemonic = mnemonic
         seed_bytes = Mnemonic("english").to_seed(mnemonic)
-        path = BIP_44_PATHS["CONSTELLATION_PATH"]
-        path_parts = [int(part.strip("'")) for part in path.split("/")[1:]]
-        purpose = path_parts[0] + 2 ** 31
-        coin_type = path_parts[1] + 2 ** 31
-        account = path_parts[2] + 2 ** 31
-        change = 0
-        index = path_parts[3]
-        root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
-        self.root_key = root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index)
+        self.root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
 
 
     def _initFromExtendedKey (self, extended_key: str):
@@ -423,7 +421,6 @@ class SimpleKeyring:
     def deserialize(self, data: dict):
         self.network = data.get("network")
         #self.account = keyringRegistry.createAccount(data.get("network")).deserialize(data.get("accounts")[0])
-        print(data.get("accounts"))
         self.account = EcdsaAccount().deserialize(data.get("accounts")[0])
 
     def add_account_at(self, index: int):
@@ -494,8 +491,8 @@ class MultiChainWallet:
         self.label = data.get("label")
         self.mnemonic = data.get("secret")
         self.keyrings = [
-            HdKeyring.create(self.mnemonic, BIP_44_PATHS.get("CONSTELLATION_PATH"), KeyringNetwork.Constellation.value, 1),
-            HdKeyring.create(self.mnemonic, BIP_44_PATHS.get("ETH_WALLET_PATH"), KeyringNetwork.Ethereum.value, 1)
+            HdKeyring.create(self.mnemonic, BIP_44_PATHS.CONSTELLATION_PATH.value, KeyringNetwork.Constellation.value, 1),
+            HdKeyring.create(self.mnemonic, BIP_44_PATHS.ETH_WALLET_PATH.value, KeyringNetwork.Ethereum.value, 1)
         ]
         if data.get("rings"):
             for i, r in enumerate(data.get("rings")):
@@ -766,13 +763,12 @@ class KeyringManager:
 
         self.clear_wallets()
         wallet = self.new_multi_chain_hd_wallet(label, seed)
-        print(wallet.__dict__)
         await self.full_update()
 
         return wallet
 
     # creates a single wallet with one chain, creates first account by default, one per chain.
-    async def create_single_account_wallet(self, label: str, network: KeyringNetwork, private_key: str):
+    async def create_single_account_wallet(self, label: str, network, private_key: str):
 
         wallet = SingleAccountWallet()
         label = label or 'Wallet #' + f"{len(self.wallets) + 1}"
@@ -801,17 +797,12 @@ class KeyringManager:
 
         self.password = password
 
-
         s_wallets = [w.serialize() for w in self.wallets]
-
-        print(s_wallets)
 
         encryptedString = await self.encryptor.encrypt(self.password, { "wallets": s_wallets })
 
         # TODO: Add storage
-        print(encryptedString)
         decryptedString = await self.encryptor.decrypt(self.password, encryptedString)
-        print(json.dumps(decryptedString))
         #await self.storage.set('vault', encryptedString);
 
 from os import getenv
@@ -821,5 +812,21 @@ WORDS = getenv("WORDS")
 if __name__ == "__main__":
 
     manager = KeyringManager()
-    asyncio.run(manager.create_or_restore_vault(label='', seed=WORDS, password='password'))
-    asyncio.run(manager.create_single_account_wallet(label="", network=KeyringNetwork.Constellation.value, private_key=""))
+    hd_wallet = asyncio.run(manager.create_or_restore_vault(label='', seed=WORDS, password='password'))
+    from mnemonic import Mnemonic
+
+    seed_bytes = Mnemonic("english").to_seed(WORDS)
+
+    path = BIP_44_PATHS.CONSTELLATION_PATH.value
+    path_parts = [int(part.strip("'")) for part in path.split("/")[1:]]
+    purpose = path_parts[0] + 2 ** 31
+    coin_type = path_parts[1] + 2 ** 31
+    account = path_parts[2] + 2 ** 31
+    change = 0
+    index = path_parts[3]
+    root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
+    root_key = root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index)
+    print(root_key.PrivateKey().hex())
+    s_wallet = asyncio.run(manager.create_single_account_wallet(label="", network=KeyringNetwork.Constellation.value, private_key=root_key.PrivateKey()))
+    print(hd_wallet)
+    print(s_wallet)
