@@ -385,7 +385,7 @@ class HdKeyring:
         # self.root_key = hdkey.fromExtendedKey(extended_key)
 
     def export_account (self, account) -> str: # account is IKeyringAccount
-        return account.get_rivate_key()
+        return account.get_private_key()
 
     def get_account_by_address(self, address: str): # account is IKeyringAccount
         return next((acc for acc in self.accounts if acc.get_address().lower() == address.lower()), None)
@@ -617,8 +617,7 @@ class SingleAccountWallet:
         pass
 
     def export_secret_key(self) -> str:
-        print(self.keyring.get_accounts()[0].__dict__)
-        return self.keyring.get_accounts()[0]
+        return self.keyring.get_accounts()[0].wallet.key.hex()
 
     def reset_sid(self):
         self.SID = 0
