@@ -180,7 +180,7 @@ class EthAccount(EcdsaAccount):
     decimals = 18
     network = KeyringNetwork.Ethereum.value
     has_token_support = True
-    supported_assets = [KeyringAssetType.ETH, KeyringAssetType.ERC20]
+    supported_assets = [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
     tokens = ["0xa393473d64d2F9F026B60b6Df7859A689715d092"]  # LTX
 
     def save_token_info(self, address: str):
