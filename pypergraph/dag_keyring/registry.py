@@ -3,7 +3,7 @@ from pypergraph.dag_keyring.accounts import DagAccount, EcdsaAccount
 
 class KeyringRegistry:
     def __init__(self):
-        # Map network values to their respective handler classes
+        # Map network values to their respective account classes
         self.registry = {
             KeyringNetwork.Constellation.value: DagAccount,
             KeyringNetwork.Ethereum.value: EcdsaAccount,
@@ -14,6 +14,5 @@ class KeyringRegistry:
         if not network:
             raise ValueError(f"Unsupported network: {network}")
         class_ = self.registry.get(network)
-        print(class_)
-        return class_()  # Store the chosen handler instance
+        return class_()
 
