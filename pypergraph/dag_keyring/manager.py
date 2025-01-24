@@ -213,18 +213,22 @@ class KeyringManager(AsyncIOEventEmitter):
 
     async def _restore_wallet(self, w_data): # KeyringSerialized
         if w_data["type"] == KeyringWalletType.MultiChainWallet.value:
+            ## Can export secret (mnemonic) but cant remove or import
             wallet = MultiChainWallet()
             wallet.deserialize(w_data)
 
         elif w_data["type"] == KeyringWalletType.SingleAccountWallet.value:
+            ## Can export secret (private key) but not remove or import account
             wallet = SingleAccountWallet()
             wallet.deserialize(w_data)
 
         # else if (wData.type === KeyringWalletType.MultiAccountWallet) {
-        # wallet = new MultiAccountWallet();
-        # wallet.deserialize(wData);
+            ## This can export secret key (mnemonic), remove account but not import
+            # wallet = new MultiAccountWallet();
+            # wallet.deserialize(wData);
         # }
         elif w_data["type"] == KeyringWalletType.MultiKeyWallet.value:
+            ## This can import account but not export secret or remove account
             wallet = MultiKeyWallet()
             wallet.deserialize(w_data)
         else:
