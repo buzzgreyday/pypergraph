@@ -128,7 +128,7 @@ class SingleAccountWallet:
 
     def create(self, network, private_key: str, label: str):
         if not private_key:
-            private_key = SigningKey.from_string(private_key, SECP256k1)
+            private_key = SigningKey.generate(SECP256k1).to_string().hex()
 
         self.deserialize({ "type": self.type, "label": label, "network": network, "secret": private_key })
 

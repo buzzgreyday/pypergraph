@@ -105,8 +105,8 @@ class KeyringManager(AsyncIOEventEmitter):
 
     async def persist_all_wallets(self, password):
         password = password or self.password
-        if type(password) != str:
-            raise ValueError("KeyringManager :: Password is not a string")
+        if not password or type(password) != str:
+            raise ValueError("KeyringManager :: Password is not a valid string.")
 
         self.password = password
 
@@ -114,7 +114,6 @@ class KeyringManager(AsyncIOEventEmitter):
 
         encrypted_string = await self.encryptor.encrypt(self.password, { "wallets": s_wallets })
 
-        # TODO: Add storage
         await self.storage.set("vault", encrypted_string)
 
     async def update_mem_store_wallets(self):
