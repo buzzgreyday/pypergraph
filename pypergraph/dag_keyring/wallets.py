@@ -13,7 +13,7 @@ class MultiChainWallet:
         self.id = f"{self.type}{self.SID + 1}"
         self.SID += 1
         #self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value] Original
-        self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value]
+        self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
         self.label: str = ""
         self.keyrings: [] = []
         self.mnemonic: str = ""
