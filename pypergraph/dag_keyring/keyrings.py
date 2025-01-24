@@ -170,8 +170,7 @@ class SimpleKeyring:
 
     def deserialize(self, data: dict):
         self.network = data.get("network")
-        #self.account = keyringRegistry.createAccount(data.get("network")).deserialize(data.get("accounts")[0])
-        self.account = DagAccount().deserialize(data.get("accounts")[0])
+        self.account = KeyringRegistry().create_account(data.get("network")).deserialize(data.get("accounts")[0])
 
     def add_account_at(self, index: int):
         pass
