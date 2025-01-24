@@ -37,6 +37,10 @@ class StateStorageDb:
         full_key = self.key_prefix + key
         self.storage_client.remove_item(full_key)
 
+"""
+The classes below are ready to use for personal wallets. Other storage methods can be added to StateStorageDB 
+(e.g. Flask) by inheriting the class with methods in StateStorageDB, e.g. StateStorageDB(PostgresSQLStorage).
+"""
 
 class KeyringStorage:
     """Storage client using the system keyring."""
