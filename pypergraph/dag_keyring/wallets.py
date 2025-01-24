@@ -1,3 +1,4 @@
+from ecdsa import SigningKey, SECP256k1
 from eth_account import Account
 
 from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, KeyringNetwork
@@ -127,7 +128,7 @@ class SingleAccountWallet:
 
     def create(self, network, private_key: str, label: str):
         if not private_key:
-            private_key = Account.create().key.hex()
+            private_key = SigningKey.from_string(private_key, SECP256k1)
 
         self.deserialize({ "type": self.type, "label": label, "network": network, "secret": private_key })
 
