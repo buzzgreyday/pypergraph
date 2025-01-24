@@ -204,8 +204,7 @@ class SingleAccountWallet:
         return self.keyring.get_account_by_address(address)
 
     def remove_account(self, account):
-        # Does not support removing account
-        pass
+        ValueError("MultiChainWallet :: Does not allow removing accounts.")
 
     def export_secret_key(self) -> str:
         return self.keyring.get_accounts()[0].wallet.to_string().hex()

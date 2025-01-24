@@ -18,7 +18,7 @@ class KeyringManager(AsyncIOEventEmitter):
         self.password = ""
         self.mem_store = ObservableStore({"is_unlocked": False, "wallets": []})
         # KeyringManager is also an event emitter
-        self.on("new_account", self.new_multi_chain_hd_wallet)
+        self.on("new_account", self.create_multi_chain_hd_wallet)
         self.on("remove_account", self.remove_account)
 
     def is_unlocked(self):
@@ -85,7 +85,7 @@ class KeyringManager(AsyncIOEventEmitter):
 
         # Starts fresh
         await self.clear_wallets()
-        wallet = self.new_multi_chain_hd_wallet(label, seed)
+        wallet = self.create_multi_chain_hd_wallet(label, seed)
         await self.full_update()
 
         return wallet
@@ -142,6 +142,33 @@ class KeyringManager(AsyncIOEventEmitter):
 
     def get_accounts(self):
         return [account for wallet in self.wallets for account in wallet.get_accounts()]
+
+    async def remove_account(self, address):
+        wallet_for_account = self.get_wallet_for_account(address)
+
+        wallet_for_account.remove_account(address)
+        self.emit('removed_account', address)
+        accounts = wallet_for_account.get_accounts()
+
+        if len(accounts) == 0:
+            self.remove_empty_wallets()
+
+        await self.persist_all_wallets(password=self.password)
+        await self.update_mem_store_wallets()
+        self.notify_update()
+
+    def remove_empty_wallets(self):
+        self.wallets = [keyring for keyring in self.wallets if len(keyring.get_accounts()) > 0]
+
+    def get_wallet_for_account(self, address: str):
+        winner = next(
+            (keyring for keyring in self.wallets if any(a.get_address() == address for a in keyring.get_accounts())),
+            None
+        )
+        if winner:
+            return winner
+        ValueError('KeyringManager :: No keyring found for the requested account.')
+
 
     def check_password(self, password):
         return bool(self.password == password)

@@ -47,6 +47,8 @@ async def main():
     print()
     print()
     print("Got accounts:", m.get_accounts())
+    print("Remove account", await m.remove_account(m.get_accounts()[2].get_address()))
+    print("Updated state:", m.get_accounts())
     await m.logout()
     print()
     print()
