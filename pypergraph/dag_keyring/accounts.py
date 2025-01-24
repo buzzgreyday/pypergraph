@@ -15,7 +15,6 @@ from pypergraph.dag_core import KeyringAssetType, KeyringNetwork
 from pypergraph.dag_core.constants import PKCS_PREFIX
 
 
-
 class EcdsaAccount(ABC):
     def __init__(self):
         self.tokens: Optional[List[str]] = None
@@ -198,8 +197,8 @@ class EthAccount(EcdsaAccount):
 
         tx is an instance of the transaction object from a library like web3.eth.account.
         """
-        priv_key = self.get_private_key_buffer()
-        signed_tx = tx.sign(priv_key)
+        private_key = self.get_private_key_buffer()
+        signed_tx = tx.sign(private_key)
         return signed_tx
 
     def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
@@ -231,6 +230,7 @@ class DagAccount(EcdsaAccount):
     def sign_transaction(self, tx):
         # Implement transaction signing logic here if needed
         pass
+
     @staticmethod
     def validate_address(address: str) -> bool:
         if not address:
