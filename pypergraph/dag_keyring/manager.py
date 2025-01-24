@@ -132,8 +132,7 @@ class KeyringManager(AsyncIOEventEmitter):
     async def logout(self):
 
         # Reset ID counter that used to enumerate wallet IDs. \
-        # MultiChainWallet.prototype.resetSid();
-        # SingleAccountWallet.prototype.resetSid();
+        [w.reset_sid() for w in self.wallets]
         self.password = None
         self.mem_store.update_state({ "is_unlocked": False })
         await self.clear_wallets()
