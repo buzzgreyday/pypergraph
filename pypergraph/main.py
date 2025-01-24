@@ -44,7 +44,13 @@ async def main():
     print()
     m = KeyringManager()
     await m.login('password')
+    print()
+    print()
+    print("Got accounts:", m.get_accounts())
     await m.logout()
+    print()
+    print()
+    print("Got accounts:", m.get_accounts())
 
 if __name__ == "__main__":
 

@@ -28,6 +28,10 @@ class KeyringManager(AsyncIOEventEmitter):
         self.wallets = []
         self.mem_store.update_state({ "wallets": [] })
 
+    @staticmethod
+    def generate_mnemonic():
+        return Bip39Helper().generate_mnemonic()
+
     def new_multi_chain_hd_wallet(self, label: str, seed: str = ""):
         """
         After validating password and seed phrase and deleting wallet cache, this is the next step in creating or restoring a wallet, by default.
@@ -122,6 +126,19 @@ class KeyringManager(AsyncIOEventEmitter):
 
     def set_password(self, password):
         self.password = password
+
+    def set_wallet_label(self, wallet_id: str, label: str):
+        self.get_wallet_by_id(wallet_id).set_label(label)
+
+    def get_wallet_by_id(self, id: str):
+        wallet = None
+        for w in self.wallets:
+            if w.id == id:
+                return wallet
+        raise ValueError(f"KeyringManager :: No wallet found with the id: " + id)
+
+    def get_accounts(self):
+        return [account for wallet in self.wallets for account in wallet.get_accounts()]
 
     def check_password(self, password):
         return bool(self.password == password)
