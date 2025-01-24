@@ -5,12 +5,11 @@ import hashlib
 
 from typing import List, Optional, Dict, Any
 
+from eth_keys import keys
 from eth_utils import to_checksum_address, is_checksum_address, keccak
 from typing import List
 
 from ecdsa import SigningKey, SECP256k1
-from eth_account import Account
-from eth_account.messages import encode_defunct
 
 from pypergraph.dag_core import KeyringAssetType, KeyringNetwork
 from pypergraph.dag_core.constants import PKCS_PREFIX
@@ -20,7 +19,7 @@ from pypergraph.dag_core.constants import PKCS_PREFIX
 class EcdsaAccount(ABC):
     def __init__(self):
         self.tokens: Optional[List[str]] = None
-        self.wallet: Optional[Account] = None
+        self.wallet: Optional[SigningKey] = None
         self.assets: Optional[List[Any]] = None
         self.bip44_index: Optional[int] = None
         self.provider = None  # Placeholder for Web3 provider
@@ -49,11 +48,6 @@ class EcdsaAccount(ABC):
     @abstractmethod
     def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
         pass
-
-    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
-        message = encode_defunct(text=msg)
-        recovered_address = Account.recover_message(message, signature=signature)
-        return recovered_address.lower() == says_address.lower()
 
     def get_decimals(self) -> int:
         return self.decimals
@@ -144,17 +138,27 @@ class EcdsaAccount(ABC):
     #
     #     return eth_util.strip_hex_prefix(eth_util.to_rpc_sig(v, r, s))
 
-    # def recover_signed_msg_public_key(self, msg: str, signature: str) -> str:
-    #     msg_hash = eth_util.hash_personal_message(msg.encode())
-    #     signature_params = eth_util.from_rpc_sig("0x" + signature)
-    #     public_key_buffer = eth_util.ecrecover(
-    #         msg_hash, signature_params.v, signature_params.r, signature_params.s
-    #     )
-    #     return public_key_buffer.hex()
+    def recover_signed_msg_public_key(self, msg: str, signature: str) -> str:
+        # Compute the hash of the message in Ethereum's personal_sign format
+        msg_hash = keccak(text=f"\x19Ethereum Signed Message:\n{len(msg)}{msg}")
+
+        # Decode the signature (remove '0x' prefix if present)
+        signature_bytes = bytes.fromhex(signature[2:] if signature.startswith("0x") else signature)
+        v, r, s = signature_bytes[-1], signature_bytes[:32], signature_bytes[32:64]
+
+        # Recover the public key
+        try:
+            public_key = keys.ecdsa_recover(msg_hash,
+                                            keys.Signature(vrs=(v, int.from_bytes(r, 'big'), int.from_bytes(s, 'big'))))
+        except Exception as e:
+            raise ValueError(f"EcdsaAccount :: Failed to recover public key: {e}")
+
+        # Return the public key in hexadecimal format
+        return public_key.to_hex()
 
     def get_address(self) -> str:
         #return self.wallet.get_checksum_address_string()
-        vk = self.wallet.verifying_key.to_string()
+        vk = self.wallet.get_verifying_key().to_string()
 
         # Compute the keccak hash of the public key (last 20 bytes is the address)
         public_key = b"\x04" + vk  # Add the uncompressed prefix
@@ -163,13 +167,13 @@ class EcdsaAccount(ABC):
         return to_checksum_address("0x" + address.hex())
 
     def get_public_key(self) -> str:
-        return self.wallet.key
+        return self.wallet.get_verifying_key().to_string().hex()
 
     def get_private_key(self) -> str:
-        return self.wallet.get_private_key().hex()
+        return self.wallet.to_string().hex()
 
     def get_private_key_buffer(self):
-        return self.wallet.get_private_key()
+        return self.wallet.to_string()
 
 
 class EthAccount(EcdsaAccount):
