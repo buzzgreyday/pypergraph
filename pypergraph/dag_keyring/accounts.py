@@ -225,7 +225,7 @@ class DagAccount(EcdsaAccount):
     network = KeyringNetwork.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
     has_token_support = False
     supported_assets = ["DAG"]  # Can be found among keyring assets in DAG4
-    tokens = None  # Placeholder for default assets
+    tokens = []  # Placeholder for default assets
 
     def sign_transaction(self, tx):
         # Implement transaction signing logic here if needed
