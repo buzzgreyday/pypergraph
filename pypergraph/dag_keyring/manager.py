@@ -17,7 +17,8 @@ class KeyringManager(AsyncIOEventEmitter):
         self.wallets = []
         self.password = ""
         self.mem_store = ObservableStore({"is_unlocked": False, "wallets": []})
-        self.on("new_single_account", self.create_single_account_wallet)  # Bind event here
+        # KeyringManager is also an event emitter
+        self.on("new_account", self.new_multi_chain_hd_wallet)
 
     def is_unlocked(self):
         return bool(self.password)
