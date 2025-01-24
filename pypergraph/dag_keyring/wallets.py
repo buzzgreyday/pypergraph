@@ -126,7 +126,15 @@ class SingleAccountWallet:
         self.network = None #KeyringNetwork;
         self.label: str = ""
 
-    def create(self, network, private_key: str, label: str):
+    def create(self, network: str, private_key: str, label: str):
+        """
+        Initiates the creation of a new single key wallet.
+
+        :param network:
+        :param private_key:
+        :param label:
+        :return:
+        """
         if not private_key:
             private_key = SigningKey.generate(SECP256k1).to_string().hex()
 
@@ -166,9 +174,14 @@ class SingleAccountWallet:
         }
 
     def deserialize(self, data):
+        """
+        Deserializes the single account data and creates a new simple keyring.
+
+        :param data: { "type": self.type, "label": label, "network": network, "secret": private_key }
+        """
 
         self.label = data.get("label")
-        self.network = data.get("network") or KeyringNetwork.Ethereum.value
+        self.network = data.get("network") or KeyringNetwork.Constellation.value
         self.keyring = SimpleKeyring()
 
         self.keyring.deserialize({"network": self.network, "accounts": [{ "privateKey": data.get("secret") }]})
@@ -181,7 +194,7 @@ class SingleAccountWallet:
           self.supported_assets.append(KeyringAssetType.DAG.value)
 
     def import_account (self, hdPath: str, label: str):
-        ValueError("SimpleChainWallet :: does not support importAccount")
+        ValueError("SingleAccountWallet :: does not support import_account")
         return None
 
     def get_accounts(self):
