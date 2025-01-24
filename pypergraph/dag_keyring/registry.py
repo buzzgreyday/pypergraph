@@ -1,6 +1,8 @@
 from pypergraph.dag_core import KeyringNetwork
 from pypergraph.dag_keyring.accounts import DagAccount, EcdsaAccount
 
+# Polymorphism
+
 class KeyringRegistry:
     def __init__(self):
         # Map network values to their respective account classes
