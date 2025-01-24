@@ -169,6 +169,12 @@ class SimpleKeyring:
         }
 
     def deserialize(self, data: dict):
+        """
+        Deserialize and add an account class object to the keyring being constructed.
+
+        :param data:
+        :return:
+        """
         self.network = data.get("network")
         self.account = KeyringRegistry().create_account(data.get("network")).deserialize(data.get("accounts")[0])
 
