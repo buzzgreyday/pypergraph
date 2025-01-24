@@ -16,7 +16,7 @@ async def main():
     hd_wallet = await manager.create_or_restore_vault(label='', seed=WORDS, password='password')
     #manager.on("new_account")
 
-    seed_bytes = Mnemonic("english").to_seed(WORDS)
+    seed_bytes = Mnemonic("english").to_seed(hd_wallet.mnemonic)
 
     # This is going to be used often
     path = BIP_44_PATHS.CONSTELLATION_PATH.value

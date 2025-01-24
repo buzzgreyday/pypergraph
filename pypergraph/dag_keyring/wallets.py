@@ -2,6 +2,7 @@ from eth_account import Account
 
 from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, KeyringNetwork
 from .keyrings import HdKeyring, SimpleKeyring
+from .bip import Bip39Helper
 
 
 class MultiChainWallet:
@@ -14,13 +15,20 @@ class MultiChainWallet:
         #self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value] Original
         self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value]
         self.label: str = ""
-        self.keyrings: [] = [] # Could be many HDKeyrings
+        self.keyrings: [] = []
         self.mnemonic: str = ""
 
-    # TODO: Add the ability to generate mnemonic
-    def create(self, label: str, mnemonic: str):
-        self.mnemonic = mnemonic # or  Bip39Helper.generateMnemonic(); Generate mnemonic if None present
-        self.deserialize({ "secret":mnemonic, "type": self.type, "label": label })
+    def create(self, label: str, mnemonic: str = ""):
+        """
+        If mnemonic is set, restore the wallet. Else, generate mnemonic and create new wallet.
+
+        :param label: Name of the wallet.
+        :param mnemonic: Seed phrase.
+        """
+
+        self.label = label
+        self.mnemonic = mnemonic or Bip39Helper().generate_mnemonic()
+        self.deserialize({ "secret": self.mnemonic, "type": self.type, "label": self.label })
 
     def set_label(self, val: str):
         self.label = val
@@ -52,12 +60,20 @@ class MultiChainWallet:
         return { "type": self.type, "label": self.label, "secret": self.mnemonic, "rings": [ring.serialize() for ring in self.keyrings] }
 
     def deserialize(self, data: dict):
+        """
+        Main functionality of this MultiChainWallet method is to create hierarchical determinable wallet keyring containing:
+        { "network": network, "accounts": [{ "bipIndex44": integer }] }
+
+        :param data: { "label": self.label, "secret": self.mnemonic }
+        """
         self.label = data.get("label")
         self.mnemonic = data.get("secret")
+
         self.keyrings = [
             HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=KeyringNetwork.Constellation.value, number_of_accounts=1),
             HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=KeyringNetwork.Ethereum.value, number_of_accounts=1)
         ]
+
         if data.get("rings"):
             for i, r in enumerate(data.get("rings")):
                 self.keyrings[i].deserialize(r)

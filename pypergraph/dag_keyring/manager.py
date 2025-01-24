@@ -1,7 +1,9 @@
+from mnemonic import Mnemonic
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import KeyringWalletType
 from pypergraph.dag_keyring import SingleAccountWallet, MultiChainWallet, Encryptor
+from pypergraph.dag_keyring.bip import Bip39Helper
 
 from pypergraph.dag_keyring.storage import StateStorageDb, ObservableStore
 
@@ -22,30 +24,60 @@ class KeyringManager(AsyncIOEventEmitter):
         return bool(self.password)
 
     async def clear_wallets(self):
+        """Clear wallet cahce."""
+
         self.wallets = []
         self.mem_store.update_state({ "wallets": [] })
 
-    def new_multi_chain_hd_wallet(self, label: str, seed: str):
+    def new_multi_chain_hd_wallet(self, label: str, seed: str = ""):
+        """
+        After validating password and seed phrase and deleting wallet cache, this is the next step in creating or restoring a wallet, by default.
+
+        :param label: Wallet name.
+        :param seed: Seed phrase.
+        :return:
+        """
+
         wallet = MultiChainWallet()
         label = label or "Wallet #" + f"{len(self.wallets) + 1}"
+        # Create the multichain wallet from a seed phrase.
         wallet.create(label, seed)
+        # Save safe wallet values in the manager cache
+        # Secret values are encrypted and stored (default: encrypted JSON)
         self.wallets.append(wallet)
         return wallet
 
     async def create_or_restore_vault(self, label: str, seed: str, password: str):
+        """
+        First step, creating or restoring a wallet.
+        This is the default wallet type when creating a new wallet.
+
+        :param label: The name of the wallet.
+        :param seed: Seed phrase.
+        :param password: A string of characters.
+        :return:
+        """
 
         if not password:
             raise ValueError("KeyringManager :: A password is required to create or restore a Vault.")
         elif type(password) != str:
             raise ValueError("KeyringManager :: Password has invalid format.")
         else:
+            # Set the password to be associated with the wallet.
             self.password = password
 
-        if not seed:
-            raise ValueError("KeyringManager :: A seed is required to create or restore a Vault.")
-        # TODO: Validate seed
-        # new Error("Seed phrase is invalid.")
+        if len(label) > 12 or type(label) != str:
+            raise ValueError("KeyringManager :: Label must be a string below 12 characters.")
 
+        if not type(seed) != str:
+            raise ValueError("KeyringManager :: A seed phrase must be a string.")
+        if seed:
+            if len(seed.split(' ')) in (12, 24):
+                raise ValueError("KeyringManager :: The seed phrase must be 12 or 24 words long.")
+            if Bip39Helper().is_valid(seed):
+                raise ValueError("KeyringManager :: The seed phrase is invalid.")
+
+        # Starts fresh
         await self.clear_wallets()
         wallet = self.new_multi_chain_hd_wallet(label, seed)
         await self.full_update()
@@ -60,8 +92,6 @@ class KeyringManager(AsyncIOEventEmitter):
 
         wallet.create(network, private_key, label)
         self.wallets.append(wallet)
-
-        #self.emit("new_account", wallet.get_accounts()[0]) # :)
 
         await self.full_update()
 

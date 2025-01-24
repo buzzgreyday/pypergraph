@@ -36,7 +36,6 @@ class HdKeyring:
         account = path_parts[2] + 2 ** 31
         change = 0
         index = path_parts[3]
-        print(path_parts[1])
         seed_bytes = Mnemonic("english").to_seed(inst.mnemonic)
         inst.root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
         #inst._init_from_mnemonic(mnemonic) Refactored
