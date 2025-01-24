@@ -1,7 +1,9 @@
 import json
+import keyring
+
 from pathlib import Path
 
-import keyring
+
 
 
 class StateStorageDb:
