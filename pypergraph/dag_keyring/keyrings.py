@@ -2,6 +2,7 @@ from mnemonic import Mnemonic
 
 from pypergraph.dag_core.constants import KeyringNetwork
 from pypergraph.dag_keyring.accounts import EcdsaAccount, DagAccount
+from pypergraph.dag_keyring.registry import KeyringRegistry
 from pypergraph.dag_keystore import Bip32
 
 
@@ -24,8 +25,8 @@ class HdKeyring:
         inst.deserialize( { "network": network, "accounts": inst.create_accounts(number_of_accounts) })
         return inst
 
-    @staticmethod
-    def create(mnemonic: str, hd_path: str, network, number_of_accounts: int):
+    def create(self, mnemonic: str, hd_path: str, network, number_of_accounts: int):
+        self.network = network
         inst = HdKeyring()
         inst.mnemonic = mnemonic
         inst.hd_path = hd_path
@@ -95,43 +96,16 @@ class HdKeyring:
 
     def add_account_at(self, index: int):
         index = index if index >= 0 else len(self.accounts)
-
-        try:
-            if self.accounts[index]:
-                ValueError('HdKeyring :: Trying to add an account to an index already populated')
-        except IndexError:
-            pass
-
-        # TODO: This should be fitted to library
-        #account = IKeyringAccount;
         if self.mnemonic:
             private_key = self.root_key.PrivateKey().hex()
-            print(private_key)
-            # Create account
-            #account = {"privateKey": private_key, "bip44Index": index}
-            #if self.network.value == KeyringNetwork.Constellation.value:
-            #    account = DagAccount().deserialize({ "privateKey": private_key, "bip44Index": index })
-            #elif self.network.value == KeyringNetwork.Ethereum.value:
-            if self.network == KeyringNetwork.Ethereum.value:
-                account = EcdsaAccount().deserialize({ "privateKey": private_key, "bip44Index": index }) # Could also be DAG account should be set dynamically
-            elif self.network == KeyringNetwork.Constellation.value:
-                account = DagAccount().deserialize({ "privateKey": private_key, "bip44Index": index })
-            else:
-                raise ValueError(f"HDKeyRing :: network can't be '{self.network}'")
-
-
+            account = KeyringRegistry().create_account(self.network).deserialize({ "privateKey": private_key, "bip44Index": index })
         else:
-            public_key = self.root_key.PublicKey()
+            raise NotImplementedError("HDKeyring :: Wallet from public key isn't supported.")
+            # public_key = self.root_key.PublicKey()
             # Create account
-
-        #const wallet = child.getWallet();
-        #if (this.mnemonic) {
-        #  const privateKey = wallet.getPrivateKey().toString('hex');
-        #  account = keyringRegistry.createAccount(this.network).deserialize({privateKey, bip44Index: index});
-        #} else {
-        #  const publicKey = wallet.getPublicKey().toString('hex');
-        #  account = keyringRegistry.createAccount(this.network).deserialize({publicKey, bip44Index: index});
-        #}
+            #  const publicKey = wallet.getPublicKey().toString('hex');
+            #  account = keyringRegistry.createAccount(this.network).deserialize({publicKey, bip44Index: index});
+            #}
 
         #self.accounts.append(account)
 
@@ -168,12 +142,10 @@ class SimpleKeyring:
     account = None #IKeyringAccount;
     network: KeyringNetwork.Constellation.value #KeyringNetwork
 
-    def create_for_network(self, network, privateKey: str):
+    def create_for_network(self, network, private_key: str):
         inst = SimpleKeyring()
         inst.network = network
-        #inst.account = keyringRegistry.createAccount(network).create(privateKey)
-        inst.account = DagAccount().create(privateKey)
-        print(DagAccount().create(privateKey).get_state())
+        inst.account = KeyringRegistry().create_account(network).create(private_key)
         return inst
 
 

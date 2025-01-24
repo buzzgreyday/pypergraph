@@ -55,8 +55,8 @@ class MultiChainWallet:
         self.label = data.get("label")
         self.mnemonic = data.get("secret")
         self.keyrings = [
-            HdKeyring.create(self.mnemonic, BIP_44_PATHS.CONSTELLATION_PATH.value, KeyringNetwork.Constellation.value, 1),
-            HdKeyring.create(self.mnemonic, BIP_44_PATHS.ETH_WALLET_PATH.value, KeyringNetwork.Ethereum.value, 1)
+            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=KeyringNetwork.Constellation.value, number_of_accounts=1),
+            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=KeyringNetwork.Ethereum.value, number_of_accounts=1)
         ]
         if data.get("rings"):
             for i, r in enumerate(data.get("rings")):

@@ -34,9 +34,9 @@ async def main():
     vault = await StateStorageDb().get()
     print("vaulty:", vault)
 
-    #s_wallet = await manager.create_single_account_wallet(label="", network=KeyringNetwork.Constellation.value,
-    #                                                private_key=root_key.PrivateKey().hex())
-    #d = manager.emit("new_single_account", "", KeyringNetwork.Constellation.value, root_key.PrivateKey().hex())
+    s_wallet = await manager.create_single_account_wallet(label="", network=KeyringNetwork.Constellation.value,
+                                                    private_key=root_key.PrivateKey().hex())
+    d = manager.emit("new_single_account", "", KeyringNetwork.Constellation.value, root_key.PrivateKey().hex())
     #print("emit response", d)
     #print("Secret key:", hd_wallet.export_secret_key())
     #print("Secret key:", s_wallet.export_secret_key())
