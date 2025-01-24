@@ -8,6 +8,18 @@ from pathlib import Path
 
 class StateStorageDb:
     def __init__(self, storage_client=None):
+        """
+        Other storage methods can be added to StateStorageDB (e.g. Flask, FastAPI, etc.) by inheriting the class
+        in StateStorageDB, e.g. StateStorageDB(PostgreSQLStorage).
+
+        storage = StateStorageDB(PostgreSQLStorage)
+        encryptor = Encryptor()
+        encrypted_vault = storage.get("vault")
+        decrypted_vault = encryptor.decrypt("password", encrypted_vault)
+        print(decrypted_vault)
+
+        :param storage_client: Defaults to JsonStorage()
+        """
         self.key_prefix = "pypergraph-"
         self.default_storage = JsonStorage()  # Fallback storage
         self.storage_client = storage_client or self.default_storage
@@ -41,7 +53,7 @@ class StateStorageDb:
 
 """
 The classes below are ready to use for personal wallets. Other storage methods can be added to StateStorageDB 
-(e.g. Flask, FastAPI, etc.) by inheriting the class with methods in StateStorageDB, e.g. StateStorageDB(PostgreSQLStorage).
+(e.g. Flask, FastAPI, etc.) by inheriting the class in StateStorageDB, e.g. StateStorageDB(PostgreSQLStorage).
 
 storage = StateStorageDB(PostgreSQLStorage)
 encryptor = Encryptor()
