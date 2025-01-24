@@ -69,13 +69,13 @@ class KeyringManager(AsyncIOEventEmitter):
         if len(label) > 12 or type(label) != str:
             raise ValueError("KeyringManager :: Label must be a string below 12 characters.")
 
-        if not type(seed) != str:
-            raise ValueError("KeyringManager :: A seed phrase must be a string.")
+        if type(seed) != str:
+            raise ValueError(f"KeyringManager :: A seed phrase must be a string, got {type(seed)}.")
         if seed:
-            if len(seed.split(' ')) in (12, 24):
+            if len(seed.split(' ')) not in (12, 24):
                 raise ValueError("KeyringManager :: The seed phrase must be 12 or 24 words long.")
-            if Bip39Helper().is_valid(seed):
-                raise ValueError("KeyringManager :: The seed phrase is invalid.")
+            if not Bip39Helper().is_valid(seed):
+                raise ValueError(f"KeyringManager :: The seed phrase is invalid.")
 
         # Starts fresh
         await self.clear_wallets()

@@ -1,7 +1,12 @@
+from abc import ABC, abstractmethod
+
 import base58
 import hashlib
 
 from typing import List, Optional, Dict, Any
+
+from eth_utils import to_checksum_address, is_checksum_address, keccak
+from typing import List
 
 from ecdsa import SigningKey, SECP256k1
 from eth_account import Account
@@ -11,18 +16,39 @@ from pypergraph.dag_core import KeyringAssetType, KeyringNetwork
 from pypergraph.dag_core.constants import PKCS_PREFIX
 
 
-class EcdsaAccount:
+
+class EcdsaAccount(ABC):
     def __init__(self):
         self.tokens: Optional[List[str]] = None
-        self.wallet = None  # Placeholder for Wallet instance
+        self.wallet: Optional[Account] = None
         self.assets: Optional[List[Any]] = None
         self.bip44_index: Optional[int] = None
-        self.decimals = 18 # Should be set dynamically
-        self.supported_assets = [KeyringAssetType.ETH.value] # Assets can be found in accounts dir, DAG4
-        self.network = KeyringNetwork.Ethereum.value
-        self.has_token_support = False
-        self._provider = None
-        self._label = None
+        self.provider = None  # Placeholder for Web3 provider
+        self._label: Optional[str] = None
+
+    @property
+    @abstractmethod
+    def decimals(self) -> int:
+        pass
+
+    @property
+    @abstractmethod
+    def network(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def has_token_support(self) -> bool:
+        pass
+
+    @property
+    @abstractmethod
+    def supported_assets(self) -> List[str]:
+        pass
+
+    @abstractmethod
+    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
+        pass
 
     def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
         message = encode_defunct(text=msg)
@@ -88,6 +114,7 @@ class EcdsaAccount:
         return result
 
     def deserialize(self, data: Dict[str, Any]):
+
         private_key = bytes.fromhex(data.get("privateKey"))
         public_key = data.get("publicKey")
         tokens = data.get("tokens")
@@ -95,14 +122,7 @@ class EcdsaAccount:
         label = data.get("label")
 
         if private_key:
-            if self.network == KeyringNetwork.Ethereum.value:
-                self.wallet = Account.from_key(private_key)
-            elif self.network == KeyringNetwork.Constellation.value:
-                print(data)
-                print("Private Key:", private_key)
-                print()
-                self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
-            #self.wallet = "THIS_IS_NOT_A_PRIVATE_KEY_WALLET"
+            self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
         else:
             raise NotImplementedError("EcdsaAccount :: Wallet instance from public key isn't supported.")
             # TODO: This doesn't work since the library doens't seem to have any equivalent
@@ -134,7 +154,13 @@ class EcdsaAccount:
 
     def get_address(self) -> str:
         #return self.wallet.get_checksum_address_string()
-        return self.wallet.address
+        vk = self.wallet.verifying_key.to_string()
+
+        # Compute the keccak hash of the public key (last 20 bytes is the address)
+        public_key = b"\x04" + vk  # Add the uncompressed prefix
+        address = keccak(public_key[1:])[-20:]  # Drop the first byte (x-coord prefix)
+
+        return to_checksum_address("0x" + address.hex())
 
     def get_public_key(self) -> str:
         return self.wallet.key
@@ -145,14 +171,58 @@ class EcdsaAccount:
     def get_private_key_buffer(self):
         return self.wallet.get_private_key()
 
+
+class EthAccount(EcdsaAccount):
+    decimals = 18
+    network = KeyringNetwork.Ethereum.value
+    has_token_support = True
+    supported_assets = [KeyringAssetType.ETH, KeyringAssetType.ERC20]
+    tokens = ["0xa393473d64d2F9F026B60b6Df7859A689715d092"]  # LTX
+
+    def save_token_info(self, address: str):
+        """Save the token info if not already present in the tokens list."""
+        if address not in self.tokens:
+            self.tokens.append(address)
+
+    def validate_address(self, address: str) -> bool:
+        """Validate an Ethereum address."""
+        return is_checksum_address(address)
+
+    def sign_transaction(self, tx):
+        """
+        Sign an Ethereum transaction with the account's private key.
+
+        tx is an instance of the transaction object from a library like web3.eth.account.
+        """
+        priv_key = self.get_private_key_buffer()
+        signed_tx = tx.sign(priv_key)
+        return signed_tx
+
+    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
+        """Verify if a signed message matches the provided address."""
+        public_key = self.recover_signed_msg_public_key(msg, signature)
+        actual_address = self.get_address_from_public_key(public_key)
+        return to_checksum_address(says_address) == actual_address
+
+    def get_address_from_public_key(self, public_key: str) -> str:
+        """Derive the Ethereum address from the public key."""
+        address = b"\x04" + hashlib.sha3_256(public_key.encode("utf-8")).digest()
+        return to_checksum_address(address)
+
+    def get_encryption_public_key(self) -> str:
+        """Get the public key for encryption."""
+        # This is a placeholder. Replace it with the appropriate implementation.
+        # For example, if using web3py, you can use `eth_account.Account.encrypt()` for encryption keys.
+        raise NotImplementedError("Encryption public key generation is not yet implemented.")
+
+
 class DagAccount(EcdsaAccount):
-    def __init__(self):
-        super().__init__()
-        self.decimals = 8
-        self.network = KeyringNetwork.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
-        self.has_token_support = False
-        self.supported_assets = ["DAG"]  # Can be found among keyring assets in DAG4
-        self.tokens = None  # Placeholder for default assets
+
+    decimals = 8
+    network = KeyringNetwork.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
+    has_token_support = False
+    supported_assets = ["DAG"]  # Can be found among keyring assets in DAG4
+    tokens = None  # Placeholder for default assets
 
     def sign_transaction(self, tx):
         # Implement transaction signing logic here if needed

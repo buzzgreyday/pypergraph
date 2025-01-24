@@ -3,17 +3,17 @@ from mnemonic import Mnemonic
 from pypergraph.dag_core.constants import KeyringNetwork
 from pypergraph.dag_keyring.accounts import EcdsaAccount, DagAccount
 from pypergraph.dag_keyring.registry import KeyringRegistry
-from pypergraph.dag_keystore import Bip32
+from pypergraph.dag_keyring.bip import Bip32Helper, Bip39Helper
 
 
 class HdKeyring:
 
-    accounts = [] # type IKeyringAccount[] interface
-    hd_path: str = None
-    mnemonic: str = None
-    extended_key: str = None
-    root_key = None # Placeholder for Hierarchical Deterministic SigningKey, VerifyingKey, etc.
-    network: str = None # Could be either or
+    accounts: [] = []
+    hd_path: str = ""
+    mnemonic: str = ""
+    extended_key: str = ""
+    root_key = None
+    network: str = ""
 
     # Read-only wallet
     @staticmethod
@@ -25,26 +25,27 @@ class HdKeyring:
         inst.deserialize( { "network": network, "accounts": inst.create_accounts(number_of_accounts) })
         return inst
 
-    def create(self, mnemonic: str, hd_path: str, network, number_of_accounts: int):
+    def create(self, mnemonic: str, hd_path: str, network, number_of_accounts: int = 1):
+        """
+        Create a hierarchical deterministic keyring.
+
+        :param mnemonic: Mnemonic phrase.
+        :param hd_path: The derivation path for the coin.
+        :param network: The network associated with the coin.
+        :param number_of_accounts: How many accounts to create.
+        :return:
+        """
+
         self.network = network
         inst = HdKeyring()
         inst.mnemonic = mnemonic
         inst.hd_path = hd_path
-        path_parts = [int(part.strip("'")) for part in inst.hd_path.split("/")[1:]]
-        purpose = path_parts[0] + 2 ** 31
-        coin_type = path_parts[1] + 2 ** 31
-        account = path_parts[2] + 2 ** 31
-        change = 0
-        index = path_parts[3]
-        seed_bytes = Mnemonic("english").to_seed(inst.mnemonic)
-        inst.root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
-        #inst._init_from_mnemonic(mnemonic) Refactored
-        inst.root_key = inst.root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index)
+        seed_bytes = Bip39Helper().get_seed_bytes_from_mnemonic(mnemonic=inst.mnemonic)
+        inst.root_key = Bip32Helper().get_hd_root_key_from_seed(seed_bytes=seed_bytes, hd_path=inst.hd_path)
         inst.deserialize( { "network": network, "accounts": inst.create_accounts(number_of_accounts) })
-        print(inst.root_key.PrivateKey().hex())
         return inst
 
-    def getNetwork(self):
+    def get_network(self):
         return self.network
 
     def get_hd_path(self):
@@ -52,9 +53,8 @@ class HdKeyring:
 
     def get_extended_public_key(self):
         if self.mnemonic:
-            # TODO: needs a suitable library (needs testing)
-            return self.root_key.ExtendedKey().hex()
-            # return self.root_key.publicExtendedKey().toString('hex') # This will vary depending on the library
+            return self.root_key.ExtendedKey(private=False)
+            # return self.root_key.publicExtendedKey().toString('hex')
 
         return self.extended_key
 
@@ -64,15 +64,19 @@ class HdKeyring:
 
 
     def deserialize(self, data: dict):
+        """
+        Deserialize then add account (bip44Index) to the keyring being constructed.
+        :param data:
+        :return:
+        """
         if data:
             self.network = data.get("network")
             self.accounts = []
             for d in data.get("accounts"):
-                print("Retored wallet:", d)
                 account = self.add_account_at(d.get("bip44Index"))
                 # TODO: Add ecdsa account and token support
                 account.set_tokens(d.get("tokens"))
-                self.accounts.append(account)
+
 
     def create_accounts(self, number_of_accounts=0):
         """
@@ -94,19 +98,22 @@ class HdKeyring:
         self.accounts.pop()
 
     def add_account_at(self, index: int):
+        """
+        Add account class object with a signing key to the keyring being constructed.
+
+        :param index: Account number (bipIndex).
+        :return: EcdsaAccount or DagAccount class object (dag_keyring.accounts) with signing key at self.wallet.
+        """
         index = index if index >= 0 else len(self.accounts)
         if self.mnemonic:
             private_key = self.root_key.PrivateKey().hex()
             account = KeyringRegistry().create_account(self.network).deserialize({ "privateKey": private_key, "bip44Index": index })
         else:
-            raise NotImplementedError("HDKeyring :: Wallet from public key isn't supported.")
-            # public_key = self.root_key.PublicKey()
-            # Create account
-            #  const publicKey = wallet.getPublicKey().toString('hex');
-            #  account = keyringRegistry.createAccount(this.network).deserialize({publicKey, bip44Index: index});
-            #}
+            # raise NotImplementedError("HDKeyring :: Wallet from public key isn't supported.")
+            public_key = self.root_key.PublicKey()
+            account = KeyringRegistry().create_account(self.network).deserialize({ "publicKey": public_key, "bip44Index": index })
 
-        #self.accounts.append(account)
+        self.accounts.append(account)
 
         return account
 
