@@ -1,7 +1,7 @@
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import KeyringWalletType
-from pypergraph.dag_keyring import SingleAccountWallet, MultiChainWallet, Encryptor
+from pypergraph.dag_keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet
 from pypergraph.dag_keyring.bip import Bip39Helper
 
 from pypergraph.dag_keyring.storage import StateStorageDb, ObservableStore
@@ -212,10 +212,7 @@ class KeyringManager(AsyncIOEventEmitter):
         self.emit("unlock")
 
     async def _restore_wallet(self, w_data): # KeyringSerialized
-        print()
-        print()
         if w_data["type"] == KeyringWalletType.MultiChainWallet.value:
-            print("w_data MCW:", w_data)
             wallet = MultiChainWallet()
             wallet.deserialize(w_data)
 
@@ -227,10 +224,9 @@ class KeyringManager(AsyncIOEventEmitter):
         # wallet = new MultiAccountWallet();
         # wallet.deserialize(wData);
         # }
-        # else if (wData.type == = KeyringWalletType.MultiKeyWallet) {
-        # wallet = new MultiKeyWallet();
-        # wallet.deserialize(wData);
-        # }
+        elif w_data["type"] == KeyringWalletType.MultiKeyWallet.value:
+            wallet = MultiKeyWallet()
+            wallet.deserialize(w_data)
         else:
             raise ValueError("KeyringManager :: Unknown Wallet type - " + w_data.type + ", support types are [" + KeyringWalletType.MultiChainWallet.value + "," + KeyringWalletType.SingleAccountWallet.value + "]")
 
