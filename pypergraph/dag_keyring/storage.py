@@ -39,7 +39,13 @@ class StateStorageDb:
 
 """
 The classes below are ready to use for personal wallets. Other storage methods can be added to StateStorageDB 
-(e.g. Flask) by inheriting the class with methods in StateStorageDB, e.g. StateStorageDB(PostgresSQLStorage).
+(e.g. Flask) by inheriting the class with methods in StateStorageDB, e.g. StateStorageDB(PostgreSQLStorage).
+
+storage = StateStorageDB(PostgreSQLStorage)
+encryptor = Encryptor()
+encrypted_vault = storage.get("vault")
+decrypted_vault = encryptor.decrypt("password", encrypted_vault)
+print(decrypted_vault)
 """
 
 class KeyringStorage:
