@@ -63,9 +63,9 @@ class EcdsaAccount(ABC):
 
     def create(self, private_key: Optional[str]):
         if private_key:
-            self.wallet = Account.from_key(bytes.fromhex(private_key))
+            self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
         else:
-            self.wallet = Account.create()
+            self.wallet = SigningKey.generate(curve=SECP256k1)
         return self
 
     def save_token_info(self, address: str):

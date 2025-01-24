@@ -1,4 +1,3 @@
-from mnemonic import Mnemonic
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import KeyringWalletType
