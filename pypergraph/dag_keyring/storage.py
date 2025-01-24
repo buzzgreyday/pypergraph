@@ -4,8 +4,6 @@ import keyring
 from pathlib import Path
 
 
-
-
 class StateStorageDb:
     def __init__(self, storage_client=None):
         """
