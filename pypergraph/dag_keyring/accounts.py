@@ -71,7 +71,7 @@ class EcdsaAccount(ABC):
         self._provider = provider
 
     def get_tokens(self) -> Optional[List[str]]:
-        return self.tokens.copy() if self.tokens else None
+        return self.tokens.copy() if self.tokens else []
 
     def set_tokens(self, tokens: List[str]):
         if tokens:

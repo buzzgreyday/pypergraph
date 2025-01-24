@@ -76,7 +76,7 @@ class HdKeyring:
                 account = self.add_account_at(d.get("bip44Index"))
                 # TODO: Add ecdsa account and token support
                 account.set_tokens(d.get("tokens"))
-                self.accounts.append(account)
+                #self.accounts.append(account)
 
 
     def create_accounts(self, number_of_accounts=0):
@@ -114,7 +114,7 @@ class HdKeyring:
             public_key = self.root_key.PublicKey()
             account = KeyringRegistry().create_account(self.network).deserialize({ "publicKey": public_key, "bip44Index": index })
 
-        #self.accounts.append(account)
+        self.accounts.append(account)
 
         return account
 
