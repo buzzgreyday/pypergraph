@@ -177,7 +177,7 @@ class SingleAccountWallet:
           self.supported_assets.append(KeyringAssetType.ERC20.value)
 
         elif self.network == KeyringNetwork.Constellation.value:
-          self.supported_assets.append(KeyringAssetType.DAG)
+          self.supported_assets.append(KeyringAssetType.DAG.value)
 
     def import_account (self, hdPath: str, label: str):
         ValueError("SimpleChainWallet :: does not support importAccount")
