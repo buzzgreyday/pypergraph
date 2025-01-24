@@ -19,6 +19,7 @@ class KeyringManager(AsyncIOEventEmitter):
         self.mem_store = ObservableStore({"is_unlocked": False, "wallets": []})
         # KeyringManager is also an event emitter
         self.on("new_account", self.new_multi_chain_hd_wallet)
+        self.on("remove_account", self.remove_account)
 
     def is_unlocked(self):
         return bool(self.password)
@@ -33,7 +34,7 @@ class KeyringManager(AsyncIOEventEmitter):
     def generate_mnemonic():
         return Bip39Helper().generate_mnemonic()
 
-    def new_multi_chain_hd_wallet(self, label: str, seed: str = ""):
+    def create_multi_chain_hd_wallet(self, label: str, seed: str = ""):
         """
         After validating password and seed phrase and deleting wallet cache, this is the next step in creating or restoring a wallet, by default.
 
@@ -49,6 +50,7 @@ class KeyringManager(AsyncIOEventEmitter):
         # Save safe wallet values in the manager cache
         # Secret values are encrypted and stored (default: encrypted JSON)
         self.wallets.append(wallet)
+        self.full_update()
         return wallet
 
     async def create_or_restore_vault(self, label: str, seed: str, password: str):
