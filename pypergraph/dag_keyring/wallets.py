@@ -5,6 +5,112 @@ from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletTyp
 from .keyrings import HdKeyring, SimpleKeyring
 from .bip import Bip39Helper
 
+class MultiKeyWallet:
+    # TODO: Check all these
+    SID = 0
+    def __init__(self):
+
+        self.type = KeyringWalletType.MultiKeyWallet.value
+        self.id = f"{self.type}{self.SID + 1}"
+        self.SID += 1
+        #self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value] Original
+        self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
+        self.label: str = ""
+        self.keyrings: [] = []
+        self.network = ""
+
+    def create(self, network: str, label: str):
+        """
+        Create new multi key wallet. These can also be imported.
+
+        :param network: "Constellation" or "Ethereum"
+        :param label: Wallet name.
+        """
+
+        self.deserialize({ "type": self.type, "lebel": label, "network": network })
+
+    def set_label(self, val: str):
+        self.label = val
+
+    def get_label(self) -> str:
+        return self.label
+
+    def get_network(self):
+        ValueError("MultiChainWallet :: Does not support this method")
+        return ""
+
+    def get_state(self):
+        return {
+            "id": self.id,
+            "type": self.type,
+            "label": self.label,
+            "supported_assets": self.supported_assets,
+            "accounts": [
+                {
+                    "address": a.get_address(),
+                    "network": a.get_network(),
+                    "tokens": a.get_tokens(),
+                }
+                for a in self.get_accounts()
+            ],
+        }
+
+    def serialize(self): # Returns KeyringWalletSerialized
+        return { "type": self.type, "label": self.label, "secret": self.mnemonic, "rings": [ring.serialize() for ring in self.keyrings] }
+
+    def deserialize(self, data: dict):
+        """
+        Deserialize the wallet data into the current instance.
+
+        :param data: A dictionary containing serialized wallet data.
+        """
+        self.label = data.get("label")
+        self.network = data.get("network")
+        self.keyrings = []
+
+        if "accounts" in data and len(data["accounts"]) > 0:
+            for account in data["accounts"]:
+                self.import_account(account.get("privateKey"), account.get("label"))
+
+        if self.network == KeyringNetwork.Ethereum:
+            self.supported_assets.extend([KeyringAssetType.ETH, KeyringAssetType.ERC20])
+        elif self.network == KeyringNetwork.Constellation:
+            self.supported_assets.append(KeyringAssetType.DAG)
+
+    def import_account(self, secret: str, label: str):
+        """
+        Imports an account using the given secret and label, creates a keyring,
+        and adds it to the key_rings list.
+
+        :param secret: The private key of the account to import.
+        :param label: A label for the account.
+        :return: The first account from the keyring.
+        """
+        keyring = SimpleKeyring()
+        keyring.deserialize({
+            "network": self.network,
+            "accounts": [{"privateKey": secret, "label": label}]
+        })
+        self.keyrings.append(keyring)
+        return keyring.get_accounts()[0]
+
+    def get_accounts(self): # IKeyringAccount
+        return [account for keyring in self.keyrings for account in keyring.get_accounts()]
+
+    def get_account_by_address(self, address: str): # IKeyringAccount
+        account = None
+        for keyring in self.keyrings:
+            account = keyring.get_account_by_address(address)
+            if account:
+                break
+        return account
+
+    def remove_account(self, account): # IKeyAccount {
+        ValueError("MultiKeyWallet :: Does not allow removing accounts.")
+
+    def export_secret_key(self):
+        ValueError("MultiKeyWallet :: Does not allow exporting secrets.")
+
 
 class MultiChainWallet:
     SID = 0
