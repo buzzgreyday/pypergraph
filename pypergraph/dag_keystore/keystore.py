@@ -308,7 +308,7 @@ class KeyStore:
         return bip39.mnemonic()
 
     @staticmethod
-    def get_private_key_from_seed(seed: bytes) -> str:
+    def get_private_key_from_mnemonic(seed: str) -> str:
         """
         Get private key from mnemonic seed (not phrase)
 
@@ -316,10 +316,10 @@ class KeyStore:
         :return: Private key as hexadecimal string
         """
         bip32 = Bip32()
-        return bip32.get_private_key_from_seed(seed_bytes=seed).hex()
+        return bip32.get_private_key_from_seed(seed_bytes=bytes.fromhex(seed)).hex()
 
     @staticmethod
-    def get_public_key_from_private_key(private_key: hex) -> str:
+    def get_public_key_from_private(private_key: hex) -> str:
         """
         :param private_key:
         :return: Public key (Node ID)

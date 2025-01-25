@@ -1,40 +1,33 @@
 import asyncio
-from typing import Optional, Self
+from typing import Self
 
 from pypergraph.dag_keystore import KeyStore, KeyTrio, Bip39, TransactionV2
 from pypergraph.dag_network import Network
 from pypergraph.dag_network.network import DagTokenNetwork
 
 from decimal import Decimal
-from pyee import AsyncIOEventEmitter
+from pyee.asyncio import AsyncIOEventEmitter
 from typing import Optional, List
 
 DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 
 
-class DagAccount:
+class DagAccount(AsyncIOEventEmitter):
     def __init__(self, network):
+        super().__init__()
         self.network = network
         self.key_trio = None
-        self.session_change = AsyncIOEventEmitter()
 
-    def connect(self, network_info: dict, use_default_config=True):
-        base_config = {}
+    def connect(self, network_info: dict):
 
-        if use_default_config and "network_version" in network_info:
-            version = network_info["network_version"].split(".")[0]
-            network_type = "testnet" if network_info.get("testnet", False) else "mainnet"
-            base_config = network_config[version][network_type]
-
-        network_id = network_info.get("id", "global")
-        self.network.config({**base_config, **network_info, "id": network_id})
+        self.network.config(network_info)
 
         return self
 
     @property
     def address(self):
         if not self.key_trio or not self.key_trio.get("address"):
-            raise ValueError("Need to login before calling methods on DagAccount.")
+            raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
         return self.key_trio["address"]
 
     @property
@@ -46,16 +39,16 @@ class DagAccount:
         return self.key_trio.get("private_key")
 
     def login_with_seed_phrase(self, words: str):
-        private_key = self.network.get_private_key_from_mnemonic(words)
+        private_key = KeyStore.get_private_key_from_mnemonic(words)
         self.login_with_private_key(private_key)
 
     def login_with_private_key(self, private_key: str):
-        public_key = self.network.get_public_key_from_private(private_key)
-        address = self.network.get_address_from_public_key(public_key)
+        public_key = KeyStore.get_public_key_from_private(private_key)
+        address = KeyStore.get_dag_address_from_public_key(public_key)
         self._set_keys_and_address(private_key, public_key, address)
 
     def login_with_public_key(self, public_key: str):
-        address = self.network.get_address_from_public_key(public_key)
+        address = KeyStore.get_dag_address_from_public_key(public_key)
         self._set_keys_and_address(None, public_key, address)
 
     def is_active(self):
@@ -63,10 +56,10 @@ class DagAccount:
 
     def logout(self):
         self.key_trio = None
-        self.session_change.emit("session_change", True)
+        self.emit("session_change", True)
 
     def observe_session_change(self, listener):
-        self.session_change.on("session_change", listener)
+        self.on("session_change", listener)
 
     def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
         self.key_trio = {
@@ -74,7 +67,7 @@ class DagAccount:
             "public_key": public_key,
             "address": address
         }
-        self.session_change.emit("session_change", True)
+        self.emit("session_change", True)
 
     async def get_balance(self):
         return await self.get_balance_for(self.address)
@@ -84,33 +77,17 @@ class DagAccount:
         if address_obj and "balance" in address_obj:
             return Decimal(address_obj["balance"]) * DAG_DECIMALS
         return Decimal(0)
-
-    async def get_fee_recommendation(self):
-        last_ref = await self.network.get_last_transaction_ref(self.address)
-        if not last_ref or not last_ref.get("prev_hash"):
-            return Decimal(0)
-
-        last_tx = await self.network.get_pending_transaction(last_ref["prev_hash"])
-        if not last_tx:
-            return Decimal(0)
-
-        return Decimal(1) / DAG_DECIMALS
-
+    # Her
     async def generate_signed_transaction(self, to_address: str, amount: Decimal, fee: Decimal = Decimal(0),
                                           last_ref=None):
-        last_ref = last_ref or await self.network.get_last_transaction_ref(self.address)
+        last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
 
-        if self.network.get_network_version() == "2.0":
-            return self.network.generate_transaction_v2(amount, to_address, self.key_trio, last_ref, fee)
+        return self.network.generate_transaction_v2(amount, to_address, self.key_trio, last_ref, fee)
 
-        if last_ref and "hash" in last_ref and "prev_hash" not in last_ref:
-            last_ref["prev_hash"] = last_ref["hash"]
-
-        return self.network.generate_transaction(amount, to_address, self.key_trio, last_ref, fee)
 
     async def transfer_dag(self, to_address: str, amount: Decimal, fee: Decimal = Decimal(0), auto_estimate_fee=False):
         normalized_amount = int(amount * DAG_DECIMALS)
-        last_ref = await self.network.get_last_transaction_ref(self.address)
+        last_ref = await self.network.get_last_reference(self.address)
 
         if fee == Decimal(0) and auto_estimate_fee:
             pending_tx = await self.network.get_pending_transaction(last_ref.get("prev_hash", last_ref.get("hash")))
