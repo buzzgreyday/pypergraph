@@ -1,13 +1,13 @@
 import warnings
 import aiohttp
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional
 
 from pypergraph.dag_core.exceptions import NetworkError
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
 from pypergraph.dag_network.models import Balance, LastReference, PostTransactionResponse, PendingTransaction
 
 
-class DagNetwork:
+class DagTokenNetwork:
 
     def __init__(self, network_id: str = "mainnet", l0_host: str | None = None, cl1_host: str | None = None, l0_lb_url: str | None = None, l1_lb_url: str | None = None, be_url: str | None = None):
         """Validate connected network"""
