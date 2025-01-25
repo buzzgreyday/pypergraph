@@ -1,5 +1,4 @@
 from ecdsa import SigningKey, SECP256k1
-from eth_account import Account
 
 from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, KeyringNetwork
 from .keyrings import HdKeyring, SimpleKeyring
