@@ -3,7 +3,7 @@ import aiohttp
 from typing import Any, Dict
 
 from pypergraph.dag_core.exceptions import NetworkError
-from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api
+from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
 from pypergraph.dag_network.models import Balance, LastReference, PostTransactionResponse, PendingTransaction
 
 
@@ -18,8 +18,12 @@ class ConstellationNetwork:
         self.be_url = BlockExplorerApi(host=f"https://be-{network_id}.constellationnetwork.io")
         if (not l0_host or not cl1_host) and metagraph_id:
             raise ValueError(f"ConstellationNetwork :: l0_host and cl1_host parameters must be used with metagraph_id.")
-        self.l0_host = L0Api(host=l0_host) if l0_host else L0Api(host=f"https://l0-lb-{network_id}.constellationnetwork.io")
-        self.cl1_host = L1Api(host=cl1_host) if cl1_host else L1Api(host=f"https://l1-lb-{network_id}.constellationnetwork.io") #or self.l1_lb
+        elif metagraph_id:
+            self.l0_host = ML0Api(host=l0_host)
+            self.cl1_host = ML1Api(host=cl1_host)
+        else:
+            self.l0_host = L0Api(host=l0_host) if l0_host else L0Api(host=f"https://l0-lb-{network_id}.constellationnetwork.io")
+            self.cl1_host = L1Api(host=cl1_host) if cl1_host else L1Api(host=f"https://l1-lb-{network_id}.constellationnetwork.io") #or self.l1_lb
         self.metagraph_id = metagraph_id
         # private networkChange$ = new Subject < NetworkInfo > ();
 
