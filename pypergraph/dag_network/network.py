@@ -11,7 +11,7 @@ class ConstellationNetwork:
 
     def __init__(self, network_id: str = "mainnet", l0_host: str | None = None, cl1_host: str | None = None, metagraph_id: str | None = None, l0_lb_url: str | None = None, l1_lb_url: str | None = None, be_url: str | None = None):
         """Validate connected network"""
-        self.connected_network = {"network_id": network_id, "metagraph_id": metagraph_id, "be_url": be_url or f"https://be-{network_id}.constellationnetwork.io", "l0_host": l0_host, "cl1_host": cl1_host, "l0_lb_url": l0_lb_url or f"https://l0-lb-{id}.constellationnetwork.io", "l1_lb_url": l1_lb_url or f"https://l1-lb-{id}.constellationnetwork.io"}
+        self.connected_network = {"network_id": network_id, "metagraph_id": metagraph_id, "be_url": be_url or f"https://be-{network_id}.constellationnetwork.io", "l0_host": l0_host, "cl1_host": cl1_host, "l0_lb_url": l0_lb_url or f"https://l0-lb-{network_id}.constellationnetwork.io", "l1_lb_url": l1_lb_url or f"https://l1-lb-{network_id}.constellationnetwork.io"}
         self.l1_lb = LoadBalancerApi(host=f"https://l1-lb-{network_id}.constellationnetwork.io")
         self.l0_lb = LoadBalancerApi(host=f"https://l0-lb-{network_id}.constellationnetwork.io")
         self.be_url = BlockExplorerApi(host=f"https://be-{network_id}.constellationnetwork.io")
