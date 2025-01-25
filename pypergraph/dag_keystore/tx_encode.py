@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
 import random
+from typing import Optional, Dict
 
 
 @dataclass
@@ -45,7 +46,7 @@ class TransactionV2:
             b_int = int(val)
         return format(b_int, "x")
 
-    def get_post_transaction(self, proof=None):
+    def serialize(self, proof: Optional[Dict]=None):
         """
         :param proof:
         :return: Dictionary representation of the transaction, optionally including proofs.

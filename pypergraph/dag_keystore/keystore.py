@@ -115,7 +115,7 @@ class KeyStore:
     #         raise ValueError("KeyStore :: No private key found in the .p12 file.")
 
     @staticmethod
-    def prepare_tx (amount: float, to_address: str, from_address: str, last_ref: dict, fee: float = 0) -> Tuple[TransactionV2, str, str]:
+    def prepare_tx (amount: Decimal, to_address: str, from_address: str, last_ref: dict, fee: Decimal = Decimal[0]) -> Tuple[TransactionV2, str]:
         """
         Prepare a new transaction.
 
@@ -128,10 +128,6 @@ class KeyStore:
         """
         if to_address == from_address:
           raise ValueError('KeyStore :: An address cannot send a transaction to itself')
-
-        # normalize to integer and only preserve 8 decimals of precision
-        amount = int((Decimal(amount) * Decimal(1e8)).quantize(Decimal('1.'), rounding=ROUND_DOWN))
-        fee = int((Decimal(fee) * Decimal(1e8)).quantize(Decimal('1.'), rounding=ROUND_DOWN))
 
         if amount < 1e-8:
           raise ValueError('KeyStore :: Send amount must be greater than 1e-8')
@@ -148,7 +144,7 @@ class KeyStore:
         serialized_tx = TxEncode().kryo_serialize(msg=encoded_tx, set_references=False)
         hash_value = hashlib.sha512(hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest().encode("utf-8")).hexdigest()
 
-        return tx, hash_value, encoded_tx
+        return tx, hash_value
 
 
     def data_sign(self, private_key, msg):
