@@ -1,5 +1,5 @@
 import warnings
-from typing import Callable, Optional, Any, Coroutine, Dict
+from typing import Callable, Optional, Any, Coroutine, Dict, List
 
 from pypergraph.dag_core.exceptions import NetworkError
 
@@ -121,25 +121,32 @@ class LoadBalancerApi:
         return self.service.configure()
 
     async def get_metrics(self) -> Coroutine:
-        return self.service.get("/metrics")
+        result = await self.service.get("/metrics")
+        return result
 
     async def get_address_balance(self, address: str) -> Coroutine:
-        return self.service.get(f"/dag/{address}/balance")
+        result = await self.service.get(f"/dag/{address}/balance")
+        return result
 
     async def get_last_reference(self, address) -> Coroutine:
-        return self.service.get(f"/transactions/last-reference/{address}")
+        result = await self.service.get(f"/transactions/last-reference/{address}")
+        return result
 
     async def get_total_supply(self) -> Coroutine:
-        return self.service.get('/total-supply')
+        result = await self.service.get('/total-supply')
+        return result
 
     async def post_transaction(self, tx: Dict[str, Any]) -> Coroutine:
-        return self.service.post("/transactions", tx)
+        result = await self.service.post("/transactions", tx)
+        return result
 
     async def get_pending_transaction(self, tx_hash: str) -> Coroutine:
-        return self.service.get(f"/transactions/{tx_hash}")
+        result = await self.service.get(f"/transactions/{tx_hash}")
+        return result
 
     async def get_cluster_info(self) -> Coroutine:
-        return self.service.get("/cluster/info")
+        result = await self.service.get("/cluster/info")
+        return result
 
 
 class BlockExplorerApi:
@@ -157,7 +164,135 @@ class BlockExplorerApi:
         return self.service.configure()
 
     async def get_snapshot(self, id: str | int) -> Coroutine:
-        return self.service.get(f"/global-snapshots/{id}")
+        result = await self.service.get(f"/global-snapshots/{id}")
+        return result
 
     async def get_transactions_by_snapshot(self, id: str | int) -> Coroutine:
-        return self.service.get(f"/global-snapshots/{id}/transactions")
+        result = await self.service.get(f"/global-snapshots/{id}/transactions")
+        return result
+
+    async def get_rewards_by_snapshot(self, id: str | int) -> Coroutine:
+        result = await self.service.get(f"/global-snapshots/{id}/rewards")
+        return result
+
+    async def get_latest_snapshot(self) -> Coroutine:
+        result = await self.service.get("/global-snapshots/latest")
+        return result
+
+    async def get_latest_snapshot_transaction(self) -> Coroutine:
+        result = await self.service.get("/global-snapshots/latest/transactions")
+        return result
+
+    async def get_latest_snapshot_rewards(self) -> Coroutine:
+        result = await self.service.get("/global-snapshots/latest/rewards")
+        return result
+
+    def _format_date(self, date: str, param_name: str) -> str:
+        try:
+            return date.isoformat()
+        except Exception:
+            raise ValueError(f'ParamError: "{param_name}" is not valid ISO 8601')
+
+    def _get_transaction_search_path_and_params(
+            self, base_path: str, limit: Optional[int], search_after: Optional[str],
+            sent_only: bool, received_only: bool, search_before: Optional[str]
+    ) -> Dict:
+        params = {}
+        path = base_path
+
+        if limit or search_after or search_before:
+            if limit and limit > 0:
+                params["limit"] = limit
+            if search_after:
+                params["search_after"] = search_after
+            elif search_before:
+                params["search_before"] = search_before
+
+        if sent_only:
+            path += '/sent'
+        elif received_only:
+            path += '/received'
+
+        return {"path": path, "params": params}
+
+    async def get_transactions(
+            self, limit: Optional[int], search_after: Optional[str],
+            search_before: Optional[str]
+    ) -> List[Dict]:
+        base_path = "/transactions"
+        result = self._get_transaction_search_path_and_params(
+            base_path, limit, search_after, False, False, search_before
+        )
+        return await self.service.get(result["path"], result["params"])
+
+    async def get_transactions_by_address(
+            self, address: str, limit: int = 0, search_after: str = '',
+            sent_only: bool = False, received_only: bool = False, search_before: str = ''
+    ) -> List[Dict]:
+        base_path = f"/addresses/{address}/transactions"
+        result = self._get_transaction_search_path_and_params(
+            base_path, limit, search_after, sent_only, received_only, search_before
+        )
+        return await self.service.get(result["path"], result["params"])
+
+    async def get_transaction(self, hash: str) -> Dict:
+        return await self.service.get(f"/transactions/{hash}")
+
+    async def get_address_balance(self, hash: str) -> Dict:
+        return await self.service.get(f"/addresses/{hash}/balance")
+
+    async def get_checkpoint_block(self, hash: str) -> Dict:
+        return await self.service.get(f"/blocks/{hash}")
+
+    async def get_latest_currency_snapshot(self, metagraph_id: str) -> Dict:
+        return await self.service.get(f"/currency/{metagraph_id}/snapshots/latest")
+
+    async def get_currency_snapshot(self, metagraph_id: str, hash_or_ordinal: str) -> Dict:
+        return await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}")
+
+    async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> Dict:
+        return await self.service.get(f"/currency/{metagraph_id}/snapshots/latest/rewards")
+
+    async def get_currency_snapshot_rewards(
+            self, metagraph_id: str, hash_or_ordinal: str
+    ) -> Dict:
+        return await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards")
+
+    async def get_currency_block(self, metagraph_id: str, hash: str) -> Dict:
+        return await self.service.get(f"/currency/{metagraph_id}/blocks/{hash}")
+
+    async def get_currency_address_balance(self, metagraph_id: str, hash: str) -> Dict:
+        return await self.service.get(f"/currency/{metagraph_id}/addresses/{hash}/balance")
+
+    async def get_currency_transaction(self, metagraph_id: str, hash: str) -> Dict:
+        return await self.service.get(f"/currency/{metagraph_id}/transactions/{hash}")
+
+    async def get_currency_transactions(
+            self, metagraph_id: str, limit: Optional[int], search_after: Optional[str],
+            search_before: Optional[str]
+    ) -> List[Dict]:
+        base_path = f"/currency/{metagraph_id}/transactions"
+        result = self._get_transaction_search_path_and_params(
+            base_path, limit, search_after, False, False, search_before
+        )
+        return await self.service.get(result["path"], result["params"])
+
+    async def get_currency_transactions_by_address(
+            self, metagraph_id: str, address: str, limit: int = 0, search_after: str = '',
+            sent_only: bool = False, received_only: bool = False, search_before: str = ''
+    ) -> List[Dict]:
+        base_path = f"/currency/{metagraph_id}/addresses/{address}/transactions"
+        result = self._get_transaction_search_path_and_params(
+            base_path, limit, search_after, sent_only, received_only, search_before
+        )
+        return await self.service.get(result["path"], result["params"])
+
+    async def get_currency_transactions_by_snapshot(
+            self, metagraph_id: str, hash_or_ordinal: str, limit: int = 0,
+            search_after: str = '', search_before: str = ''
+    ) -> List[Dict]:
+        base_path = f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/transactions"
+        result = self._get_transaction_search_path_and_params(
+            base_path, limit, search_after, False, False, search_before
+        )
+        return await self.service.get(result["path"], result["params"])
