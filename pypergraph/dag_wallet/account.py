@@ -87,7 +87,7 @@ class DagAccount(AsyncIOEventEmitter):
             raise ValueError("Wallet :: Invalid signature.")
         proof = {"id": self.public_key[2:], "signature": signature}
         tx.add_proof(proof=proof)
-        return tx.serialize()
+        return tx.serialize(), hash_
 
 
     async def send(self, to_address: str, amount: Decimal, fee: Decimal = Decimal(0), auto_estimate_fee=False):
@@ -107,12 +107,13 @@ class DagAccount(AsyncIOEventEmitter):
 
                 fee = Decimal(1) / DAG_DECIMALS
 
-        signed_tx = await self.generate_signed_transaction(to_address, amount, fee)
+        signed_tx, hash_ = await self.generate_signed_transaction(to_address, amount, fee)
         tx_hash = await self.network.post_transaction(signed_tx)
 
         if tx_hash:
+            # TODO: Tax software standards
             return {
-                "timestamp": self.network.get_current_time(),
+                #"timestamp": self.network.get_current_time(),
                 "hash": tx_hash,
                 "amount": amount,
                 "receiver": to_address,
@@ -140,7 +141,7 @@ class DagAccount(AsyncIOEventEmitter):
 
         return True
 
-
+    # Here
     async def wait_for_balance_change(self, initial_value: Optional[Decimal] = None):
         if initial_value is None:
             initial_value = await self.get_balance()
