@@ -1,7 +1,7 @@
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import KeyringWalletType
-from pypergraph.dag_keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet
+from pypergraph.dag_keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
 from pypergraph.dag_keyring.bip import Bip39Helper
 
 from pypergraph.dag_keyring.storage import StateStorageDb, ObservableStore
@@ -222,11 +222,10 @@ class KeyringManager(AsyncIOEventEmitter):
             wallet = SingleAccountWallet()
             wallet.deserialize(w_data)
 
-        # else if (wData.type === KeyringWalletType.MultiAccountWallet) {
+        elif w_data["type"] == KeyringWalletType.MultiAccountWallet.value:
             ## This can export secret key (mnemonic), remove account but not import
-            # wallet = new MultiAccountWallet();
-            # wallet.deserialize(wData);
-        # }
+            wallet = MultiAccountWallet()
+            wallet.deserialize(w_data)
         elif w_data["type"] == KeyringWalletType.MultiKeyWallet.value:
             ## This can import account but not export secret or remove account
             wallet = MultiKeyWallet()
