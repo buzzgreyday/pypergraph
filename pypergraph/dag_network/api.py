@@ -1,4 +1,5 @@
 import warnings
+from datetime import datetime
 from typing import Callable, Optional, Any, Coroutine, Dict, List
 
 from pypergraph.dag_core.exceptions import NetworkError
@@ -187,7 +188,7 @@ class BlockExplorerApi:
         result = await self.service.get("/global-snapshots/latest/rewards")
         return result
 
-    def _format_date(self, date: str, param_name: str) -> str:
+    def _format_date(self, date: datetime, param_name: str) -> str:
         try:
             return date.isoformat()
         except Exception:
