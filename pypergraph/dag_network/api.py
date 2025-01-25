@@ -121,31 +121,31 @@ class LoadBalancerApi:
     def config(self):
         return self.service.configure()
 
-    async def get_metrics(self) -> Coroutine:
+    async def get_metrics(self):
         result = await self.service.get("/metrics")
         return result
 
-    async def get_address_balance(self, address: str) -> Coroutine:
+    async def get_address_balance(self, address: str):
         result = await self.service.get(f"/dag/{address}/balance")
         return result
 
-    async def get_last_reference(self, address) -> Coroutine:
+    async def get_last_reference(self, address):
         result = await self.service.get(f"/transactions/last-reference/{address}")
         return result
 
-    async def get_total_supply(self) -> Coroutine:
+    async def get_total_supply(self):
         result = await self.service.get('/total-supply')
         return result
 
-    async def post_transaction(self, tx: Dict[str, Any]) -> Coroutine:
+    async def post_transaction(self, tx: Dict[str, Any]):
         result = await self.service.post("/transactions", tx)
         return result
 
-    async def get_pending_transaction(self, tx_hash: str) -> Coroutine:
+    async def get_pending_transaction(self, tx_hash: str):
         result = await self.service.get(f"/transactions/{tx_hash}")
         return result
 
-    async def get_cluster_info(self) -> Coroutine:
+    async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
         return result
 
@@ -164,27 +164,27 @@ class BlockExplorerApi:
     def config(self):
         return self.service.configure()
 
-    async def get_snapshot(self, id: str | int) -> Coroutine:
+    async def get_snapshot(self, id: str | int):
         result = await self.service.get(f"/global-snapshots/{id}")
         return result
 
-    async def get_transactions_by_snapshot(self, id: str | int) -> Coroutine:
+    async def get_transactions_by_snapshot(self, id: str | int):
         result = await self.service.get(f"/global-snapshots/{id}/transactions")
         return result
 
-    async def get_rewards_by_snapshot(self, id: str | int) -> Coroutine:
+    async def get_rewards_by_snapshot(self, id: str | int):
         result = await self.service.get(f"/global-snapshots/{id}/rewards")
         return result
 
-    async def get_latest_snapshot(self) -> Coroutine:
+    async def get_latest_snapshot(self):
         result = await self.service.get("/global-snapshots/latest")
         return result
 
-    async def get_latest_snapshot_transaction(self) -> Coroutine:
+    async def get_latest_snapshot_transaction(self):
         result = await self.service.get("/global-snapshots/latest/transactions")
         return result
 
-    async def get_latest_snapshot_rewards(self) -> Coroutine:
+    async def get_latest_snapshot_rewards(self):
         result = await self.service.get("/global-snapshots/latest/rewards")
         return result
 
@@ -313,46 +313,46 @@ class L0Api:
     def config(self):
         return self.service.configure()
 
-    async def get_cluster_info(self) -> Coroutine:
+    async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
         return result
 
     # Metrics
-    async def get_metrics(self) -> Coroutine:
+    async def get_metrics(self):
         # TODO: Data clean up - parsing
         return await self.service.get("/metrics")
 
     # DAG
-    async def get_total_supply(self) -> Coroutine:
+    async def get_total_supply(self):
         return await self.service.get("/dag/total-supply")
 
-    async def get_total_supply_at_ordinal(self, ordinal: int) -> Coroutine:
+    async def get_total_supply_at_ordinal(self, ordinal: int):
         return await self.service.get(f"/dag/{ordinal}/total-supply")
 
-    async def get_address_balance(self, address: str) -> Coroutine:
+    async def get_address_balance(self, address: str):
         return await self.service.get(f"/dag/{address}/balance")
 
-    async def get_address_balance_at_ordinal(self, ordinal: int, address: str) -> Coroutine:
+    async def get_address_balance_at_ordinal(self, ordinal: int, address: str):
         return await self.service.get(f"/dag/{ordinal}/{address}/balance")
 
     # Global Snapshot
-    async def get_latest_snapshot(self) -> Coroutine:
+    async def get_latest_snapshot(self):
         return await self.service.get(
             "/global-snapshots/latest",
             options={"headers": {"Accept": "application/json"}}
         )
 
-    async def get_latest_snapshot_ordinal(self) -> Coroutine:
+    async def get_latest_snapshot_ordinal(self):
         return await self.service.get("/global-snapshots/latest/ordinal")
 
-    async def get_snapshot(self, id: str | int) -> Coroutine:
+    async def get_snapshot(self, id: str | int):
         return await self.service.get(
             f"/global-snapshots/{id}",
             options={"headers": {"Accept": "application/json"}}
         )
 
     # State Channels
-    async def post_state_channel_snapshot(self, address: str, snapshot: str) -> Coroutine:
+    async def post_state_channel_snapshot(self, address: str, snapshot: str):
         return await self.service.post(
             f"/state-channel/{address}/snapshot",
             snapshot
@@ -372,23 +372,23 @@ class L1Api:
     def config(self):
         return self.service.configure()
 
-    async def get_cluster_info(self) -> Coroutine:
+    async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
         return result
 
     # Metrics
-    async def get_metrics(self) -> Coroutine:
+    async def get_metrics(self):
         # TODO: add parsing for v2 response... returns 404
         return await self.service.get("/metric")
 
     # Transactions
-    async def get_last_reference(self, address: str) -> Coroutine:
+    async def get_last_reference(self, address: str):
         return await self.service.get(f"/transactions/last-reference/{address}")
 
-    async def get_pending_transaction(self, hash: str) -> Coroutine:
+    async def get_pending_transaction(self, hash: str):
         return await self.service.get(f"/transactions/{hash}")
 
-    async def post_transaction(self, tx) -> Coroutine:
+    async def post_transaction(self, tx):
         return await self.service.post("/transactions", tx)
 
 class ML0Api(L0Api):
@@ -396,16 +396,16 @@ class ML0Api(L0Api):
         super().__init__(host)
 
     # State Channel Token
-    async def get_total_supply(self) -> Coroutine:
+    async def get_total_supply(self):
         return await self.service.get("/currency/total-supply")
 
-    async def get_total_supply_at_ordinal(self, ordinal: int) -> Coroutine:
+    async def get_total_supply_at_ordinal(self, ordinal: int):
         return await self.service.get(f"/currency/{ordinal}/total-supply")
 
-    async def get_address_balance(self, address: str) -> Coroutine:
+    async def get_address_balance(self, address: str):
         return await self.service.get(f"/currency/{address}/balance")
 
-    async def get_address_balance_at_ordinal(self, ordinal: int, address: str) -> Coroutine:
+    async def get_address_balance_at_ordinal(self, ordinal: int, address: str):
         return await self.service.get(f"/currency/{ordinal}/{address}/balance")
 
 
