@@ -3,7 +3,7 @@ from typing import Optional, Self
 
 from pypergraph.dag_keystore import KeyStore, KeyTrio, Bip39, TransactionV2
 from pypergraph.dag_network import Network
-from pypergraph.dag_network.network import ConstellationNetwork
+from pypergraph.dag_network.network import DagTokenNetwork
 
 
 class DagAccount:
@@ -13,7 +13,7 @@ class DagAccount:
         self.public_key = public_key
         self.private_key = private_key
         self.words = words
-        self.network = ConstellationNetwork()  # Automatically set a default API instance
+        self.network = DagTokenNetwork()  # Automatically set a default API instance
 
     def __repr__(self):
         return f"Account(address={self.address}, public_key={self.public_key}, private_key={self.private_key}, words={self.words}, network={self.network!r})"
