@@ -375,7 +375,7 @@ class L1Api:
         return await self.service.get("/metric")
 
     # Transactions
-    async def get_address_last_accepted_transaction_ref(self, address: str) -> Coroutine:
+    async def get_last_reference(self, address: str) -> Coroutine:
         return await self.service.get(f"/transactions/last-reference/{address}")
 
     async def get_pending_transaction(self, hash: str) -> Coroutine:
