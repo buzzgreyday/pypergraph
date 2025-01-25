@@ -85,7 +85,7 @@ class KeyringManager(AsyncIOEventEmitter):
 
         # Starts fresh
         await self.clear_wallets()
-        wallet = self.create_multi_chain_hd_wallet(label, seed)
+        wallet = await self.create_multi_chain_hd_wallet(label, seed)
         await self.full_update()
 
         return wallet
