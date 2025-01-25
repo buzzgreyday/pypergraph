@@ -72,7 +72,7 @@ class RestApi:
     def http_request(self, url: str, method: str, data: Any, options: dict, query_params: Any):
         url = self.resolve_url(url, options)
         if not method or not url:
-            raise NetworkError("RestApi :: You must configure at least the http method and url.")
+            raise ValueError("RestApi :: You must configure at least the http method and url.")
         client = self.config.protocol_client()
         return client.invoke({
                     "auth_token": self.config.auth_token(),
@@ -409,4 +409,7 @@ class ML0Api(L0Api):
         return await self.service.get(f"/currency/{ordinal}/{address}/balance")
 
 
+class ML1Api(L1Api):
+    def __init__(self, host):
+        super().__init__(host)
 
