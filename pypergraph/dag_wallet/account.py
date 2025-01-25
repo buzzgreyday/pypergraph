@@ -141,7 +141,7 @@ class DagAccount(AsyncIOEventEmitter):
 
         return True
 
-    # Here
+
     async def wait_for_balance_change(self, initial_value: Optional[Decimal] = None):
         if initial_value is None:
             initial_value = await self.get_balance()
@@ -158,15 +158,13 @@ class DagAccount(AsyncIOEventEmitter):
         return False
 
     async def generate_batch_transactions(self, transfers: List[dict], last_ref: Optional[dict] = None):
-        if self.network.get_network_version() == "1.0":
-            raise Exception("transferDagBatch not available for mainnet 1.0")
 
         if not last_ref:
             last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
 
         txns = []
         for transfer in transfers:
-            transaction, hash_ = await self.generate_signed_transaction_with_hash(
+            transaction, hash_ = await self.generate_signed_transaction(
                 transfer["address"],
                 transfer["amount"],
                 transfer["fee"],
