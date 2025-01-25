@@ -297,3 +297,89 @@ class BlockExplorerApi:
             base_path, limit, search_after, False, False, search_before
         )
         return await self.service.get(result["path"], result["params"])
+
+
+class L0Api:
+
+    def __init__(self, host):
+        if not host.startswith("http"):
+            warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
+            host = f"http://{host}"
+        if not host or type(host) != str:
+            raise ValueError(f"L0Api :: Invalid host: {host}")
+        self.service = RestApi(host)
+        self.host = self.config().base_url(host)
+
+    def config(self):
+        return self.service.configure()
+
+    async def get_cluster_info(self) -> Coroutine:
+        result = await self.service.get("/cluster/info")
+        return result
+
+    # Metrics
+    async def get_metrics(self) -> Coroutine:
+        # TODO: Data clean up - parsing
+        return await self.service.get("/metrics")
+
+    # DAG
+    async def get_total_supply(self) -> Coroutine:
+        return await self.service.get("/dag/total-supply")
+
+    async def get_total_supply_at_ordinal(self, ordinal: int) -> Coroutine:
+        return await self.service.get(f"/dag/{ordinal}/total-supply")
+
+    async def get_address_balance(self, address: str) -> Coroutine:
+        return await self.service.get(f"/dag/{address}/balance")
+
+    async def get_address_balance_at_ordinal(self, ordinal: int, address: str) -> Coroutine:
+        return await self.service.get(f"/dag/{ordinal}/{address}/balance")
+
+    # Global Snapshot
+    async def get_latest_snapshot(self) -> Coroutine:
+        return await self.service.get(
+            "/global-snapshots/latest",
+            options={"headers": {"Accept": "application/json"}}
+        )
+
+    async def get_latest_snapshot_ordinal(self) -> Coroutine:
+        return await self.service.get("/global-snapshots/latest/ordinal")
+
+    async def get_snapshot(self, id: str | int) -> Coroutine:
+        return await self.service.get(
+            f"/global-snapshots/{id}",
+            options={"headers": {"Accept": "application/json"}}
+        )
+
+    # State Channels
+    async def post_state_channel_snapshot(self, address: str, snapshot: str) -> Coroutine:
+        return await self.service.post(
+            f"/state-channel/{address}/snapshot",
+            snapshot
+        )
+
+class L1Api:
+
+    def __init__(self, host):
+        if not host.startswith("http"):
+            warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
+            host = f"http://{host}"
+        if not host or type(host) != str:
+            raise ValueError(f"L0Api :: Invalid host: {host}")
+        self.service = RestApi(host)
+        self.host = self.config().base_url(host)
+
+    # Metrics
+    async def get_metrics(self) -> Coroutine:
+        # TODO: add parsing for v2 response... returns 404
+        return await self.service.get("/metric")
+
+    # Transactions
+    async def get_address_last_accepted_transaction_ref(self, address: str) -> Coroutine:
+        return await self.service.get(f"/transactions/last-reference/{address}")
+
+    async def get_pending_transaction(self, hash: str) -> Coroutine:
+        return await self.service.get(f"/transactions/{hash}")
+
+    async def post_transaction(self, tx) -> Coroutine:
+        return await self.service.post("/transactions", tx)
