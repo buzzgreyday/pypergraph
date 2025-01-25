@@ -3,16 +3,17 @@ from typing import Optional, Self
 
 from pypergraph.dag_keystore import KeyStore, KeyTrio, Bip39, TransactionV2
 from pypergraph.dag_network import Network
+from pypergraph.dag_network.network import ConstellationNetwork
 
 
-class Account:
+class DagAccount:
 
     def __init__(self, address: str, public_key: str, private_key: str, words: Optional[str] = None,  network=None):
         self.address = address
         self.public_key = public_key
         self.private_key = private_key
         self.words = words
-        self.network = network or Network()  # Automatically set a default API instance
+        self.network = ConstellationNetwork()  # Automatically set a default API instance
 
     def __repr__(self):
         return f"Account(address={self.address}, public_key={self.public_key}, private_key={self.private_key}, words={self.words}, network={self.network!r})"
