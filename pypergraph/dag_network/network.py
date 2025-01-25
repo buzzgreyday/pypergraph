@@ -2,45 +2,98 @@ import warnings
 import aiohttp
 from typing import Any, Dict, Optional
 
+from pyee.asyncio import AsyncIOEventEmitter
+
 from pypergraph.dag_core.exceptions import NetworkError
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
 from pypergraph.dag_network.models import Balance, LastReference, PostTransactionResponse, PendingTransaction
 
 
-class DagTokenNetwork:
+class DagTokenNetwork(AsyncIOEventEmitter):
 
-    def __init__(self, network_id: str = "mainnet", l0_host: str | None = None, cl1_host: str | None = None, l0_lb_url: str | None = None, l1_lb_url: str | None = None, be_url: str | None = None):
+    def __init__(self, net_info = None):
+        super().__init__()
         """Validate connected network"""
         # TODO: Do not hardcode urls
-        self.connected_network = {"network_id": network_id, "be_url": be_url or f"https://be-{network_id}.constellationnetwork.io", "l0_host": l0_host, "cl1_host": cl1_host, "l0_lb_url": l0_lb_url or f"https://l0-lb-{network_id}.constellationnetwork.io", "l1_lb_url": l1_lb_url or f"https://l1-lb-{network_id}.constellationnetwork.io"}
+        self.connected_network = {"network_id": "mainnet", "be_url": "https://be-mainnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-mainnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-mainnet.constellationnetwork.io"} if not net_info else net_info
         self.l1_lb_api = LoadBalancerApi(host=self.connected_network["l1_lb_url"])
         self.l0_lb_api = LoadBalancerApi(host=self.connected_network["l0_lb_url"])
         self.be_api = BlockExplorerApi(host=self.connected_network["be_url"])
-        self.l0_api = L0Api(host=l0_host) if l0_host else L0Api(host=self.connected_network["l0_lb_url"])
-        self.cl1_api = L1Api(host=cl1_host) if cl1_host else L1Api(host=self.connected_network["l1_lb_url"])
+        self.l0_api = L0Api(host=self.connected_network["l0_host"]) if self.connected_network["l0_host"] else L0Api(host=self.connected_network["l0_lb_url"])
+        self.cl1_api = L1Api(host=self.connected_network["l1_host"]) if self.connected_network["l1_host"] else L1Api(host=self.connected_network["l1_lb_url"])
         # private networkChange$ = new Subject < NetworkInfo > ();
 
 
-    def config(self, network_info: dict):
-        if network_info and type(network_info) == dict:
-            self.set_network(network_info)
+    def config(self, net_info: Optional[dict] = None):
+        if net_info:
+            self.set_network(net_info)
         else:
-            self.get_network()
+            return self.get_network()
 
-    def set_network(self, network_info: dict):
-        """Serialize before setting network here"""
-        if network_info and network_info != self.connected_network:
-            self.connected_network = network_info
-            self.l1_lb_url = network_info["l1_lb_url"]
-            self.l0_lb_url = network_info["l0_lb_url"]
-            self.be_url = network_info["be_url"]
-            self.l0_host = network_info["l0_host"]
-            self.cl1_host = network_info["cl1_host"]
+    def observe_network_change(self, callback):
+        """Subscribe to network changes."""
+        self.on('network_change', callback)
 
-            # this.networkChange$.next(netInfo);
+    def set_network(self, net_info):
+        if self.connected_network != net_info:
+            self.connected_network = net_info
+            self.be_api.config().base_url(net_info.be_url)
+            self.l0_api.config().base_url(net_info.l0_url)
+            self.cl1_api.config().base_url(net_info.l1_url)
+
+
+            # Emit a network change event
+            self.emit('network_change', net_info)
 
     def get_network(self):
         return self.connected_network
+
+    async def get_address_balance(self, address: str):
+        return await self.l0_api.get_address_balance(address)
+
+    async def get_address_last_accepted_transaction_ref(self, address: str):
+        return await self.cl1_api.get_last_reference(address)
+
+    async def get_pending_transaction(self, hash: Optional[str]) -> Optional[dict]:
+        pending_transaction = None
+        try:
+            pending_transaction = await self.cl1_api.get_pending_transaction(hash)
+        except Exception as e:
+            # NOOP for 404 or other exceptions
+            pass
+        return pending_transaction
+
+
+    async def get_transactions_by_address(self, address: str, limit: Optional[int] = None,
+                                          search_after: Optional[str] = None):
+        response = None
+        try:
+            response = await self.be_api.get_transactions_by_address(address, limit, search_after)
+        except Exception as e:
+            # NOOP for 404 or other exceptions
+            pass
+        return response.get('data') if response else None
+
+
+    async def get_transaction(self, hash: Optional[str]) -> Optional[dict]:
+        response = None
+        try:
+            response = await self.be_api.get_transaction(hash)
+        except Exception as e:
+            # NOOP for 404 or other exceptions
+            pass
+        return response.get('data') if response else None
+
+
+    async def post_transaction(self, tx: dict) -> str:
+        response = await self.cl1_api.post_transaction(tx)
+        # Support both data/meta format and object return format
+        return response.get('data', {}).get('hash') or response.get('hash')
+
+
+    async def get_latest_snapshot(self) -> dict:
+        response = await self.be_api.get_latest_snapshot()
+        return response.get('data')
 
 
 class MetagraphTokenNetwork:
