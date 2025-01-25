@@ -369,6 +369,13 @@ class L1Api:
         self.service = RestApi(host)
         self.host = self.config().base_url(host)
 
+    def config(self):
+        return self.service.configure()
+
+    async def get_cluster_info(self) -> Coroutine:
+        result = await self.service.get("/cluster/info")
+        return result
+
     # Metrics
     async def get_metrics(self) -> Coroutine:
         # TODO: add parsing for v2 response... returns 404
@@ -383,3 +390,23 @@ class L1Api:
 
     async def post_transaction(self, tx) -> Coroutine:
         return await self.service.post("/transactions", tx)
+
+class ML0Api(L0Api):
+    def __init__(self, host):
+        super().__init__(host)
+
+    # State Channel Token
+    async def get_total_supply(self) -> Coroutine:
+        return await self.service.get("/currency/total-supply")
+
+    async def get_total_supply_at_ordinal(self, ordinal: int) -> Coroutine:
+        return await self.service.get(f"/currency/{ordinal}/total-supply")
+
+    async def get_address_balance(self, address: str) -> Coroutine:
+        return await self.service.get(f"/currency/{address}/balance")
+
+    async def get_address_balance_at_ordinal(self, ordinal: int, address: str) -> Coroutine:
+        return await self.service.get(f"/currency/{ordinal}/{address}/balance")
+
+
+
