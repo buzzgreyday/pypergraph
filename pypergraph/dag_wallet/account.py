@@ -124,38 +124,22 @@ class DagAccount(AsyncIOEventEmitter):
             }
 
     async def wait_for_checkpoint_accepted(self, hash: str):
-        if self.network.get_network_version() == "2.0":
-            txn = None
-            try:
-                txn = await self.network.get_pending_transaction(hash)
-            except Exception:
-                pass
+        txn = None
+        try:
+            txn = await self.network.get_pending_transaction(hash)
+        except Exception:
+            pass
 
-            if txn and txn.get("status") == "Waiting":
-                return True
-
-            try:
-                await self.network.get_transaction(hash)
-            except Exception:
-                return False
-
+        if txn and txn.get("status") == "Waiting":
             return True
 
-        attempts = 0
-        while True:
-            result = await self.network.load_balancer_api.check_transaction_status(hash)
-
-            if result and result.get("accepted"):
-                break
-
-            attempts += 1
-
-            if attempts > 20:
-                raise Exception("Unable to find transaction")
-
-            await self.wait(2.5)
+        try:
+            await self.network.get_transaction(hash)
+        except Exception:
+            return False
 
         return True
+
 
     async def wait_for_balance_change(self, initial_value: Optional[Decimal] = None):
         if initial_value is None:
