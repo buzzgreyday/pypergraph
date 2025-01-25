@@ -5,6 +5,42 @@ from typing import Any, Dict
 from pypergraph.dag_core.exceptions import NetworkError
 from pypergraph.dag_network.models import Balance, LastReference, PostTransactionResponse, PendingTransaction
 
+
+class NewNetwork:
+
+    def __init__(self, network_id: str = "mainnet", l0_host: str | None = None, cl1_host: str | None = None, metagraph_id: str | None = None, l0_lb_url: str | None = None, l1_lb_url: str | None = None, be_url: str | None = None):
+        """Validate connected network"""
+        self.connected_network = {"network_id": network_id, "metagraph_id": metagraph_id, "be_url": be_url or f"https://be-{network_id}.constellationnetwork.io", "l0_host": l0_host, "cl1_host": cl1_host, "l0_lb_url": l0_lb_url or f"https://l0-lb-{id}.constellationnetwork.io", "l1_lb_url": l1_lb_url or f"https://l1-lb-{id}.constellationnetwork.io"}
+        self.l1_lb_url = l1_lb_url or f"https://l1-lb-{network_id}.constellationnetwork.io"
+        self.l0_lb_url = l0_lb_url or f"https://l0-lb-{network_id}.constellationnetwork.io"
+        self.be_url = be_url or f"https://be-{network_id}.constellationnetwork.io"
+        self.l0_host = l0_host #or self.l0_lb
+        self.cl1_host = cl1_host #or self.l1_lb
+        self.metagraph_id = metagraph_id
+        # private networkChange$ = new Subject < NetworkInfo > ();
+
+    def config(self, network_info: dict):
+        if network_info and type(network_info) == dict:
+            self.set_network(network_info)
+        else:
+            self.get_network()
+
+    def set_network(self, network_info: dict):
+        """Serialize before setting network here"""
+        if network_info and network_info != self.connected_network:
+            self.connected_network = network_info
+            self.l1_lb_url = network_info["l1_lb_url"]
+            self.l0_lb_url = network_info["l0_lb_url"]
+            self.be_url = network_info["be_url"]
+            self.l0_host = network_info["l0_host"]
+            self.cl1_host = network_info["cl1_host"]
+
+            # this.networkChange$.next(netInfo);
+
+    def get_network(self):
+        return self.connected_network
+
+
 class Network:
 
     def __init__(self, network: str = "mainnet", l0_host: str | None = None, l1_host: str | None = None, metagraph_id: str | None = None, l0_load_balancer: str | None = None, l1_load_balancer: str | None = None, block_explorer: str | None = None):
