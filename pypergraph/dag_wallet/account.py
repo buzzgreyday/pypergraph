@@ -5,8 +5,286 @@ from pypergraph.dag_keystore import KeyStore, KeyTrio, Bip39, TransactionV2
 from pypergraph.dag_network import Network
 from pypergraph.dag_network.network import DagTokenNetwork
 
+from decimal import Decimal
+from pyee import AsyncIOEventEmitter
+from typing import Optional, List
+
+DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
+
 
 class DagAccount:
+    def __init__(self, network):
+        self.network = network
+        self.key_trio = None
+        self.session_change = AsyncIOEventEmitter()
+
+    def connect(self, network_info: dict, use_default_config=True):
+        base_config = {}
+
+        if use_default_config and "network_version" in network_info:
+            version = network_info["network_version"].split(".")[0]
+            network_type = "testnet" if network_info.get("testnet", False) else "mainnet"
+            base_config = network_config[version][network_type]
+
+        network_id = network_info.get("id", "global")
+        self.network.config({**base_config, **network_info, "id": network_id})
+
+        return self
+
+    @property
+    def address(self):
+        if not self.key_trio or not self.key_trio.get("address"):
+            raise ValueError("Need to login before calling methods on DagAccount.")
+        return self.key_trio["address"]
+
+    @property
+    def public_key(self):
+        return self.key_trio.get("public_key")
+
+    @property
+    def private_key(self):
+        return self.key_trio.get("private_key")
+
+    def login_with_seed_phrase(self, words: str):
+        private_key = self.network.get_private_key_from_mnemonic(words)
+        self.login_with_private_key(private_key)
+
+    def login_with_private_key(self, private_key: str):
+        public_key = self.network.get_public_key_from_private(private_key)
+        address = self.network.get_address_from_public_key(public_key)
+        self._set_keys_and_address(private_key, public_key, address)
+
+    def login_with_public_key(self, public_key: str):
+        address = self.network.get_address_from_public_key(public_key)
+        self._set_keys_and_address(None, public_key, address)
+
+    def is_active(self):
+        return self.key_trio is not None
+
+    def logout(self):
+        self.key_trio = None
+        self.session_change.emit("session_change", True)
+
+    def observe_session_change(self, listener):
+        self.session_change.on("session_change", listener)
+
+    def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
+        self.key_trio = {
+            "private_key": private_key,
+            "public_key": public_key,
+            "address": address
+        }
+        self.session_change.emit("session_change", True)
+
+    async def get_balance(self):
+        return await self.get_balance_for(self.address)
+
+    async def get_balance_for(self, address: str):
+        address_obj = await self.network.get_address_balance(address)
+        if address_obj and "balance" in address_obj:
+            return Decimal(address_obj["balance"]) * DAG_DECIMALS
+        return Decimal(0)
+
+    async def get_fee_recommendation(self):
+        last_ref = await self.network.get_last_transaction_ref(self.address)
+        if not last_ref or not last_ref.get("prev_hash"):
+            return Decimal(0)
+
+        last_tx = await self.network.get_pending_transaction(last_ref["prev_hash"])
+        if not last_tx:
+            return Decimal(0)
+
+        return Decimal(1) / DAG_DECIMALS
+
+    async def generate_signed_transaction(self, to_address: str, amount: Decimal, fee: Decimal = Decimal(0),
+                                          last_ref=None):
+        last_ref = last_ref or await self.network.get_last_transaction_ref(self.address)
+
+        if self.network.get_network_version() == "2.0":
+            return self.network.generate_transaction_v2(amount, to_address, self.key_trio, last_ref, fee)
+
+        if last_ref and "hash" in last_ref and "prev_hash" not in last_ref:
+            last_ref["prev_hash"] = last_ref["hash"]
+
+        return self.network.generate_transaction(amount, to_address, self.key_trio, last_ref, fee)
+
+    async def transfer_dag(self, to_address: str, amount: Decimal, fee: Decimal = Decimal(0), auto_estimate_fee=False):
+        normalized_amount = int(amount * DAG_DECIMALS)
+        last_ref = await self.network.get_last_transaction_ref(self.address)
+
+        if fee == Decimal(0) and auto_estimate_fee:
+            pending_tx = await self.network.get_pending_transaction(last_ref.get("prev_hash", last_ref.get("hash")))
+
+            if pending_tx:
+                balance_obj = await self.network.get_address_balance(self.address)
+
+                if balance_obj and Decimal(balance_obj["balance"]) == normalized_amount:
+                    amount -= Decimal(1) / DAG_DECIMALS
+                    normalized_amount -= 1
+
+                fee = Decimal(1) / DAG_DECIMALS
+
+        signed_tx = await self.generate_signed_transaction(to_address, amount, fee)
+        tx_hash = await self.network.post_transaction(signed_tx)
+
+        if tx_hash:
+            return {
+                "timestamp": self.network.get_current_time(),
+                "hash": tx_hash,
+                "amount": amount,
+                "receiver": to_address,
+                "fee": fee,
+                "sender": self.address,
+                "ordinal": last_ref.get("ordinal"),
+                "pending": True,
+                "status": "POSTED",
+            }
+
+    async def wait_for_checkpoint_accepted(self, hash: str):
+        if self.network.get_network_version() == "2.0":
+            txn = None
+            try:
+                txn = await self.network.get_pending_transaction(hash)
+            except Exception:
+                pass
+
+            if txn and txn.get("status") == "Waiting":
+                return True
+
+            try:
+                await self.network.get_transaction(hash)
+            except Exception:
+                return False
+
+            return True
+
+        attempts = 0
+        while True:
+            result = await self.network.load_balancer_api.check_transaction_status(hash)
+
+            if result and result.get("accepted"):
+                break
+
+            attempts += 1
+
+            if attempts > 20:
+                raise Exception("Unable to find transaction")
+
+            await self.wait(2.5)
+
+        return True
+
+    async def wait_for_balance_change(self, initial_value: Optional[Decimal] = None):
+        if initial_value is None:
+            initial_value = await self.get_balance()
+            await self.wait(5)
+
+        for _ in range(24):
+            result = await self.get_balance()
+
+            if result is not None and result != initial_value:
+                return True
+
+            await self.wait(5)
+
+        return False
+
+    async def generate_batch_transactions(self, transfers: List[dict], last_ref: Optional[dict] = None):
+        if self.network.get_network_version() == "1.0":
+            raise Exception("transferDagBatch not available for mainnet 1.0")
+
+        if not last_ref:
+            last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+
+        txns = []
+        for transfer in transfers:
+            transaction, hash_ = await self.generate_signed_transaction_with_hash(
+                transfer["address"],
+                transfer["amount"],
+                transfer["fee"],
+                last_ref
+            )
+
+            last_ref = {
+                "hash": hash_,
+                "ordinal": last_ref["ordinal"] + 1,
+            }
+
+            txns.append(transaction)
+
+        return txns
+
+    async def send_batch_transactions(self, transactions: List[dict]):
+        if self.network.get_network_version() == "1.0":
+            raise Exception("transferDagBatch not available for mainnet 1.0")
+
+        hashes = []
+        for txn in transactions:
+            hash_ = await self.network.post_transaction(txn)
+            hashes.append(hash_)
+
+        return hashes
+
+    async def transfer_dag_batch(self, transfers: List[dict], last_ref: Optional[dict] = None):
+        txns = await self.generate_batch_transactions(transfers, last_ref)
+        return await self.send_batch_transactions(txns)
+
+    def create_metagraph_token_client(self, network_info: dict):
+        return MetagraphTokenClient(self, network_info)
+
+    async def wait(self, time: float = 5.0):
+        from asyncio import sleep
+        await sleep(time)
+
+    # 2.0+ only
+    async def generateBatchTransactions(
+        self, transfers: TransferBatchItem[], lastRef: Optional[TransactionReference] = None
+    ):
+        if self.network.getNetworkVersion() == "1.0":
+            raise Exception("transferDagBatch not available for mainnet 1.0")
+
+        if not lastRef:
+            lastRef = await self.network.getAddressLastAcceptedTransactionRef(self.address)
+
+        txns = []
+        for transfer in transfers:
+            transaction, hash_ = await self.generateSignedTransactionWithHash(
+                transfer.address, transfer.amount, transfer.fee, lastRef
+            )
+
+            lastRef = {
+                "hash": hash_,
+                "ordinal": lastRef.ordinal + 1,
+            }
+
+            txns.append(transaction)
+
+        return txns
+
+    async def sendBatchTransactions(self, transactions: PostTransactionV2[]):
+        if self.network.getNetworkVersion() == "1.0":
+            raise Exception("transferDagBatch not available for mainnet 1.0")
+
+        hashes = []
+        for txn in transactions:
+            hash_ = await self.network.postTransaction(txn)
+            hashes.append(hash_)
+
+        return hashes
+
+    async def transferDagBatch(
+        self, transfers: TransferBatchItem[], lastRef: Optional[TransactionReference] = None
+    ):
+        txns = await self.generateBatchTransactions(transfers, lastRef)
+        return await self.sendBatchTransactions(txns)
+
+    def createMetagraphTokenClient(
+        self, networkInfo: MetagraphNetworkInfo
+    ):
+        return MetagraphTokenClient(self, networkInfo)
+
+
+class OldDagAccount:
 
     def __init__(self, address: str, public_key: str, private_key: str, words: Optional[str] = None,  network=None):
         self.address = address

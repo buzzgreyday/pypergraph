@@ -8,16 +8,9 @@ from cryptography.hazmat.backends import default_backend
 from base64 import b64encode, b64decode
 
 
-T = TypeVar("T")
+class Encryptor:
 
-
-class Encryptor(Generic[T]):
-
-    @staticmethod
-    def create() -> 'Encryptor':
-        return Encryptor()
-
-    async def encrypt(self, password: str, data: T) -> str:
+    async def encrypt(self, password: str, data) -> str:
         salt = self.generate_salt()
 
         password_derived_key = self.key_from_password(password, salt)
@@ -26,14 +19,14 @@ class Encryptor(Generic[T]):
 
         return json.dumps(payload)
 
-    async def decrypt(self, password: str, text: json) -> T:
+    async def decrypt(self, password: str, text: json):
         payload = json.loads(text) if isinstance(text, str) else text
         salt = payload["salt"]
         key = self.key_from_password(password, salt)
 
         return self.decrypt_with_key(key, payload)
 
-    def encrypt_with_key(self, key: bytes, data: T) -> dict:
+    def encrypt_with_key(self, key: bytes, data) -> dict:
         text = str(data).replace("'", "\"")
         print("Data to be encrypted", text)
         data_bytes = text.encode("utf-8")
@@ -49,7 +42,7 @@ class Encryptor(Generic[T]):
             "tag": b64encode(encryptor.tag).decode("utf-8")
         }
 
-    def decrypt_with_key(self, key: bytes, payload: dict) -> T:
+    def decrypt_with_key(self, key: bytes, payload: dict):
         try:
             encrypted_data = b64decode(payload["data"])
             iv = b64decode(payload["iv"])
