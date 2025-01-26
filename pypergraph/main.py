@@ -1,59 +1,20 @@
 import asyncio
 from os import getenv
 
-from pypergraph.dag_core import BIP_44_PATHS, KeyringNetwork
-from pypergraph.dag_keyring import KeyringManager
-from pypergraph.dag_keystore import Bip32
-from mnemonic import Mnemonic
+from pypergraph.dag_wallet.account import DagAccount
 
 WORDS = getenv("WORDS")
 
 async def main():
 
 
-    manager: KeyringManager = KeyringManager()
-    # Maybe some emitter exists "manager.on("new_account", address)
-    hd_wallet = await manager.create_or_restore_vault(label='', seed=WORDS, password='password')
-    #manager.on("new_account")
+    network_info = {"network_id": "integrationnet", "be_url": "https://be-integrationnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-integrationnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-integrationnet.constellationnetwork.io"}
+    wallet = DagAccount()
+    wallet.login_with_seed_phrase(WORDS)
+    wallet = wallet.connect(network_info)
+    resp = await wallet.send("DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", 2)
+    print(resp)
 
-    seed_bytes = Mnemonic("english").to_seed(hd_wallet.mnemonic)
-
-    # This is going to be used often
-    path = BIP_44_PATHS.CONSTELLATION_PATH.value
-    path_parts = [int(part.strip("'")) for part in path.split("/")[1:]]
-    purpose = path_parts[0] + 2 ** 31
-    coin_type = path_parts[1] + 2 ** 31
-    account = path_parts[2] + 2 ** 31
-    change = 0
-    index = path_parts[3]
-    root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
-    root_key = root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index)
-
-    from pypergraph.dag_keyring.storage import StateStorageDb
-    print()
-    vault = await StateStorageDb().get()
-    print("vaulty:", vault)
-
-    s_wallet = await manager.create_single_account_wallet(label="", network=KeyringNetwork.Constellation.value,
-                                                    private_key=root_key.PrivateKey().hex())
-    d = manager.emit("new_single_account", "", KeyringNetwork.Constellation.value, root_key.PrivateKey().hex())
-    #print("emit response", d)
-    #print("Secret key:", hd_wallet.export_secret_key())
-    #print("Secret key:", s_wallet.export_secret_key())
-    print()
-    print()
-    m = KeyringManager()
-    await m.login('password')
-    print()
-    print()
-    print("Got accounts:", m.get_accounts())
-    print()
-    print("Remove account", await m.remove_account(m.get_accounts()[2].get_address()))
-    print("Updated state:", m.get_accounts())
-    await m.logout()
-    print()
-    print()
-    print("Got accounts:", m.get_accounts())
 
 if __name__ == "__main__":
 

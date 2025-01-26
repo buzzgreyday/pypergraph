@@ -1,8 +1,11 @@
 import warnings
 from datetime import datetime
+from decimal import Decimal
 from typing import Callable, Optional, Any, Coroutine, Dict, List
 
-from pypergraph.dag_core.exceptions import NetworkError
+import httpx
+
+from pypergraph.dag_network.client import FetchRestService
 
 
 class DI:
@@ -11,7 +14,7 @@ class DI:
         #======================
         #   = HTTP Client =
         #======================
-        self.http_client = None #IHttpClient;
+        self.http_client = httpx #IHttpClient;
         self.http_client_base_url = ""
 
     # Register the platform implementation for http service requests
@@ -49,12 +52,18 @@ class RestConfig:
 
         return self
 
-    def protocol_client(self, val = None):
-        if not val:
-            return self.service_protocol_client or DI().get_http_client()
+    def protocol_client(self, val=None):
+        if val is not None:
+            self.service_protocol_client = val
+            return self
 
-        self.service_protocol_client = val
-        return self
+        if self.service_protocol_client is None:
+            self.service_protocol_client = DI().get_http_client()
+
+        if self.service_protocol_client is None:
+            raise ValueError("No protocol client has been set, and DI().get_http_client() returned None.")
+
+        return self.service_protocol_client
 
     def error_hook(self, callback: Optional[Callable[[Exception], None]] = None) -> Any:
         if callback is None:
@@ -63,48 +72,84 @@ class RestConfig:
         self.error_hook_callback = callback
         return self
 
-class RestApi:
+class RestAPIClient:
+    def __init__(self, base_url: str, client: Optional[httpx.AsyncClient] = None):
+        """
+        Initializes the RestAPIClient.
 
-    def __init__(self, base_url):
-        self.config = RestConfig()
-        self.base_url: str = self.config.base_url(base_url)
+        :param base_url: The base URL for the API.
+        :param client: An optional injected HTTPX AsyncClient. If not provided, a new one is created.
+        """
+        self.base_url = base_url.rstrip("/")
+        self.client = client or httpx.AsyncClient()
 
-    def http_request(self, url: str, method: str, data: Any, options: dict, query_params: Any):
-        url = self.resolve_url(url, options)
-        if not method or not url:
-            raise ValueError("RestApi :: You must configure at least the http method and url.")
-        client = self.config.protocol_client()
-        return client.invoke({
-                    "auth_token": self.config.auth_token(),
-                    "url": url,
-                    "body": data,
-                    "method": method,
-                    "query_params": query_params,
-                    "error_hook": self.config.error_hook(),
-                    **options,
-                })
+    @property
+    def base_url(self) -> str:
+        """Returns the current base URL."""
+        return self._base_url
 
-    def configure(self) -> RestConfig:
-        return self.config
+    @base_url.setter
+    def base_url(self, value: str):
+        """
+        Updates the base URL.
 
-    def resolve_url(self, url, options: dict):
-        if options and options["base_url"] != "":
-            url = options["base_url"] + url
-        else:
-            url = self.config.base_url() + url
-        return url
+        :param value: The new base URL.
+        """
+        self._base_url = value.rstrip("/")
+        print(f"Base URL updated to: {self._base_url}")
 
-    async def post(self, url: str, data=None, options=None, query_params=None):
-        return await self.http_request(url, "POST", data, options, query_params)
+    async def request(
+            self,
+            method: str,
+            endpoint: str,
+            headers: Optional[Dict[str, str]] = None,
+            params: Optional[Dict[str, Any]] = None,
+            json: Optional[Dict[str, Any]] = None,
+    ) -> httpx.Response:
+        """
+        Makes an HTTP request.
 
-    async def get(self, url: str, query_params=None, options=None):
-        return await self.http_request(url, "GET", None, options, query_params)
+        :param method: HTTP method (GET, POST, PUT, DELETE, etc.).
+        :param endpoint: The endpoint path (appended to base_url).
+        :param headers: Optional headers for the request.
+        :param params: Optional query parameters.
+        :param json: Optional JSON payload.
+        :return: HTTPX Response object.
+        """
+        url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        # TODO: All headers should be string
+        if headers:
+            headers = {k: str(v) for k, v in headers.items()}
+        response = await self.client.request(
+            method=method.upper(),
+            url=url,
+            headers=headers,
+            params=params,
+            json=json,
+        )
+        response.raise_for_status()
+        return response.json()
 
-    async def put(self, url: str, data=None, options=None, query_params=None):
-        return await self.http_request(url, "PUT", data, options, query_params)
+    async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
+        print(headers)
+        return await self.request("GET", endpoint, headers=headers, params=params)
 
-    async def delete(self, url: str, data=None, options=None, query_params=None):
-        return await self.http_request(url, "DELETE", data, options, query_params)
+    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, json: Optional[Dict[str, Any]] = None) -> httpx.Response:
+        # TODO: serialize json
+        print(headers, json)
+        return await self.request("POST", endpoint, headers=headers, json=json)
+
+    async def put(self, endpoint: str, headers: Optional[Dict[str, str]] = None, json: Optional[Dict[str, Any]] = None) -> httpx.Response:
+        print(headers, json)
+        return await self.request("PUT", endpoint, headers=headers, json=json)
+
+    async def delete(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
+        print(headers)
+        return await self.request("DELETE", endpoint, headers=headers, params=params)
+
+    async def close(self):
+        """Closes the client session."""
+        await self.client.aclose()
 
 class LoadBalancerApi:
     # TODO: Data cleaning and validation
@@ -115,11 +160,7 @@ class LoadBalancerApi:
             host = f"http://{host}"
         if not host or type(host) != str:
             raise ValueError(f"LoadBalancerApi :: Invalid host: {host}")
-        self.service = RestApi(host)
-        self.host = self.config().base_url(host)
-
-    def config(self):
-        return self.service.configure()
+        self.service = RestAPIClient(host)
 
     async def get_metrics(self):
         result = await self.service.get("/metrics")
@@ -138,7 +179,7 @@ class LoadBalancerApi:
         return result
 
     async def post_transaction(self, tx: Dict[str, Any]):
-        result = await self.service.post("/transactions", tx)
+        result = await self.service.post("/transactions", json=tx)
         return result
 
     async def get_pending_transaction(self, tx_hash: str):
@@ -158,11 +199,7 @@ class BlockExplorerApi:
             host = f"http://{host}"
         if not host or type(host) != str:
             raise ValueError(f"BlockExplorerApi :: Invalid host: {host}")
-        self.service = RestApi(host)
-        self.host = self.config().base_url(host)
-
-    def config(self):
-        return self.service.configure()
+        self.service = RestAPIClient(host)
 
     async def get_snapshot(self, id: str | int):
         result = await self.service.get(f"/global-snapshots/{id}")
@@ -307,11 +344,7 @@ class L0Api:
             host = f"http://{host}"
         if not host or type(host) != str:
             raise ValueError(f"L0Api :: Invalid host: {host}")
-        self.service = RestApi(host)
-        self.host = self.config().base_url(host)
-
-    def config(self):
-        return self.service.configure()
+        self.service = RestAPIClient(host)
 
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
@@ -355,7 +388,7 @@ class L0Api:
     async def post_state_channel_snapshot(self, address: str, snapshot: str):
         return await self.service.post(
             f"/state-channel/{address}/snapshot",
-            snapshot
+            json=snapshot
         )
 
 class L1Api:
@@ -366,11 +399,7 @@ class L1Api:
             host = f"http://{host}"
         if not host or type(host) != str:
             raise ValueError(f"L0Api :: Invalid host: {host}")
-        self.service = RestApi(host)
-        self.host = self.config().base_url(host)
-
-    def config(self):
-        return self.service.configure()
+        self.service = RestAPIClient(host)
 
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
@@ -389,7 +418,7 @@ class L1Api:
         return await self.service.get(f"/transactions/{hash}")
 
     async def post_transaction(self, tx):
-        return await self.service.post("/transactions", tx)
+        return await self.service.post("/transactions", json=tx)
 
 class ML0Api(L0Api):
     def __init__(self, host):

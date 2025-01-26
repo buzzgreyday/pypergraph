@@ -20,7 +20,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         self.l0_lb_api = LoadBalancerApi(host=self.connected_network["l0_lb_url"])
         self.be_api = BlockExplorerApi(host=self.connected_network["be_url"])
         self.l0_api = L0Api(host=self.connected_network["l0_host"]) if self.connected_network["l0_host"] else L0Api(host=self.connected_network["l0_lb_url"])
-        self.cl1_api = L1Api(host=self.connected_network["l1_host"]) if self.connected_network["l1_host"] else L1Api(host=self.connected_network["l1_lb_url"])
+        self.cl1_api = L1Api(host=self.connected_network["cl1_host"]) if self.connected_network["cl1_host"] else L1Api(host=self.connected_network["l1_lb_url"])
         # private networkChange$ = new Subject < NetworkInfo > ();
 
 
@@ -35,11 +35,14 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         self.on('network_change', callback)
 
     def set_network(self, net_info):
+
         if self.connected_network != net_info:
             self.connected_network = net_info
-            self.be_api.config().base_url(net_info.be_url)
-            self.l0_api.config().base_url(net_info.l0_url)
-            self.cl1_api.config().base_url(net_info.l1_url)
+            print("Network Changed:", self.connected_network)
+            self.be_api.base_url = net_info["be_url"]
+            self.l0_api.base_url = net_info["l0_host"] if not None else net_info["l0_lb_url"]
+            self.cl1_api.base_url = net_info["cl1_host"] if not None else net_info["l1_lb_url"]
+            print("Currency layer API:", self.cl1_api.__dict__)
 
 
             # Emit a network change event
@@ -86,6 +89,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
 
     async def post_transaction(self, tx: dict) -> str:
+        print("Posting transaction with the following config:", self.cl1_api.__dict__)
         response = await self.cl1_api.post_transaction(tx)
         # Support both data/meta format and object return format
         return response.get('data', {}).get('hash') or response.get('hash')

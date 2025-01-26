@@ -11,6 +11,7 @@ from typing import Tuple
 #         )
 # from cryptography.hazmat.primitives.serialization import pkcs12
 from decimal import Decimal, ROUND_DOWN
+
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
 from pyasn1.codec.der.decoder import decode as der_decode
@@ -115,7 +116,7 @@ class KeyStore:
     #         raise ValueError("KeyStore :: No private key found in the .p12 file.")
 
     @staticmethod
-    def prepare_tx (amount: Decimal, to_address: str, from_address: str, last_ref: dict, fee: Decimal = Decimal[0]) -> Tuple[TransactionV2, str]:
+    def prepare_tx (amount: Decimal, to_address: str, from_address: str, last_ref: dict, fee: Decimal = 0) -> Tuple[TransactionV2, str]:
         """
         Prepare a new transaction.
 
@@ -312,7 +313,9 @@ class KeyStore:
         :return: Private key as hexadecimal string
         """
         bip32 = Bip32()
-        return bip32.get_private_key_from_seed(seed_bytes=bytes.fromhex(seed)).hex()
+        root_key =  bip32.get_root_key_from_seed(seed_bytes=seed)
+        private_key = root_key.PrivateKey()
+        return private_key.hex()
 
     @staticmethod
     def get_public_key_from_private(private_key: hex) -> str:
@@ -336,7 +339,7 @@ class KeyStore:
         else:
             raise ValueError("KeyStore :: Not a valid public key.")
 
-        public_key = sha256(bytes.fromhex(public_key)).hexdigest()
+        public_key = hashlib.sha256(bytes.fromhex(public_key)).hexdigest()
         public_key = base58.b58encode(bytes.fromhex(public_key)).decode()
         public_key = public_key[len(public_key) - 36:]
 

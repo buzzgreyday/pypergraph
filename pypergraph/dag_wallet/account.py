@@ -1,7 +1,7 @@
 import asyncio
 from typing import Self
 
-from pypergraph.dag_keystore import KeyStore, KeyTrio, Bip39, TransactionV2
+from pypergraph.dag_keystore import KeyStore, KeyTrio, Bip39, TransactionV2, Bip32
 from pypergraph.dag_network import Network
 from pypergraph.dag_network.network import DagTokenNetwork
 
@@ -13,13 +13,13 @@ DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 
 
 class DagAccount(AsyncIOEventEmitter):
-    def __init__(self, network):
+    def __init__(self, network = None):
         super().__init__()
-        self.network = network
+        self.network = network or DagTokenNetwork()
         self.key_trio = None
 
     def connect(self, network_info: dict):
-
+        print("Connecting to:", network_info)
         self.network.config(network_info)
 
         return self
@@ -39,11 +39,14 @@ class DagAccount(AsyncIOEventEmitter):
         return self.key_trio.get("private_key")
 
     def login_with_seed_phrase(self, words: str):
-        private_key = KeyStore.get_private_key_from_mnemonic(words)
+        seed_bytes = Bip39().get_seed_from_mnemonic(words)
+        private_key = KeyStore.get_private_key_from_mnemonic(seed_bytes)
+        print(words, private_key)
         self.login_with_private_key(private_key)
 
     def login_with_private_key(self, private_key: str):
-        public_key = KeyStore.get_public_key_from_private(private_key)
+        public_key = Bip32.get_public_key_from_private_hex(private_key)
+        #public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
         self._set_keys_and_address(private_key, public_key, address)
 
@@ -78,7 +81,7 @@ class DagAccount(AsyncIOEventEmitter):
             return Decimal(address_obj["balance"]) * DAG_DECIMALS
         return Decimal(0)
 
-    async def generate_signed_transaction(self, to_address: str, amount: Decimal, fee: Decimal = Decimal[0], last_ref=None):
+    async def generate_signed_transaction(self, to_address: str, amount: Decimal, fee: Decimal = 0, last_ref=None):
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
         tx, hash_ = KeyStore.prepare_tx(amount, to_address, self.key_trio["address"], last_ref, fee)
         signature = KeyStore.sign(self.key_trio["private_key"], hash_)
@@ -90,10 +93,11 @@ class DagAccount(AsyncIOEventEmitter):
         return tx.serialize(), hash_
 
 
-    async def send(self, to_address: str, amount: Decimal, fee: Decimal = Decimal(0), auto_estimate_fee=False):
+    async def send(self, to_address: str, amount: Decimal, fee: Decimal = 0, auto_estimate_fee=False):
         # TODO: Rate limiting
         normalized_amount = int(amount * DAG_DECIMALS)
-        last_ref = await self.network.get_last_reference(self.address)
+        print("Getting last transaction:")
+        last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
 
         if fee == Decimal(0) and auto_estimate_fee:
             pending_tx = await self.network.get_pending_transaction(last_ref.get("prev_hash", last_ref.get("hash")))
@@ -195,8 +199,8 @@ class DagAccount(AsyncIOEventEmitter):
         txns = await self.generate_batch_transactions(transfers, last_ref)
         return await self.send_batch_transactions(txns)
 
-    def create_metagraph_token_client(self, network_info: dict):
-        return MetagraphTokenClient(self, network_info)
+    # def create_metagraph_token_client(self, network_info: dict):
+    #     return MetagraphTokenClient(self, network_info)
 
     async def wait(self, time: float = 5.0):
         from asyncio import sleep
@@ -250,8 +254,8 @@ class OldDagAccount:
             raise ValueError("Wallet :: Not a valid mnemonic.")
         mnemonic = Bip39()
         seed_bytes = mnemonic.get_seed_from_mnemonic(words)
-        private_key = KeyStore.get_private_key_from_seed(seed_bytes)
-        public_key = KeyStore.get_public_key_from_private_key(private_key)
+        private_key = KeyStore.get_private_key_from_mnemonic(seed_bytes)
+        public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
         valid = KeyStore.validate_dag_address(address=address)
         if not valid:

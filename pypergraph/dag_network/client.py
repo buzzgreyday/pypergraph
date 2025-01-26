@@ -8,6 +8,7 @@ class FetchRestService:
         self.http_client = http_client or aiohttp.ClientSession()
 
     async def invoke(self, options: dict):
+        print("Request options:", options)
         request_options = self.build_request(options)
         return await self.make_service_request(request_options)
 
@@ -46,7 +47,7 @@ class FetchRestService:
         }
 
     async def make_service_request(self, options: dict):
-        async with self.http_client.request(
+        async with self.http_client(
             method=options["method"],
             url=options["url"],
             headers=options["headers"],
