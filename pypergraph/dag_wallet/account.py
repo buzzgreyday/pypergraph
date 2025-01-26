@@ -202,53 +202,6 @@ class DagAccount(AsyncIOEventEmitter):
         from asyncio import sleep
         await sleep(time)
 
-    # 2.0+ only
-    async def generateBatchTransactions(
-        self, transfers: TransferBatchItem[], lastRef: Optional[TransactionReference] = None
-    ):
-        if self.network.getNetworkVersion() == "1.0":
-            raise Exception("transferDagBatch not available for mainnet 1.0")
-
-        if not lastRef:
-            lastRef = await self.network.getAddressLastAcceptedTransactionRef(self.address)
-
-        txns = []
-        for transfer in transfers:
-            transaction, hash_ = await self.generateSignedTransactionWithHash(
-                transfer.address, transfer.amount, transfer.fee, lastRef
-            )
-
-            lastRef = {
-                "hash": hash_,
-                "ordinal": lastRef.ordinal + 1,
-            }
-
-            txns.append(transaction)
-
-        return txns
-
-    async def sendBatchTransactions(self, transactions: PostTransactionV2[]):
-        if self.network.getNetworkVersion() == "1.0":
-            raise Exception("transferDagBatch not available for mainnet 1.0")
-
-        hashes = []
-        for txn in transactions:
-            hash_ = await self.network.postTransaction(txn)
-            hashes.append(hash_)
-
-        return hashes
-
-    async def transferDagBatch(
-        self, transfers: TransferBatchItem[], lastRef: Optional[TransactionReference] = None
-    ):
-        txns = await self.generateBatchTransactions(transfers, lastRef)
-        return await self.sendBatchTransactions(txns)
-
-    def createMetagraphTokenClient(
-        self, networkInfo: MetagraphNetworkInfo
-    ):
-        return MetagraphTokenClient(self, networkInfo)
-
 
 class OldDagAccount:
 
