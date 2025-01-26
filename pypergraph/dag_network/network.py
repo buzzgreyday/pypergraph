@@ -39,9 +39,9 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         if self.connected_network != net_info:
             self.connected_network = net_info
             print("Network Changed:", self.connected_network)
-            self.be_api.base_url = net_info["be_url"]
-            self.l0_api.base_url = net_info["l0_host"] if not None else net_info["l0_lb_url"]
-            self.cl1_api.base_url = net_info["cl1_host"] if not None else net_info["l1_lb_url"]
+            self.be_api.config(net_info["be_url"])
+            self.l0_api.config(net_info["l0_host"] if net_info["l0_host"] is not None else net_info["l0_lb_url"])
+            self.cl1_api.config(net_info["cl1_host"] if net_info["cl1_host"] is not None else net_info["l1_lb_url"])
             print("Currency layer API:", self.cl1_api.__dict__)
 
             # Emit a network change event

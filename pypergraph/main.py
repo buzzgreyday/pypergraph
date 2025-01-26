@@ -1,7 +1,8 @@
 import asyncio
 from os import getenv
 
-from pypergraph.dag_wallet.account import DagAccount, OldDagAccount
+from pypergraph.dag_keyring import KeyringManager
+from pypergraph.dag_wallet.account import DagAccount
 
 WORDS = getenv("WORDS")
 
@@ -10,9 +11,19 @@ async def main():
     network_info = {"network_id": "integrationnet", "be_url": "https://be-integrationnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-integrationnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-integrationnet.constellationnetwork.io"}
     wallet = DagAccount()
     wallet.login_with_seed_phrase(WORDS)
-    wallet = wallet.connect(network_info)
-    resp = await wallet.send("DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", 2)
-    print(resp)
+    wallet.connect(network_info)
+    network_info = {"network_id": "testnet", "be_url": "https://be-testnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-testnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-testnet.constellationnetwork.io"}
+    wallet.connect(network_info)
+    resp = await wallet.send("DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", 1)
+    print("Response" , resp)
+
+    controller = KeyringManager()
+    await controller.login('password')
+    accounts = controller.get_accounts()
+    print("Accounts:", accounts)
+    vault = await controller.create_or_restore_vault("Test", WORDS, 'password')
+    print("Vault:", vault)
+    await controller.logout()
 
 
 if __name__ == "__main__":

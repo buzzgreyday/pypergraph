@@ -95,6 +95,7 @@ class RestAPIClient:
         self._base_url = value.rstrip("/")
         print(f"Base URL updated to: {self._base_url}")
 
+
     async def request(
             self,
             method: str,
@@ -159,6 +160,10 @@ class LoadBalancerApi:
             raise ValueError(f"LoadBalancerApi :: Invalid host: {host}")
         self.service = RestAPIClient(host)
 
+    def config(self, host: str):
+        """Reconfigure the RestAPIClient's base URL dynamically."""
+        self.service.base_url = host
+
     async def get_metrics(self):
         result = await self.service.get("/metrics")
         return result
@@ -197,6 +202,10 @@ class BlockExplorerApi:
         if not host or type(host) != str:
             raise ValueError(f"BlockExplorerApi :: Invalid host: {host}")
         self.service = RestAPIClient(host)
+
+    def config(self, host: str):
+        """Reconfigure the RestAPIClient's base URL dynamically."""
+        self.service.base_url = host
 
     async def get_snapshot(self, id: str | int):
         result = await self.service.get(f"/global-snapshots/{id}")
@@ -343,6 +352,10 @@ class L0Api:
             raise ValueError(f"L0Api :: Invalid host: {host}")
         self.service = RestAPIClient(host)
 
+    def config(self, host: str):
+        """Reconfigure the RestAPIClient's base URL dynamically."""
+        self.service.base_url = host
+
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
         return result
@@ -398,6 +411,10 @@ class L1Api:
             raise ValueError(f"L0Api :: Invalid host: {host}")
         self.service = RestAPIClient(host)
 
+    def config(self, host: str):
+        """Reconfigure the RestAPIClient's base URL dynamically."""
+        self.service.base_url = host
+
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
         return result
@@ -420,6 +437,10 @@ class L1Api:
 class ML0Api(L0Api):
     def __init__(self, host):
         super().__init__(host)
+
+    def config(self, net_info: dict):
+        """Reconfigure the RestAPIClient's base URL dynamically."""
+        self.service.base_url = net_info
 
     # State Channel Token
     async def get_total_supply(self):
