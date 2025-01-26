@@ -7,9 +7,6 @@ WORDS = getenv("WORDS")
 
 async def main():
 
-    old_wallet = OldDagAccount.from_mnemonic(WORDS)
-    print(old_wallet.address)
-
     network_info = {"network_id": "integrationnet", "be_url": "https://be-integrationnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-integrationnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-integrationnet.constellationnetwork.io"}
     wallet = DagAccount()
     wallet.login_with_seed_phrase(WORDS)
