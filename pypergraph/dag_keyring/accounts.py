@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import base58
 import hashlib
 
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 
 from eth_keys import keys
 from eth_utils import to_checksum_address, is_checksum_address, keccak
