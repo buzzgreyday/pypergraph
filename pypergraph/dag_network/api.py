@@ -129,20 +129,16 @@ class RestAPIClient:
         return response.json()
 
     async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
-        print(headers)
         return await self.request("GET", endpoint, headers=headers, params=params)
 
     async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, json: Optional[Dict[str, Any]] = None) -> httpx.Response:
         # TODO: serialize json
-        print(headers, json)
         return await self.request("POST", endpoint, headers=headers, json=json)
 
     async def put(self, endpoint: str, headers: Optional[Dict[str, str]] = None, json: Optional[Dict[str, Any]] = None) -> httpx.Response:
-        print(headers, json)
         return await self.request("PUT", endpoint, headers=headers, json=json)
 
     async def delete(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
-        print(headers)
         return await self.request("DELETE", endpoint, headers=headers, params=params)
 
     async def close(self):
@@ -150,7 +146,7 @@ class RestAPIClient:
         await self.client.aclose()
 
 class LoadBalancerApi:
-    # TODO: Data cleaning and validation
+    # TODO: Data cleaning and validation for all API classes
     def __init__(self, host):
         """Data validation and cleaning is needed"""
         if not host.startswith("http"):
