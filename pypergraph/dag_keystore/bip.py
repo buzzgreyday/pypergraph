@@ -35,14 +35,14 @@ class Bip32:
         return root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index).PrivateKey()
 
     @staticmethod
-    def get_public_key_from_private_hex(private_key_hex: str) -> str:
+    def get_public_key_from_private_hex(private_key_bytes: bytes) -> str:
         """
         Derive the public key from a private key using secp256k1.
 
         :param private_key_hex: The private key in hexadecimal format.
         :return: The public key as a hexadecimal string.
         """
-        private_key_bytes = bytes.fromhex(private_key_hex)
+        # private_key_bytes = bytes.fromhex(private_key_hex)
         private_key = SigningKey.from_string(private_key_bytes, curve=SECP256k1)
         public_key =  b'\x04' + private_key.get_verifying_key().to_string()
         return public_key.hex()

@@ -228,8 +228,8 @@ class OldDagAccount:
         :return: Configured wallet object.
         """
         mnemonic_values = KeyStore.get_mnemonic()
-        private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
-        public_key = KeyStore.get_public_key_from_private_key(private_key)
+        private_key = KeyStore.get_private_key_from_mnemonic(seed=mnemonic_values["seed"])
+        public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key_hex=public_key)
         valid = KeyStore.validate_dag_address(address=address)
         if not valid:
