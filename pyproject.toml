@@ -19,7 +19,8 @@ dependencies = [
     "cryptography~=44.0.0",
     "ecdsa~=0.19.0",
     "pyasn1~=0.6.1",
-    "aiohttp~=3.11.11",
+    "httpx",
+    'pyee',
     "eth-account~=0.13.4"
 ]
 requires-python = ">=3.7"
