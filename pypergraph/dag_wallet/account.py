@@ -1,9 +1,12 @@
+import asyncio
+import time
+
 from pypergraph.dag_keystore import KeyStore, Bip39, Bip32
-from pypergraph.dag_network.network import DagTokenNetwork
+from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
 
 from decimal import Decimal
 from pyee.asyncio import AsyncIOEventEmitter
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
 DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 
@@ -23,7 +26,6 @@ class DagAccount(AsyncIOEventEmitter):
         :return:
         """
         # TODO: Validate and serialize data
-        print("Connecting to:", network_info)
         self.network.config(network_info)
 
         return self
@@ -211,7 +213,116 @@ class DagAccount(AsyncIOEventEmitter):
         await sleep(time)
 
 
-class MetagraphAccount:
-    # TODO:
-    pass
+class MetagraphTokenClient:
+    def __init__(self, account: DagAccount, network_info: Dict[str, Any], token_decimals: int = 8):
+        self.account = account
+        self.network = MetagraphTokenNetwork(network_info)
+        self.token_decimals = token_decimals
+
+    @property
+    def network_instance(self):
+        return self.network
+
+    @property
+    def address(self):
+        return self.account.address
+
+    async def get_transactions(self, limit: Optional[int] = None, search_after: Optional[str] = None):
+        return await self.network.get_transactions_by_address(self.address, limit, search_after)
+
+    async def get_balance(self):
+        return await self.get_balance_for(self.address)
+
+    async def get_balance_for(self, address: str):
+        address_obj = await self.network.get_address_balance(address)
+        if address_obj and isinstance(address_obj.get("balance"), (int, float)):
+            return int(Decimal(address_obj["balance"]) * Decimal(self.token_decimals))
+        return 0
+
+    async def get_fee_recommendation(self):
+        last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+        if not last_ref.get("hash"):
+            return 0
+
+        last_tx = await self.network.get_pending_transaction(last_ref["hash"])
+        if not last_tx:
+            return 0
+
+        return 1 / self.token_decimals
+
+    async def transfer(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee: bool = False):
+        normalized_amount = int(Decimal(amount) * Decimal(self.token_decimals))
+        last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+
+        if fee == 0 and auto_estimate_fee:
+            tx = await self.network.get_pending_transaction(last_ref.get("prevHash") or last_ref.get("hash"))
+            if tx:
+                address_obj = await self.network.get_address_balance(self.address)
+                if address_obj["balance"] == normalized_amount:
+                    amount -= self.token_decimals
+                    normalized_amount -= 1
+                fee = self.token_decimals
+
+        tx = await self.account.generate_signed_transaction(to_address, amount, fee, last_ref)
+
+        if "edge" in tx:
+            raise ValueError("Unable to post v1 transaction")
+
+        tx_hash = await self.network.post_transaction(tx)
+        if tx_hash:
+            return {
+                "timestamp": int(time.time() * 1000),
+                "hash": tx_hash,
+                "amount": amount,
+                "receiver": to_address,
+                "fee": fee,
+                "sender": self.address,
+                "ordinal": last_ref["ordinal"],
+                "pending": True,
+                "status": "POSTED",
+            }
+
+    async def wait_for_balance_change(self, initial_value: Optional[int] = None):
+        if initial_value is None:
+            initial_value = await self.get_balance()
+            await self.wait(5)
+
+        for _ in range(24):
+            result = await self.get_balance()
+            if result is not None and result != initial_value:
+                return True
+            await self.wait(5)
+
+        return False
+
+    async def generate_batch_transactions(self, transfers: List[Dict[str, Any]], last_ref: Optional[Dict[str, Any]] = None):
+        if not last_ref:
+            last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+
+        txns = []
+        for transfer in transfers:
+            transaction, hash_ = await self.account.generate_signed_transaction_with_hash(
+                transfer["address"],
+                transfer["amount"],
+                transfer.get("fee", 0),
+                last_ref
+            )
+            last_ref = {"hash": hash_, "ordinal": last_ref["ordinal"] + 1}
+            txns.append(transaction)
+
+        return txns
+
+    async def send_batch_transactions(self, transactions: List[Dict[str, Any]]):
+        hashes = []
+        for txn in transactions:
+            tx_hash = await self.network.post_transaction(txn)
+            hashes.append(tx_hash)
+        return hashes
+
+    async def transfer_batch(self, transfers: List[Dict[str, Any]], last_ref: Optional[Dict[str, Any]] = None):
+        txns = await self.generate_batch_transactions(transfers, last_ref)
+        return await self.send_batch_transactions(txns)
+
+    async def wait(self, time_in_seconds: int = 5):
+        await asyncio.sleep(time_in_seconds)
 

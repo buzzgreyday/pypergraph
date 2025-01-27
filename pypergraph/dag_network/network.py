@@ -100,12 +100,14 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
 
 class MetagraphTokenNetwork:
-    def __init__(self, network_id: str = "mainnet", l0_host: str | None = None, cl1_host: str | None = None, be_url: str | None = None):
-        self.connected_network = {"network_id": network_id, "be_url": be_url or f"https://be-{network_id}.constellationnetwork.io", "l0_host": l0_host, "cl1_host": cl1_host }
+    def __init__(self, network_info: dict ):
+        self.connected_network = {"network_id": None, "be_url": f"https://be-mainnet.constellationnetwork.io", "l0_host": None, "cl1_host": None }
         self.network_id = self.connected_network["network_id"]
         self.l0_api = ML0Api(self.connected_network["l0_url"])
         self.l1_api = ML1Api(self.connected_network["l1_url"])
         self.be_api = BlockExplorerApi(self.connected_network["be_url"])
+
+
 
     def get_network(self) -> dict:
         return self.connected_network
@@ -148,6 +150,7 @@ class MetagraphTokenNetwork:
         return response["data"] if response else None
 
     async def post_transaction(self, tx) -> str:
+        print("Posting transaction with the following config:", self.l1_api.__dict__)
         response = await self.l1_api.post_transaction(tx)
         # Support data/meta format and object return format
         return response["data"]["hash"] if "data" in response else response["hash"]
