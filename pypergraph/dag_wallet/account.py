@@ -45,17 +45,14 @@ class DagAccount(AsyncIOEventEmitter):
         return self.key_trio.get("private_key")
 
     def login_with_seed_phrase(self, words: str):
-        seed_bytes = Bip39().get_seed_from_mnemonic(words)
-        private_key = KeyStore.get_private_key_from_mnemonic(seed_bytes)
+        private_key = KeyStore.get_private_key_from_mnemonic(words)
         self.login_with_private_key(private_key)
 
-    def login_with_private_key(self, private_key: bytes):
+    def login_with_private_key(self, private_key: str):
         print("Login with private key:", private_key)
-        public_key = Bip32.get_public_key_from_private_hex(private_key)
-        #public_key = KeyStore.get_public_key_from_private(private_key)
+        public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
         self._set_keys_and_address(private_key, public_key, address)
-        print(self.key_trio)
 
     def login_with_public_key(self, public_key: str):
         address = KeyStore.get_dag_address_from_public_key(public_key)

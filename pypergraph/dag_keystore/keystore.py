@@ -206,12 +206,12 @@ class KeyStore:
             seq.setComponentByPosition(1, Integer(s))
             return der_encode(seq)
 
-        def _sign_deterministic_canonical(private_key_hex: bytes, tx_hash: bytes) -> str:
+        def _sign_deterministic_canonical(private_key_hex: str, tx_hash: bytes) -> str:
             """
             Create a deterministic and canonical secp256k1 signature.
             """
             # Create SigningKey object from private key hex
-            sk = SigningKey.from_string(private_key_hex, curve=SECP256k1)
+            sk = SigningKey.from_string(bytes.fromhex(private_key_hex), curve=SECP256k1)
 
             # Sign the prehashed message deterministically
             signature_der = sk.sign_digest_deterministic(
@@ -305,7 +305,7 @@ class KeyStore:
         return bip39.mnemonic()
 
     @staticmethod
-    def get_private_key_from_mnemonic(seed: str) -> bytes:
+    def get_private_key_from_mnemonic(phrase: str) -> str:
         """
         Get private key from mnemonic seed (not phrase)
 
@@ -313,17 +313,19 @@ class KeyStore:
         :return: Private key as hexadecimal string
         """
         bip32 = Bip32()
+        bip39 = Bip39()
+        seed = bip39.get_seed_from_mnemonic(phrase)
         private_key =  bip32.get_private_key_from_seed(seed_bytes=seed)
-        return private_key
+        return private_key.hex()
 
     @staticmethod
-    def get_public_key_from_private(private_key: bytes) -> str:
+    def get_public_key_from_private(private_key: str) -> str:
         """
         :param private_key:
         :return: Public key (Node ID)
         """
         bip32 = Bip32()
-        return bip32.get_public_key_from_private_hex(private_key_bytes=private_key)
+        return bip32.get_public_key_from_private_hex(private_key_bytes=bytes.fromhex(private_key))
 
     @staticmethod
     def get_dag_address_from_public_key(public_key_hex: str) -> str:
