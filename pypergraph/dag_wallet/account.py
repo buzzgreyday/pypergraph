@@ -74,6 +74,7 @@ class DagAccount(AsyncIOEventEmitter):
             "public_key": public_key,
             "address": address
         }
+        print(self.key_trio)
         self.emit("session_change", True)
 
     async def get_balance(self):
