@@ -305,7 +305,7 @@ class KeyStore:
         return bip39.mnemonic()
 
     @staticmethod
-    def get_private_key_from_mnemonic(seed: str) -> str:
+    def get_private_key_from_mnemonic(seed: str) -> bytes:
         """
         Get private key from mnemonic seed (not phrase)
 

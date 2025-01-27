@@ -47,14 +47,15 @@ class DagAccount(AsyncIOEventEmitter):
     def login_with_seed_phrase(self, words: str):
         seed_bytes = Bip39().get_seed_from_mnemonic(words)
         private_key = KeyStore.get_private_key_from_mnemonic(seed_bytes)
-        print(words, private_key)
         self.login_with_private_key(private_key)
 
-    def login_with_private_key(self, private_key: str):
+    def login_with_private_key(self, private_key: bytes):
+        print("Login with private key:", private_key)
         public_key = Bip32.get_public_key_from_private_hex(private_key)
         #public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
         self._set_keys_and_address(private_key, public_key, address)
+        print(self.key_trio)
 
     def login_with_public_key(self, public_key: str):
         address = KeyStore.get_dag_address_from_public_key(public_key)
@@ -99,10 +100,18 @@ class DagAccount(AsyncIOEventEmitter):
         return tx.serialize(), hash_
 
 
-    async def send(self, to_address: str, amount: Decimal, fee: Decimal = 0, auto_estimate_fee=False):
+    async def send(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False):
+        """
+        Build transaction, sign and send.
+
+        :param to_address: DAG address
+        :param amount: Amount with 8 decimals (e.g. 100000000 = 1 DAG)
+        :param fee: Fee with 8 deciamls (e.g. 20000 = 0.0002 DAG)
+        :param auto_estimate_fee:
+        :return:
+        """
         # TODO: Rate limiting
         normalized_amount = int(amount * DAG_DECIMALS)
-        print("Getting last transaction:")
         last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
 
         if fee == Decimal(0) and auto_estimate_fee:
