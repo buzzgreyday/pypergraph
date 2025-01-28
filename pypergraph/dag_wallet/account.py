@@ -49,7 +49,6 @@ class DagAccount(AsyncIOEventEmitter):
         self.login_with_private_key(private_key)
 
     def login_with_private_key(self, private_key: str):
-        print("Login with private key:", private_key)
         public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
         self._set_keys_and_address(private_key, public_key, address)
@@ -74,7 +73,6 @@ class DagAccount(AsyncIOEventEmitter):
             "public_key": public_key,
             "address": address
         }
-        print(self.key_trio)
         self.emit("session_change", True)
 
     async def get_balance(self):
@@ -84,9 +82,9 @@ class DagAccount(AsyncIOEventEmitter):
         address_obj = await self.network.get_address_balance(address)
         if address_obj and "balance" in address_obj:
             return Decimal(address_obj["balance"]) * DAG_DECIMALS
-        return Decimal(0)
+        return 0
 
-    async def generate_signed_transaction(self, to_address: str, amount: Decimal, fee: Decimal = 0, last_ref=None):
+    async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None):
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
         tx, hash_ = KeyStore.prepare_tx(amount, to_address, self.key_trio["address"], last_ref, fee)
         signature = KeyStore.sign(self.key_trio["private_key"], hash_)
@@ -98,7 +96,7 @@ class DagAccount(AsyncIOEventEmitter):
         return tx.serialize(), hash_
 
 
-    async def send(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False):
+    async def send(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False) -> dict:
         """
         Build transaction, sign and send.
 

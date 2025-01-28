@@ -1,3 +1,4 @@
+import json
 import warnings
 from datetime import datetime
 from typing import Callable, Optional, Any, Dict, List
@@ -6,10 +7,12 @@ import httpx
 
 
 class DI:
+    # TODO: Make dependency injection possible
+    """Future dependency injection"""
 
     def __init__(self):
         #======================
-        #   = HTTP Client =
+        #   = HTTP Client =   #
         #======================
         self.http_client = httpx #IHttpClient;
         self.http_client_base_url = ""
@@ -93,8 +96,29 @@ class RestAPIClient:
         :param value: The new base URL.
         """
         self._base_url = value.rstrip("/")
-        print(f"Base URL updated to: {self._base_url}")
 
+    def handle_api_response(self, response: str, method: str, endpoint: str):
+        try:
+            # Attempt to parse the response as JSON
+            response = json.loads(response)
+
+            # Check if it contains errors
+            if "errors" in response:
+                errors = response["errors"]
+
+                for error in errors:
+                    # TODO: Custom exceptions
+                    if isinstance(error, dict):
+                        # Handle structured errors
+                        errors = error.get("message")
+                        raise ValueError(f"RestAPIClient :: {method} {self.base_url}/{endpoint} returned error(s): {errors}")
+                    else:
+                        # Handle unstructured errors (e.g., strings)
+                        raise ValueError(f"RestAPIClient :: {method} {self.base_url}/{endpoint} returned error(s): {error}")
+
+        except json.JSONDecodeError as e:
+            # Handle malformed JSON
+            raise ValueError(f"RestAPIClient :: {method} {self.base_url}/{endpoint} failed to parse response {e}, raw response: {response}")
 
     async def request(
             self,
@@ -102,7 +126,7 @@ class RestAPIClient:
             endpoint: str,
             headers: Optional[Dict[str, str]] = None,
             params: Optional[Dict[str, Any]] = None,
-            json: Optional[Dict[str, Any]] = None,
+            payload: Optional[Dict[str, Any]] = None,
     ) -> httpx.Response:
         """
         Makes an HTTP request.
@@ -111,7 +135,7 @@ class RestAPIClient:
         :param endpoint: The endpoint path (appended to base_url).
         :param headers: Optional headers for the request.
         :param params: Optional query parameters.
-        :param json: Optional JSON payload.
+        :param payload: Optional JSON payload.
         :return: HTTPX Response object.
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
@@ -123,20 +147,21 @@ class RestAPIClient:
             url=url,
             headers=headers,
             params=params,
-            json=json,
+            json=payload,
         )
-        response.raise_for_status()
+
+        self.handle_api_response(response.text, method, endpoint)
         return response.json()
 
     async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
         return await self.request("GET", endpoint, headers=headers, params=params)
 
-    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, json: Optional[Dict[str, Any]] = None) -> httpx.Response:
+    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> httpx.Response:
         # TODO: serialize json
-        return await self.request("POST", endpoint, headers=headers, json=json)
+        return await self.request("POST", endpoint, headers=headers, payload=payload)
 
-    async def put(self, endpoint: str, headers: Optional[Dict[str, str]] = None, json: Optional[Dict[str, Any]] = None) -> httpx.Response:
-        return await self.request("PUT", endpoint, headers=headers, json=json)
+    async def put(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> httpx.Response:
+        return await self.request("PUT", endpoint, headers=headers, payload=payload)
 
     async def delete(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
         return await self.request("DELETE", endpoint, headers=headers, params=params)
@@ -177,7 +202,7 @@ class LoadBalancerApi:
         return result
 
     async def post_transaction(self, tx: Dict[str, Any]):
-        result = await self.service.post("/transactions", json=tx)
+        result = await self.service.post("/transactions", payload=tx)
         return result
 
     async def get_pending_transaction(self, tx_hash: str):
@@ -394,7 +419,7 @@ class L0Api:
     async def post_state_channel_snapshot(self, address: str, snapshot: str):
         return await self.service.post(
             f"/state-channel/{address}/snapshot",
-            json=snapshot
+            data=snapshot
         )
 
 class L1Api:
@@ -428,7 +453,7 @@ class L1Api:
         return await self.service.get(f"/transactions/{hash}")
 
     async def post_transaction(self, tx):
-        return await self.service.post("/transactions", json=tx)
+        return await self.service.post("/transactions", payload=tx)
 
 class ML0Api(L0Api):
     def __init__(self, host):

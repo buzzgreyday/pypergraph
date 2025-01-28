@@ -116,7 +116,7 @@ class KeyStore:
     #         raise ValueError("KeyStore :: No private key found in the .p12 file.")
 
     @staticmethod
-    def prepare_tx (amount: Decimal, to_address: str, from_address: str, last_ref: dict, fee: Decimal = 0) -> Tuple[TransactionV2, str]:
+    def prepare_tx (amount: int, to_address: str, from_address: str, last_ref: dict, fee: int = 0) -> Tuple[TransactionV2, str]:
         """
         Prepare a new transaction.
 

@@ -38,11 +38,9 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
         if self.connected_network != net_info:
             self.connected_network = net_info
-            print("Network Changed:", self.connected_network)
             self.be_api.config(net_info["be_url"])
             self.l0_api.config(net_info["l0_host"] if net_info["l0_host"] is not None else net_info["l0_lb_url"])
             self.cl1_api.config(net_info["cl1_host"] if net_info["cl1_host"] is not None else net_info["l1_lb_url"])
-            print("Currency layer API:", self.cl1_api.__dict__)
 
             # Emit a network change event
             self.emit('network_change', net_info)
@@ -88,7 +86,6 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
 
     async def post_transaction(self, tx: dict) -> str:
-        print("Posting transaction with the following config:", self.cl1_api.__dict__)
         response = await self.cl1_api.post_transaction(tx)
         # Support both data/meta format and object return format
         return response.get('data', {}).get('hash') or response.get('hash')
@@ -259,7 +256,7 @@ class Network:
         """
         url = self.l1_host + "/transactions" if self.l1_host else self.l1_lb + "/transactions"
         headers = {"accept": "application/json", "Content-Type": "application/json"}
-        response = PostTransactionResponse(**await self._fetch("POST", url, headers=headers, json=transaction_data))
+        response = PostTransactionResponse(**await self._fetch("POST", url, headers=headers, payload=transaction_data))
         return response.hash
 
     def _validate_network_params(self):
