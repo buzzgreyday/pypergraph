@@ -17,7 +17,7 @@ class Test(IsolatedAsyncioTestCase):
         wallet.connect(network_info)
         valid = wallet.on("network_change")
         self.assertTrue(valid)
-        data = await wallet.send("DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", 1)
+        data = await wallet.send("DAG5TESTp7hQgumY7qEFqWZ9yuRghBuzzGreyday", 1)
         self.assertEqual("POSTED", data.get("status"))  # add assertion here
 
 
