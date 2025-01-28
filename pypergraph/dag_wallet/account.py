@@ -13,7 +13,7 @@ from pypergraph.dag_wallet.models import NetworkInfo
 DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 
 
-class DagAccount(AsyncIOEventEmitter):
+class DagAccount():
     def __init__(self, network = None):
         """
         DAG wallet account class. It's also an asyncio event emitter.
@@ -23,6 +23,7 @@ class DagAccount(AsyncIOEventEmitter):
         super().__init__()
         self.network = network or DagTokenNetwork() # Inject another Network class
         self.key_trio = None
+        self.emitter = AsyncIOEventEmitter()
 
     def connect(self, network_info: dict):
         """
@@ -69,13 +70,13 @@ class DagAccount(AsyncIOEventEmitter):
 
     def logout(self):
         self.key_trio = None
-        self.emit("session_change", True)
+        self.emitter.emit("session_change", True)
 
     def on_network_change(self):
         pass
 
     def observe_session_change(self, on_network_change):
-        self.on("session_change", on_network_change)
+        self.emitter.on("session_change", on_network_change)
 
     def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
         self.key_trio = {
@@ -83,7 +84,7 @@ class DagAccount(AsyncIOEventEmitter):
             "public_key": public_key,
             "address": address
         }
-        self.emit("session_change", True)
+        self.emitter.emit("session_change", True)
 
     async def get_balance(self):
         return await self.get_balance_for(self.address)

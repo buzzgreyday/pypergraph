@@ -8,6 +8,7 @@ WORDS="solution rookie cake shine hand attack claw awful harsh level case vocal"
 class Test(IsolatedAsyncioTestCase):
     async def test_login_connect_send(self):
         network_info = {
+            "network": "Constellation",
             "network_id": "testnet",
             "be_url": "https://be-testnet.constellationnetwork.io",
             "l0_host": None,
