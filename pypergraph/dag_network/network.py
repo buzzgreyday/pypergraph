@@ -2,7 +2,6 @@ from typing import Optional
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from pypergraph.dag_core import KeyringNetwork
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
 from pypergraph.dag_network.models import PendingTransaction
 from pypergraph.dag_wallet.models import NetworkInfo
@@ -14,8 +13,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         super().__init__()
         """Validate connected network"""
         # TODO: Do not hardcode urls
-        self.connected_network = {"network": "Constellation", "network_id": "mainnet", "be_url": "https://be-mainnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-mainnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-mainnet.constellationnetwork.io"} if not net_info else net_info
-        self.network = KeyringNetwork.Constellation.value
+        self.connected_network = {"network_id": "mainnet", "be_url": "https://be-mainnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-mainnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-mainnet.constellationnetwork.io"} if not net_info else net_info
         self.l1_lb_api = LoadBalancerApi(host=self.connected_network["l1_lb_url"])
         self.l0_lb_api = LoadBalancerApi(host=self.connected_network["l0_lb_url"])
         self.be_api = BlockExplorerApi(host=self.connected_network["be_url"])
