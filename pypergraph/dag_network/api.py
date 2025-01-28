@@ -7,12 +7,10 @@ import httpx
 
 
 class DI:
-    # TODO: Make dependency injection possible
-    """Future dependency injection"""
 
     def __init__(self):
         #======================
-        #   = HTTP Client =   #
+        #   = HTTP Client =
         #======================
         self.http_client = httpx #IHttpClient;
         self.http_client_base_url = ""
@@ -419,7 +417,7 @@ class L0Api:
     async def post_state_channel_snapshot(self, address: str, snapshot: str):
         return await self.service.post(
             f"/state-channel/{address}/snapshot",
-            data=snapshot
+            payload=snapshot
         )
 
 class L1Api:

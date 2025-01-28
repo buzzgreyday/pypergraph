@@ -8,18 +8,25 @@ from decimal import Decimal
 from pyee.asyncio import AsyncIOEventEmitter
 from typing import Optional, List, Dict, Any
 
+from pypergraph.dag_wallet.models import NetworkInfo
+
 DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 
 
 class DagAccount(AsyncIOEventEmitter):
     def __init__(self, network = None):
+        """
+        DAG wallet account class. It's also an asyncio event emitter.
+
+        :param network: Inject a network class (default: DagTokenNetwork())
+        """
         super().__init__()
-        self.network = network or DagTokenNetwork()
+        self.network = network or DagTokenNetwork() # Inject another Network class
         self.key_trio = None
 
     def connect(self, network_info: dict):
         """
-        Initiate or change connection.
+        Initiate or change connection (default: mainnet).
 
         :param network_info: {"network_id": "integrationnet", "be_url": "https://be-integrationnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-integrationnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-integrationnet.constellationnetwork.io"}
     wallet = DagAccount()
@@ -64,8 +71,11 @@ class DagAccount(AsyncIOEventEmitter):
         self.key_trio = None
         self.emit("session_change", True)
 
-    def observe_session_change(self, listener):
-        self.on("session_change", listener)
+    def on_network_change(self):
+        pass
+
+    def observe_session_change(self, on_network_change):
+        self.on("session_change", on_network_change)
 
     def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
         self.key_trio = {
