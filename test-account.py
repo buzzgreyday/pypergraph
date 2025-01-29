@@ -37,7 +37,7 @@ class Test(IsolatedAsyncioTestCase):
         network = DagTokenNetwork()
         await manager.login('password')
         wallet = manager.get_wallet_by_id('MCW1')
-        # We need some way of easily generating signed transactions.
+        # We need some way of easily generating signed transactions. We need more managers.
         # There's one keyring per chain; each containing DagAccounts and EthAccounts, respectively
         print([k.__dict__ for k in wallet.keyrings])
         print([a for k in wallet.keyrings for a in k.__dict__])
