@@ -1,6 +1,6 @@
 from ecdsa import SigningKey, SECP256k1
 
-from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, KeyringNetwork
+from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, ChainId
 from .keyrings import HdKeyring, SimpleKeyring
 from .bip import Bip39Helper
 
@@ -66,7 +66,7 @@ class MultiAccountWallet:
         self.network = data.get("network")
         self.mnemonic = data.get("secret")
 
-        if self.network == KeyringNetwork.Constellation.value:
+        if self.network == ChainId.Constellation.value:
             self.supported_assets.append(KeyringAssetType.DAG.value)
             bip44_path = BIP_44_PATHS.CONSTELLATION_PATH
         else:
@@ -75,7 +75,7 @@ class MultiAccountWallet:
             bip44_path = BIP_44_PATHS.ETH_WALLET_PATH.value
 
         self.keyring = HdKeyring().create(mnemonic=self.mnemonic, hd_path=bip44_path,
-                               network=KeyringNetwork.Constellation.value, number_of_accounts=data["num_of_accounts"])
+                               network=ChainId.Constellation.value, number_of_accounts=data["num_of_accounts"])
 
         if data.get("rings"):
             self.keyring.deserialize(data.get("rings")[0])
@@ -114,6 +114,7 @@ class MultiKeyWallet:
         #self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value] Original
         self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
         self.label: str = ""
+        self.mnemonic: str = ""
         self.keyrings: [] = []
         self.network = ""
 
@@ -170,9 +171,9 @@ class MultiKeyWallet:
             for account in data["accounts"]:
                 self.import_account(account.get("privateKey"), account.get("label"))
 
-        if self.network == KeyringNetwork.Ethereum:
+        if self.network == ChainId.Ethereum:
             self.supported_assets.extend([KeyringAssetType.ETH, KeyringAssetType.ERC20])
-        elif self.network == KeyringNetwork.Constellation:
+        elif self.network == ChainId.Constellation:
             self.supported_assets.append(KeyringAssetType.DAG)
 
     def import_account(self, secret: str, label: str):
@@ -254,7 +255,7 @@ class MultiChainWallet:
             "accounts": [
                 {
                     "address": a.get_address(),
-                    "network": a.get_network(),
+                    "network": a.get_chain_id(),
                     "tokens": a.get_tokens(),
                 }
                 for a in self.get_accounts()
@@ -275,8 +276,8 @@ class MultiChainWallet:
         self.mnemonic = data.get("secret")
 
         self.keyrings = [
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=KeyringNetwork.Constellation.value, number_of_accounts=1),
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=KeyringNetwork.Ethereum.value, number_of_accounts=1)
+            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=ChainId.Constellation.value, number_of_accounts=1),
+            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=ChainId.Ethereum.value, number_of_accounts=1)
         ]
 
         if data.get("rings"):
@@ -385,16 +386,16 @@ class SingleAccountWallet:
         """
 
         self.label = data.get("label")
-        self.network = data.get("network") or KeyringNetwork.Constellation.value
+        self.network = data.get("network") or ChainId.Constellation.value
         self.keyring = SimpleKeyring()
 
         self.keyring.deserialize({"network": self.network, "accounts": [{ "privateKey": data.get("secret") }]})
 
-        if self.network == KeyringNetwork.Ethereum.value:
+        if self.network == ChainId.Ethereum.value:
           self.supported_assets.append(KeyringAssetType.ETH.value)
           self.supported_assets.append(KeyringAssetType.ERC20.value)
 
-        elif self.network == KeyringNetwork.Constellation.value:
+        elif self.network == ChainId.Constellation.value:
           self.supported_assets.append(KeyringAssetType.DAG.value)
 
     def import_account (self, hdPath: str, label: str):

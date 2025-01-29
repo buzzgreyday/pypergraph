@@ -14,7 +14,9 @@ async def main():
     wallet.connect(network_info)
     network_info = {"network_id": "testnet", "be_url": "https://be-testnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-testnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-testnet.constellationnetwork.io"}
     wallet.connect(network_info)
-    resp = await wallet.send("DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", 1)
+    amount = 1 * 10000000
+    fee = 2 * 1000000
+    resp = await wallet.send("DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", amount, fee=fee)
     print("Response" , resp)
 
     controller = KeyringManager()

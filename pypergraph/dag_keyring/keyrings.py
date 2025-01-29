@@ -1,4 +1,4 @@
-from pypergraph.dag_core.constants import KeyringNetwork
+from pypergraph.dag_core.constants import ChainId
 from pypergraph.dag_keyring.registry import KeyringRegistry
 from pypergraph.dag_keyring.bip import Bip32Helper, Bip39Helper
 
@@ -14,7 +14,7 @@ class HdKeyring:
 
     # Read-only wallet
     @staticmethod
-    def create_from_extended_key(extended_key: str, network: KeyringNetwork, number_of_accounts: int):
+    def create_from_extended_key(extended_key: str, network: ChainId, number_of_accounts: int):
         # TODO: check _init_from...
         inst = HdKeyring()
         inst.extendedKey = extended_key
@@ -144,7 +144,7 @@ class HdKeyring:
 class SimpleKeyring:
 
     account = None #IKeyringAccount;
-    network: KeyringNetwork.Constellation.value #KeyringNetwork
+    network: ChainId.Constellation.value #KeyringNetwork
 
     def create_for_network(self, network, private_key: str):
         inst = SimpleKeyring()

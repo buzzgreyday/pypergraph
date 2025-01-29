@@ -1,8 +1,8 @@
 from ecdsa import SigningKey, SECP256k1
 from eth_account import Account
 
-from pypergraph.dag_core import KeyringNetwork
-from .accounts import DagAccount, EthAccount
+from pypergraph.dag_core import ChainId
+from pypergraph.dag_wallet import DagAccount, EthAccount
 
 
 # Polymorphism
@@ -11,8 +11,8 @@ class KeyringRegistry:
     def __init__(self):
         # Map network values to their respective account classes
         self.registry = {
-            KeyringNetwork.Constellation.value: DagAccount,
-            KeyringNetwork.Ethereum.value: EthAccount
+            ChainId.Constellation.value: DagAccount,
+            ChainId.Ethereum.value: EthAccount
         }
 
     def register_account_classes(self, data: dict):
