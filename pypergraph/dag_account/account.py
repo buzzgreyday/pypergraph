@@ -22,9 +22,9 @@ DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 class EcdsaAccount(ABC):
     def __init__(self):
         """Base for Constellation and Ethereum account creation."""
-        self.tokens: Optional[List[str]] = []
+        self.tokens: List[str] = []
         self.wallet: Optional[SigningKey] = None
-        self.assets: Optional[List[Any]] = []
+        self.assets: List[Any] = []
         self.bip44_index: Optional[int] = None
         self.provider = None  # Placeholder for Web3 provider
         self._label: Optional[str] = None

@@ -16,7 +16,7 @@ class KeyringManager(AsyncIOEventEmitter):
         self.storage = StateStorageDb()
         self.wallets = []
         self.password = ""
-        self.mem_store = ObservableStore({"is_unlocked": False, "wallets": []})
+        self.mem_store = ObservableStore({"is_unlocked": False, "wallets": []}) # Memory storage
         # KeyringManager is also an event emitter
         self.on("new_account", self.create_multi_chain_hd_wallet)
         self.on("remove_account", self.remove_account)
@@ -201,7 +201,6 @@ class KeyringManager(AsyncIOEventEmitter):
         vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
         self.password = password
         self. wallets = [await self._restore_wallet(w) for w in vault["wallets"]]
-        print("Wallets after restore:", self.mem_store.get_state())
         await self.update_mem_store_wallets()
         print("Wallets after memory update", self.mem_store.get_state())
         return self.wallets
