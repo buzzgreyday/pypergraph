@@ -22,7 +22,7 @@ class KeyringAssetType(Enum):
   ETH = 'ETH'
   ERC20 = 'ERC20'
 
-class ChainId(Enum):
+class NetworkId(Enum):
   Constellation = 'Constellation'
   Ethereum = 'Ethereum'
 

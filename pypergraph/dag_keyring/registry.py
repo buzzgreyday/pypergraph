@@ -1,4 +1,4 @@
-from pypergraph.dag_core import ChainId
+from pypergraph.dag_core import NetworkId
 from pypergraph.dag_account import DagAccount, EthAccount
 
 
@@ -8,8 +8,8 @@ class KeyringRegistry:
     def __init__(self):
         # Map network values to their respective account classes
         self.registry = {
-            ChainId.Constellation.value: DagAccount,
-            ChainId.Ethereum.value: EthAccount
+            NetworkId.Constellation.value: DagAccount,
+            NetworkId.Ethereum.value: EthAccount
         }
 
     def register_account_classes(self, data: dict):

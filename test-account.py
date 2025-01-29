@@ -7,6 +7,7 @@ import pypergraph.dag_account
 from pypergraph.dag_keyring import KeyringManager
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network import DagTokenNetwork
+from pypergraph.dag_keyring.storage import StateStorageDb
 
 WORDS="solution rookie cake shine hand attack claw awful harsh level case vocal"
 
@@ -35,21 +36,18 @@ class Test(IsolatedAsyncioTestCase):
         manager = KeyringManager()
         keystore = KeyStore()
         network = DagTokenNetwork()
+        store = StateStorageDb()
+        encrypted_vault = await store.get('vault')
+        decrypted_vault = await manager.encryptor.decrypt('password', encrypted_vault)
+        print(decrypted_vault)
         await manager.login('password')
-        wallet = manager.get_wallet_by_id('MCW1')
-        # We need some way of easily generating signed transactions. We need more managers.
-        # There's one keyring per chain; each containing DagAccounts and EthAccounts, respectively
-        print([k.__dict__ for k in wallet.keyrings])
-        print([a for k in wallet.keyrings for a in k.__dict__])
-        pub_key = wallet.keyrings[0].accounts[0].get_public_key()
-        address = wallet.keyrings[0].accounts[0].get_address()
-        priv_key = wallet.keyrings[0].accounts[0].get_private_key()
-        last_ref = await network.get_address_last_accepted_transaction_ref(address)
-        tx, hash_ = keystore.prepare_tx(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", from_address=address, last_ref=last_ref)
-        signature = keystore.sign(priv_key, hash_)
-        proof = {"id": pub_key[2:], "signature": signature}
-        tx.add_proof(proof)
-        print(tx.serialize())
+        #wallet = manager.get_wallet_by_id('MCW1')
+        #last_ref = await network.get_address_last_accepted_transaction_ref(address)
+        #tx, hash_ = keystore.prepare_tx(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", from_address=address, last_ref=last_ref)
+        #signature = keystore.sign(priv_key, hash_)
+        #proof = {"id": pub_key[2:], "signature": signature}
+        ##tx.add_proof(proof)
+        #print(tx.serialize())
 
 
 
