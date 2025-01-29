@@ -21,6 +21,7 @@ DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 
 class EcdsaAccount(ABC):
     def __init__(self):
+        """Base for Constellation and Ethereum account creation."""
         self.tokens: Optional[List[str]] = []
         self.wallet: Optional[SigningKey] = None
         self.assets: Optional[List[Any]] = []
@@ -64,6 +65,13 @@ class EcdsaAccount(ABC):
         return self._label
 
     def create(self, private_key: Optional[str]):
+        """
+        Create a "wallet" key for signing. If private key is set, create for the private key, else, generate new.
+        This method is shared by Constellation and Ethereum accounts.
+
+        :param private_key:
+        :return:
+        """
         if private_key:
             self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
         else:
@@ -163,16 +171,6 @@ class EcdsaAccount(ABC):
 
         # Return the public key in hexadecimal format
         return public_key.to_hex()
-
-    #def get_address(self) -> str:
-    #    #return self.wallet.get_checksum_address_string()
-    #    vk = self.wallet.get_verifying_key().to_string()
-    #
-    #    # Compute the keccak hash of the public key (last 20 bytes is the address)
-    #    public_key = b"\x04" + vk  # Add the uncompressed prefix
-    #    address = keccak(public_key[1:])[-20:]  # Drop the first byte (x-coord prefix)
-    #
-    #    return to_checksum_address("0x" + address.hex())
 
     def get_public_key(self) -> str:
         return self.wallet.get_verifying_key().to_string().hex()
@@ -408,10 +406,6 @@ class DagAccount(EcdsaAccount):
         actual_address = self.get_address_from_public_key(public_key)
         return says_address == actual_address
 
-    #@staticmethod
-    #def sha256(data: bytes) -> str:
-    #    return hashlib.sha256(data).hexdigest()
-
     @staticmethod
     def get_address_from_public_key(public_key_hex: str) -> str:
         return KeyStore.get_dag_address_from_public_key(public_key_hex)
@@ -578,7 +572,6 @@ class EthAccount(EcdsaAccount):
         return to_checksum_address(address)
 
     def get_address(self) -> str:
-        #return self.wallet.get_checksum_address_string()
         vk = self.wallet.get_verifying_key().to_string()
 
         # Compute the keccak hash of the public key (last 20 bytes is the address)
