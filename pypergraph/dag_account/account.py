@@ -1,5 +1,4 @@
 import asyncio
-import base58
 import hashlib
 import time
 from abc import ABC, abstractmethod
