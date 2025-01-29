@@ -8,11 +8,11 @@ from typing import Any, Dict, List, Optional
 
 from ecdsa import SECP256k1, SigningKey
 from eth_keys import keys
-from eth_utils import keccak, to_checksum_address
+from eth_utils import keccak, to_checksum_address, is_checksum_address
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import ChainId
-from pypergraph.dag_core.constants import PKCS_PREFIX
+from pypergraph.dag_core.constants import PKCS_PREFIX, KeyringAssetType
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
 
@@ -568,3 +568,47 @@ class MetagraphTokenClient:
 
     async def wait(self, time_in_seconds: int = 5):
         await asyncio.sleep(time_in_seconds)
+
+
+class EthAccount(EcdsaAccount):
+    decimals = 18
+    chain_id = ChainId.Ethereum.value
+    has_token_support = True
+    supported_assets = [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
+    tokens = ["0xa393473d64d2F9F026B60b6Df7859A689715d092"]  # LTX
+
+    def save_token_info(self, address: str):
+        """Save the token info if not already present in the tokens list."""
+        if address not in self.tokens:
+            self.tokens.append(address)
+
+    def validate_address(self, address: str) -> bool:
+        """Validate an Ethereum address."""
+        return is_checksum_address(address)
+
+    def sign_transaction(self, tx):
+        """
+        Sign an Ethereum transaction with the account's private key.
+
+        tx is an instance of the transaction object from a library like web3.eth.account.
+        """
+        private_key = self.get_private_key_buffer()
+        signed_tx = tx.sign(private_key)
+        return signed_tx
+
+    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
+        """Verify if a signed message matches the provided address."""
+        public_key = self.recover_signed_msg_public_key(msg, signature)
+        actual_address = self.get_address_from_public_key(public_key)
+        return to_checksum_address(says_address) == actual_address
+
+    def get_address_from_public_key(self, public_key: str) -> str:
+        """Derive the Ethereum address from the public key."""
+        address = b"\x04" + hashlib.sha3_256(public_key.encode("utf-8")).digest()
+        return to_checksum_address(address)
+
+    def get_encryption_public_key(self) -> str:
+        """Get the public key for encryption."""
+        # This is a placeholder. Replace it with the appropriate implementation.
+        # For example, if using web3py, you can use `eth_account.Account.encrypt()` for encryption keys.
+        raise NotImplementedError("Encryption public key generation is not yet implemented.")
