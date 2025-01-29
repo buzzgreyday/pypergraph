@@ -1,8 +1,5 @@
-from ecdsa import SigningKey, SECP256k1
-from eth_account import Account
-
 from pypergraph.dag_core import ChainId
-from pypergraph.dag_wallet import DagAccount, EthAccount
+from pypergraph.dag_account import DagAccount, EthAccount
 
 
 # Polymorphism

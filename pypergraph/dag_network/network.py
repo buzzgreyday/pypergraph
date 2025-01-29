@@ -4,7 +4,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
 from pypergraph.dag_network.models import PendingTransaction
-from pypergraph.dag_wallet.models import NetworkInfo
+from pypergraph.dag_account.models import NetworkInfo
 
 
 class DagTokenNetwork(AsyncIOEventEmitter):

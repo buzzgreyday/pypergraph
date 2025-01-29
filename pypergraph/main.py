@@ -2,7 +2,7 @@ import asyncio
 from os import getenv
 
 from pypergraph.dag_keyring import KeyringManager
-from pypergraph.dag_wallet.account import DagAccount
+from pypergraph.dag_account.account import DagAccount
 
 WORDS = getenv("WORDS")
 

@@ -1,7 +1,7 @@
 import unittest
 from unittest import IsolatedAsyncioTestCase
 
-import pypergraph.dag_wallet
+import pypergraph.dag_account
 
 WORDS="solution rookie cake shine hand attack claw awful harsh level case vocal"
 
