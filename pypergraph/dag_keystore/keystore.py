@@ -253,36 +253,19 @@ class KeyStore:
         pass
 
     @staticmethod
-    def validate_dag_address(address: str) -> bool:
-        """
-        Validate DAG address.
-
-        :param address: DAG address.
-        :return: Boolean value.
-        """
-
+    def validate_address(address: str) -> bool:
         if not address:
             return False
 
-        # Check length and prefix
-        if len(address) != 40 or not address.startswith("DAG"):
-            return False
-
-        # Check parity
-        try:
-            parity = int(address[3])
-            if parity < 0 or parity >= 10:
-                return False
-        except ValueError:
-            return False
-
-        # Validate Base58 characters in the remaining part
+        valid_len = len(address) == 40
+        valid_prefix = address.startswith("DAG")
+        valid_parity = address[3].isdigit() and 0 <= int(address[3]) < 10
         base58_part = address[4:]
-        for char in base58_part:
-            if char not in BASE58_ALPHABET:
-                return False
+        valid_base58 = (
+            len(base58_part) == 36 and base58_part == base58.b58encode(base58.b58decode(base58_part)).decode()
+        )
 
-        return True
+        return valid_len and valid_prefix and valid_parity and valid_base58
 
     @staticmethod
     def validate_mnemonic(mnemonic_phrase: str) -> bool:
