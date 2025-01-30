@@ -154,6 +154,17 @@ class EcdsaAccount(ABC):
     #
     #     return eth_util.strip_hex_prefix(eth_util.to_rpc_sig(v, r, s))
 
+
+
+    def get_public_key(self) -> str:
+        return self.wallet.get_verifying_key().to_string().hex()
+
+    def get_private_key(self) -> str:
+        return self.wallet.to_string().hex()
+
+    def get_private_key_buffer(self):
+        return self.wallet.to_string()
+
     def recover_signed_msg_public_key(self, msg: str, signature: str) -> str:
         # Compute the hash of the message in Ethereum's personal_sign format
         msg_hash = keccak(text=f"\x19Ethereum Signed Message:\n{len(msg)}{msg}")
@@ -172,16 +183,34 @@ class EcdsaAccount(ABC):
         # Return the public key in hexadecimal format
         return public_key.to_hex()
 
+class DagAccountKeyringMixin:
+
+    @staticmethod
+    def validate_address(address: str) -> bool:
+        return KeyStore.validate_address(address)
+
     def get_public_key(self) -> str:
-        return self.wallet.get_verifying_key().to_string().hex()
+        if hasattr(self, "wallet"):
+            return self.wallet.get_verifying_key().to_string().hex()
+        else:
+            ValueError("DagAccountKeyringMixin :: EcdsaAccount attribute 'wallet' missing.")
 
-    def get_private_key(self) -> str:
-        return self.wallet.to_string().hex()
+    def get_address(self) -> str:
+        return self.get_address_from_public_key(self.get_public_key())
 
-    def get_private_key_buffer(self):
-        return self.wallet.to_string()
+    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
+        if hasattr(self, "recover_signed_msg_public_key"):
+            public_key = self.recover_signed_msg_public_key(msg, signature)
+            actual_address = self.get_address_from_public_key(public_key)
+            return says_address == actual_address
+        else:
+            raise ValueError("DagAccountKeyringMixin :: EcdsaAccount attribute 'recover_signed_msg_public_key' missing.")
 
-class DagAccount(EcdsaAccount):
+    @staticmethod
+    def get_address_from_public_key(public_key_hex: str) -> str:
+        return KeyStore.get_dag_address_from_public_key(public_key_hex)
+
+class DagAccount(EcdsaAccount, DagAccountKeyringMixin):
 
     network = DagTokenNetwork()  # Inject another Network class
     key_trio = None
@@ -389,29 +418,6 @@ class DagAccount(EcdsaAccount):
         txns = await self.generate_batch_transactions(transfers, last_ref)
         return await self.send_batch_transactions(txns)
 
-    ### --> KEYRING:DAGACCOUNT
-
-    @staticmethod
-    def validate_address(address: str) -> bool:
-        return KeyStore.validate_address(address)
-
-    def get_public_key(self) -> str:
-        return self.wallet.get_verifying_key().to_string().hex()
-
-    def get_address(self) -> str:
-        return self.get_address_from_public_key(self.get_public_key())
-
-    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
-        public_key = self.recover_signed_msg_public_key(msg, signature)
-        actual_address = self.get_address_from_public_key(public_key)
-        return says_address == actual_address
-
-    @staticmethod
-    def get_address_from_public_key(public_key_hex: str) -> str:
-        return KeyStore.get_dag_address_from_public_key(public_key_hex)
-
-    ### <-- KEYRING:DAGACCOUNT
-
     # def create_metagraph_token_client(self, network_info: dict):
     #     return MetagraphTokenClient(self, network_info)
 
@@ -508,7 +514,7 @@ class MetagraphTokenClient:
 
         txns = []
         for transfer in transfers:
-            transaction, hash_ = await self.account.generate_signed_transaction_with_hash(
+            transaction, hash_ = await self.account.generate_signed_transaction(
                 transfer["address"],
                 transfer["amount"],
                 transfer.get("fee", 0),
@@ -536,6 +542,7 @@ class MetagraphTokenClient:
 
 class EthAccount(EcdsaAccount):
     decimals = 18
+    key_trio = None
     network_id = NetworkId.Ethereum.value
     has_token_support = True
     supported_assets = [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
