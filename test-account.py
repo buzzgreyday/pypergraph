@@ -31,6 +31,9 @@ class Test(IsolatedAsyncioTestCase):
         wallet.connect(network_info)
         valid = wallet.emitter.on("network_change")
         self.assertTrue(valid)
+        keyring_manager = KeyringManager()
+        keyring_manager.set_password('password')
+        await keyring_manager.create_or_restore_vault("My Wallet", WORDS, keyring_manager.password)
         #data = await wallet.send("DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", 1)
         #self.assertEqual("POSTED", data.get("status"))  # add assertion here
 
@@ -39,8 +42,9 @@ class Test(IsolatedAsyncioTestCase):
         keystore = KeyStore()
         network = DagTokenNetwork()
         store = StateStorageDb()
+        keyring_manager.set_password('password')
         encrypted_vault = await store.get('vault')
-        decrypted_vault = await keyring_manager.encryptor.decrypt('password', encrypted_vault)
+        decrypted_vault = await keyring_manager.encryptor.decrypt(keyring_manager.password, encrypted_vault)
         account = DagAccount()
         account.login_with_seed_phrase(decrypted_vault["wallets"][0]["secret"])
         #last_ref = await network.get_address_last_accepted_transaction_ref(account.address)
@@ -49,7 +53,7 @@ class Test(IsolatedAsyncioTestCase):
         #proof = {"id": account.public_key[2:], "signature": signature}
         #tx.add_proof(proof)
         tx, hash_ = await account.generate_signed_transaction(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN")
-        print(tx.serialize())
+        print(tx)
 
 
 

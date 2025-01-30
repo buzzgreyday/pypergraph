@@ -331,11 +331,11 @@ class SingleAccountWallet:
         self.network = None #KeyringNetwork;
         self.label: str = ""
 
-    def create(self, network: str, private_key: str, label: str):
+    def create(self, network_id: str, private_key: str, label: str):
         """
         Initiates the creation of a new single key wallet.
 
-        :param network:
+        :param network_id:
         :param private_key:
         :param label:
         :return:
@@ -343,7 +343,7 @@ class SingleAccountWallet:
         if not private_key:
             private_key = SigningKey.generate(SECP256k1).to_string().hex()
 
-        self.deserialize({ "type": self.type, "label": label, "network": network, "secret": private_key })
+        self.deserialize({ "type": self.type, "label": label, "network": network_id, "secret": private_key })
 
     def set_label(self, val: str):
         self.label = val
@@ -363,7 +363,7 @@ class SingleAccountWallet:
             "accounts": [
                 {
                     "address": a.get_address(),
-                    "network": a.get_network(),
+                    "network": a.get_network_id(),
                     "tokens": a.get_tokens(),
                 }
                 for a in self.get_accounts()
