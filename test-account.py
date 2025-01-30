@@ -1,9 +1,11 @@
+import json
 import unittest
 from unittest import IsolatedAsyncioTestCase
 
 from docutils.nodes import address
 
 import pypergraph.dag_account
+from pypergraph.dag_account import DagAccount
 from pypergraph.dag_keyring import KeyringManager
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network import DagTokenNetwork
@@ -33,21 +35,21 @@ class Test(IsolatedAsyncioTestCase):
         #self.assertEqual("POSTED", data.get("status"))  # add assertion here
 
     async def test_keyring_account(self):
-        manager = KeyringManager()
+        keyring_manager = KeyringManager()
         keystore = KeyStore()
         network = DagTokenNetwork()
         store = StateStorageDb()
         encrypted_vault = await store.get('vault')
-        decrypted_vault = await manager.encryptor.decrypt('password', encrypted_vault)
-        print(decrypted_vault)
-        await manager.login('password')
+        decrypted_vault = await keyring_manager.encryptor.decrypt('password', encrypted_vault)
+        account = DagAccount()
+        account.login_with_seed_phrase(decrypted_vault["wallets"][0]["secret"])
         #wallet = manager.get_wallet_by_id('MCW1')
-        #last_ref = await network.get_address_last_accepted_transaction_ref(address)
-        #tx, hash_ = keystore.prepare_tx(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", from_address=address, last_ref=last_ref)
-        #signature = keystore.sign(priv_key, hash_)
-        #proof = {"id": pub_key[2:], "signature": signature}
-        ##tx.add_proof(proof)
-        #print(tx.serialize())
+        last_ref = await network.get_address_last_accepted_transaction_ref(account.address)
+        tx, hash_ = keystore.prepare_tx(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", from_address=account.address, last_ref=last_ref)
+        signature = keystore.sign(account.private_key, hash_)
+        proof = {"id": account.public_key[2:], "signature": signature}
+        tx.add_proof(proof)
+        print(tx.serialize())
 
 
 

@@ -27,7 +27,6 @@ class Encryptor:
 
     def encrypt_with_key(self, key: bytes, data) -> dict:
         text = str(data).replace("'", "\"")
-        print("Data to be encrypted", text)
         data_bytes = text.encode("utf-8")
         iv = os.urandom(16)
 
@@ -56,7 +55,6 @@ class Encryptor:
 
         try:
             decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
-            print("Decrypted data:" , decrypted_data.decode("utf-8").replace("'", "\""))
         except Exception as e:
             raise ValueError("Decryption failed: Invalid tag or corrupted data.") from e
         return json.loads(decrypted_data.decode("utf-8").replace("'", "\""))
