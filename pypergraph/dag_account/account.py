@@ -22,16 +22,18 @@ DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 class EcdsaAccount(ABC):
     def __init__(self):
         """Base for Constellation and Ethereum account creation."""
-        self._label: Optional[str] = None
-        self._address: str | None = None
-        self._public_key: str | None = None
-        self.bip44_index: Optional[int] = None
+        self.tokens: List[str] = []
         self._wallet: Optional[SigningKey] = None
         self._network: str | None= None
         self.assets: List[Any] = []
+        self.bip44_index: Optional[int] = None
         self.provider = None  # Placeholder for Web3 provider
-        self.tokens: List[str] = []
-        self._private_key: str | None = None
+        self._label: Optional[str] = None
+
+    @property
+    @abstractmethod
+    def network_config(self): # -> Type[NetworkInterface]:
+        pass
 
     @property
     def wallet(self) -> SigningKey:
@@ -226,7 +228,10 @@ class DagAccountKeyringMixin:
 
 class DagAccount(EcdsaAccount):
 
+    _address: str | None = None
+
     _network = DagTokenNetwork()  # Inject another Network class
+    key_trio = None
     emitter = AsyncIOEventEmitter()
     decimals = 8
     network_id = NetworkId.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
@@ -236,7 +241,7 @@ class DagAccount(EcdsaAccount):
 
     @property
     def network(self):
-        return DagTokenNetwork()
+        return self._network
 
     def config_network(self, network: DagTokenNetwork):
         self._network = network
@@ -258,15 +263,19 @@ class DagAccount(EcdsaAccount):
     def address(self):
         #if not self.key_trio or not self.key_trio.get("address"):
         #    raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
-        return self._address or self.get_address()
+        return self.key_trio["address"] if self.key_trio else self.get_address()
 
     @property
     def public_key(self):
-        return self._public_key or self.get_public_key()
+        return self.key_trio.get("public_key") if self.key_trio else self.get_public_key()
 
     @property
     def private_key(self):
-        return self._private_key or self.get_private_key()
+        return self.key_trio.get("private_key") if self.key_trio else self.get_private_key()
+
+    @property
+    def wallet(self) -> SigningKey:
+        return self._wallet
 
     def login_with_seed_phrase(self, words: str):
         private_key = KeyStore.get_private_key_from_mnemonic(words)
