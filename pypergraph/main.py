@@ -13,7 +13,6 @@ async def main():
     keyring_manager = KeyringManager()
     keystore = KeyStore()
     network = DagTokenNetwork()
-    store = StateStorageDb()
     await keyring_manager.login('password')
     account = keyring_manager.get_accounts()[0]
     print(account.__dict__)
@@ -24,9 +23,9 @@ async def main():
                                                           to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN")
     print(tx)
     # Second method
-    keyring_manager.set_password('password')
+    store = StateStorageDb()
     encrypted_vault = await store.get('vault')
-    decrypted_vault = await keyring_manager.encryptor.decrypt(keyring_manager.password, encrypted_vault)
+    decrypted_vault = await keyring_manager.encryptor.decrypt('password', encrypted_vault)
     account = DagAccount()
     account.login_with_seed_phrase(decrypted_vault["wallets"][0]["secret"])
     # last_ref = await network.get_address_last_accepted_transaction_ref(account.address)
