@@ -1,4 +1,5 @@
 import asyncio
+import base58
 import hashlib
 import time
 from abc import ABC, abstractmethod
@@ -10,8 +11,8 @@ from eth_keys import keys
 from eth_utils import keccak, to_checksum_address, is_checksum_address
 from pyee.asyncio import AsyncIOEventEmitter
 
-from pypergraph.dag_core import NetworkId
-from pypergraph.dag_core.constants import KeyringAssetType
+from pypergraph.dag_core import ChainId
+from pypergraph.dag_core.constants import PKCS_PREFIX, KeyringAssetType
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
 
@@ -21,29 +22,12 @@ DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 
 class EcdsaAccount(ABC):
     def __init__(self):
-        """Base for Constellation and Ethereum account creation."""
-        self.tokens: List[str] = []
-        self._wallet: Optional[SigningKey] = None
-        self._network: str | None= None
-        self.assets: List[Any] = []
+        self.tokens: Optional[List[str]] = []
+        self.wallet: Optional[SigningKey] = None
+        self.assets: Optional[List[Any]] = []
         self.bip44_index: Optional[int] = None
         self.provider = None  # Placeholder for Web3 provider
         self._label: Optional[str] = None
-
-    #@property
-    #@abstractmethod
-    #def network_config(self): # -> Type[NetworkInterface]:
-    #    pass
-
-    @property
-    def wallet(self) -> SigningKey:
-        if not self._wallet:
-            raise ValueError("EcdsaAccount :: Wallet not initialized")
-        return self._wallet
-
-    @wallet.setter
-    def wallet(self, value: SigningKey):
-        self._wallet = value
 
     @property
     @abstractmethod
@@ -52,7 +36,7 @@ class EcdsaAccount(ABC):
 
     @property
     @abstractmethod
-    def network_id(self) -> str:
+    def chain_id(self) -> str:
         pass
 
     @property
@@ -66,11 +50,6 @@ class EcdsaAccount(ABC):
         pass
 
     @abstractmethod
-    def get_address(self) -> str:
-        """Subclasses must implement their own address retrieval."""
-        pass
-
-    @abstractmethod
     def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
         pass
 
@@ -81,13 +60,6 @@ class EcdsaAccount(ABC):
         return self._label
 
     def create(self, private_key: Optional[str]):
-        """
-        Create a "wallet" key for signing. If private key is set, create for the private key, else, generate new.
-        This method is shared by Constellation and Ethereum accounts.
-
-        :param private_key:
-        :return:
-        """
         if private_key:
             self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
         else:
@@ -124,8 +96,8 @@ class EcdsaAccount(ABC):
             result["tokens"] = self.tokens
         return result
 
-    def get_network_id(self):
-        return self.network_id
+    def get_chain_id(self):
+        return self.chain_id
 
     def serialize(self, include_private_key: bool = True) -> Dict[str, Any]:
         result = {}
@@ -170,17 +142,6 @@ class EcdsaAccount(ABC):
     #
     #     return eth_util.strip_hex_prefix(eth_util.to_rpc_sig(v, r, s))
 
-
-
-    def get_public_key(self) -> str:
-        return self.wallet.get_verifying_key().to_string().hex()
-
-    def get_private_key(self) -> str:
-        return self.wallet.to_string().hex()
-
-    def get_private_key_buffer(self):
-        return self.wallet.to_string()
-
     def recover_signed_msg_public_key(self, msg: str, signature: str) -> str:
         # Compute the hash of the message in Ethereum's personal_sign format
         msg_hash = keccak(text=f"\x19Ethereum Signed Message:\n{len(msg)}{msg}")
@@ -199,104 +160,65 @@ class EcdsaAccount(ABC):
         # Return the public key in hexadecimal format
         return public_key.to_hex()
 
-class DagAccountKeyringMixin:
+    def get_address(self) -> str:
+        #return self.wallet.get_checksum_address_string()
+        vk = self.wallet.get_verifying_key().to_string()
 
-    @staticmethod
-    def validate_address(address: str) -> bool:
-        return KeyStore.validate_address(address)
+        # Compute the keccak hash of the public key (last 20 bytes is the address)
+        public_key = b"\x04" + vk  # Add the uncompressed prefix
+        address = keccak(public_key[1:])[-20:]  # Drop the first byte (x-coord prefix)
+
+        return to_checksum_address("0x" + address.hex())
 
     def get_public_key(self) -> str:
-        if hasattr(self, "wallet"):
-            return self.wallet.get_verifying_key().to_string().hex()
-        else:
-            ValueError("DagAccountKeyringMixin :: EcdsaAccount attribute 'wallet' missing.")
+        return self.wallet.get_verifying_key().to_string().hex()
 
-    def get_address(self) -> str:
-        return self.get_address_from_public_key(self.get_public_key())
+    def get_private_key(self) -> str:
+        return self.wallet.to_string().hex()
 
-    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
-        if hasattr(self, "recover_signed_msg_public_key"):
-            public_key = self.recover_signed_msg_public_key(msg, signature)
-            actual_address = self.get_address_from_public_key(public_key)
-            return says_address == actual_address
-        else:
-            raise ValueError("DagAccountKeyringMixin :: EcdsaAccount attribute 'recover_signed_msg_public_key' missing.")
-
-    @staticmethod
-    def get_address_from_public_key(public_key_hex: str) -> str:
-        return KeyStore.get_dag_address_from_public_key(public_key_hex)
-
+    def get_private_key_buffer(self):
+        return self.wallet.to_string()
 
 class DagAccount(EcdsaAccount):
-    _network: DagTokenNetwork = None  # Make instance-specific
+
+    network = DagTokenNetwork()  # Inject another Network class
+    key_trio = None
     emitter = AsyncIOEventEmitter()
     decimals = 8
-    network_id = NetworkId.Constellation.value
+    chain_id = ChainId.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
     has_token_support = False
-    supported_assets = ["DAG"]
-    tokens = []
-
-    @property
-    def network(self) -> DagTokenNetwork:
-        if not self._network:
-            # Consider raising an error instead of implicit creation
-            raise RuntimeError("Network not configured. Call connect() first.")
-        return self._network
+    supported_assets = ["DAG"]  # Can be found among keyring assets in DAG4
+    tokens = []  # Placeholder for default assets
 
     def config_network(self, network: DagTokenNetwork):
-        """Inject a pre-configured network instance"""
-        if not isinstance(network, DagTokenNetwork):
-            raise TypeError("Must provide DagTokenNetwork instance")
-        self._network = network
+        self.network = network
 
     def connect(self, network_info: dict):
         """
-        Properly configure network connection with validation
+        Initiate or change connection (default: mainnet).
+
+        :param network_info: {"network_id": "integrationnet", "be_url": "https://be-integrationnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-integrationnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-integrationnet.constellationnetwork.io"}
+    wallet = DagAccount()
+        :return:
         """
-        # 1. Validate network info
-        required_keys = {"be_url", "network_id"}
-        if not required_keys.issubset(network_info):
-            raise ValueError(f"Missing required network keys: {required_keys}")
+        # TODO: Validate and serialize data
+        self.network.config(network_info)
 
-        # 2. Create new network instance
-        network = DagTokenNetwork()
-
-        # 3. Configure with validated parameters
-        network.config(network_info)
-
-        # 4. Store the configured instance
-        self._network = network
-
-        # Optional: Emit connection event
-        self.emitter.emit("network_changed", network_info)
+        return self
 
     @property
     def address(self):
-        #if not self.key_trio or not self.key_trio.get("address"):
-        #    raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
-        return self.key_trio["address"] if self.key_trio else self.get_address()
-
-    @property
-    def address(self):
-        #if not self.key_trio or not self.key_trio.get("address"):
-        #    raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
-        return self.address or self.get_address()
+        if not self.key_trio or not self.key_trio.get("address"):
+            raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
+        return self.key_trio["address"]
 
     @property
     def public_key(self):
-        return self.public_key or self.get_public_key()
+        return self.key_trio.get("public_key")
 
     @property
     def private_key(self):
-        return self.private_key or self.get_private_key()
-
-    @property
-    def wallet(self) -> SigningKey:
-        return self._wallet
-
-    @wallet.setter
-    def wallet(self, value: SigningKey):
-        self._wallet = value
+        return self.key_trio.get("private_key")
 
     def login_with_seed_phrase(self, words: str):
         private_key = KeyStore.get_private_key_from_mnemonic(words)
@@ -305,7 +227,6 @@ class DagAccount(EcdsaAccount):
     def login_with_private_key(self, private_key: str):
         public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
-        self._wallet = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
         self._set_keys_and_address(private_key, public_key, address)
 
     def login_with_public_key(self, public_key: str):
@@ -317,7 +238,6 @@ class DagAccount(EcdsaAccount):
 
     def logout(self):
         self.key_trio = None
-        self.wallet = None
         self.emitter.emit("session_change", True)
 
     def on_network_change(self):
@@ -344,16 +264,13 @@ class DagAccount(EcdsaAccount):
         return 0
 
     async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None):
-        address = self.get_address()
-        private_key = self.get_private_key()
-        public_key = self.get_public_key()
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
-        tx, hash_ = KeyStore.prepare_tx(amount, to_address, address, last_ref, fee)
-        signature = KeyStore.sign(private_key, hash_)
-        valid = KeyStore.verify(public_key, hash_, signature)
+        tx, hash_ = KeyStore.prepare_tx(amount, to_address, self.key_trio["address"], last_ref, fee)
+        signature = KeyStore.sign(self.key_trio["private_key"], hash_)
+        valid = KeyStore.verify(self.public_key, hash_, signature)
         if not valid:
             raise ValueError("Wallet :: Invalid signature.")
-        proof = {"id": public_key[2:], "signature": signature}
+        proof = {"id": self.public_key[2:], "signature": signature}
         tx.add_proof(proof=proof)
         return tx.serialize(), hash_
 
@@ -470,6 +387,67 @@ class DagAccount(EcdsaAccount):
         txns = await self.generate_batch_transactions(transfers, last_ref)
         return await self.send_batch_transactions(txns)
 
+    ### --> KEYRING:DAGACCOUNT
+
+    @staticmethod
+    def validate_address(address: str) -> bool:
+        if not address:
+            return False
+
+        valid_len = len(address) == 40
+        valid_prefix = address.startswith("DAG")
+        valid_parity = address[3].isdigit() and 0 <= int(address[3]) < 10
+        base58_part = address[4:]
+        valid_base58 = (
+            len(base58_part) == 36 and base58_part == base58.b58encode(base58.b58decode(base58_part)).decode()
+        )
+
+        return valid_len and valid_prefix and valid_parity and valid_base58
+
+    def get_public_key(self) -> str:
+        return self.wallet.get_verifying_key().to_string().hex()
+
+    def get_address(self) -> str:
+        return self.get_address_from_public_key(self.get_public_key())
+
+    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
+        public_key = self.recover_signed_msg_public_key(msg, signature)
+        actual_address = self.get_address_from_public_key(public_key)
+        return says_address == actual_address
+
+    @staticmethod
+    def sha256(data: bytes) -> str:
+        return hashlib.sha256(data).hexdigest()
+
+    def get_address_from_public_key(self, public_key_hex: str) -> str:
+        """
+        :param public_key_hex: The private key as a hexadecimal string.
+        :return: The DAG address corresponding to the public key (node ID).
+        """
+        if len(public_key_hex) == 128:
+            public_key = PKCS_PREFIX + "04" + public_key_hex
+        elif len(public_key_hex) == 130 and public_key_hex[:2] == "04":
+            public_key = PKCS_PREFIX + public_key_hex
+        else:
+            raise ValueError("KeyStore :: Not a valid public key.")
+
+        public_key = hashlib.sha256(bytes.fromhex(public_key)).hexdigest()
+        public_key = base58.b58encode(bytes.fromhex(public_key)).decode()
+        public_key = public_key[len(public_key) - 36:]
+
+        check_digits = "".join([char for char in public_key if char.isdigit()])
+        check_digit = 0
+        for n in check_digits:
+            check_digit += int(n)
+            if check_digit >= 9:
+                check_digit = check_digit % 9
+
+        address = f"DAG{check_digit}{public_key}"
+
+        return address
+
+    ### <-- KEYRING:DAGACCOUNT
+
     # def create_metagraph_token_client(self, network_info: dict):
     #     return MetagraphTokenClient(self, network_info)
 
@@ -477,57 +455,20 @@ class DagAccount(EcdsaAccount):
         from asyncio import sleep
         await sleep(time)
 
-### --> Keyring specific methods
-
-    @staticmethod
-    def validate_address(address: str) -> bool:
-        return KeyStore.validate_address(address)
-
-    def get_public_key(self) -> str:
-        if hasattr(self, "wallet"):
-            return self.wallet.get_verifying_key().to_string().hex()
-        else:
-            ValueError("DagAccountKeyringMixin :: EcdsaAccount attribute 'wallet' missing.")
-
-    def get_address(self) -> str:
-        return self.get_address_from_public_key(self.get_public_key())
-
-    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
-        if hasattr(self, "recover_signed_msg_public_key"):
-            public_key = self.recover_signed_msg_public_key(msg, signature)
-            actual_address = self.get_address_from_public_key(public_key)
-            return says_address == actual_address
-        else:
-            raise ValueError("DagAccountKeyringMixin :: EcdsaAccount attribute 'recover_signed_msg_public_key' missing.")
-
-    @staticmethod
-    def get_address_from_public_key(public_key_hex: str) -> str:
-        return KeyStore.get_dag_address_from_public_key(public_key_hex)
-
-### <-- Keyring specific methods (END)
-
 
 class MetagraphTokenClient:
     def __init__(self, account: DagAccount, network_info: Dict[str, Any], token_decimals: int = 8):
         self.account = account
-        self._network = MetagraphTokenNetwork(network_info)
+        self.network = MetagraphTokenNetwork(network_info)
         self.token_decimals = token_decimals
 
     @property
     def network_instance(self):
-        return self._network
+        return self.network
 
     @property
     def address(self):
         return self.account.address
-
-    @property
-    def network(self):
-        return self._network
-
-    @property
-    def wallet(self) -> SigningKey:
-        return self._wallet
 
     async def get_transactions(self, limit: Optional[int] = None, search_after: Optional[str] = None):
         return await self.network.get_transactions_by_address(self.address, limit, search_after)
@@ -603,7 +544,7 @@ class MetagraphTokenClient:
 
         txns = []
         for transfer in transfers:
-            transaction, hash_ = await self.account.generate_signed_transaction(
+            transaction, hash_ = await self.account.generate_signed_transaction_with_hash(
                 transfer["address"],
                 transfer["amount"],
                 transfer.get("fee", 0),
@@ -631,16 +572,10 @@ class MetagraphTokenClient:
 
 class EthAccount(EcdsaAccount):
     decimals = 18
-    key_trio = None
-    network_id = NetworkId.Ethereum.value
+    chain_id = ChainId.Ethereum.value
     has_token_support = True
-    _network = None
     supported_assets = [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
     tokens = ["0xa393473d64d2F9F026B60b6Df7859A689715d092"]  # LTX
-
-    #@property
-    #def network(self):
-    #    return self._network or EthTokenNetwork()
 
     def save_token_info(self, address: str):
         """Save the token info if not already present in the tokens list."""
@@ -671,15 +606,6 @@ class EthAccount(EcdsaAccount):
         """Derive the Ethereum address from the public key."""
         address = b"\x04" + hashlib.sha3_256(public_key.encode("utf-8")).digest()
         return to_checksum_address(address)
-
-    def get_address(self) -> str:
-        vk = self.wallet.get_verifying_key().to_string()
-
-        # Compute the keccak hash of the public key (last 20 bytes is the address)
-        public_key = b"\x04" + vk  # Add the uncompressed prefix
-        address = keccak(public_key[1:])[-20:]  # Drop the first byte (x-coord prefix)
-
-        return to_checksum_address("0x" + address.hex())
 
     def get_encryption_public_key(self) -> str:
         """Get the public key for encryption."""
