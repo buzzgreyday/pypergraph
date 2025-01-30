@@ -30,10 +30,10 @@ class EcdsaAccount(ABC):
         self.provider = None  # Placeholder for Web3 provider
         self._label: Optional[str] = None
 
-    @property
-    @abstractmethod
-    def network_config(self): # -> Type[NetworkInterface]:
-        pass
+    #@property
+    #@abstractmethod
+    #def network_config(self): # -> Type[NetworkInterface]:
+    #    pass
 
     @property
     def wallet(self) -> SigningKey:
@@ -226,38 +226,49 @@ class DagAccountKeyringMixin:
     def get_address_from_public_key(public_key_hex: str) -> str:
         return KeyStore.get_dag_address_from_public_key(public_key_hex)
 
+
 class DagAccount(EcdsaAccount):
-
-    _address: str | None = None
-
-    _network = DagTokenNetwork()  # Inject another Network class
-    key_trio = None
+    _network: DagTokenNetwork = None  # Make instance-specific
     emitter = AsyncIOEventEmitter()
     decimals = 8
-    network_id = NetworkId.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
+    network_id = NetworkId.Constellation.value
     has_token_support = False
-    supported_assets = ["DAG"]  # Can be found among keyring assets in DAG4
-    tokens = []  # Placeholder for default assets
+    supported_assets = ["DAG"]
+    tokens = []
 
     @property
-    def network(self):
+    def network(self) -> DagTokenNetwork:
+        if not self._network:
+            # Consider raising an error instead of implicit creation
+            raise RuntimeError("Network not configured. Call connect() first.")
         return self._network
 
     def config_network(self, network: DagTokenNetwork):
+        """Inject a pre-configured network instance"""
+        if not isinstance(network, DagTokenNetwork):
+            raise TypeError("Must provide DagTokenNetwork instance")
         self._network = network
 
     def connect(self, network_info: dict):
         """
-        Initiate or change connection (default: mainnet).
-
-        :param network_info: {"network_id": "integrationnet", "be_url": "https://be-integrationnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-integrationnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-integrationnet.constellationnetwork.io"}
-    wallet = DagAccount()
-        :return:
+        Properly configure network connection with validation
         """
-        # TODO: Validate and serialize data
-        self.network.config(network_info)
+        # 1. Validate network info
+        required_keys = {"be_url", "network_id"}
+        if not required_keys.issubset(network_info):
+            raise ValueError(f"Missing required network keys: {required_keys}")
 
-        return self
+        # 2. Create new network instance
+        network = DagTokenNetwork()
+
+        # 3. Configure with validated parameters
+        network.config(network_info)
+
+        # 4. Store the configured instance
+        self._network = network
+
+        # Optional: Emit connection event
+        self.emitter.emit("network_changed", network_info)
 
     @property
     def address(self):
@@ -266,16 +277,26 @@ class DagAccount(EcdsaAccount):
         return self.key_trio["address"] if self.key_trio else self.get_address()
 
     @property
+    def address(self):
+        #if not self.key_trio or not self.key_trio.get("address"):
+        #    raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
+        return self.address or self.get_address()
+
+    @property
     def public_key(self):
-        return self.key_trio.get("public_key") if self.key_trio else self.get_public_key()
+        return self.public_key or self.get_public_key()
 
     @property
     def private_key(self):
-        return self.key_trio.get("private_key") if self.key_trio else self.get_private_key()
+        return self.private_key or self.get_private_key()
 
     @property
     def wallet(self) -> SigningKey:
         return self._wallet
+
+    @wallet.setter
+    def wallet(self, value: SigningKey):
+        self._wallet = value
 
     def login_with_seed_phrase(self, words: str):
         private_key = KeyStore.get_private_key_from_mnemonic(words)
@@ -284,7 +305,7 @@ class DagAccount(EcdsaAccount):
     def login_with_private_key(self, private_key: str):
         public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
-        self.wallet = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
+        self._wallet = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
         self._set_keys_and_address(private_key, public_key, address)
 
     def login_with_public_key(self, public_key: str):
@@ -617,10 +638,9 @@ class EthAccount(EcdsaAccount):
     supported_assets = [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
     tokens = ["0xa393473d64d2F9F026B60b6Df7859A689715d092"]  # LTX
 
-    @property
-    def network_config(self):# -> Type[NetworkInterface]:
-        #return EthTokenNetwork  # Concrete network implementation
-        return None
+    #@property
+    #def network(self):
+    #    return self._network or EthTokenNetwork()
 
     def save_token_info(self, address: str):
         """Save the token info if not already present in the tokens list."""
