@@ -43,12 +43,12 @@ class Test(IsolatedAsyncioTestCase):
         decrypted_vault = await keyring_manager.encryptor.decrypt('password', encrypted_vault)
         account = DagAccount()
         account.login_with_seed_phrase(decrypted_vault["wallets"][0]["secret"])
-        #wallet = manager.get_wallet_by_id('MCW1')
-        last_ref = await network.get_address_last_accepted_transaction_ref(account.address)
-        tx, hash_ = keystore.prepare_tx(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", from_address=account.address, last_ref=last_ref)
-        signature = keystore.sign(account.private_key, hash_)
-        proof = {"id": account.public_key[2:], "signature": signature}
-        tx.add_proof(proof)
+        #last_ref = await network.get_address_last_accepted_transaction_ref(account.address)
+        #tx, hash_ = keystore.prepare_tx(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN", from_address=account.address, last_ref=last_ref)
+        #signature = keystore.sign(account.private_key, hash_)
+        #proof = {"id": account.public_key[2:], "signature": signature}
+        #tx.add_proof(proof)
+        tx, hash_ = await account.generate_signed_transaction(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN")
         print(tx.serialize())
 
 

@@ -210,7 +210,7 @@ class DagAccountKeyringMixin:
     def get_address_from_public_key(public_key_hex: str) -> str:
         return KeyStore.get_dag_address_from_public_key(public_key_hex)
 
-class DagAccount(EcdsaAccount, DagAccountKeyringMixin):
+class DagAccount(EcdsaAccount):
 
     network = DagTokenNetwork()  # Inject another Network class
     key_trio = None
@@ -424,6 +424,35 @@ class DagAccount(EcdsaAccount, DagAccountKeyringMixin):
     async def wait(self, time: float = 5.0):
         from asyncio import sleep
         await sleep(time)
+
+### --> Keyring specific methods
+
+    @staticmethod
+    def validate_address(address: str) -> bool:
+        return KeyStore.validate_address(address)
+
+    def get_public_key(self) -> str:
+        if hasattr(self, "wallet"):
+            return self.wallet.get_verifying_key().to_string().hex()
+        else:
+            ValueError("DagAccountKeyringMixin :: EcdsaAccount attribute 'wallet' missing.")
+
+    def get_address(self) -> str:
+        return self.get_address_from_public_key(self.get_public_key())
+
+    def verify_message(self, msg: str, signature: str, says_address: str) -> bool:
+        if hasattr(self, "recover_signed_msg_public_key"):
+            public_key = self.recover_signed_msg_public_key(msg, signature)
+            actual_address = self.get_address_from_public_key(public_key)
+            return says_address == actual_address
+        else:
+            raise ValueError("DagAccountKeyringMixin :: EcdsaAccount attribute 'recover_signed_msg_public_key' missing.")
+
+    @staticmethod
+    def get_address_from_public_key(public_key_hex: str) -> str:
+        return KeyStore.get_dag_address_from_public_key(public_key_hex)
+
+### <-- Keyring specific methods (END)
 
 
 class MetagraphTokenClient:
