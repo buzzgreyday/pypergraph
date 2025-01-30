@@ -239,8 +239,8 @@ class DagAccount(EcdsaAccount):
 
     @property
     def address(self):
-        if not self.key_trio or not self.key_trio.get("address"):
-            raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
+        #if not self.key_trio or not self.key_trio.get("address"):
+        #    raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
         return self.key_trio["address"]
 
     @property

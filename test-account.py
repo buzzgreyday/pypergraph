@@ -42,6 +42,14 @@ class Test(IsolatedAsyncioTestCase):
         keystore = KeyStore()
         network = DagTokenNetwork()
         store = StateStorageDb()
+        await keyring_manager.login('password')
+        account = keyring_manager.get_accounts()[0]
+        wallet = keyring_manager.get_wallet_for_account(account.get_address())
+        print(wallet.__dict__)
+        account.login_with_seed_phrase(wallet.mnemonic)
+        tx, hash_ = await account.generate_signed_transaction(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN")
+        print(tx)
+        # Second method
         keyring_manager.set_password('password')
         encrypted_vault = await store.get('vault')
         decrypted_vault = await keyring_manager.encryptor.decrypt(keyring_manager.password, encrypted_vault)
