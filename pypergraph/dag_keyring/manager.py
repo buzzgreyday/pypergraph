@@ -202,7 +202,6 @@ class KeyringManager(AsyncIOEventEmitter):
         self.password = password
         self. wallets = [await self._restore_wallet(w) for w in vault["wallets"]]
         await self.update_mem_store_wallets()
-        print("Wallets after memory update", self.mem_store.get_state())
         return self.wallets
 
     def update_unlocked(self):

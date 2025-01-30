@@ -22,12 +22,26 @@ DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 class EcdsaAccount(ABC):
     def __init__(self):
         """Base for Constellation and Ethereum account creation."""
-        self.tokens: List[str] = []
-        self.wallet: Optional[SigningKey] = None
-        self.assets: List[Any] = []
-        self.bip44_index: Optional[int] = None
-        self.provider = None  # Placeholder for Web3 provider
         self._label: Optional[str] = None
+        self._address: str | None = None
+        self._public_key: str | None = None
+        self.bip44_index: Optional[int] = None
+        self._wallet: Optional[SigningKey] = None
+        self._network: str | None= None
+        self.assets: List[Any] = []
+        self.provider = None  # Placeholder for Web3 provider
+        self.tokens: List[str] = []
+        self._private_key: str | None = None
+
+    @property
+    def wallet(self) -> SigningKey:
+        if not self._wallet:
+            raise ValueError("EcdsaAccount :: Wallet not initialized")
+        return self._wallet
+
+    @wallet.setter
+    def wallet(self, value: SigningKey):
+        self._wallet = value
 
     @property
     @abstractmethod
@@ -212,8 +226,7 @@ class DagAccountKeyringMixin:
 
 class DagAccount(EcdsaAccount):
 
-    network = DagTokenNetwork()  # Inject another Network class
-    key_trio = None
+    _network = DagTokenNetwork()  # Inject another Network class
     emitter = AsyncIOEventEmitter()
     decimals = 8
     network_id = NetworkId.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
@@ -221,8 +234,12 @@ class DagAccount(EcdsaAccount):
     supported_assets = ["DAG"]  # Can be found among keyring assets in DAG4
     tokens = []  # Placeholder for default assets
 
+    @property
+    def network(self):
+        return DagTokenNetwork()
+
     def config_network(self, network: DagTokenNetwork):
-        self.network = network
+        self._network = network
 
     def connect(self, network_info: dict):
         """
@@ -241,15 +258,15 @@ class DagAccount(EcdsaAccount):
     def address(self):
         #if not self.key_trio or not self.key_trio.get("address"):
         #    raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
-        return self.key_trio["address"]
+        return self._address or self.get_address()
 
     @property
     def public_key(self):
-        return self.key_trio.get("public_key")
+        return self._public_key or self.get_public_key()
 
     @property
     def private_key(self):
-        return self.key_trio.get("private_key")
+        return self._private_key or self.get_private_key()
 
     def login_with_seed_phrase(self, words: str):
         private_key = KeyStore.get_private_key_from_mnemonic(words)
@@ -258,6 +275,7 @@ class DagAccount(EcdsaAccount):
     def login_with_private_key(self, private_key: str):
         public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
+        self.wallet = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
         self._set_keys_and_address(private_key, public_key, address)
 
     def login_with_public_key(self, public_key: str):
@@ -269,6 +287,7 @@ class DagAccount(EcdsaAccount):
 
     def logout(self):
         self.key_trio = None
+        self.wallet = None
         self.emitter.emit("session_change", True)
 
     def on_network_change(self):
@@ -295,13 +314,16 @@ class DagAccount(EcdsaAccount):
         return 0
 
     async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None):
+        address = self.get_address()
+        private_key = self.get_private_key()
+        public_key = self.get_public_key()
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
-        tx, hash_ = KeyStore.prepare_tx(amount, to_address, self.key_trio["address"], last_ref, fee)
-        signature = KeyStore.sign(self.key_trio["private_key"], hash_)
-        valid = KeyStore.verify(self.public_key, hash_, signature)
+        tx, hash_ = KeyStore.prepare_tx(amount, to_address, address, last_ref, fee)
+        signature = KeyStore.sign(private_key, hash_)
+        valid = KeyStore.verify(public_key, hash_, signature)
         if not valid:
             raise ValueError("Wallet :: Invalid signature.")
-        proof = {"id": self.public_key[2:], "signature": signature}
+        proof = {"id": public_key[2:], "signature": signature}
         tx.add_proof(proof=proof)
         return tx.serialize(), hash_
 
@@ -458,16 +480,24 @@ class DagAccount(EcdsaAccount):
 class MetagraphTokenClient:
     def __init__(self, account: DagAccount, network_info: Dict[str, Any], token_decimals: int = 8):
         self.account = account
-        self.network = MetagraphTokenNetwork(network_info)
+        self._network = MetagraphTokenNetwork(network_info)
         self.token_decimals = token_decimals
 
     @property
     def network_instance(self):
-        return self.network
+        return self._network
 
     @property
     def address(self):
         return self.account.address
+
+    @property
+    def network(self):
+        return self._network
+
+    @property
+    def wallet(self) -> SigningKey:
+        return self._wallet
 
     async def get_transactions(self, limit: Optional[int] = None, search_after: Optional[str] = None):
         return await self.network.get_transactions_by_address(self.address, limit, search_after)
@@ -574,8 +604,14 @@ class EthAccount(EcdsaAccount):
     key_trio = None
     network_id = NetworkId.Ethereum.value
     has_token_support = True
+    _network = None
     supported_assets = [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
     tokens = ["0xa393473d64d2F9F026B60b6Df7859A689715d092"]  # LTX
+
+    @property
+    def network_config(self):# -> Type[NetworkInterface]:
+        #return EthTokenNetwork  # Concrete network implementation
+        return None
 
     def save_token_info(self, address: str):
         """Save the token info if not already present in the tokens list."""

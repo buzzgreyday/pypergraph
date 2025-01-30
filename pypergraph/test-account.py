@@ -44,9 +44,8 @@ class Test(IsolatedAsyncioTestCase):
         store = StateStorageDb()
         await keyring_manager.login('password')
         account = keyring_manager.get_accounts()[0]
-        wallet = keyring_manager.get_wallet_for_account(account.get_address())
+        wallet = keyring_manager.get_wallet_for_account(account.address)
         print(wallet.__dict__)
-        account.login_with_seed_phrase(wallet.mnemonic)
         tx, hash_ = await account.generate_signed_transaction(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN")
         print(tx)
         # Second method
