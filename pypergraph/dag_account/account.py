@@ -11,7 +11,7 @@ from eth_keys import keys
 from eth_utils import keccak, to_checksum_address, is_checksum_address
 from pyee.asyncio import AsyncIOEventEmitter
 
-from pypergraph.dag_core import ChainId
+from pypergraph.dag_core import NetworkId
 from pypergraph.dag_core.constants import PKCS_PREFIX, KeyringAssetType
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
