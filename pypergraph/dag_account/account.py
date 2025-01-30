@@ -181,29 +181,23 @@ class EcdsaAccount(ABC):
 
 class DagAccount(EcdsaAccount):
 
-    network = DagTokenNetwork()  # Inject another Network class
-    key_trio = None
+
+    network: Optional[DagTokenNetwork] = DagTokenNetwork()
+    key_trio: Optional[Dict[str, Optional[str]]] = None
     emitter = AsyncIOEventEmitter()
     decimals = 8
-    chain_id = NetworkId.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
+    chain_id = NetworkId.Constellation.value
     has_token_support = False
-    supported_assets = ["DAG"]  # Can be found among keyring assets in DAG4
-    tokens = []  # Placeholder for default assets
+    supported_assets = ["DAG"]
 
-    def config_network(self, network: DagTokenNetwork):
-        self.network = network
+    def connect(self, network_info: Dict[str, Any]) -> "DagAccount":
+        """Configure the network connection."""
+        required_keys = {"be_url", "network_id"}
+        if not required_keys.issubset(network_info):
+            raise ValueError(f"Missing required network keys: {required_keys}")
 
-    def connect(self, network_info: dict):
-        """
-        Initiate or change connection (default: mainnet).
-
-        :param network_info: {"network_id": "integrationnet", "be_url": "https://be-integrationnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-integrationnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-integrationnet.constellationnetwork.io"}
-    wallet = DagAccount()
-        :return:
-        """
-        # TODO: Validate and serialize data
+        self.network = DagTokenNetwork()
         self.network.config(network_info)
-
         return self
 
     @property

@@ -16,7 +16,9 @@ async def main():
     store = StateStorageDb()
     await keyring_manager.login('password')
     account = keyring_manager.get_accounts()[0]
-    wallet = keyring_manager.get_wallet_for_account(account.address)
+    print(account.__dict__)
+    wallet = keyring_manager.get_wallet_for_account(account.get_address())
+    account.login_with_seed_phrase(wallet.mnemonic)
     print(wallet.__dict__)
     tx, hash_ = await account.generate_signed_transaction(amount=1,
                                                           to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN")
