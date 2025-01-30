@@ -96,7 +96,7 @@ class EcdsaAccount(ABC):
             result["tokens"] = self.tokens
         return result
 
-    def get_chain_id(self):
+    def get_network_id(self):
         return self.chain_id
 
     def serialize(self, include_private_key: bool = True) -> Dict[str, Any]:
@@ -185,7 +185,7 @@ class DagAccount(EcdsaAccount):
     key_trio = None
     emitter = AsyncIOEventEmitter()
     decimals = 8
-    chain_id = ChainId.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
+    chain_id = NetworkId.Constellation.value  # Equivalent to `KeyringNetwork.Constellation`
     has_token_support = False
     supported_assets = ["DAG"]  # Can be found among keyring assets in DAG4
     tokens = []  # Placeholder for default assets
@@ -572,7 +572,7 @@ class MetagraphTokenClient:
 
 class EthAccount(EcdsaAccount):
     decimals = 18
-    chain_id = ChainId.Ethereum.value
+    chain_id = NetworkId.Ethereum.value
     has_token_support = True
     supported_assets = [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
     tokens = ["0xa393473d64d2F9F026B60b6Df7859A689715d092"]  # LTX
