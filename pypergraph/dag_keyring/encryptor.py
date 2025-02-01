@@ -17,8 +17,7 @@ class Encryptor:
         self.algorithm = "aes-256-cbc"
         self.digest = "sha256"
 
-    def encrypt_vault(self, password: str, data: dict) -> dict:
-        """Encrypt data into MetaMask-style vault"""
+    async def encrypt(self, password: str, data: dict) -> dict:
         salt = os.urandom(16)
         iv = os.urandom(16)
 
@@ -37,8 +36,7 @@ class Encryptor:
             "algorithm": self.algorithm
         }
 
-    def decrypt_vault(self, password: str, vault: dict) -> dict:
-        """Decrypt MetaMask-style vault"""
+    async def decrypt(self, password: str, vault: dict) -> dict:
         # Convert hex values to bytes
         salt = bytes.fromhex(vault["salt"])
         iv = bytes.fromhex(vault["iv"])

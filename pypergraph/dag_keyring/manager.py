@@ -118,6 +118,7 @@ class KeyringManager(AsyncIOEventEmitter):
         self.password = password
 
         s_wallets = [w.serialize() for w in self.wallets]
+        print(s_wallets)
 
         encrypted_string = await self.encryptor.encrypt(self.password, { "wallets": s_wallets })
 

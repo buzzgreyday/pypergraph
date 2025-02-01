@@ -36,7 +36,7 @@ class EcdsaAccount(ABC):
 
     @property
     @abstractmethod
-    def chain_id(self) -> str:
+    def network_id(self) -> str:
         pass
 
     @property
@@ -97,7 +97,7 @@ class EcdsaAccount(ABC):
         return result
 
     def get_network_id(self):
-        return self.chain_id
+        return self.network_id
 
     def serialize(self, include_private_key: bool = True) -> Dict[str, Any]:
         result = {}
@@ -183,10 +183,11 @@ class DagAccount(EcdsaAccount):
 
 
     network: Optional[DagTokenNetwork] = DagTokenNetwork()
+    private_key = None
     key_trio: Optional[Dict[str, Optional[str]]] = None
     emitter = AsyncIOEventEmitter()
     decimals = 8
-    chain_id = NetworkId.Constellation.value
+    network_id = NetworkId.Constellation.value
     has_token_support = False
     supported_assets = ["DAG"]
 
@@ -566,7 +567,7 @@ class MetagraphTokenClient:
 
 class EthAccount(EcdsaAccount):
     decimals = 18
-    chain_id = NetworkId.Ethereum.value
+    network_id = NetworkId.Ethereum.value
     has_token_support = True
     supported_assets = [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
     tokens = ["0xa393473d64d2F9F026B60b6Df7859A689715d092"]  # LTX

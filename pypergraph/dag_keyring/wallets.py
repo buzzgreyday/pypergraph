@@ -328,7 +328,7 @@ class SingleAccountWallet:
         self.supported_assets = []
 
         self.keyring = None #SimpleKeyring
-        self.network = None #KeyringNetwork;
+        self.network_id = None #KeyringNetwork;
         self.label: str = ""
 
     def create(self, network_id: str, private_key: str, label: str):
