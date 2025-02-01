@@ -1,5 +1,5 @@
 from pypergraph.dag_core import NetworkId
-from pypergraph.dag_account import DagAccount, EthAccount
+from .accounts import DagAccount, EthAccount
 
 
 # Polymorphism

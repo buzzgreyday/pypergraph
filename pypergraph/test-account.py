@@ -46,7 +46,7 @@ class Test(IsolatedAsyncioTestCase):
         await keyring_manager.create_or_restore_vault("My Wallet", WORDS, keyring_manager.password)
         account = keyring_manager.get_accounts()[0]
         wallet = keyring_manager.get_wallet_for_account(account.get_address())
-        account.login_with_seed_phrase(WORDS)
+        account.login_with_seed_phrase(wallet.mnemonic)
         print(wallet.__dict__)
         tx, hash_ = await account.generate_signed_transaction(amount=1, to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN")
         print(tx)

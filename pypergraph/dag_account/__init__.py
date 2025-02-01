@@ -1,3 +1,2 @@
-from .account import DagAccount, EthAccount
-
-__all__ = ["DagAccount", "EthAccount"]
+from .account import DagAccount
+__all__ = ["DagAccount"]

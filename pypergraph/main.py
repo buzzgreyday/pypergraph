@@ -29,7 +29,7 @@ async def main():
     }
 
     # Create HD Wallet Vault
-    hd_vault = Encryptor().encrypt_vault(
+    hd_vault = await Encryptor().encrypt(
         password="secure_password_123",
         data={
             "type": "HD",
@@ -42,7 +42,7 @@ async def main():
     print(json.dumps(hd_vault, indent=2))
     # Decrypt vault
     try:
-        decrypted = Encryptor().decrypt_vault(
+        decrypted = await Encryptor().decrypt(
             password="secure_password_123",
             vault=hd_vault
         )
@@ -53,7 +53,7 @@ async def main():
 
 
     # Create Non-HD Wallet Vault
-    non_hd_vault = Encryptor().encrypt_vault(
+    non_hd_vault = await Encryptor().encrypt(
         password="another_secure_password",
         data={
             "type": "non-HD",
@@ -70,7 +70,7 @@ async def main():
 
     # Decrypt vault
     try:
-        decrypted = vault_system.decrypt_vault("another_secure_password", non_hd_vault)
+        decrypted = await vault_system.decrypt("another_secure_password", non_hd_vault)
         print("\nDecrypted Data:")
         print(json.dumps(decrypted, indent=2))
     except (InvalidKey, ValueError) as e:
