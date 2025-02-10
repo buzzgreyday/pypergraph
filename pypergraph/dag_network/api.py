@@ -59,7 +59,7 @@ class RestConfig:
             self.service_protocol_client = DI().get_http_client()
 
         if self.service_protocol_client is None:
-            raise ValueError("No protocol client has been set, and DI().get_http_client() returned None.")
+            raise ValueError("RestConfig :: No protocol client has been set, and DI().get_http_client() returned None.")
 
         return self.service_protocol_client
 

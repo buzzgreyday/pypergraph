@@ -23,6 +23,17 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
 
     def config(self, network_id: None | str = None, be_url: None | str = None, l0_host: None | str = None, cl1_host: None | str = None, l0_lb_url: str | None = None, l1_lb_url: None | str = None):
+        """
+        Configure a new NetworkInfo object to setup network_id, l0, l1, be, etc. (default: "mainnet" configuration)
+
+        :param network_id:
+        :param be_url:
+        :param l0_host:
+        :param cl1_host:
+        :param l0_lb_url:
+        :param l1_lb_url:
+        :return:
+        """
         self.set_network(NetworkInfo(network_id=network_id, be_url=be_url, l0_host=l0_host, cl1_host=cl1_host, l0_lb_url=l0_lb_url, l1_lb_url=l1_lb_url))
 
 
@@ -35,7 +46,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
     def set_network(self, network_info: NetworkInfo):
 
-        if self.connected_network != network_info:
+        if self.connected_network.model_dump() != network_info.model_dump():
             self.connected_network = network_info
             self.be_api.config(network_info.be_url)
             self.l0_api.config(network_info.l0_host)
