@@ -1,32 +1,30 @@
-from typing import Optional
+from typing import Optional, Dict
 
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
 from pypergraph.dag_network.models import PendingTransaction
-from pypergraph.dag_account.models import NetworkInfo
+from .models import NetworkInfo
 
 
 class DagTokenNetwork(AsyncIOEventEmitter):
 
-    def __init__(self, net_info = None):
+    def __init__(self, network_id: str = "mainnet", l0_host: str | None = None, cl1_host: str | None = None):
         super().__init__()
         """Validate connected network"""
         # TODO: Do not hardcode urls
-        self.connected_network = {"network_id": "mainnet", "be_url": "https://be-mainnet.constellationnetwork.io", "l0_host": None, "cl1_host": None, "l0_lb_url": "https://l0-lb-mainnet.constellationnetwork.io", "l1_lb_url": "https://l1-lb-mainnet.constellationnetwork.io"} if not net_info else net_info
-        self.l1_lb_api = LoadBalancerApi(host=self.connected_network["l1_lb_url"])
-        self.l0_lb_api = LoadBalancerApi(host=self.connected_network["l0_lb_url"])
-        self.be_api = BlockExplorerApi(host=self.connected_network["be_url"])
-        self.l0_api = L0Api(host=self.connected_network["l0_host"]) if self.connected_network["l0_host"] else L0Api(host=self.connected_network["l0_lb_url"])
-        self.cl1_api = L1Api(host=self.connected_network["cl1_host"]) if self.connected_network["cl1_host"] else L1Api(host=self.connected_network["l1_lb_url"])
+        self.connected_network = NetworkInfo(network_id=network_id, l0_host=l0_host, cl1_host=cl1_host)
+        self.l1_lb_api = LoadBalancerApi(host=self.connected_network.l1_lb_url)
+        self.l0_lb_api = LoadBalancerApi(host=self.connected_network.l0_lb_url)
+        self.be_api = BlockExplorerApi(host=self.connected_network.be_url)
+        self.l0_api = L0Api(host=self.connected_network.l0_host) if self.connected_network.l0_host else L0Api(host=self.connected_network.l0_lb_url)
+        self.cl1_api = L1Api(host=self.connected_network.cl1_host) if self.connected_network.cl1_host else L1Api(host=self.connected_network.l1_lb_url)
         # private networkChange$ = new Subject < NetworkInfo > ();
 
 
-    def config(self, network_info: dict | None = None):
-        if network_info:
-            self.set_network(network_info)
-        else:
-            return self.get_network()
+    def config(self, network_id: None | str = None, be_url: None | str = None, l0_host: None | str = None, cl1_host: None | str = None, l0_lb_url: str | None = None, l1_lb_url: None | str = None):
+        self.set_network(NetworkInfo(network_id=network_id, be_url=be_url, l0_host=l0_host, cl1_host=cl1_host, l0_lb_url=l0_lb_url, l1_lb_url=l1_lb_url))
+
 
     def on_network_change(self):
         pass
@@ -35,11 +33,10 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         """Subscribe to network changes."""
         self.on('network_change', on_network_change)
 
-    def set_network(self, network_info: dict):
+    def set_network(self, network_info: NetworkInfo):
 
         if self.connected_network != network_info:
             self.connected_network = network_info
-            network_info = NetworkInfo(**network_info)
             self.be_api.config(network_info.be_url)
             self.l0_api.config(network_info.l0_host)
             self.cl1_api.config(network_info.cl1_host)
@@ -47,8 +44,13 @@ class DagTokenNetwork(AsyncIOEventEmitter):
             # Emit a network change event
             self.emit('network_change', network_info.model_dump_json())
 
-    def get_network(self):
-        return self.connected_network
+    def get_network(self) -> Dict:
+        """
+        Returns the DagTokenNetwork NetworkInfo object as dictionary.
+
+        :return: Serialized NetworkInfo object.
+        """
+        return self.connected_network.model_dump()
 
     async def get_address_balance(self, address: str):
         return await self.l0_api.get_address_balance(address)

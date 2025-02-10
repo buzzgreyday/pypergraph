@@ -1,5 +1,8 @@
 from typing import Dict, Any
 
+from typing import Optional
+from pydantic import BaseModel, model_validator, Field, ValidationError
+
 
 class Balance:
 
@@ -102,3 +105,25 @@ class PendingTransaction:
         :return: The endpoint to ba added to host
         """
         return f"/transactions/{transaction_hash}"
+
+
+
+class NetworkInfo(BaseModel):
+    network_id: str = Field(default="mainnet", description="The ID name of the network.")
+    be_url: Optional[str] = Field(default=None, description="Block explorer URL.")
+    l0_host: str = Field(default=None, description="Layer 0 host URL or IP:PORT.")
+    cl1_host: str = Field(default=None, description="Layer 1 host URL or IP:PORT.")
+    l0_lb_url: Optional[str] = Field(default=None, description="Layer 0 load balancer URL.")
+    l1_lb_url: Optional[str] = Field(default=None, description="Layer 1 load balancer URL.")
+
+    def __init__(self, network_id="mainnet", be_url=None, l0_host=None, cl1_host=None, l0_lb_url=None, l1_lb_url=None):
+        network_id = network_id.lower()
+
+        if network_id in ("mainnet", "integrationnet", "testnet"):
+            be_url = be_url or f"https://be-{network_id}.constellationnetwork.io"
+            l0_lb_url = l0_lb_url or f"https://l0-lb-{network_id}.constellationnetwork.io"
+            l1_lb_url = l1_lb_url or f"https://l1-lb-{network_id}.constellationnetwork.io"
+
+        l0_host = l0_host or l0_lb_url
+        cl1_host = cl1_host or l1_lb_url
+        super().__init__(network_id=network_id, be_url=be_url, l0_host=l0_host, cl1_host=cl1_host, l0_lb_url=l0_lb_url, l1_lb_url=l1_lb_url)

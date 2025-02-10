@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import NetworkId
-from pypergraph.dag_core.constants import PKCS_PREFIX, KeyringAssetType
+from pypergraph.dag_core.constants import PKCS_PREFIX
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
 
@@ -27,7 +27,8 @@ class DagAccount:
     has_token_support = False
     supported_assets = ["DAG"]
 
-    def connect(self, network_info: Dict[str, Any]) -> "DagAccount":
+    # def connect(self, network_info: Dict[str, Any]) -> "DagAccount":
+    def connect(self, network_id: None | str = None, be_url: None | str = None, l0_host: None | str = None, cl1_host: None | str = None, l0_lb_url: str | None = None, l1_lb_url: None | str = None) -> "DagAccount":
         """Configure the network connection."""
         required_keys = {"be_url", "network_id"}
         if not required_keys.issubset(network_info):
