@@ -17,6 +17,13 @@ class DI:
 
     # Register the platform implementation for http service requests
     def register_http_client(self, client, base_url: str):
+        """
+        Inject another client and/or base_url.
+
+        :param client:
+        :param base_url:
+        :return:
+        """
         self.http_client = client
         self.http_client_base_url = base_url or ''
 
@@ -71,7 +78,7 @@ class RestConfig:
         return self
 
 class RestAPIClient:
-    def __init__(self, base_url: str, client: Optional[httpx.AsyncClient] = None):
+    def __init__(self, base_url: str, client = None):
         """
         Initializes the RestAPIClient.
 
@@ -125,7 +132,7 @@ class RestAPIClient:
             headers: Optional[Dict[str, str]] = None,
             params: Optional[Dict[str, Any]] = None,
             payload: Optional[Dict[str, Any]] = None,
-    ) -> httpx.Response:
+    ):
         """
         Makes an HTTP request.
 
@@ -134,7 +141,7 @@ class RestAPIClient:
         :param headers: Optional headers for the request.
         :param params: Optional query parameters.
         :param payload: Optional JSON payload.
-        :return: HTTPX Response object.
+        :return: Response object.
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         # TODO: All headers should be string
