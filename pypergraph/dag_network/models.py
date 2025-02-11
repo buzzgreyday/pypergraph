@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Type
 
 """HOST MODELS"""
 class TotalSupply:
@@ -162,9 +162,9 @@ class Proof:
     signature: str
 
     @classmethod
-    def process_snapshot_proofs(cls, response: list):
+    def process_snapshot_proofs(cls, lst: list):
         results = []
-        for item in response:
+        for item in lst:
             cls.id = item["id"]
             cls.signature = item["signature"]
 
@@ -200,12 +200,23 @@ class TransactionValue:
         self.salt = salt
 
 class Transaction:
-    def __init__(self, data: dict):
-        self.value = TransactionValue(**data["value"])
-        self.proofs = data["proofs"] or []
+    value: TransactionValue
+    proofs: List["Proof"] | list
 
-    def add_proof(self, proof: Proof):
-        self.proofs.append(proof)
+    @classmethod
+    def from_dict(cls, data: dict):
+        cls.value = TransactionValue(**data["value"])
+        cls.proofs = Proof.process_snapshot_proofs(lst=data["proofs"]) or []
+
+        return cls
+
+    @classmethod
+    def add_value(cls, value: TransactionValue):
+        cls.value = value
+
+    @classmethod
+    def add_proof(cls, proof: Proof):
+        cls.proofs.append(proof)
 
 
 class BETransaction:
@@ -221,7 +232,7 @@ class BETransaction:
         block_hash: str,
         snapshot_hash: str,
         snapshot_ordinal: int,
-        transaction_original: "Transaction",
+        transaction_original: Type["Transaction"],
         timestamp: datetime,
         proofs: List = None,
     ):
@@ -255,7 +266,7 @@ class BETransaction:
                 block_hash=be_tx["blockHash"],
                 snapshot_hash=be_tx["snapshotHash"],
                 snapshot_ordinal=be_tx["snapshotOrdinal"],
-                transaction_original=Transaction(be_tx["transactionOriginal"]),
+                transaction_original=Transaction.from_dict(be_tx["transactionOriginal"]),
                 timestamp=datetime.fromisoformat(be_tx["timestamp"]),
                 proofs=be_tx.get("proofs", []),
             )
