@@ -91,6 +91,8 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
         network = DagTokenNetwork()
 
         async def test_get_address_balance(self):
+            balance = await self.network.get_address_balance(self.address)
+            print(balance)
 
 
 

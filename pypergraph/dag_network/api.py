@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional, Any, Dict, List
 
 from pypergraph.dag_core.rest_api_client import RestAPIClient
+from pypergraph.dag_network.models import Balance
 
 
 class LoadBalancerApi:
@@ -26,6 +27,7 @@ class LoadBalancerApi:
 
     async def get_address_balance(self, address: str):
         result = await self.service.get(f"/dag/{address}/balance")
+        result = Balance(response=result)
         return result
 
     async def get_last_reference(self, address):
@@ -138,8 +140,10 @@ class BlockExplorerApi:
     async def get_transaction(self, hash: str) -> Dict:
         return await self.service.get(f"/transactions/{hash}")
 
-    async def get_address_balance(self, hash: str) -> Dict:
-        return await self.service.get(f"/addresses/{hash}/balance")
+    async def get_address_balance(self, hash: str) -> Balance:
+        result = await self.service.get(f"/addresses/{hash}/balance")
+        result = Balance(response=result)
+        return result
 
     async def get_checkpoint_block(self, hash: str) -> Dict:
         return await self.service.get(f"/blocks/{hash}")
@@ -229,7 +233,9 @@ class L0Api:
         return await self.service.get(f"/dag/{ordinal}/total-supply")
 
     async def get_address_balance(self, address: str):
-        return await self.service.get(f"/dag/{address}/balance")
+        result = await self.service.get(f"/dag/{address}/balance")
+        result = Balance(response=result)
+        return result
 
     async def get_address_balance_at_ordinal(self, ordinal: int, address: str):
         return await self.service.get(f"/dag/{ordinal}/{address}/balance")

@@ -1,3 +1,4 @@
+import json
 from typing import Dict, Any
 
 from typing import Optional
@@ -6,7 +7,7 @@ from pydantic import BaseModel, model_validator, Field, ValidationError
 
 class Balance:
 
-    def __init__(self, response: dict):
+    def __init__(self, response: json):
         for key in response.keys():
             if key == "data":
                 self.ordinal: int = response["data"]["ordinal"]

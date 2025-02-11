@@ -88,8 +88,8 @@ class DagAccount:
 
     async def get_balance_for(self, address: str):
         address_obj = await self.network.get_address_balance(address)
-        if address_obj and "balance" in address_obj:
-            return Decimal(address_obj["balance"]) * DAG_DECIMALS
+        if address_obj:
+            return address_obj.balance
         return 0
 
     async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None):
