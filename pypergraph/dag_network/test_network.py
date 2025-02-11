@@ -1,6 +1,5 @@
 from random import randint
 
-from pypergraph.dag_account import DagAccount
 from .models import NetworkInfo
 from .network import DagTokenNetwork
 import unittest
@@ -18,7 +17,7 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
                              l0_lb_url='https://l0-lb-testnet.constellationnetwork.io',
                              l1_lb_url='https://l1-lb-testnet.constellationnetwork.io'
         )
-        self.assertEqual(network.get_network(), valid_network.model_dump())
+        self.assertEqual(network.get_network(), valid_network.__dict__)
 
     def test_init_intnet(self):
         network = DagTokenNetwork("integrationnet")
@@ -30,7 +29,7 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
                              l0_lb_url='https://l0-lb-integrationnet.constellationnetwork.io',
                              l1_lb_url='https://l1-lb-integrationnet.constellationnetwork.io'
         )
-        self.assertEqual(network.get_network(), valid_network.model_dump())
+        self.assertEqual(network.get_network(), valid_network.__dict__)
 
     def test_init_mainnet(self):
         network = DagTokenNetwork("mainnet")
@@ -42,7 +41,7 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
             l0_lb_url='https://l0-lb-mainnet.constellationnetwork.io',
             l1_lb_url='https://l1-lb-mainnet.constellationnetwork.io'
         )
-        self.assertEqual(network.get_network(), valid_network.model_dump())
+        self.assertEqual(network.get_network(), valid_network.__dict__)
 
     def test_init_default(self):
         network = DagTokenNetwork()
@@ -54,7 +53,7 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
             l0_lb_url='https://l0-lb-mainnet.constellationnetwork.io',
             l1_lb_url='https://l1-lb-mainnet.constellationnetwork.io'
         )
-        self.assertEqual(network.get_network(), valid_network.model_dump())
+        self.assertEqual(network.get_network(), valid_network.__dict__)
 
     async def test_init_custom(self):
         l0_api_cluster_data = [[d["ip"], d["publicPort"]] for d in await self.network.l0_api.get_cluster_info()]
@@ -70,7 +69,7 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
             l0_lb_url='https://l0-lb-mainnet.constellationnetwork.io',
             l1_lb_url='https://l1-lb-mainnet.constellationnetwork.io'
         )
-        self.assertEqual(network.get_network(), valid_network.model_dump())
+        self.assertEqual(network.get_network(), valid_network.__dict__)
 
     def test_config_network(self):
         self.assertEqual(self.network.connected_network.network_id, "mainnet")
@@ -83,7 +82,7 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
                              l0_lb_url='https://l0-lb-integrationnet.constellationnetwork.io',
                              l1_lb_url='https://l1-lb-integrationnet.constellationnetwork.io'
         )
-        self.assertEqual(self.network.get_network(), valid_network.model_dump())
+        self.assertEqual(self.network.get_network(), valid_network.__dict__)
 
     class TestGetData(unittest.IsolatedAsyncioTestCase):
 
@@ -92,7 +91,15 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
 
         async def test_get_address_balance(self):
             balance = await self.network.get_address_balance(self.address)
-            print(balance)
+
+        async def test_get_last_ref(self):
+            last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+
+        async def test_get_pending(self):
+            pending_tx = await self.network.get_pending_transaction(hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429")
+
+        async def test_get_total_supply(self):
+            total_supply = await self.network.l0_api.get_total_supply()
 
 
 

@@ -6,6 +6,8 @@ from typing import Callable, Optional, Any, Dict, List
 
 from httpx import Response
 
+from pypergraph.dag_core.exceptions import NetworkError
+
 
 class DI:
 
@@ -124,7 +126,7 @@ class RestAPIClient:
 
         except json.JSONDecodeError as e:
             # Handle malformed JSON
-            raise ValueError(f"RestAPIClient :: {method} {self.base_url}/{endpoint} failed to parse response {e}, raw response: {response}")
+            raise NetworkError(f"RestAPIClient :: {method} {self.base_url}/{endpoint} failed to parse response {e}, raw response: {response}", response.status_code)
 
     async def request(
             self,

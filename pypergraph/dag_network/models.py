@@ -1,8 +1,13 @@
 import json
-from typing import Dict, Any
 
-from typing import Optional
-from pydantic import BaseModel, model_validator, Field, ValidationError
+class TotalSupply:
+
+    def __init__(self, response: dict):
+        self.ordinal = response.get("ordinal")
+        self.total_supply = ddag_to_dag(response.get("total"))
+
+    def __repr__(self):
+        return f"TotalSupply(ordinal={self.ordinal}, balance={self.total_supply})"
 
 
 class Balance:
@@ -11,44 +16,29 @@ class Balance:
         for key in response.keys():
             if key == "data":
                 self.ordinal: int = response["data"]["ordinal"]
-                self.balance: float = self.ddag_to_dag(response["data"]["balance"])
+                self.balance: float = ddag_to_dag(response["data"]["balance"])
                 self.address: str = response["data"]["address"]
                 self.meta = response["meta"] if "meta" in response else None
             else:
                 self.ordinal: int = response["ordinal"]
-                self.balance: float = self.ddag_to_dag(response["balance"])
+                self.balance: float = ddag_to_dag(response["balance"])
                 self.address = None
                 self.meta = response["meta"] if "meta" in response else None
 
     def __repr__(self):
         return f"Balance(ordinal={self.ordinal}, balance={self.balance}, address='{self.address}', meta='{self.meta}')"
 
-    @staticmethod
-    def ddag_to_dag(balance):
-        """Convert dDAG value to DAG value"""
-        if balance != 0:
-            return float(balance / 100000000)
-        elif balance == 0:
-            return 0
-        else:
-            raise ValueError("Balance :: Balance can't be below 0.")
+    # TODO: Make to_dict serialization
+
 
 class LastReference:
 
-    def __init__(self, ordinal: int, hash: str):
-        self.ordinal = ordinal
-        self.hash = hash
+    def __init__(self, response: json):
+        self.ordinal: int = response.get("ordinal")
+        self.hash: str = response.get("hash")
 
     def __repr__(self):
         return f"LastReference(ordinal={self.ordinal}, hash='{self.hash}')"
-
-    @staticmethod
-    def get_endpoint(address: str):
-        """
-        :param address: DAG address.
-        :return: The endpoint to be added to the host.
-        """
-        return f"/transactions/last-reference/{address}"
 
     def to_dict(self) -> dict:
         """
@@ -70,17 +60,17 @@ class PostTransactionResponse:
 
 class PendingTransaction:
 
-    def __init__(self, data: Dict[str, Any]):
-        transaction = data["transaction"]
-        self.source = transaction["source"]
-        self.destination = transaction["destination"]
-        self.amount = transaction["amount"]
-        self.fee = transaction["fee"]
-        self.parent_hash = transaction["parent"]["hash"]
-        self.parent_ordinal = transaction["parent"]["ordinal"]
-        self.salt = transaction["salt"]
-        self.transaction_hash = data["hash"]
-        self.status = data["status"]
+    def __init__(self, response: json):
+        transaction = response["transaction"]
+        self.source: str = transaction["source"]
+        self.destination: str = transaction["destination"]
+        self.amount: int = transaction["amount"]
+        self.fee: int = transaction["fee"]
+        self.parent_hash: str = transaction["parent"]["hash"]
+        self.parent_ordinal: int = transaction["parent"]["ordinal"]
+        self.salt: str = transaction["salt"]
+        self.transaction_hash: str = response["hash"]
+        self.status: int = response["status"]
 
     def __repr__(self):
         return (f"PendingTransaction(source={self.source}, destination={self.destination}, "
@@ -88,32 +78,34 @@ class PendingTransaction:
                 f"parent_ordinal={self.parent_ordinal}, salt={self.salt}, "
                 f"transaction_hash={self.transaction_hash}, status={self.status})")
 
-    @staticmethod
-    def get_endpoint(transaction_hash: str):
-        """
-        :param transaction_hash:
-        :return: The endpoint to ba added to host
-        """
-        return f"/transactions/{transaction_hash}"
 
-
-
-class NetworkInfo(BaseModel):
-    network_id: str = Field(default="mainnet", description="The ID name of the network.")
-    be_url: Optional[str] = Field(default=None, description="Block explorer URL.")
-    l0_host: str = Field(default=None, description="Layer 0 host URL or IP:PORT.")
-    cl1_host: str = Field(default=None, description="Layer 1 host URL or IP:PORT.")
-    l0_lb_url: Optional[str] = Field(default=None, description="Layer 0 load balancer URL.")
-    l1_lb_url: Optional[str] = Field(default=None, description="Layer 1 load balancer URL.")
-
+class NetworkInfo:
     def __init__(self, network_id="mainnet", be_url=None, l0_host=None, cl1_host=None, l0_lb_url=None, l1_lb_url=None):
-        network_id = network_id.lower()
+        self.network_id = network_id.lower()
 
-        if network_id in ("mainnet", "integrationnet", "testnet"):
-            be_url = be_url or f"https://be-{network_id}.constellationnetwork.io"
-            l0_lb_url = l0_lb_url or f"https://l0-lb-{network_id}.constellationnetwork.io"
-            l1_lb_url = l1_lb_url or f"https://l1-lb-{network_id}.constellationnetwork.io"
+        if self.network_id in ("mainnet", "integrationnet", "testnet"):
+            self.be_url = be_url or f"https://be-{self.network_id}.constellationnetwork.io"
+            self.l0_lb_url = l0_lb_url or f"https://l0-lb-{self.network_id}.constellationnetwork.io"
+            self.l1_lb_url = l1_lb_url or f"https://l1-lb-{self.network_id}.constellationnetwork.io"
+        else:
+            self.be_url = be_url
+            self.l0_lb_url = l0_lb_url
+            self.l1_lb_url = l1_lb_url
 
-        l0_host = l0_host or l0_lb_url
-        cl1_host = cl1_host or l1_lb_url
-        super().__init__(network_id=network_id, be_url=be_url, l0_host=l0_host, cl1_host=cl1_host, l0_lb_url=l0_lb_url, l1_lb_url=l1_lb_url)
+        self.l0_host = l0_host or self.l0_lb_url
+        self.cl1_host = cl1_host or self.l1_lb_url
+
+    def __repr__(self):
+        return (f"NetworkInfo(network_id={self.network_id}, be_url={self.be_url}, "
+                f"l0_host={self.l0_host}, cl1_host={self.cl1_host}, "
+                f"l0_lb_url={self.l0_lb_url}, l1_lb_url={self.l1_lb_url})")
+
+
+def ddag_to_dag(balance):
+    """Convert dDAG value to DAG value"""
+    if balance != 0:
+        return float(balance / 100000000)
+    elif balance == 0:
+        return 0
+    else:
+        raise ValueError("Network Model :: Balance can't be below 0.")

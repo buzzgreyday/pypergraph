@@ -1,9 +1,10 @@
 import warnings
 from datetime import datetime
+from http.client import responses
 from typing import Optional, Any, Dict, List
 
 from pypergraph.dag_core.rest_api_client import RestAPIClient
-from pypergraph.dag_network.models import Balance
+from pypergraph.dag_network.models import Balance, LastReference, PendingTransaction, TotalSupply
 
 
 class LoadBalancerApi:
@@ -21,7 +22,7 @@ class LoadBalancerApi:
         self.service.base_url = host
 
     async def get_metrics(self):
-        # TODO: Handle text reponse
+        # TODO: Handle text response
         result = await self.service.get("/metrics")
         return result
 
@@ -32,10 +33,12 @@ class LoadBalancerApi:
 
     async def get_last_reference(self, address):
         result = await self.service.get(f"/transactions/last-reference/{address}")
+        result = LastReference(response=result)
         return result
 
     async def get_total_supply(self):
         result = await self.service.get('/total-supply')
+        result = TotalSupply(response=result)
         return result
 
     async def post_transaction(self, tx: Dict[str, Any]):
@@ -44,6 +47,7 @@ class LoadBalancerApi:
 
     async def get_pending_transaction(self, tx_hash: str):
         result = await self.service.get(f"/transactions/{tx_hash}")
+        result = PendingTransaction(response=result)
         return result
 
     async def get_cluster_info(self):
@@ -227,10 +231,14 @@ class L0Api:
 
     # DAG
     async def get_total_supply(self):
-        return await self.service.get("/dag/total-supply")
+        result = await self.service.get("/dag/total-supply")
+        result = TotalSupply(response=result)
+        return result
 
     async def get_total_supply_at_ordinal(self, ordinal: int):
-        return await self.service.get(f"/dag/{ordinal}/total-supply")
+        result = await self.service.get(f"/dag/{ordinal}/total-supply")
+        result = TotalSupply(response=result)
+        return result
 
     async def get_address_balance(self, address: str):
         result = await self.service.get(f"/dag/{address}/balance")
@@ -286,10 +294,14 @@ class L1Api:
 
     # Transactions
     async def get_last_reference(self, address: str):
-        return await self.service.get(f"/transactions/last-reference/{address}")
+        result = await self.service.get(f"/transactions/last-reference/{address}")
+        result = LastReference(response=result)
+        return result
 
     async def get_pending_transaction(self, hash: str):
-        return await self.service.get(f"/transactions/{hash}")
+        result = await self.service.get(f"/transactions/{hash}")
+        result = PendingTransaction(response=result)
+        return result
 
     async def post_transaction(self, tx):
         return await self.service.post("/transactions", payload=tx)
@@ -304,10 +316,14 @@ class ML0Api(L0Api):
 
     # State Channel Token
     async def get_total_supply(self):
-        return await self.service.get("/currency/total-supply")
+        result = await self.service.get("/currency/total-supply")
+        result = TotalSupply(response=result)
+        return result
 
     async def get_total_supply_at_ordinal(self, ordinal: int):
-        return await self.service.get(f"/currency/{ordinal}/total-supply")
+        result = await self.service.get(f"/currency/{ordinal}/total-supply")
+        result = TotalSupply(response=result)
+        return result
 
     async def get_address_balance(self, address: str):
         return await self.service.get(f"/currency/{address}/balance")

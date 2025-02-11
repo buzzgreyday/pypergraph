@@ -5,6 +5,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
 from pypergraph.dag_network.models import PendingTransaction
 from .models import NetworkInfo
+from ..dag_core.exceptions import NetworkError
 
 
 class DagTokenNetwork(AsyncIOEventEmitter):
@@ -46,14 +47,14 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
     def set_network(self, network_info: NetworkInfo):
 
-        if self.connected_network.model_dump() != network_info.model_dump():
+        if self.connected_network.__dict__ != network_info.__dict__:
             self.connected_network = network_info
             self.be_api.config(network_info.be_url)
             self.l0_api.config(network_info.l0_host)
             self.cl1_api.config(network_info.cl1_host)
 
             # Emit a network change event
-            self.emit('network_change', network_info.model_dump_json())
+            self.emit('network_change', network_info.__dict__)
 
     def get_network(self) -> Dict:
         """
@@ -61,7 +62,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
         :return: Serialized NetworkInfo object.
         """
-        return self.connected_network.model_dump()
+        return self.connected_network.__dict__
 
     async def get_address_balance(self, address: str):
         return await self.l0_api.get_address_balance(address)
@@ -69,13 +70,16 @@ class DagTokenNetwork(AsyncIOEventEmitter):
     async def get_address_last_accepted_transaction_ref(self, address: str):
         return await self.cl1_api.get_last_reference(address)
 
-    async def get_pending_transaction(self, hash: Optional[str]) -> Optional[dict]:
+    async def get_pending_transaction(self, hash: str) -> Optional[dict]:
         pending_transaction = None
         try:
             pending_transaction = await self.cl1_api.get_pending_transaction(hash)
-        except Exception as e:
+        except NetworkError as e:
             # NOOP for 404 or other exceptions
-            pass
+            if e.status == 404:
+                pass
+            else:
+                raise e
         return pending_transaction
 
 
