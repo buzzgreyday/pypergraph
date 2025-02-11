@@ -1,5 +1,6 @@
 from random import randint
 
+from pypergraph.dag_account import DagAccount
 from .models import NetworkInfo
 from .network import DagTokenNetwork
 import unittest
@@ -83,6 +84,14 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
                              l1_lb_url='https://l1-lb-integrationnet.constellationnetwork.io'
         )
         self.assertEqual(self.network.get_network(), valid_network.model_dump())
+
+    class TestGetData(unittest.IsolatedAsyncioTestCase):
+
+        address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
+        network = DagTokenNetwork()
+
+        async def test_get_address_balance(self):
+
 
 
 if __name__ == '__main__':

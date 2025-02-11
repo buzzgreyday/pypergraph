@@ -28,14 +28,11 @@ class DagAccount:
     supported_assets = ["DAG"]
 
     # def connect(self, network_info: Dict[str, Any]) -> "DagAccount":
-    def connect(self, network_id: None | str = None, be_url: None | str = None, l0_host: None | str = None, cl1_host: None | str = None, l0_lb_url: str | None = None, l1_lb_url: None | str = None) -> "DagAccount":
+    def connect(self, network_id: None | str = "mainnet", be_url: None | str = None, l0_host: None | str = None, cl1_host: None | str = None, l0_lb_url: str | None = None, l1_lb_url: None | str = None) -> "DagAccount":
         """Configure the network connection."""
-        required_keys = {"be_url", "network_id"}
-        if not required_keys.issubset(network_info):
-            raise ValueError(f"Missing required network keys: {required_keys}")
 
         self.network = DagTokenNetwork()
-        self.network.config(network_info)
+        self.network.config(network_id, be_url, l0_host, cl1_host, l0_lb_url, l1_lb_url)
         return self
 
     @property
