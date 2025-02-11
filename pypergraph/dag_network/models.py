@@ -24,17 +24,6 @@ class Balance:
         return f"Balance(ordinal={self.ordinal}, balance={self.balance}, address='{self.address}', meta='{self.meta}')"
 
     @staticmethod
-    def get_endpoint(dag_address: str, l0_host: str | None = None, metagraph_id: str | None = None):
-        if l0_host and metagraph_id:
-            return f"/currency/{dag_address}/balance"
-        elif metagraph_id:
-            return f"/currency/{metagraph_id}/addresses/{dag_address}/balance"
-        elif l0_host and not metagraph_id:
-            return f"/dag/{dag_address}/balance"
-        else:
-            return f"/addresses/{dag_address}/balance"
-
-    @staticmethod
     def ddag_to_dag(balance):
         """Convert dDAG value to DAG value"""
         if balance != 0:
