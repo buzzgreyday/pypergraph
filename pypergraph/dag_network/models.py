@@ -1,10 +1,12 @@
 import json
+from typing import List, Optional
+
 
 class TotalSupply:
 
     def __init__(self, response: dict):
-        self.ordinal = response.get("ordinal")
-        self.total_supply = ddag_to_dag(response.get("total"))
+        self.ordinal: int = response.get("ordinal")
+        self.total_supply: int | float = ddag_to_dag(response.get("total"))
 
     def __repr__(self):
         return f"TotalSupply(ordinal={self.ordinal}, balance={self.total_supply})"
@@ -29,6 +31,34 @@ class Balance:
         return f"Balance(ordinal={self.ordinal}, balance={self.balance}, address='{self.address}', meta='{self.meta}')"
 
     # TODO: Make to_dict serialization
+
+
+class ClusterInfo:
+
+    alias: Optional[str] = None
+    id: str
+    ip: str
+    state: str
+    session: str
+    public_port: int
+    p2p_port: int
+    reputation: Optional[float]
+
+    @classmethod
+    def process_cluster_info(cls, response: List) -> List:
+        results = []
+        for d in response:
+            cls.alias = d["alias"] if hasattr(d, "alias") else None
+            cls.id = d["id"]
+            cls.ip = d["ip"]
+            cls.state = d["state"]
+            cls.session = d["session"]
+            cls.reputation = d["reputation"] if hasattr(d, "reputation") else None
+            cls.public_port = d["publicPort"]
+            cls.p2p_port = d["p2pPort"]
+            results.append(cls)
+
+        return results
 
 
 class LastReference:

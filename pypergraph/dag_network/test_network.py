@@ -101,6 +101,10 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
         async def test_get_total_supply(self):
             total_supply = await self.network.l0_api.get_total_supply()
 
+        async def test_get_cluster_info(self):
+            cluster_info = await self.network.l0_api.get_cluster_info()
+            print(cluster_info)
+
 
 
 if __name__ == '__main__':

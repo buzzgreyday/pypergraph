@@ -1,10 +1,9 @@
 import warnings
 from datetime import datetime
-from http.client import responses
 from typing import Optional, Any, Dict, List
 
 from pypergraph.dag_core.rest_api_client import RestAPIClient
-from pypergraph.dag_network.models import Balance, LastReference, PendingTransaction, TotalSupply
+from pypergraph.dag_network.models import Balance, LastReference, PendingTransaction, TotalSupply, ClusterInfo
 
 
 class LoadBalancerApi:
@@ -52,6 +51,7 @@ class LoadBalancerApi:
 
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
+        result = ClusterInfo.process_cluster_info(response=result)
         return result
 
 
@@ -222,6 +222,7 @@ class L0Api:
 
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
+        result = ClusterInfo.process_cluster_info(response=result)
         return result
 
     # Metrics
@@ -285,6 +286,7 @@ class L1Api:
 
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
+        result = ClusterInfo.process_cluster_info(response=result)
         return result
 
     # Metrics
