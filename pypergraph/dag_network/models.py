@@ -236,19 +236,19 @@ class BETransaction:
         timestamp: datetime,
         proofs: List = None,
     ):
-        self.hash = hash
-        self.amount = amount
-        self.source = source
-        self.destination = destination
-        self.fee = fee
-        self.parent = parent
-        self.salt = salt
-        self.block_hash = block_hash
-        self.snapshot_hash = snapshot_hash
-        self.snapshot_ordinal = snapshot_ordinal
-        self.transaction_original = transaction_original
-        self.timestamp = timestamp
-        self.proofs = proofs or []
+        self.hash: str = hash
+        self.amount: float = amount
+        self.source: str = source
+        self.destination: str = destination
+        self.fee: float = fee
+        self.parent: dict = parent
+        self.salt: int = salt
+        self.block_hash: str = block_hash
+        self.snapshot_hash: str = snapshot_hash
+        self.snapshot_ordinal: int = snapshot_ordinal
+        self.transaction_original: Transaction | Type["Transaction"] = transaction_original
+        self.timestamp: datetime = timestamp
+        self.proofs: List["Proof"] | List = proofs or []
 
     @classmethod
     def process_be_transactions(cls, response: List[dict]) -> List["BETransaction"]:
