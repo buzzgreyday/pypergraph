@@ -254,7 +254,6 @@ class BETransaction:
     def process_be_transactions(cls, response: List[dict]) -> List["BETransaction"]:
         transactions = []
         for be_tx in response:
-            print(be_tx)
             transaction = cls(
                 hash=be_tx["hash"],
                 amount=ddag_to_dag(be_tx["amount"]),
