@@ -1,7 +1,8 @@
 import json
+from datetime import datetime
 from typing import List, Optional
 
-
+"""HOST MODELS"""
 class TotalSupply:
 
     def __init__(self, response: dict):
@@ -10,7 +11,6 @@ class TotalSupply:
 
     def __repr__(self):
         return f"TotalSupply(ordinal={self.ordinal}, balance={self.total_supply})"
-
 
 class Balance:
 
@@ -139,3 +139,53 @@ def ddag_to_dag(balance):
         return 0
     else:
         raise ValueError("Network Model :: Balance can't be below 0.")
+
+
+class GlobalSnapshotValue:
+
+    def __init__(self, value: dict):
+        self.ordinal: int = value["ordinal"]
+        self.height: int = value["height"]
+        self.sub_height: int = value["subHeight"]
+        self.last_snapshot_hash: str = value["lastSnapshotHash"]
+        self.blocks: list = value["blocks"]
+        self.state_channel_snapshots: dict = value["stateChannelSnapshot"]
+        self.rewards: list = value["rewards"]
+        self.epoch_progress: int = value["epochProgress"]
+        self.next_facilitators: list = value["nextFacilitators"]
+        self.tips: dict = value["tips"]
+        self.state_proof: dict = value["stateProof"]
+        self.version: str = value["version"]
+
+class Proof:
+    id: str
+    signature: str
+
+    @classmethod
+    def process_snapshot_proofs(cls, response: list):
+        results = []
+        for item in response:
+            cls.id = item["id"]
+            cls.signature = item["signature"]
+
+            results.append(cls)
+        return results
+
+class GlobalSnapshot:
+
+    def __init__(self, response):
+        print(response)
+        self.value: GlobalSnapshotValue = GlobalSnapshotValue(response["value"])
+        self.proofs: list = Proof.process_snapshot_proofs(response["proofs"])
+
+"""BE MODELS: DTO"""
+class Snapshot:
+    def __init__(self, response):
+
+        self.hash: str = response["hash"]
+        self.ordinal: int = response["ordinal"]
+        self.height: int = response["height"]
+        self.sub_height:int = response["subHeight"]
+        self.last_snapshot_hash: str = response["lastSnapshotHash"]
+        self.blocks: list = response["blocks"]
+        self.timestamp: datetime = datetime.fromisoformat(response["timestamp"])

@@ -1,6 +1,6 @@
 from random import randint
 
-from .models import NetworkInfo
+from .models import NetworkInfo, ClusterInfo
 from .network import DagTokenNetwork
 import unittest
 
@@ -56,9 +56,9 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(network.get_network(), valid_network.__dict__)
 
     async def test_init_custom(self):
-        l0_api_cluster_data = [[d["ip"], d["publicPort"]] for d in await self.network.l0_api.get_cluster_info()]
+        l0_api_cluster_data = [[d.ip, d.public_port] for d in await self.network.l0_api.get_cluster_info()]
         l0_api_cluster_node = l0_api_cluster_data[randint(0, len(l0_api_cluster_data)-1)]
-        l1_api_cluster_data = [[d["ip"], d["publicPort"]] for d in await self.network.cl1_api.get_cluster_info()]
+        l1_api_cluster_data = [[d.ip, d.public_port] for d in await self.network.cl1_api.get_cluster_info()]
         l1_api_cluster_node = l1_api_cluster_data[randint(0, len(l1_api_cluster_data)-1)]
         network = DagTokenNetwork(network_id="mainnet", l0_host=f"http://{l0_api_cluster_node[0]}:{l0_api_cluster_node[1]}", cl1_host=f"http://{l1_api_cluster_node[0]}:{l1_api_cluster_node[1]}")
         valid_network = NetworkInfo(
@@ -89,23 +89,32 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
         address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
         network = DagTokenNetwork()
 
+        """HOST/LB"""
         async def test_get_address_balance(self):
-            balance = await self.network.get_address_balance(self.address)
+            result = await self.network.get_address_balance(self.address)
+            self.assertGreaterEqual(result.balance, 0)
 
         async def test_get_last_ref(self):
-            last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+            result = await self.network.get_address_last_accepted_transaction_ref(self.address)
+            self.assertTrue(bool(result.hash))
 
         async def test_get_pending(self):
-            pending_tx = await self.network.get_pending_transaction(hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429")
+            # Will be None/False if the tx is not pending
+            result = await self.network.get_pending_transaction(hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429")
 
         async def test_get_total_supply(self):
-            total_supply = await self.network.l0_api.get_total_supply()
+            result = await self.network.l0_api.get_total_supply()
+            self.assertGreater(result.total_supply, 100000000)
 
         async def test_get_cluster_info(self):
-            cluster_info = await self.network.l0_api.get_cluster_info()
-            print(cluster_info)
+            result = await self.network.l0_api.get_cluster_info()
+            # Check if result is a list
+            self.assertTrue(bool(result))
 
-
+        """BE"""
+        async def test_get_latest_snapshot(self):
+            result = await self.network.get_latest_snapshot()
+            print(result.timestamp)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,9 +1,10 @@
 import warnings
 from datetime import datetime
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Tuple
 
 from pypergraph.dag_core.rest_api_client import RestAPIClient
-from pypergraph.dag_network.models import Balance, LastReference, PendingTransaction, TotalSupply, ClusterInfo
+from pypergraph.dag_network.models import Balance, LastReference, PendingTransaction, TotalSupply, ClusterInfo, \
+    Snapshot, GlobalSnapshot
 
 
 class LoadBalancerApi:
@@ -25,17 +26,17 @@ class LoadBalancerApi:
         result = await self.service.get("/metrics")
         return result
 
-    async def get_address_balance(self, address: str):
+    async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/dag/{address}/balance")
         result = Balance(response=result)
         return result
 
-    async def get_last_reference(self, address):
+    async def get_last_reference(self, address) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
         result = LastReference(response=result)
         return result
 
-    async def get_total_supply(self):
+    async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get('/total-supply')
         result = TotalSupply(response=result)
         return result
@@ -49,7 +50,7 @@ class LoadBalancerApi:
         result = PendingTransaction(response=result)
         return result
 
-    async def get_cluster_info(self):
+    async def get_cluster_info(self) -> [ClusterInfo, ...]:
         result = await self.service.get("/cluster/info")
         result = ClusterInfo.process_cluster_info(response=result)
         return result
@@ -69,8 +70,9 @@ class BlockExplorerApi:
         """Reconfigure the RestAPIClient's base URL dynamically."""
         self.service.base_url = host
 
-    async def get_snapshot(self, id: str | int):
+    async def get_snapshot(self, id: str | int) -> Snapshot:
         result = await self.service.get(f"/global-snapshots/{id}")
+        result = Snapshot(response=result)
         return result
 
     async def get_transactions_by_snapshot(self, id: str | int):
@@ -81,8 +83,10 @@ class BlockExplorerApi:
         result = await self.service.get(f"/global-snapshots/{id}/rewards")
         return result
 
-    async def get_latest_snapshot(self):
+    async def get_latest_snapshot(self) -> Snapshot:
         result = await self.service.get("/global-snapshots/latest")
+
+        result = Snapshot(response=result["data"])
         return result
 
     async def get_latest_snapshot_transaction(self):
@@ -250,18 +254,22 @@ class L0Api:
         return await self.service.get(f"/dag/{ordinal}/{address}/balance")
 
     # Global Snapshot
-    async def get_latest_snapshot(self):
-        return await self.service.get(
+    async def get_latest_snapshot(self) -> GlobalSnapshot:
+        result = await self.service.get(
             "/global-snapshots/latest"
         )
+        result = GlobalSnapshot(response=result)
+        return result
 
     async def get_latest_snapshot_ordinal(self):
         return await self.service.get("/global-snapshots/latest/ordinal")
 
-    async def get_snapshot(self, id: str | int):
-        return await self.service.get(
-            f"/global-snapshots/{id}"
-        )
+    async def get_snapshot(self, id: str | int) -> Snapshot:
+        result = await self.service.get(
+                     f"/global-snapshots/{id}"
+                 )
+        result = Snapshot(result)
+        return result
 
     # State Channels
     async def post_state_channel_snapshot(self, address: str, snapshot: dict):
@@ -284,7 +292,7 @@ class L1Api:
         """Reconfigure the RestAPIClient's base URL dynamically."""
         self.service.base_url = host
 
-    async def get_cluster_info(self):
+    async def get_cluster_info(self) -> [ClusterInfo, ...]:
         result = await self.service.get("/cluster/info")
         result = ClusterInfo.process_cluster_info(response=result)
         return result
@@ -295,12 +303,12 @@ class L1Api:
         return await self.service.get("/metrics")
 
     # Transactions
-    async def get_last_reference(self, address: str):
+    async def get_last_reference(self, address: str) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
         result = LastReference(response=result)
         return result
 
-    async def get_pending_transaction(self, hash: str):
+    async def get_pending_transaction(self, hash: str) -> PendingTransaction:
         result = await self.service.get(f"/transactions/{hash}")
         result = PendingTransaction(response=result)
         return result
@@ -317,12 +325,12 @@ class ML0Api(L0Api):
         self.service.base_url = net_info
 
     # State Channel Token
-    async def get_total_supply(self):
+    async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get("/currency/total-supply")
         result = TotalSupply(response=result)
         return result
 
-    async def get_total_supply_at_ordinal(self, ordinal: int):
+    async def get_total_supply_at_ordinal(self, ordinal: int) -> TotalSupply:
         result = await self.service.get(f"/currency/{ordinal}/total-supply")
         result = TotalSupply(response=result)
         return result
