@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 """HOST MODELS"""
 class TotalSupply:
@@ -131,7 +131,7 @@ class NetworkInfo:
                 f"l0_lb_url={self.l0_lb_url}, l1_lb_url={self.l1_lb_url})")
 
 
-def ddag_to_dag(balance):
+def ddag_to_dag(balance: int):
     """Convert dDAG value to DAG value"""
     if balance != 0:
         return float(balance / 100000000)
@@ -189,3 +189,75 @@ class Snapshot:
         self.last_snapshot_hash: str = response["lastSnapshotHash"]
         self.blocks: list = response["blocks"]
         self.timestamp: datetime = datetime.fromisoformat(response["timestamp"])
+
+class TransactionValue:
+    def __init__(self, source: str, destination: str, amount: int, fee: int, parent: Dict, salt: int):
+        self.source = source
+        self.destination = destination
+        self.amount = amount
+        self.fee = fee
+        self.parent = parent
+        self.salt = salt
+
+class Transaction:
+    def __init__(self, data: dict):
+        self.value = TransactionValue(**data["value"])
+        self.proofs = data["proofs"] or []
+
+    def add_proof(self, proof: Proof):
+        self.proofs.append(proof)
+
+
+class BETransaction:
+    def __init__(
+        self,
+        hash: str,
+        amount: float,
+        source: str,
+        destination: str,
+        fee: float,
+        parent: dict,
+        salt: int,
+        block_hash: str,
+        snapshot_hash: str,
+        snapshot_ordinal: int,
+        transaction_original: "Transaction",
+        timestamp: datetime,
+        proofs: List = None,
+    ):
+        self.hash = hash
+        self.amount = amount
+        self.source = source
+        self.destination = destination
+        self.fee = fee
+        self.parent = parent
+        self.salt = salt
+        self.block_hash = block_hash
+        self.snapshot_hash = snapshot_hash
+        self.snapshot_ordinal = snapshot_ordinal
+        self.transaction_original = transaction_original
+        self.timestamp = timestamp
+        self.proofs = proofs or []
+
+    @classmethod
+    def process_be_transactions(cls, response: List[dict]) -> List["BETransaction"]:
+        transactions = []
+        for be_tx in response:
+            print(be_tx)
+            transaction = cls(
+                hash=be_tx["hash"],
+                amount=ddag_to_dag(be_tx["amount"]),
+                source=be_tx["source"],
+                destination=be_tx["destination"],
+                fee=ddag_to_dag(be_tx["fee"]),
+                parent=be_tx["parent"],
+                salt=be_tx["salt"],
+                block_hash=be_tx["blockHash"],
+                snapshot_hash=be_tx["snapshotHash"],
+                snapshot_ordinal=be_tx["snapshotOrdinal"],
+                transaction_original=Transaction(be_tx["transactionOriginal"]),
+                timestamp=datetime.fromisoformat(be_tx["timestamp"]),
+                proofs=be_tx.get("proofs", []),
+            )
+            transactions.append(transaction)
+        return transactions

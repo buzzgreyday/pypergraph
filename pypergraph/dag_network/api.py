@@ -4,7 +4,7 @@ from typing import Optional, Any, Dict, List, Tuple
 
 from pypergraph.dag_core.rest_api_client import RestAPIClient
 from pypergraph.dag_network.models import Balance, LastReference, PendingTransaction, TotalSupply, ClusterInfo, \
-    Snapshot, GlobalSnapshot
+    Snapshot, GlobalSnapshot, BETransaction
 
 
 class LoadBalancerApi:
@@ -71,21 +71,37 @@ class BlockExplorerApi:
         self.service.base_url = host
 
     async def get_snapshot(self, id: str | int) -> Snapshot:
+        """
+
+        :param id: Hash or ordinal can be used as identifier.
+        :return:
+        """
         result = await self.service.get(f"/global-snapshots/{id}")
-        result = Snapshot(response=result)
+        result = Snapshot(response=result["data"])
         return result
 
     async def get_transactions_by_snapshot(self, id: str | int):
+        """
+
+        :param id:  Hash or ordinal can be used as identifier.
+        :return:
+        """
         result = await self.service.get(f"/global-snapshots/{id}/transactions")
+        result = BETransaction.process_be_transactions(result["data"])
         return result
 
+
     async def get_rewards_by_snapshot(self, id: str | int):
+        """
+
+        :param id: Hash or ordinal
+        :return:
+        """
         result = await self.service.get(f"/global-snapshots/{id}/rewards")
         return result
 
     async def get_latest_snapshot(self) -> Snapshot:
         result = await self.service.get("/global-snapshots/latest")
-
         result = Snapshot(response=result["data"])
         return result
 

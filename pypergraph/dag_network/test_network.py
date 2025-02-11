@@ -114,7 +114,18 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
         """BE"""
         async def test_get_latest_snapshot(self):
             result = await self.network.get_latest_snapshot()
-            print(result.timestamp)
+
+        async def test_get_snapshot_by_id(self):
+            result = await self.network.be_api.get_snapshot("7972fbd1dc97ce2fdc034dda6e92bf5b381c099a9ab3e1ee99727a3cc9a229f1")
+
+        async def test_get_transaction_by_snapshot(self):
+            result = await self.network.be_api.get_transactions_by_snapshot("2404170")
+            print(result)
+
+        async def test_get_rewards_by_snapshot(self):
+            pass
+
+
 
 if __name__ == '__main__':
     unittest.main()
