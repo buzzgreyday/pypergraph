@@ -1,7 +1,5 @@
 from typing import Optional, List, Type
 
-from pypergraph.dag_core.convert import ddag_to_dag
-
 
 class NetworkInfo:
     def __init__(self, network_id="mainnet", be_url=None, l0_host=None, cl1_host=None, l0_lb_url=None, l1_lb_url=None):
@@ -25,7 +23,7 @@ class NetworkInfo:
                 f"l0_lb_url={self.l0_lb_url}, l1_lb_url={self.l1_lb_url})")
 
 
-class ClusterInfo:
+class PeerInfo:
 
     alias: Optional[str] = None
     id: str
@@ -37,9 +35,9 @@ class ClusterInfo:
     reputation: Optional[float]
 
     @classmethod
-    def process_peers(cls, response: List) -> list[Type["ClusterInfo"]]:
+    def process_cluster_peers(cls, data: List) -> list[Type["PeerInfo"]]:
         results = []
-        for d in response:
+        for d in data:
             cls.alias = d["alias"] if hasattr(d, "alias") else None
             cls.id = d["id"]
             cls.ip = d["ip"]
@@ -55,9 +53,9 @@ class ClusterInfo:
 
 class TotalSupply:
 
-    def __init__(self, response: dict):
-        self.ordinal: int = response.get("ordinal")
-        self.total_supply: int | float = ddag_to_dag(response.get("total"))
+    def __init__(self, data: dict):
+        self.ordinal: int = data.get("ordinal")
+        self.total_supply: int = data.get("total")
 
     def __repr__(self):
         return f"TotalSupply(ordinal={self.ordinal}, balance={self.total_supply})"

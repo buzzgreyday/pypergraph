@@ -5,7 +5,7 @@ from pypergraph.dag_core.models.reward import Reward
 from pypergraph.dag_core.rest_api_client import RestAPIClient
 from pypergraph.dag_core.models.account import Balance, LastReference
 from pypergraph.dag_core.models.transaction import  PendingTransaction, BlockExplorerTransaction
-from pypergraph.dag_core.models.network import TotalSupply, ClusterInfo
+from pypergraph.dag_core.models.network import TotalSupply, PeerInfo
 from pypergraph.dag_core.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot
 
 
@@ -38,7 +38,7 @@ class LoadBalancerApi:
 
     async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get('/total-supply')
-        return TotalSupply(response=result)
+        return TotalSupply(data=result)
 
     async def post_transaction(self, tx: Dict[str, Any]):
         result = await self.service.post("/transactions", payload=tx)
@@ -48,9 +48,9 @@ class LoadBalancerApi:
         result = await self.service.get(f"/transactions/{tx_hash}")
         return PendingTransaction(response=result)
 
-    async def get_cluster_info(self) -> [ClusterInfo, ...]:
+    async def get_cluster_info(self) -> List[Type["PeerInfo"]]:
         result = await self.service.get("/cluster/info")
-        return ClusterInfo.process_peers(response=result)
+        return PeerInfo.process_cluster_peers(data=result)
 
 
 class BlockExplorerApi:
@@ -280,8 +280,7 @@ class L0Api:
 
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
-        result = ClusterInfo.process_peers(response=result)
-        return result
+        return PeerInfo.process_cluster_peers(data=result)
 
     # Metrics
     async def get_metrics(self):
@@ -291,12 +290,12 @@ class L0Api:
     # DAG
     async def get_total_supply(self):
         result = await self.service.get("/dag/total-supply")
-        result = TotalSupply(response=result)
+        result = TotalSupply(data=result)
         return result
 
     async def get_total_supply_at_ordinal(self, ordinal: int):
         result = await self.service.get(f"/dag/{ordinal}/total-supply")
-        result = TotalSupply(response=result)
+        result = TotalSupply(data=result)
         return result
 
     async def get_address_balance(self, address: str):
@@ -346,10 +345,9 @@ class L1Api:
         """Reconfigure the RestAPIClient's base URL dynamically."""
         self.service.base_url = host
 
-    async def get_cluster_info(self) -> [ClusterInfo, ...]:
+    async def get_cluster_info(self) -> List[Type["PeerInfo"]]:
         result = await self.service.get("/cluster/info")
-        result = ClusterInfo.process_peers(response=result)
-        return result
+        return PeerInfo.process_cluster_peers(data=result)
 
     # Metrics
     async def get_metrics(self):
@@ -381,12 +379,12 @@ class ML0Api(L0Api):
     # State Channel Token
     async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get("/currency/total-supply")
-        result = TotalSupply(response=result)
+        result = TotalSupply(data=result)
         return result
 
     async def get_total_supply_at_ordinal(self, ordinal: int) -> TotalSupply:
         result = await self.service.get(f"/currency/{ordinal}/total-supply")
-        result = TotalSupply(response=result)
+        result = TotalSupply(data=result)
         return result
 
     async def get_address_balance(self, address: str):
