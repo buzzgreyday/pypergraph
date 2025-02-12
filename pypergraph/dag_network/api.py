@@ -30,7 +30,7 @@ class LoadBalancerApi:
 
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/dag/{address}/balance")
-        return Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(data=result, meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_last_reference(self, address) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
@@ -300,7 +300,7 @@ class L0Api:
 
     async def get_address_balance(self, address: str):
         result = await self.service.get(f"/dag/{address}/balance")
-        result = Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        result = Balance(data=result, meta=result["meta"] if hasattr(result, "meta") else None)
         return result
 
     async def get_address_balance_at_ordinal(self, ordinal: int, address: str):
