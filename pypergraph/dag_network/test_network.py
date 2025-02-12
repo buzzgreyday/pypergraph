@@ -1,6 +1,6 @@
 from random import randint
 
-from .models import NetworkInfo, ClusterInfo
+from pypergraph.dag_core.models.network import NetworkInfo, ClusterInfo
 from .network import DagTokenNetwork
 import unittest
 
@@ -114,16 +114,27 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
         """BE"""
         async def test_get_latest_snapshot(self):
             result = await self.network.get_latest_snapshot()
+            print(result.hash, result.timestamp, result.ordinal)
 
         async def test_get_snapshot_by_id(self):
             result = await self.network.be_api.get_snapshot("7972fbd1dc97ce2fdc034dda6e92bf5b381c099a9ab3e1ee99727a3cc9a229f1")
+            print(result.hash, result.timestamp, result.ordinal)
 
-        async def test_get_transaction_by_snapshot(self):
-            result = await self.network.be_api.get_transactions_by_snapshot("2404170")
-            print(result)
+        async def test_get_transactions_by_snapshot(self):
+            results = await self.network.be_api.get_transactions_by_snapshot("2404170")
+            print(results[0].source, results[0].destination, results[0].amount)
 
         async def test_get_rewards_by_snapshot(self):
-            pass
+            results = await self.network.be_api.get_rewards_by_snapshot("2404170")
+            print(results[0].destination, results[0].amount)
+
+        async def test_get_latest_snapshot_transactions(self):
+            results = await self.network.be_api.get_latest_snapshot_transactions()
+            print(results)
+
+        async def test_get_latest_snapshot_rewards(self):
+            results = await self.network.be_api.get_latest_snapshot_rewards()
+            print(results)
 
 
 

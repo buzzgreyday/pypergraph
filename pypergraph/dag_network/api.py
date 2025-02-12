@@ -1,10 +1,13 @@
 import warnings
 from datetime import datetime
-from typing import Optional, Any, Dict, List, Tuple
+from typing import Optional, Any, Dict, List, Tuple, Type
 
+from pypergraph.dag_core.models.reward import Reward
 from pypergraph.dag_core.rest_api_client import RestAPIClient
-from pypergraph.dag_network.models import Balance, LastReference, PendingTransaction, TotalSupply, ClusterInfo, \
-    Snapshot, GlobalSnapshot, BETransaction
+from pypergraph.dag_core.models.account import Balance, LastReference
+from pypergraph.dag_core.models.transaction import  PendingTransaction, BETransaction
+from pypergraph.dag_core.models.network import TotalSupply, ClusterInfo
+from pypergraph.dag_core.models.snapshot import Snapshot, GlobalSnapshot
 
 
 class LoadBalancerApi:
@@ -74,44 +77,56 @@ class BlockExplorerApi:
         """
 
         :param id: Hash or ordinal can be used as identifier.
-        :return:
+        :return: Snapshot.
         """
         result = await self.service.get(f"/global-snapshots/{id}")
         result = Snapshot(response=result["data"])
         return result
 
-    async def get_transactions_by_snapshot(self, id: str | int):
+    async def get_transactions_by_snapshot(self, id: str | int) -> List["BETransaction"]:
         """
 
         :param id:  Hash or ordinal can be used as identifier.
+        :return: List of Block Explorer type transactions.
+        """
+        # TODO: Add parameters limit, search_after, search_before, next
+        results = await self.service.get(f"/global-snapshots/{id}/transactions")
+        results = BETransaction.process_be_transactions(results["data"], results["meta"] if hasattr(results, "meta") else None)
+        return results
+
+
+    async def get_rewards_by_snapshot(self, id: str | int) -> List[Type["Reward"]]:
+        """
+
+        :param id: Hash or ordinal.
         :return:
         """
-        result = await self.service.get(f"/global-snapshots/{id}/transactions")
-        result = BETransaction.process_be_transactions(result["data"])
-        return result
-
-
-    async def get_rewards_by_snapshot(self, id: str | int):
-        """
-
-        :param id: Hash or ordinal
-        :return:
-        """
-        result = await self.service.get(f"/global-snapshots/{id}/rewards")
-        return result
+        results = await self.service.get(f"/global-snapshots/{id}/rewards")
+        results = Reward.process_snapshot_rewards(results["data"])
+        return results
 
     async def get_latest_snapshot(self) -> Snapshot:
+        """
+        Get the latest snapshot from block explorer.
+
+        :return: Snapshot.
+        """
         result = await self.service.get("/global-snapshots/latest")
         result = Snapshot(response=result["data"])
         return result
 
-    async def get_latest_snapshot_transaction(self):
-        result = await self.service.get("/global-snapshots/latest/transactions")
-        return result
+    async def get_latest_snapshot_transactions(self) -> List["BETransaction"]:
+        # TODO: Add parameters limit, search_after, search_before, next
+        results = await self.service.get("/global-snapshots/latest/transactions")
+        results = BETransaction.process_be_transactions(
+            data=results["data"],
+            meta=results["meta"] if hasattr(results, "meta") else None)
+        return results
 
-    async def get_latest_snapshot_rewards(self):
-        result = await self.service.get("/global-snapshots/latest/rewards")
-        return result
+    async def get_latest_snapshot_rewards(self) -> List[Type["Reward"]]:
+        results = await self.service.get("/global-snapshots/latest/rewards")
+        results = Reward.process_snapshot_rewards(results["data"])
+        return results
 
     def _format_date(self, date: datetime, param_name: str) -> str:
         try:

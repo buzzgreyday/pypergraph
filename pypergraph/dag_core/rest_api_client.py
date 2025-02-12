@@ -81,7 +81,7 @@ class RestConfig:
         return self
 
 class RestAPIClient:
-    def __init__(self, base_url: str, client = None):
+    def __init__(self, base_url: str, client = None, timeout=10):
         """
         Initializes the RestAPIClient.
 
@@ -89,7 +89,7 @@ class RestAPIClient:
         :param client: An optional injected HTTPX AsyncClient. If not provided, a new one is created.
         """
         self.base_url = base_url.rstrip("/")
-        self.client = client or httpx.AsyncClient()
+        self.client = client or httpx.AsyncClient(timeout=timeout)
 
     @property
     def base_url(self) -> str:
@@ -161,17 +161,17 @@ class RestAPIClient:
         self.handle_api_response(response, method, endpoint)
         return response.json()
 
-    async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
+    async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> json:
         return await self.request("GET", endpoint, headers=headers, params=params)
 
-    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> httpx.Response:
+    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> json:
         # TODO: serialize json
         return await self.request("POST", endpoint, headers=headers, payload=payload)
 
-    async def put(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> httpx.Response:
+    async def put(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> json:
         return await self.request("PUT", endpoint, headers=headers, payload=payload)
 
-    async def delete(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
+    async def delete(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> json:
         return await self.request("DELETE", endpoint, headers=headers, params=params)
 
     async def close(self):

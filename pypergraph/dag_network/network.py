@@ -3,8 +3,9 @@ from typing import Optional, Dict
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
-from pypergraph.dag_network.models import PendingTransaction, Snapshot
-from .models import NetworkInfo
+from pypergraph.dag_core.models.transaction import PendingTransaction
+from pypergraph.dag_core.models.snapshot import Snapshot
+from pypergraph.dag_core.models.network import NetworkInfo
 from pypergraph.dag_core.exceptions import NetworkError
 
 
