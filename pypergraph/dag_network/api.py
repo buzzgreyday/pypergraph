@@ -200,8 +200,9 @@ class BlockExplorerApi:
         result = await self.service.get(f"/addresses/{hash}/balance")
         return Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
-    # async def get_checkpoint_block(self, hash: str) -> Dict:
-    #     return await self.service.get(f"/blocks/{hash}")
+    async def get_checkpoint_block(self, hash: str) -> Dict:
+        # TODO: Block object
+        return await self.service.get(f"/blocks/{hash}")
 
     async def get_latest_currency_snapshot(self, metagraph_id: str) -> CurrencySnapshot:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest")
@@ -222,6 +223,7 @@ class BlockExplorerApi:
         return Reward.process_snapshot_rewards(lst=results["data"])
 
     async def get_currency_block(self, metagraph_id: str, hash: str) -> Dict:
+        # TODO: Block object
         return await self.service.get(f"/currency/{metagraph_id}/blocks/{hash}")
 
     async def get_currency_address_balance(self, metagraph_id: str, hash: str) -> Balance:
