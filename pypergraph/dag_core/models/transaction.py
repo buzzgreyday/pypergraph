@@ -2,8 +2,6 @@ import json
 from datetime import datetime
 from typing import Type, List, Dict, Optional
 
-from pypergraph.dag_core.convert import ddag_to_dag
-
 
 class PostTransactionResponse:
 
@@ -78,7 +76,7 @@ class Transaction:
         cls.proofs.append(proof)
 
 
-class BETransaction:
+class BlockExplorerTransaction:
     def __init__(
         self,
         data: dict,
@@ -96,11 +94,11 @@ class BETransaction:
         self.snapshot_ordinal: int = data["snapshotOrdinal"]
         self.transaction_original: Optional[Transaction | Type["Transaction"]] = data["transactionOriginal"]
         self.timestamp: datetime = datetime.fromisoformat(data["timestamp"])
-        self.proofs: List["Proof"] | List = data["proofs"] or []
-        self.next: Optional[str] = meta["next"] if hasattr(meta, "next") else None
+        self.proofs: List["Proof"] | List = data["proofs"] if hasattr(data, "proofs") and data["proofs"] else []
+        self.meta: Optional[dict] = meta
 
     @classmethod
-    def process_be_transactions(cls, data: List[dict], meta: Optional[dict] = None) -> List["BETransaction"]:
+    def process_transactions(cls, data: List[dict], meta: Optional[dict] = None) -> List[Type["BlockExplorerTransaction"]]:
         """
         The API returns a json with a 'data' value, sometimes 'meta'. The meta can e.g. point to the next hash.
 
@@ -110,21 +108,20 @@ class BETransaction:
         """
         transactions = []
         for be_tx in data:
-            transaction = cls(
-                hash=be_tx["hash"],
-                amount=ddag_to_dag(be_tx["amount"]),
-                source=be_tx["source"],
-                destination=be_tx["destination"],
-                fee=ddag_to_dag(be_tx["fee"]),
-                parent=be_tx["parent"],
-                salt=be_tx["salt"],
-                block_hash=be_tx["blockHash"],
-                snapshot_hash=be_tx["snapshotHash"],
-                snapshot_ordinal=be_tx["snapshotOrdinal"],
-                transaction_original=Transaction.from_dict(be_tx["transactionOriginal"]),
-                timestamp=datetime.fromisoformat(be_tx["timestamp"]),
-                proofs=be_tx.get("proofs", []),
-                next=meta["next"] if hasattr(meta, "next") else None
-            )
-            transactions.append(transaction)
+            cls.hash=be_tx["hash"]
+            cls.amount=be_tx["amount"]
+            cls.source=be_tx["source"]
+            cls.destination=be_tx["destination"]
+            cls.fee=be_tx["fee"]
+            cls.parent=be_tx["parent"]
+            cls.salt=be_tx["salt"]
+            cls.block_hash=be_tx["blockHash"]
+            cls.snapshot_hash=be_tx["snapshotHash"]
+            cls.snapshot_ordinal=be_tx["snapshotOrdinal"]
+            cls.transaction_original=Transaction.from_dict(be_tx["transactionOriginal"])
+            cls.timestamp=datetime.fromisoformat(be_tx["timestamp"])
+            cls.proofs=be_tx.get("proofs", [])
+            cls.meta=meta
+
+            transactions.append(cls)
         return transactions

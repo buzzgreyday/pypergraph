@@ -37,7 +37,7 @@ class ClusterInfo:
     reputation: Optional[float]
 
     @classmethod
-    def process_cluster_info(cls, response: List) -> list[Type["ClusterInfo"]]:
+    def process_peers(cls, response: List) -> list[Type["ClusterInfo"]]:
         results = []
         for d in response:
             cls.alias = d["alias"] if hasattr(d, "alias") else None

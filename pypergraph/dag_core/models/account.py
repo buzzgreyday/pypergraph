@@ -1,6 +1,5 @@
 import json
-
-from pypergraph.dag_core.convert import ddag_to_dag
+from typing import Optional
 
 
 class LastReference:
@@ -23,18 +22,12 @@ class LastReference:
 
 class Balance:
 
-    def __init__(self, response: json):
-        for key in response.keys():
-            if key == "data":
-                self.ordinal: int = response["data"]["ordinal"]
-                self.balance: int = response["data"]["balance"]
-                self.address: str = response["data"]["address"]
-                self.meta = response["meta"] if "meta" in response else None
-            else:
-                self.ordinal: int = response["ordinal"]
-                self.balance: float = ddag_to_dag(response["balance"])
-                self.address = None
-                self.meta = response["meta"] if "meta" in response else None
+    def __init__(self, data: dict, meta: Optional[dict]=None):
+        self.ordinal: int = data["ordinal"]
+        self.balance: int = data["balance"]
+        self.address: str = data["address"]
+        self.meta: dict = meta
+
 
     def __repr__(self):
         return f"Balance(ordinal={self.ordinal}, balance={self.balance}, address='{self.address}', meta='{self.meta}')"

@@ -1,13 +1,12 @@
 import warnings
-from datetime import datetime
-from typing import Optional, Any, Dict, List, Tuple, Type
+from typing import Optional, Any, Dict, List, Type
 
 from pypergraph.dag_core.models.reward import Reward
 from pypergraph.dag_core.rest_api_client import RestAPIClient
 from pypergraph.dag_core.models.account import Balance, LastReference
-from pypergraph.dag_core.models.transaction import  PendingTransaction, BETransaction
+from pypergraph.dag_core.models.transaction import  PendingTransaction, BlockExplorerTransaction
 from pypergraph.dag_core.models.network import TotalSupply, ClusterInfo
-from pypergraph.dag_core.models.snapshot import Snapshot, GlobalSnapshot
+from pypergraph.dag_core.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot
 
 
 class LoadBalancerApi:
@@ -31,18 +30,15 @@ class LoadBalancerApi:
 
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/dag/{address}/balance")
-        result = Balance(response=result)
-        return result
+        return Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_last_reference(self, address) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
-        result = LastReference(response=result)
-        return result
+        return LastReference(response=result)
 
     async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get('/total-supply')
-        result = TotalSupply(response=result)
-        return result
+        return TotalSupply(response=result)
 
     async def post_transaction(self, tx: Dict[str, Any]):
         result = await self.service.post("/transactions", payload=tx)
@@ -50,13 +46,11 @@ class LoadBalancerApi:
 
     async def get_pending_transaction(self, tx_hash: str):
         result = await self.service.get(f"/transactions/{tx_hash}")
-        result = PendingTransaction(response=result)
-        return result
+        return PendingTransaction(response=result)
 
     async def get_cluster_info(self) -> [ClusterInfo, ...]:
         result = await self.service.get("/cluster/info")
-        result = ClusterInfo.process_cluster_info(response=result)
-        return result
+        return ClusterInfo.process_peers(response=result)
 
 
 class BlockExplorerApi:
@@ -77,13 +71,12 @@ class BlockExplorerApi:
         """
 
         :param id: Hash or ordinal can be used as identifier.
-        :return: Snapshot.
+        :return: Snapshot object.
         """
         result = await self.service.get(f"/global-snapshots/{id}")
-        result = Snapshot(response=result["data"])
-        return result
+        return Snapshot(data=result["data"])
 
-    async def get_transactions_by_snapshot(self, id: str | int) -> List["BETransaction"]:
+    async def get_transactions_by_snapshot(self, id: str | int) -> List[Type["BlockExplorerTransaction"]]:
         """
 
         :param id:  Hash or ordinal can be used as identifier.
@@ -91,51 +84,41 @@ class BlockExplorerApi:
         """
         # TODO: Add parameters limit, search_after, search_before, next
         results = await self.service.get(f"/global-snapshots/{id}/transactions")
-        results = BETransaction.process_be_transactions(results["data"], results["meta"] if hasattr(results, "meta") else None)
-        return results
+        return BlockExplorerTransaction.process_transactions(results["data"], results["meta"] if hasattr(results, "meta") else None)
 
 
     async def get_rewards_by_snapshot(self, id: str | int) -> List[Type["Reward"]]:
         """
 
         :param id: Hash or ordinal.
-        :return:
+        :return: List of reward type objects.
         """
         results = await self.service.get(f"/global-snapshots/{id}/rewards")
-        results = Reward.process_snapshot_rewards(results["data"])
-        return results
+        return Reward.process_snapshot_rewards(results["data"])
 
     async def get_latest_snapshot(self) -> Snapshot:
         """
         Get the latest snapshot from block explorer.
 
-        :return: Snapshot.
+        :return: Snapshot object.
         """
         result = await self.service.get("/global-snapshots/latest")
-        result = Snapshot(response=result["data"])
-        return result
+        return Snapshot(data=result["data"])
 
-    async def get_latest_snapshot_transactions(self) -> List["BETransaction"]:
-        # TODO: Add parameters limit, search_after, search_before, next
+    async def get_latest_snapshot_transactions(self) -> List[Type["BlockExplorerTransaction"]]:
+        # TODO: Add parameters limit, search_after, search_before, next (according to Swagger)
         results = await self.service.get("/global-snapshots/latest/transactions")
-        results = BETransaction.process_be_transactions(
+        return BlockExplorerTransaction.process_transactions(
             data=results["data"],
             meta=results["meta"] if hasattr(results, "meta") else None)
-        return results
 
     async def get_latest_snapshot_rewards(self) -> List[Type["Reward"]]:
         results = await self.service.get("/global-snapshots/latest/rewards")
-        results = Reward.process_snapshot_rewards(results["data"])
-        return results
+        return Reward.process_snapshot_rewards(results["data"])
 
-    def _format_date(self, date: datetime, param_name: str) -> str:
-        try:
-            return date.isoformat()
-        except Exception:
-            raise ValueError(f'ParamError: "{param_name}" is not valid ISO 8601')
-
+    @staticmethod
     def _get_transaction_search_path_and_params(
-            self, base_path: str, limit: Optional[int], search_after: Optional[str],
+            base_path: str, limit: Optional[int], search_after: Optional[str],
             sent_only: bool, received_only: bool, search_before: Optional[str]
     ) -> Dict:
         params = {}
@@ -159,53 +142,91 @@ class BlockExplorerApi:
     async def get_transactions(
             self, limit: Optional[int], search_after: Optional[str],
             search_before: Optional[str]
-    ) -> List[Dict]:
+    ) -> List[Type["BlockExplorerTransaction"]]:
+        """
+        Get transactions from block explorer. Supports pagination.
+
+        :param limit: Maximum transaction pagination.
+        :param search_after:
+        :param search_before:
+        :return: List of block explorer type transaction objects.
+        """
         base_path = "/transactions"
-        result = self._get_transaction_search_path_and_params(
+        request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, False, False, search_before
         )
-        return await self.service.get(result["path"], result["params"])
+        results = await self.service.get(endpoint=request["path"], params=request["params"])
+        return BlockExplorerTransaction.process_transactions(results["data"])
 
     async def get_transactions_by_address(
             self, address: str, limit: int = 0, search_after: str = '',
             sent_only: bool = False, received_only: bool = False, search_before: str = ''
-    ) -> List[Dict]:
+    ) -> List[Type["BlockExplorerTransaction"]]:
+        """
+        Get transactions from block explorer per DAG address. Supports pagination.
+
+        :param address: DAG address.
+        :param limit: Maximum transaction pagination.
+        :param search_after:
+        :param sent_only:
+        :param received_only:
+        :param search_before:
+        :return:
+        """
         base_path = f"/addresses/{address}/transactions"
-        result = self._get_transaction_search_path_and_params(
+        request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, sent_only, received_only, search_before
         )
-        return await self.service.get(result["path"], result["params"])
+        results = await self.service.get(endpoint=request["path"], params=request["params"])
+        return BlockExplorerTransaction.process_transactions(results)
 
-    async def get_transaction(self, hash: str) -> Dict:
-        return await self.service.get(f"/transactions/{hash}")
+    async def get_transaction(self, hash: str) -> BlockExplorerTransaction:
+        """
+        Get the transaction associated with the transaction hash.
+
+        :param hash: Transaction hash.
+        :return: Block Explorer type transaction object.
+        """
+        result = await self.service.get(f"/transactions/{hash}")
+        return BlockExplorerTransaction(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_address_balance(self, hash: str) -> Balance:
+        """
+        Get address balance from block explorer.
+
+        :param hash: Transactions hash.
+        :return: Balance object.
+        """
         result = await self.service.get(f"/addresses/{hash}/balance")
-        result = Balance(response=result)
-        return result
+        return Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
-    async def get_checkpoint_block(self, hash: str) -> Dict:
-        return await self.service.get(f"/blocks/{hash}")
+    # async def get_checkpoint_block(self, hash: str) -> Dict:
+    #     return await self.service.get(f"/blocks/{hash}")
 
-    async def get_latest_currency_snapshot(self, metagraph_id: str) -> Dict:
-        return await self.service.get(f"/currency/{metagraph_id}/snapshots/latest")
+    async def get_latest_currency_snapshot(self, metagraph_id: str) -> CurrencySnapshot:
+        result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest")
+        return CurrencySnapshot(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
-    async def get_currency_snapshot(self, metagraph_id: str, hash_or_ordinal: str) -> Dict:
-        return await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}")
+    async def get_currency_snapshot(self, metagraph_id: str, hash_or_ordinal: str) -> CurrencySnapshot:
+        result = await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}")
+        return CurrencySnapshot(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
-    async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> Dict:
-        return await self.service.get(f"/currency/{metagraph_id}/snapshots/latest/rewards")
+    async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> List[Type["Reward"]]:
+        result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest/rewards")
+        return Reward.process_snapshot_rewards(lst=result["data"])
 
     async def get_currency_snapshot_rewards(
             self, metagraph_id: str, hash_or_ordinal: str
-    ) -> Dict:
-        return await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards")
+    ) -> List[Type["Reward"]]:
+        results = await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards")
+        return Reward.process_snapshot_rewards(lst=results["data"])
 
     async def get_currency_block(self, metagraph_id: str, hash: str) -> Dict:
         return await self.service.get(f"/currency/{metagraph_id}/blocks/{hash}")
 
-    async def get_currency_address_balance(self, metagraph_id: str, hash: str) -> Dict:
-        return await self.service.get(f"/currency/{metagraph_id}/addresses/{hash}/balance")
+    async def get_currency_address_balance(self, metagraph_id: str, hash: str) -> Balance:
+        result = await self.service.get(f"/currency/{metagraph_id}/addresses/{hash}/balance")
+        return Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_currency_transaction(self, metagraph_id: str, hash: str) -> Dict:
         return await self.service.get(f"/currency/{metagraph_id}/transactions/{hash}")
@@ -257,7 +278,7 @@ class L0Api:
 
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
-        result = ClusterInfo.process_cluster_info(response=result)
+        result = ClusterInfo.process_peers(response=result)
         return result
 
     # Metrics
@@ -278,7 +299,7 @@ class L0Api:
 
     async def get_address_balance(self, address: str):
         result = await self.service.get(f"/dag/{address}/balance")
-        result = Balance(response=result)
+        result = Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
         return result
 
     async def get_address_balance_at_ordinal(self, ordinal: int, address: str):
@@ -325,7 +346,7 @@ class L1Api:
 
     async def get_cluster_info(self) -> [ClusterInfo, ...]:
         result = await self.service.get("/cluster/info")
-        result = ClusterInfo.process_cluster_info(response=result)
+        result = ClusterInfo.process_peers(response=result)
         return result
 
     # Metrics

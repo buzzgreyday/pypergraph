@@ -88,6 +88,7 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
 
         address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
         network = DagTokenNetwork()
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
 
         """HOST/LB"""
         async def test_get_address_balance(self):
@@ -117,7 +118,7 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
             print(result.hash, result.timestamp, result.ordinal)
 
         async def test_get_snapshot_by_id(self):
-            result = await self.network.be_api.get_snapshot("7972fbd1dc97ce2fdc034dda6e92bf5b381c099a9ab3e1ee99727a3cc9a229f1")
+            result = await self.network.be_api.get_snapshot("dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e")
             print(result.hash, result.timestamp, result.ordinal)
 
         async def test_get_transactions_by_snapshot(self):
@@ -125,7 +126,7 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
             print(results[0].source, results[0].destination, results[0].amount)
 
         async def test_get_rewards_by_snapshot(self):
-            results = await self.network.be_api.get_rewards_by_snapshot("2404170")
+            results = await self.network.be_api.get_rewards_by_snapshot(2404170)
             print(results[0].destination, results[0].amount)
 
         async def test_get_latest_snapshot_transactions(self):
@@ -135,6 +136,38 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
         async def test_get_latest_snapshot_rewards(self):
             results = await self.network.be_api.get_latest_snapshot_rewards()
             print(results)
+
+        async def test_get_transactions(self):
+            results = await self.network.be_api.get_transactions(limit=10, search_after=None, search_before=None)
+            print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
+
+        async def test_get_transaction(self):
+            result = await self.network.be_api.get_transaction("dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e")
+            print(result.source, result.destination, result.amount, result.timestamp, result.hash)
+
+        async def test_get_latest_currency_snapshot(self):
+            result = await self.network.be_api.get_latest_currency_snapshot(self.el_paca_metagraph_id)
+            print(result) # Ordinal: 950075
+
+        async def test_get_currency_snapshot(self):
+            result = await self.network.be_api.get_currency_snapshot(self.el_paca_metagraph_id, 950075)
+            print(result)
+
+        async def test_get_latest_currency_snapshot_rewards(self):
+            results = await self.network.be_api.get_latest_currency_snapshot_rewards(self.el_paca_metagraph_id)
+            print(results)
+
+        async def test_get_currency_snapshot_rewards(self):
+            results = await self.network.be_api.get_currency_snapshot_rewards(self.el_paca_metagraph_id, 950075)
+            print(results)
+
+        async def test_get_currency_block(self):
+            results = await self.network.be_api.get_currency_block(self.el_paca_metagraph_id, "b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364")
+            print(results)
+
+        async def test_get_currency_address_balance(self):
+            result = await self.network.be_api.get_currency_address_balance(self.el_paca_metagraph_id, "b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364")
+            print(result)
 
 
 
