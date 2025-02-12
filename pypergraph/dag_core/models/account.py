@@ -24,7 +24,7 @@ class Balance:
     def __init__(self, data: dict, meta: Optional[dict]=None):
         self.ordinal: int = data["ordinal"]
         self.balance: int = data["balance"]
-        self.address: str = data["address"]
+        self.address: str = data["address"] if hasattr(data, "address") else None
         self.meta: dict = meta
 
 

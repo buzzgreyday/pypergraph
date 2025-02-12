@@ -1,6 +1,6 @@
 from random import randint
 
-from pypergraph.dag_core.models.network import NetworkInfo, ClusterInfo
+from pypergraph.dag_core.models.network import NetworkInfo, PeerInfo
 from .network import DagTokenNetwork
 import unittest
 
