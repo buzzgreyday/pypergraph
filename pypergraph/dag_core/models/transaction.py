@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from typing import Type, List, Dict, Optional
 
@@ -14,8 +13,8 @@ class PostTransactionResponse:
 
 class PendingTransaction:
 
-    def __init__(self, response: json):
-        transaction = response["transaction"]
+    def __init__(self, data: dict):
+        transaction = data["transaction"]
         self.source: str = transaction["source"]
         self.destination: str = transaction["destination"]
         self.amount: int = transaction["amount"]
@@ -23,8 +22,8 @@ class PendingTransaction:
         self.parent_hash: str = transaction["parent"]["hash"]
         self.parent_ordinal: int = transaction["parent"]["ordinal"]
         self.salt: str = transaction["salt"]
-        self.transaction_hash: str = response["hash"]
-        self.status: int = response["status"]
+        self.transaction_hash: str = data["hash"]
+        self.status: int = data["status"]
 
     def __repr__(self):
         return (f"PendingTransaction(source={self.source}, destination={self.destination}, "
@@ -47,9 +46,9 @@ class Proof:
     signature: str
 
     @classmethod
-    def process_snapshot_proofs(cls, lst: list):
+    def process_snapshot_proofs(cls, data: list):
         results = []
-        for item in lst:
+        for item in data:
             cls.id = item["id"]
             cls.signature = item["signature"]
 
@@ -63,7 +62,7 @@ class Transaction:
     @classmethod
     def from_dict(cls, data: dict):
         cls.value = TransactionValue(**data["value"])
-        cls.proofs = Proof.process_snapshot_proofs(lst=data["proofs"]) or []
+        cls.proofs = Proof.process_snapshot_proofs(data=data["proofs"]) or []
 
         return cls
 

@@ -1,12 +1,11 @@
-import json
 from typing import Optional
 
 
 class LastReference:
 
-    def __init__(self, response: json):
-        self.ordinal: int = response.get("ordinal")
-        self.hash: str = response.get("hash")
+    def __init__(self, data: dict):
+        self.ordinal: int = data.get("ordinal")
+        self.hash: str = data.get("hash")
 
     def __repr__(self):
         return f"LastReference(ordinal={self.ordinal}, hash='{self.hash}')"

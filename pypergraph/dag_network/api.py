@@ -34,7 +34,7 @@ class LoadBalancerApi:
 
     async def get_last_reference(self, address) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
-        return LastReference(response=result)
+        return LastReference(data=result)
 
     async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get('/total-supply')
@@ -46,7 +46,7 @@ class LoadBalancerApi:
 
     async def get_pending_transaction(self, tx_hash: str):
         result = await self.service.get(f"/transactions/{tx_hash}")
-        return PendingTransaction(response=result)
+        return PendingTransaction(data=result)
 
     async def get_cluster_info(self) -> List[Type["PeerInfo"]]:
         result = await self.service.get("/cluster/info")
@@ -214,13 +214,13 @@ class BlockExplorerApi:
 
     async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> List[Type["Reward"]]:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest/rewards")
-        return Reward.process_snapshot_rewards(lst=result["data"])
+        return Reward.process_snapshot_rewards(data=result["data"])
 
     async def get_currency_snapshot_rewards(
             self, metagraph_id: str, hash_or_ordinal: str
     ) -> List[Type["Reward"]]:
         results = await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards")
-        return Reward.process_snapshot_rewards(lst=results["data"])
+        return Reward.process_snapshot_rewards(data=results["data"])
 
     async def get_currency_block(self, metagraph_id: str, hash: str) -> Dict:
         # TODO: Block object
@@ -357,13 +357,11 @@ class L1Api:
     # Transactions
     async def get_last_reference(self, address: str) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
-        result = LastReference(response=result)
-        return result
+        return LastReference(data=result)
 
     async def get_pending_transaction(self, hash: str) -> PendingTransaction:
         result = await self.service.get(f"/transactions/{hash}")
-        result = PendingTransaction(response=result)
-        return result
+        return PendingTransaction(data=result)
 
     async def post_transaction(self, tx):
         return await self.service.post("/transactions", payload=tx)
@@ -379,13 +377,11 @@ class ML0Api(L0Api):
     # State Channel Token
     async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get("/currency/total-supply")
-        result = TotalSupply(data=result)
-        return result
+        return TotalSupply(data=result)
 
     async def get_total_supply_at_ordinal(self, ordinal: int) -> TotalSupply:
         result = await self.service.get(f"/currency/{ordinal}/total-supply")
-        result = TotalSupply(data=result)
-        return result
+        return TotalSupply(data=result)
 
     async def get_address_balance(self, address: str):
         return await self.service.get(f"/currency/{address}/balance")
