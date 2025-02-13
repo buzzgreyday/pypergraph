@@ -248,12 +248,13 @@ class BlockExplorerApi:
     async def get_currency_transactions_by_address(
             self, metagraph_id: str, address: str, limit: int = 0, search_after: str = '',
             sent_only: bool = False, received_only: bool = False, search_before: str = ''
-    ) -> List[Dict]:
+    ) -> List[BlockExplorerTransaction]:
         base_path = f"/currency/{metagraph_id}/addresses/{address}/transactions"
-        result = self._get_transaction_search_path_and_params(
+        request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, sent_only, received_only, search_before
         )
-        return await self.service.get(result["path"], result["params"])
+        results = await self.service.get(endpoint=request["path"], params=request["params"])
+        return BlockExplorerTransaction.process_transactions(results["data"])
 
     async def get_currency_transactions_by_snapshot(
             self, metagraph_id: str, hash_or_ordinal: str, limit: int = 0,
