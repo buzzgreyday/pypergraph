@@ -67,7 +67,7 @@ class BlockExplorerApi:
         """Reconfigure the RestAPIClient's base URL dynamically."""
         self.service.base_url = host
 
-    async def get_snapshot(self, id: str | int) -> Snapshot:
+    async def get_snapshot(self, id: Optional[str | int]) -> Snapshot:
         """
 
         :param id: Hash or ordinal can be used as identifier.
@@ -76,7 +76,7 @@ class BlockExplorerApi:
         result = await self.service.get(f"/global-snapshots/{id}")
         return Snapshot(data=result["data"])
 
-    async def get_transactions_by_snapshot(self, id: str | int) -> List[Type["BlockExplorerTransaction"]]:
+    async def get_transactions_by_snapshot(self, id: Optional[str | int]) -> List[Type["BlockExplorerTransaction"]]:
         """
 
         :param id:  Hash or ordinal can be used as identifier.
@@ -87,7 +87,7 @@ class BlockExplorerApi:
         return BlockExplorerTransaction.process_transactions(results["data"], results["meta"] if hasattr(results, "meta") else None)
 
 
-    async def get_rewards_by_snapshot(self, id: str | int) -> List[Type["Reward"]]:
+    async def get_rewards_by_snapshot(self, id: Optional[str | int]) -> List[Type["Reward"]]:
         """
 
         :param id: Hash or ordinal.
@@ -317,7 +317,7 @@ class L0Api:
     async def get_latest_snapshot_ordinal(self):
         return await self.service.get("/global-snapshots/latest/ordinal")
 
-    async def get_snapshot(self, id: str | int) -> Snapshot:
+    async def get_snapshot(self, id: Optional[str | int]) -> Snapshot:
         result = await self.service.get(
                      f"/global-snapshots/{id}"
                  )
