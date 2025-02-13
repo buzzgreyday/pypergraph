@@ -33,12 +33,11 @@ jobs:
       run: |
         pytest
     - name: Security check - Bandit
-      uses: ./
+      uses: py-actions/bandit@v1
       with:
-        python_version: ${{ matrix.python-version }}
-        project_path: .
-        ignore_failure: true
-
+        path: .
+        level: high
+        confidence: high
     - name: Security check report artifacts
       uses: actions/upload-artifact@v4  # ✅ Updated to v4
       with:
