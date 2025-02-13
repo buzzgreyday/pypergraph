@@ -227,5 +227,5 @@ async def test_get_currency_transactions_by_address(network):
 @pytest.mark.asyncio
 async def test_get_currency_transactions_by_snapshot(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    results = await network.be_api.get_currency_transactions_by_snapshot(metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394,limit=10)
+    results = await network.be_api.get_currency_transactions_by_snapshot(metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394, limit=10)
     print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)

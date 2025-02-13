@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import KeyringWalletType
@@ -15,7 +17,7 @@ class KeyringManager(AsyncIOEventEmitter):
         self.encryptor = Encryptor()
         self.storage = StateStorageDb()
         self.wallets = []
-        self.password = ""
+        self.password: Optional[str] = None  # Use None instead of an empty string
         self.mem_store = ObservableStore({"is_unlocked": False, "wallets": []}) # Memory storage
         # KeyringManager is also an event emitter
         self.on("new_account", self.create_multi_chain_hd_wallet)

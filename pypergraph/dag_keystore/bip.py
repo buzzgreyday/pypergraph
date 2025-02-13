@@ -65,7 +65,7 @@ class Bip39:
         """
         mnemo = Mnemonic(self.language)
         words = mnemo.generate(strength=self.strength)
-        seed = mnemo.to_seed(words, passphrase="")
+        seed = mnemo.to_seed(words)
         entropy = mnemo.to_entropy(words)
         return {"mnemo": mnemo, "words": words, "seed": seed, "entropy": entropy}
 
