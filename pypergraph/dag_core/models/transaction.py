@@ -57,7 +57,7 @@ class Proof:
 
 class Transaction:
     value: TransactionValue
-    proofs: List["Proof"] | list
+    proofs: Optional[List["Proof"]]
 
     @classmethod
     def from_dict(cls, data: dict):
