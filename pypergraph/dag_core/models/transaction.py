@@ -72,6 +72,9 @@ class Transaction(BaseModel):
     value: TransactionValue
     proofs: List[Proof] = Field(default_factory=list)
 
+    def __repr__(self):
+        return f"Transaction(value={self.value}, proofs={self.proofs})"
+
     @classmethod
     def from_dict(cls, data: dict) -> "Transaction":
         return cls(
@@ -84,9 +87,6 @@ class Transaction(BaseModel):
 
     def add_proof(self, proof: Proof) -> None:
         self.proofs.append(proof)
-
-    def __repr__(self):
-        return (f"Transaction(value={self.value}, proofs={self.proofs})")
 
 
 class BlockExplorerTransaction(BaseModel):
