@@ -1,3 +1,4 @@
+-e .
 base58~=2.1.1
 mnemonic~=0.21
 bip32utils~=0.3.post4
