@@ -37,7 +37,7 @@ jobs:
 
     - name: Run Bandit Security Check
       run: |
-        bandit -r . | tee bandit_output.txt
+        bandit -r . | tee security_check.txt.txt
         if grep -E "Severity: (Low|Medium|High)" security_check.txt; then
           echo "Security issues detected with Low, Medium or High severity"
           exit 1
