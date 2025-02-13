@@ -1,7 +1,7 @@
 import pytest
 import random
 from pypergraph.dag_core.models.network import NetworkInfo
-from .network import DagTokenNetwork
+from pypergraph.dag_network.network import DagTokenNetwork
 
 @pytest.fixture
 def network():
