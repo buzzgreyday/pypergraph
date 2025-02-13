@@ -87,7 +87,7 @@ class BlockExplorerApi:
         return BlockExplorerTransaction.process_transactions(results["data"], results["meta"] if hasattr(results, "meta") else None)
 
 
-    async def get_rewards_by_snapshot(self, id: Union[str, int]) -> List[Type["Reward"]]:
+    async def get_rewards_by_snapshot(self, id: Union[str, int]) -> List[Reward]:
         """
 
         :param id: Hash or ordinal.
@@ -105,14 +105,14 @@ class BlockExplorerApi:
         result = await self.service.get("/global-snapshots/latest")
         return Snapshot(**result["data"])
 
-    async def get_latest_snapshot_transactions(self) -> List["BlockExplorerTransaction"]:
+    async def get_latest_snapshot_transactions(self) -> List[BlockExplorerTransaction]:
         # TODO: Add parameters limit, search_after, search_before, next (according to Swagger)
         results = await self.service.get("/global-snapshots/latest/transactions")
         return BlockExplorerTransaction.process_transactions(
             data=results["data"],
             meta=results["meta"] if hasattr(results, "meta") else None)
 
-    async def get_latest_snapshot_rewards(self) -> List[Type["Reward"]]:
+    async def get_latest_snapshot_rewards(self) -> List[Reward]:
         results = await self.service.get("/global-snapshots/latest/rewards")
         return Reward.process_snapshot_rewards(results["data"])
 
@@ -161,7 +161,7 @@ class BlockExplorerApi:
     async def get_transactions_by_address(
             self, address: str, limit: int = 0, search_after: str = '',
             sent_only: bool = False, received_only: bool = False, search_before: str = ''
-    ) -> List["BlockExplorerTransaction"]:
+    ) -> List[BlockExplorerTransaction]:
         """
         Get transactions from block explorer per DAG address. Supports pagination.
 
@@ -212,13 +212,13 @@ class BlockExplorerApi:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}")
         return CurrencySnapshot(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
-    async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> List[Type["Reward"]]:
+    async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> List[Reward]:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest/rewards")
         return Reward.process_snapshot_rewards(data=result["data"])
 
     async def get_currency_snapshot_rewards(
             self, metagraph_id: str, hash_or_ordinal: str
-    ) -> List[Type["Reward"]]:
+    ) -> List[Reward]:
         results = await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards")
         return Reward.process_snapshot_rewards(data=results["data"])
 
