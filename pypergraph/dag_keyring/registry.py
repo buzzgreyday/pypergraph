@@ -17,7 +17,7 @@ class KeyringRegistry:
         :param data: { KeyringNetwork.Network.value: AccountClass, ... }
         :return:
         """
-        if not data or type(data) != dict:
+        if not data or type(data) is not dict:
             raise ValueError(f"KeyringRegistry :: Unsupported type of data: {data}")
         self.registry = data
 
@@ -29,7 +29,7 @@ class KeyringRegistry:
         :return: Account class.
         """
 
-        if not network or type(network) != str:
+        if not network or type(network) is not str:
             raise ValueError(f"KeyringRegistry :: Unsupported network: {network}")
         class_ = self.registry.get(network)
         return class_()

@@ -1,6 +1,6 @@
 from random import randint
 
-from pypergraph.dag_core.models.network import NetworkInfo, PeerInfo
+from pypergraph.dag_core.models.network import NetworkInfo
 from .network import DagTokenNetwork
 import unittest
 
@@ -102,6 +102,10 @@ class TestInitNetworkConfig(unittest.IsolatedAsyncioTestCase):
         async def test_get_pending(self):
             # Will be None/False if the tx is not pending
             result = await self.network.get_pending_transaction(hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429")
+            if result:
+                print(result)
+            else:
+                print("No pending transactions.")
 
         async def test_get_total_supply(self):
             result = await self.network.l0_api.get_total_supply()

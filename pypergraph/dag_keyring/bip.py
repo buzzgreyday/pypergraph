@@ -1,8 +1,6 @@
 from bip32utils import BIP32Key
 from mnemonic import Mnemonic
 
-from pypergraph.dag_core.constants import DERIVATION_PATH, BIP_44_PATHS
-
 
 class Bip39Helper:
     """Generate 12 or 24 words and derive entropy"""

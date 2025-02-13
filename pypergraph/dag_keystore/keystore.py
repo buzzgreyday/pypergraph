@@ -10,18 +10,16 @@ from typing import Tuple
 #             NoEncryption,
 #         )
 # from cryptography.hazmat.primitives.serialization import pkcs12
-from decimal import Decimal, ROUND_DOWN
 
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
 from pyasn1.codec.der.decoder import decode as der_decode
 from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
-from hashlib import sha256
 
 from .bip import Bip39, Bip32
 from .tx_encode import TxEncode, TransactionV2
-from pypergraph.dag_core.constants import BASE58_ALPHABET, PKCS_PREFIX
+from pypergraph.dag_core.constants import PKCS_PREFIX
 
 # import datetime
 import hashlib

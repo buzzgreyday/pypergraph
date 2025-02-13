@@ -107,7 +107,7 @@ class EcdsaAccount(ABC):
     def deserialize(self, data: Dict[str, Any]):
 
         private_key = bytes.fromhex(data.get("privateKey"))
-        public_key = data.get("publicKey")
+        # public_key = data.get("publicKey")
         tokens = data.get("tokens")
         bip44_index = data.get("bip44Index")
         label = data.get("label")

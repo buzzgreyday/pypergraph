@@ -66,22 +66,22 @@ class KeyringManager(AsyncIOEventEmitter):
 
         if not password:
             raise ValueError("KeyringManager :: A password is required to create or restore a Vault.")
-        elif type(password) != str:
+        elif type(password) is not str:
             raise ValueError("KeyringManager :: Password has invalid format.")
         else:
             # Set the password to be associated with the wallet.
             self.password = password
 
-        if len(label) > 12 or type(label) != str:
+        if len(label) > 12 or type(label) is not str:
             raise ValueError("KeyringManager :: Label must be a string below 12 characters.")
 
-        if type(seed) != str:
+        if type(seed) is not str:
             raise ValueError(f"KeyringManager :: A seed phrase must be a string, got {type(seed)}.")
         if seed:
             if len(seed.split(' ')) not in (12, 24):
                 raise ValueError("KeyringManager :: The seed phrase must be 12 or 24 words long.")
             if not Bip39Helper().is_valid(seed):
-                raise ValueError(f"KeyringManager :: The seed phrase is invalid.")
+                raise ValueError("KeyringManager :: The seed phrase is invalid.")
 
         # Starts fresh
         await self.clear_wallets()
@@ -112,7 +112,7 @@ class KeyringManager(AsyncIOEventEmitter):
 
     async def persist_all_wallets(self, password):
         password = password or self.password
-        if not password or type(password) != str:
+        if not password or type(password) is not str:
             raise ValueError("KeyringManager :: Password is not a valid string.")
 
         self.password = password
@@ -138,7 +138,7 @@ class KeyringManager(AsyncIOEventEmitter):
         for w in self.wallets:
             if w.id == id:
                 return w
-        raise ValueError(f"KeyringManager :: No wallet found with the id: " + id)
+        raise ValueError("KeyringManager :: No wallet found with the id: " + id)
 
     def get_accounts(self):
         return [account for wallet in self.wallets for account in wallet.get_accounts()]

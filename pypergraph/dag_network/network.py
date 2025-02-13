@@ -89,7 +89,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         response = None
         try:
             response = await self.be_api.get_transactions_by_address(address, limit, search_after)
-        except Exception as e:
+        except Exception:
             # NOOP for 404 or other exceptions
             pass
         return response.get('data') if response else None
@@ -99,7 +99,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         response = None
         try:
             response = await self.be_api.get_transaction(hash)
-        except Exception as e:
+        except Exception:
             # NOOP for 404 or other exceptions
             pass
         return response.get('data') if response else None
@@ -118,7 +118,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
 class MetagraphTokenNetwork:
     def __init__(self, network_info: dict ):
-        self.connected_network = {"network_id": None, "be_url": f"https://be-mainnet.constellationnetwork.io", "l0_host": None, "cl1_host": None }
+        self.connected_network = {"network_id": None, "be_url": "https://be-mainnet.constellationnetwork.io", "l0_host": None, "cl1_host": None }
         self.network_id = self.connected_network["network_id"]
         self.l0_api = ML0Api(self.connected_network["l0_url"])
         self.l1_api = ML1Api(self.connected_network["l1_url"])

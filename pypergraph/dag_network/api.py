@@ -15,7 +15,7 @@ class LoadBalancerApi:
         if not host.startswith("http"):
             warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
             host = f"http://{host}"
-        if not host or type(host) != str:
+        if not host or type(host) is not str:
             raise ValueError(f"LoadBalancerApi :: Invalid host: {host}")
         self.service = RestAPIClient(host)
 
@@ -59,7 +59,7 @@ class BlockExplorerApi:
         if not host.startswith("http"):
             warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
             host = f"http://{host}"
-        if not host or type(host) != str:
+        if not host or type(host) is not str:
             raise ValueError(f"BlockExplorerApi :: Invalid host: {host}")
         self.service = RestAPIClient(host)
 
@@ -270,7 +270,7 @@ class L0Api:
         if not host.startswith("http"):
             warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
             host = f"http://{host}"
-        if not host or type(host) != str:
+        if not host or type(host) is not str:
             raise ValueError(f"L0Api :: Invalid host: {host}")
         self.service = RestAPIClient(host)
 
@@ -337,7 +337,7 @@ class L1Api:
         if not host.startswith("http"):
             warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
             host = f"http://{host}"
-        if not host or type(host) != str:
+        if not host or type(host) is not str:
             raise ValueError(f"L0Api :: Invalid host: {host}")
         self.service = RestAPIClient(host)
 
