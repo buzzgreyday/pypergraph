@@ -1,33 +1,36 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from pydantic import BaseModel, field_validator, Field
 
 from pypergraph.dag_core.models.transaction import Proof
 
 
-class GlobalSnapshotValue:
-
-    def __init__(self, value: dict):
-        self.ordinal: int = value["ordinal"]
-        self.height: int = value["height"]
-        self.sub_height: int = value["subHeight"]
-        self.last_snapshot_hash: str = value["lastSnapshotHash"]
-        self.blocks: list = value["blocks"]
-        self.state_channel_snapshots: dict = value["stateChannelSnapshot"]
-        self.rewards: list = value["rewards"]
-        self.epoch_progress: int = value["epochProgress"]
-        self.next_facilitators: list = value["nextFacilitators"]
-        self.tips: dict = value["tips"]
-        self.state_proof: dict = value["stateProof"]
-        self.version: str = value["version"]
+class GlobalSnapshotValue(BaseModel):
+    ordinal: int
+    height: int
+    sub_height: int
+    last_snapshot_hash: str = Field(..., alias="lastSnapshotHash")
+    blocks: List[str]
+    state_channel_snapshots: Dict[str, any] = Field(..., alias="stateChannelSnapshots")
+    rewards: List[Dict[str, any]]
+    epoch_progress: int
+    next_facilitators: List[str] = Field(..., alias="nextFacilitators")
+    tips: Dict[str, any]
+    state_proof: Dict[str, any] = Field(..., alias="stateProof")
+    version: str
 
 
-class GlobalSnapshot:
+class GlobalSnapshot(BaseModel):
+    value: GlobalSnapshotValue
+    proofs: List[Proof]
 
-    def __init__(self, response):
-        self.value: GlobalSnapshotValue = GlobalSnapshotValue(response["value"])
-        self.proofs: list = Proof.process_snapshot_proofs(response["proofs"])
+    @classmethod
+    def from_response(cls, response: dict) -> "GlobalSnapshot":
+        return cls(
+            value=GlobalSnapshotValue(**response["value"]),
+            proofs=Proof.process_snapshot_proofs(response["proofs"]),
+        )
 
 """BE MODELS: DTO"""
 class Snapshot(BaseModel):
