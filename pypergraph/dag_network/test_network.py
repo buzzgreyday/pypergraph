@@ -85,121 +85,121 @@ def test_config_network(network):
     )
     assert network.get_network() == expected.__dict__
 
-    @pytest.mark.asyncio
-    async def test_get_address_balance(network):
-        address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
-        result = await network.get_address_balance(address)
-        assert result.balance >= 0
+@pytest.mark.asyncio
+async def test_get_address_balance(network):
+    address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
+    result = await network.get_address_balance(address)
+    assert result.balance >= 0
 
-    @pytest.mark.asyncio
-    async def test_get_last_ref(network):
-        address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
-        result = await network.get_address_last_accepted_transaction_ref(address)
-        assert bool(result.hash)
+@pytest.mark.asyncio
+async def test_get_last_ref(network):
+    address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
+    result = await network.get_address_last_accepted_transaction_ref(address)
+    assert bool(result.hash)
 
-    @pytest.mark.asyncio
-    async def test_get_pending(network):
-        result = await network.get_pending_transaction(
-            hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"
-        )
-        if result:
-            print(result)
-        else:
-            print("No pending transactions.")
-
-    @pytest.mark.asyncio
-    async def test_get_total_supply(network):
-        result = await network.l0_api.get_total_supply()
-        assert result.total_supply > 100000000
-
-    @pytest.mark.asyncio
-    async def test_get_cluster_info(network):
-        result = await network.l0_api.get_cluster_info()
-        assert bool(result)
-
-    @pytest.mark.asyncio
-    async def test_get_latest_snapshot(network):
-        result = await network.get_latest_snapshot()
-        assert result.hash and result.timestamp and result.ordinal, "Snapshot data should not be empty"
-
-    @pytest.mark.asyncio
-    async def test_get_snapshot_by_id(network):
-        result = await network.be_api.get_snapshot(
-            "dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e"
-        )
-        assert result.hash and result.timestamp and result.ordinal, "Snapshot data should not be empty"
-
-    @pytest.mark.asyncio
-    async def test_get_transactions_by_snapshot(network):
-        results = await network.be_api.get_transactions_by_snapshot("2404170")
-        assert results[0].source and results[0].destination and results[0].amount, "Transaction data should not be empty"
-
-    @pytest.mark.asyncio
-    async def test_get_rewards_by_snapshot(network):
-        results = await network.be_api.get_rewards_by_snapshot(2404170)
-        print(results[0].destination, results[0].amount)
-
-    @pytest.mark.asyncio
-    async def test_get_latest_snapshot_transactions(network):
-        results = await network.be_api.get_latest_snapshot_transactions()
-        print(results)
-
-    @pytest.mark.asyncio
-    async def test_get_latest_snapshot_rewards(network):
-        results = await network.be_api.get_latest_snapshot_rewards()
-        print(results)
-
-    @pytest.mark.asyncio
-    async def test_get_transactions(network):
-        results = await network.be_api.get_transactions(limit=10)
-        print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
-
-    @pytest.mark.asyncio
-    async def test_get_transaction(network):
-        result = await network.be_api.get_transaction(
-            "dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e"
-        )
-        print(result.source, result.destination, result.amount, result.timestamp, result.hash)
-
-    @pytest.mark.asyncio
-    async def test_get_latest_currency_snapshot(network):
-        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-        result = await network.be_api.get_latest_currency_snapshot(el_paca_metagraph_id)
+@pytest.mark.asyncio
+async def test_get_pending(network):
+    result = await network.get_pending_transaction(
+        hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"
+    )
+    if result:
         print(result)
+    else:
+        print("No pending transactions.")
 
-    @pytest.mark.asyncio
-    async def test_get_currency_snapshot(network):
-        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-        result = await network.be_api.get_currency_snapshot(el_paca_metagraph_id, 950075)
-        print(result)
+@pytest.mark.asyncio
+async def test_get_total_supply(network):
+    result = await network.l0_api.get_total_supply()
+    assert result.total_supply > 100000000
 
-    @pytest.mark.asyncio
-    async def test_get_latest_currency_snapshot_rewards(network):
-        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-        results = await network.be_api.get_latest_currency_snapshot_rewards(el_paca_metagraph_id)
-        print(results)
+@pytest.mark.asyncio
+async def test_get_cluster_info(network):
+    result = await network.l0_api.get_cluster_info()
+    assert bool(result)
 
-    @pytest.mark.asyncio
-    async def test_get_currency_snapshot_rewards(network):
-        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-        results = await network.be_api.get_currency_snapshot_rewards(el_paca_metagraph_id, 950075)
-        print(results)
+@pytest.mark.asyncio
+async def test_get_latest_snapshot(network):
+    result = await network.get_latest_snapshot()
+    assert result.hash and result.timestamp and result.ordinal, "Snapshot data should not be empty"
 
-    @pytest.mark.asyncio
-    async def test_get_currency_block(network):
-        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-        results = await network.be_api.get_currency_block(
-            el_paca_metagraph_id,
-            "b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
-        )
-        print(results)
+@pytest.mark.asyncio
+async def test_get_snapshot_by_id(network):
+    result = await network.be_api.get_snapshot(
+        "2404170"
+    )
+    assert result.hash and result.timestamp and result.ordinal, "Snapshot data should not be empty"
 
-    @pytest.mark.asyncio
-    async def test_get_currency_address_balance(network):
-        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-        result = await network.be_api.get_currency_address_balance(
-            el_paca_metagraph_id,
-            "b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
-        )
-        print(result)
+@pytest.mark.asyncio
+async def test_get_transactions_by_snapshot(network):
+    results = await network.be_api.get_transactions_by_snapshot("2404170")
+    assert results[0].source and results[0].destination and results[0].amount, "Transaction data should not be empty"
+
+@pytest.mark.asyncio
+async def test_get_rewards_by_snapshot(network):
+    results = await network.be_api.get_rewards_by_snapshot(2404170)
+    print(results[0].destination, results[0].amount)
+
+@pytest.mark.asyncio
+async def test_get_latest_snapshot_transactions(network):
+    results = await network.be_api.get_latest_snapshot_transactions()
+    print(results)
+
+@pytest.mark.asyncio
+async def test_get_latest_snapshot_rewards(network):
+    results = await network.be_api.get_latest_snapshot_rewards()
+    print(results)
+
+@pytest.mark.asyncio
+async def test_get_transactions(network):
+    results = await network.be_api.get_transactions(limit=10)
+    print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
+
+@pytest.mark.asyncio
+async def test_get_transaction(network):
+    result = await network.be_api.get_transaction(
+        "dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e"
+    )
+    print(result.source, result.destination, result.amount, result.timestamp, result.hash)
+
+@pytest.mark.asyncio
+async def test_get_latest_currency_snapshot(network):
+    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+    result = await network.be_api.get_latest_currency_snapshot(el_paca_metagraph_id)
+    print(result)
+
+@pytest.mark.asyncio
+async def test_get_currency_snapshot(network):
+    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+    result = await network.be_api.get_currency_snapshot(el_paca_metagraph_id, 950075)
+    print(result)
+
+@pytest.mark.asyncio
+async def test_get_latest_currency_snapshot_rewards(network):
+    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+    results = await network.be_api.get_latest_currency_snapshot_rewards(el_paca_metagraph_id)
+    print(results)
+
+@pytest.mark.asyncio
+async def test_get_currency_snapshot_rewards(network):
+    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+    results = await network.be_api.get_currency_snapshot_rewards(el_paca_metagraph_id, 950075)
+    print(results)
+
+#@pytest.mark.asyncio
+#async def test_get_currency_block(network):
+#    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+#    results = await network.be_api.get_currency_block(
+#        el_paca_metagraph_id,
+#        "b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
+#    )
+#    print(results)
+
+@pytest.mark.asyncio
+async def test_get_currency_address_balance(network):
+    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+    result = await network.be_api.get_currency_address_balance(
+        el_paca_metagraph_id,
+        "b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
+    )
+    print(result)
 

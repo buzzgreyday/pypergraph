@@ -2,12 +2,16 @@ from typing import Optional, Dict
 
 from pyee.asyncio import AsyncIOEventEmitter
 
+from pypergraph.dag_core.models.account import LastReference
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
 from pypergraph.dag_core.models.transaction import PendingTransaction
 from pypergraph.dag_core.models.snapshot import Snapshot
 from pypergraph.dag_core.models.network import NetworkInfo
 from pypergraph.dag_core.exceptions import NetworkError
+import logging
 
+# Get a logger for this specific module
+logger = logging.getLogger(__name__)
 
 class DagTokenNetwork(AsyncIOEventEmitter):
 
@@ -16,6 +20,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         """Validate connected network"""
         # TODO: Do not hardcode urls
         self.connected_network = NetworkInfo(network_id=network_id, l0_host=l0_host, cl1_host=cl1_host)
+        print(self.connected_network.l1_lb_url)
         self.l1_lb_api = LoadBalancerApi(host=self.connected_network.l1_lb_url)
         self.l0_lb_api = LoadBalancerApi(host=self.connected_network.l0_lb_url)
         self.be_api = BlockExplorerApi(host=self.connected_network.be_url)
@@ -78,8 +83,9 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         except NetworkError as e:
             # NOOP for 404 or other exceptions
             if e.status == 404:
-                pass
+                logger.debug("No transaction pending.")
             else:
+                logger.error(f"{e}")
                 raise e
         return pending_transaction
 
@@ -91,8 +97,8 @@ class DagTokenNetwork(AsyncIOEventEmitter):
             response = await self.be_api.get_transactions_by_address(address, limit, search_after)
         except Exception:
             # NOOP for 404 or other exceptions
-            pass
-        return response.get('data') if response else None
+            logger.warning("No transaction found.")
+        return response.get('data', None)
 
 
     async def get_transaction(self, hash: Optional[str]) -> Optional[dict]:
@@ -101,8 +107,8 @@ class DagTokenNetwork(AsyncIOEventEmitter):
             response = await self.be_api.get_transaction(hash)
         except Exception:
             # NOOP for 404 or other exceptions
-            pass
-        return response.get('data') if response else None
+            logger.warning("No transaction found.")
+        return response.get('data', None)
 
 
     async def post_transaction(self, tx: dict) -> str:
@@ -132,7 +138,7 @@ class MetagraphTokenNetwork:
     async def get_address_balance(self, address: str) -> Optional[float]:
         return await self.l0_api.get_address_balance(address)
 
-    async def get_address_last_accepted_transaction_ref(self, address: str) -> dict:
+    async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
         return await self.l1_api.get_last_reference(address)
 
     async def get_pending_transaction(self, hash: Optional[str]) -> Optional[PendingTransaction]:
@@ -141,7 +147,7 @@ class MetagraphTokenNetwork:
             pending_transaction = await self.l1_api.get_pending_transaction(hash)
         except Exception:
             # NOOP 404
-            pass
+            logger.debug("No pending transaction.")
         return pending_transaction
 
     async def get_transactions_by_address(
@@ -154,8 +160,8 @@ class MetagraphTokenNetwork:
             )
         except Exception:
             # NOOP 404
-            pass
-        return response["data"] if response else None
+            logger.debug("No transaction found.")
+        return response.get("data", None)
 
     async def get_transaction(self, hash: Optional[str]):
         response = None
@@ -163,8 +169,8 @@ class MetagraphTokenNetwork:
             response = await self.be_api.get_currency_transaction(self.connected_network["metagraph_id"], hash)
         except Exception:
             # NOOP 404
-            pass
-        return response["data"] if response else None
+            logger.debug("No transaction found.")
+        return response.get("data", None)
 
     async def post_transaction(self, tx) -> str:
         print("Posting transaction with the following config:", self.l1_api.__dict__)
@@ -174,4 +180,4 @@ class MetagraphTokenNetwork:
 
     async def get_latest_snapshot(self):
         response = await self.be_api.get_latest_currency_snapshot(self.connected_network["metagraph_id"])
-        return response["data"]
+        return response

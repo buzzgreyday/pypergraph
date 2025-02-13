@@ -48,7 +48,7 @@ class LoadBalancerApi:
         result = await self.service.get(f"/transactions/{tx_hash}")
         return PendingTransaction(data=result)
 
-    async def get_cluster_info(self) -> List[Type["PeerInfo"]]:
+    async def get_cluster_info(self) -> List["PeerInfo"]:
         result = await self.service.get("/cluster/info")
         return PeerInfo.process_cluster_peers(data=result)
 
@@ -76,7 +76,7 @@ class BlockExplorerApi:
         result = await self.service.get(f"/global-snapshots/{id}")
         return Snapshot(data=result["data"])
 
-    async def get_transactions_by_snapshot(self, id: Union[str, int]) -> List[Type["BlockExplorerTransaction"]]:
+    async def get_transactions_by_snapshot(self, id: Union[str, int]) -> List["BlockExplorerTransaction"]:
         """
 
         :param id:  Hash or ordinal can be used as identifier.
@@ -105,7 +105,7 @@ class BlockExplorerApi:
         result = await self.service.get("/global-snapshots/latest")
         return Snapshot(data=result["data"])
 
-    async def get_latest_snapshot_transactions(self) -> List[Type["BlockExplorerTransaction"]]:
+    async def get_latest_snapshot_transactions(self) -> List["BlockExplorerTransaction"]:
         # TODO: Add parameters limit, search_after, search_before, next (according to Swagger)
         results = await self.service.get("/global-snapshots/latest/transactions")
         return BlockExplorerTransaction.process_transactions(
@@ -140,9 +140,9 @@ class BlockExplorerApi:
         return {"path": path, "params": params}
 
     async def get_transactions(
-            self, limit: Optional[int], search_after: Optional[str],
-            search_before: Optional[str]
-    ) -> List[Type["BlockExplorerTransaction"]]:
+            self, limit: Optional[int], search_after: Optional[str] = None,
+            search_before: Optional[str] = None
+    ) -> List["BlockExplorerTransaction"]:
         """
         Get transactions from block explorer. Supports pagination.
 
@@ -161,7 +161,7 @@ class BlockExplorerApi:
     async def get_transactions_by_address(
             self, address: str, limit: int = 0, search_after: str = '',
             sent_only: bool = False, received_only: bool = False, search_before: str = ''
-    ) -> List[Type["BlockExplorerTransaction"]]:
+    ) -> List["BlockExplorerTransaction"]:
         """
         Get transactions from block explorer per DAG address. Supports pagination.
 
@@ -188,7 +188,7 @@ class BlockExplorerApi:
         :return: Block Explorer type transaction object.
         """
         result = await self.service.get(f"/transactions/{hash}")
-        return BlockExplorerTransaction(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return BlockExplorerTransaction(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_address_balance(self, hash: str) -> Balance:
         """

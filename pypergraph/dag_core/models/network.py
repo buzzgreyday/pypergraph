@@ -1,4 +1,6 @@
-from typing import Optional, List, Type
+from typing import Optional, List
+
+from pydantic import Field, BaseModel
 
 
 class NetworkInfo:
@@ -23,32 +25,27 @@ class NetworkInfo:
                 f"l0_lb_url={self.l0_lb_url}, l1_lb_url={self.l1_lb_url})")
 
 
-class PeerInfo:
-
+class PeerInfo(BaseModel):
     alias: Optional[str] = None
     id: str
     ip: str
     state: str
     session: str
-    public_port: int
-    p2p_port: int
-    reputation: Optional[float]
+    public_port: int = Field(..., alias="publicPort")
+    p2p_port: int = Field(..., alias="p2pPort")
+    reputation: Optional[float] = None
+
+    def __repr__(self) -> str:
+        return (
+            f"PeerInfo(alias={self.alias!r}, id={self.id!r}, ip={self.ip!r}, "
+            f"state={self.state!r}, session={self.session!r}, "
+            f"public_port={self.public_port!r}, p2p_port={self.p2p_port!r}, "
+            f"reputation={self.reputation!r})"
+        )
 
     @classmethod
-    def process_cluster_peers(cls, data: List) -> list[Type["PeerInfo"]]:
-        results = []
-        for d in data:
-            cls.alias = d["alias"] if hasattr(d, "alias") else None
-            cls.id = d["id"]
-            cls.ip = d["ip"]
-            cls.state = d["state"]
-            cls.session = d["session"]
-            cls.reputation = d["reputation"] if hasattr(d, "reputation") else None
-            cls.public_port = d["publicPort"]
-            cls.p2p_port = d["p2pPort"]
-            results.append(cls)
-
-        return results
+    def process_cluster_peers(cls, data: List[dict]) -> List["PeerInfo"]:
+        return [cls.model_validate(item) for item in data]
 
 
 class TotalSupply:

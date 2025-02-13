@@ -1,29 +1,40 @@
 from datetime import datetime
-from typing import Type, List, Dict, Optional, Union
+from typing import List, Dict, Optional, Any
+from pydantic import BaseModel, Field, model_validator
 
 
-class PostTransactionResponse:
+class PostTransactionResponse(BaseModel):
+    hash: str
 
-    def __init__(self, hash: str):
-        self.hash = hash
+    def __repr__(self) -> str:
+        return f"PostTransactionResponse(hash={self.hash!r})"
 
-    def __repr__(self):
-        return f"PostTransactionResponse(hash='{self.hash}')"
+class PendingTransaction(BaseModel):
+    source: str
+    destination: str
+    amount: int
+    fee: int
+    parent_hash: str = Field(alias="parentHash")
+    parent_ordinal: int = Field(alias="parentOrdinal")
+    salt: str
+    transaction_hash: str = Field(alias="hash")
+    status: int
 
-
-class PendingTransaction:
-
-    def __init__(self, data: dict):
-        transaction = data["transaction"]
-        self.source: str = transaction["source"]
-        self.destination: str = transaction["destination"]
-        self.amount: int = transaction["amount"]
-        self.fee: int = transaction["fee"]
-        self.parent_hash: str = transaction["parent"]["hash"]
-        self.parent_ordinal: int = transaction["parent"]["ordinal"]
-        self.salt: str = transaction["salt"]
-        self.transaction_hash: str = data["hash"]
-        self.status: int = data["status"]
+    @model_validator(mode="before")
+    def flatten_data(cls, values: dict) -> dict:
+        transaction = values.get("transaction", {})
+        parent = transaction.get("parent", {})
+        return {
+            "source": transaction.get("source"),
+            "destination": transaction.get("destination"),
+            "amount": transaction.get("amount"),
+            "fee": transaction.get("fee"),
+            "parent_hash": parent.get("hash"),
+            "parent_ordinal": parent.get("ordinal"),
+            "salt": transaction.get("salt"),
+            "hash": values.get("hash"),
+            "status": values.get("status"),
+        }
 
     def __repr__(self):
         return (f"PendingTransaction(source={self.source}, destination={self.destination}, "
@@ -32,95 +43,79 @@ class PendingTransaction:
                 f"transaction_hash={self.transaction_hash}, status={self.status})")
 
 
-class TransactionValue:
-    def __init__(self, source: str, destination: str, amount: int, fee: int, parent: Dict, salt: int):
-        self.source: str = source
-        self.destination: str = destination
-        self.amount: int = amount
-        self.fee: int = fee
-        self.parent: dict = parent
-        self.salt: int = salt
+class TransactionValue(BaseModel):
+    source: str
+    destination: str
+    amount: int
+    fee: int
+    parent: Dict[str, Any]
+    salt: int
 
-class Proof:
+    def __repr__(self):
+        return (f"TransactionValue(source={self.source}, destination={self.destination}, "
+                f"amount={self.amount}, fee={self.fee}, parent={self.parent}, salt={self.salt})")
+
+
+class Proof(BaseModel):
     id: str
     signature: str
 
     @classmethod
-    def process_snapshot_proofs(cls, data: list):
-        results = []
-        for item in data:
-            cls.id = item["id"]
-            cls.signature = item["signature"]
+    def process_snapshot_proofs(cls, data: list) -> List["Proof"]:
+        return [cls(**item) for item in data]
 
-            results.append(cls)
-        return results
+    def __repr__(self):
+        return f"Proof(id={self.id}, signature={self.signature})"
 
-class Transaction:
+
+class Transaction(BaseModel):
     value: TransactionValue
-    proofs: Union[List["Proof"], List]
+    proofs: List[Proof] = Field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, data: dict):
-        cls.value = TransactionValue(**data["value"])
-        cls.proofs = Proof.process_snapshot_proofs(data=data["proofs"]) or []
+    def from_dict(cls, data: dict) -> "Transaction":
+        return cls(
+            value=TransactionValue(**data["value"]),
+            proofs=Proof.process_snapshot_proofs(data.get("proofs", []))
+        )
 
-        return cls
+    def add_value(self, value: TransactionValue) -> None:
+        self.value = value
 
-    @classmethod
-    def add_value(cls, value: TransactionValue):
-        cls.value = value
+    def add_proof(self, proof: Proof) -> None:
+        self.proofs.append(proof)
 
-    @classmethod
-    def add_proof(cls, proof: Proof):
-        cls.proofs.append(proof)
+    def __repr__(self):
+        return (f"Transaction(value={self.value}, proofs={self.proofs})")
 
 
-class BlockExplorerTransaction:
-    def __init__(
-        self,
-        data: dict,
-        meta: Optional[dict] = None,
-    ):
-        self.hash: str = data["hash"]
-        self.amount: int = data["amount"]
-        self.source: str = data["source"]
-        self.destination: str = data["destination"]
-        self.fee: float = data["fee"]
-        self.parent: dict = data["parent"]
-        self.salt: Optional[int] = data["salt"] if hasattr(data, "salt") else None
-        self.block_hash: str = data["blockHash"]
-        self.snapshot_hash: str = data["snapshotHash"]
-        self.snapshot_ordinal: int = data["snapshotOrdinal"]
-        self.transaction_original: Union[Transaction, Type["Transaction"]] = data["transactionOriginal"]
-        self.timestamp: datetime = datetime.fromisoformat(data["timestamp"])
-        self.proofs: Union[List["Proof"], List] = data["proofs"] if hasattr(data, "proofs") and data["proofs"] else []
-        self.meta: Optional[dict] = meta
+class BlockExplorerTransaction(BaseModel):
+    hash: str
+    amount: int
+    source: str
+    destination: str
+    fee: float
+    parent: Dict[str, Any]
+    salt: Optional[int] = None
+    block_hash: str = Field(alias="blockHash")
+    snapshot_hash: str = Field(alias="snapshotHash")
+    snapshot_ordinal: int = Field(alias="snapshotOrdinal")
+    transaction_original: Transaction = Field(alias="transactionOriginal")
+    timestamp: datetime
+    proofs: List[Proof] = Field(default_factory=list)
+    meta: Optional[Dict] = None
 
     @classmethod
-    def process_transactions(cls, data: List[dict], meta: Optional[dict] = None) -> List[Type["BlockExplorerTransaction"]]:
-        """
-        The API returns a json with a 'data' value, sometimes 'meta'. The meta can e.g. point to the next hash.
+    def process_transactions(cls, data: List[dict], meta: Optional[dict] = None) -> List["BlockExplorerTransaction"]:
+        return [cls.model_validate({**tx, "meta": meta}) for tx in data]
 
-        :param data: Json 'data' value.
-        :param meta: Optional.
-        :return:
-        """
-        transactions = []
-        for be_tx in data:
-            cls.hash=be_tx["hash"]
-            cls.amount=be_tx["amount"]
-            cls.source=be_tx["source"]
-            cls.destination=be_tx["destination"]
-            cls.fee=be_tx["fee"]
-            cls.parent=be_tx["parent"]
-            cls.salt=be_tx["salt"]
-            cls.block_hash=be_tx["blockHash"]
-            cls.snapshot_hash=be_tx["snapshotHash"]
-            cls.snapshot_ordinal=be_tx["snapshotOrdinal"]
-            cls.transaction_original=Transaction.from_dict(be_tx["transactionOriginal"])
-            cls.timestamp=datetime.fromisoformat(be_tx["timestamp"])
-            cls.proofs=be_tx.get("proofs", [])
-            cls.meta=meta
+    def __repr__(self):
+        return (f"BlockExplorerTransaction(hash={self.hash}, amount={self.amount}, "
+                f"source={self.source}, destination={self.destination}, fee={self.fee}, "
+                f"parent={self.parent}, salt={self.salt}, block_hash={self.block_hash}, "
+                f"snapshot_hash={self.snapshot_hash}, snapshot_ordinal={self.snapshot_ordinal}, "
+                f"transaction_original={self.transaction_original}, timestamp={self.timestamp}, "
+                f"proofs={self.proofs}, meta={self.meta})")
 
-            transactions.append(cls)
-        return transactions
+    class ConfigDict:
+        population_by_name = True
