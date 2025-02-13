@@ -32,10 +32,13 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: Security check - Bandit
-      run: |
-        pip install bandit
-        bandit -r .
+    - name: Install Bandit
+      run: pip install bandit
+
+    - name: Run Bandit Security Scan
+      run: bandit -r .
+
+    - name: Security check report artifacts
       uses: actions/upload-artifact@v4  # ✅ Updated to v4
       with:
         name: Security report
