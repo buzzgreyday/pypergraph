@@ -48,7 +48,7 @@ class RestConfig:
     def set_base_url(self, base_url: str) -> None:
         self.service_base_url = base_url
 
-    def base_url(self, val: str | None = None):
+    def base_url(self, val: Optional[str] = None):
         if not val:
             return "" if self.service_base_url == "" else self.service_base_url or DI().get_http_client_base_url()
 
