@@ -48,12 +48,11 @@ class PeerInfo(BaseModel):
         return [cls.model_validate(item) for item in data]
 
 
-class TotalSupply:
-
-    def __init__(self, data: dict):
-        self.ordinal: int = data.get("ordinal")
-        self.total_supply: int = data.get("total")
+class TotalSupply(BaseModel):
+    ordinal: int
+    total_supply: int = Field(..., alias="total")
 
     def __repr__(self):
-        return f"TotalSupply(ordinal={self.ordinal}, balance={self.total_supply})"
+        return f"TotalSupply(ordinal={self.ordinal}, total_supply={self.total_supply})"
+
 

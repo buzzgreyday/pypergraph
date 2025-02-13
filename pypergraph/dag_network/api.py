@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional, Any, Dict, List, Type, Union
+from typing import Optional, Any, Dict, List, Union
 
 from pypergraph.dag_core.models.reward import Reward
 from pypergraph.dag_core.rest_api_client import RestAPIClient
@@ -38,7 +38,7 @@ class LoadBalancerApi:
 
     async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get('/total-supply')
-        return TotalSupply(data=result)
+        return TotalSupply(**result)
 
     async def post_transaction(self, tx: Dict[str, Any]):
         result = await self.service.post("/transactions", payload=tx)
@@ -294,12 +294,12 @@ class L0Api:
     # DAG
     async def get_total_supply(self):
         result = await self.service.get("/dag/total-supply")
-        result = TotalSupply(data=result)
+        result = TotalSupply(**result)
         return result
 
     async def get_total_supply_at_ordinal(self, ordinal: int):
         result = await self.service.get(f"/dag/{ordinal}/total-supply")
-        result = TotalSupply(data=result)
+        result = TotalSupply(**result)
         return result
 
     async def get_address_balance(self, address: str):
@@ -381,11 +381,11 @@ class ML0Api(L0Api):
     # State Channel Token
     async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get("/currency/total-supply")
-        return TotalSupply(data=result)
+        return TotalSupply(**result)
 
     async def get_total_supply_at_ordinal(self, ordinal: int) -> TotalSupply:
         result = await self.service.get(f"/currency/{ordinal}/total-supply")
-        return TotalSupply(data=result)
+        return TotalSupply(**result)
 
     async def get_address_balance(self, address: str):
         return await self.service.get(f"/currency/{address}/balance")
