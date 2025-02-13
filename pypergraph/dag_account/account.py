@@ -28,7 +28,7 @@ class DagAccount:
     supported_assets = ["DAG"]
 
     # def connect(self, network_info: Dict[str, Any]) -> "DagAccount":
-    def connect(self, network_id: None | str = "mainnet", be_url: None | str = None, l0_host: None | str = None, cl1_host: None | str = None, l0_lb_url: str | None = None, l1_lb_url: None | str = None) -> "DagAccount":
+    def connect(self, network_id: Optional[str] = "mainnet", be_url: Optional[str] = None, l0_host: Optional[str] = None, cl1_host: Optional[str] = None, l0_lb_url: Optional[str] = None, l1_lb_url: Optional[str] = None) -> "DagAccount":
         """Configure the network connection."""
 
         self.network = DagTokenNetwork()

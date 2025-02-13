@@ -2,7 +2,7 @@ import httpx
 import json
 
 
-from typing import Callable, Optional, Any, Dict
+from typing import Callable, Optional, Any, Dict, Union
 
 from httpx import Response
 
@@ -43,7 +43,7 @@ class RestConfig:
         self.service_base_url = None
         self.service_auth_token: str = ""
         self.service_protocol_client = None
-        self.error_hook_callback: Callable[[Exception], None] | None = None
+        self.error_hook_callback: Union[Callable[[Exception], None], None] = None
 
     def set_base_url(self, base_url: str) -> None:
         self.service_base_url = base_url

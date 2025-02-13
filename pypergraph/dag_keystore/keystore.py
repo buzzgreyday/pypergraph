@@ -78,7 +78,7 @@ class KeyStore:
     #         p12_file.write(p12_data)
     #
     # @staticmethod
-    # def get_private_key_from_p12(destination: str = "wallet.p12", password: str | None = None) -> str:
+    # def get_private_key_from_p12(destination: str = "wallet.p12", password: Optional[str] = None) -> str:
     #     """
     #     Not in use for now.
     #

@@ -1,4 +1,6 @@
 import json
+from typing import Optional
+
 import keyring
 
 from pathlib import Path
@@ -32,7 +34,7 @@ class StateStorageDb:
             prefix += "-"
         self.key_prefix = prefix
 
-    async def set(self, key: str | None, value: any):
+    async def set(self, key: Optional[str], value: any):
         key = key or "vault"
         full_key = self.key_prefix + key
         serialized_value = value

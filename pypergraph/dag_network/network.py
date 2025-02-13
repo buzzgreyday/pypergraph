@@ -11,7 +11,7 @@ from pypergraph.dag_core.exceptions import NetworkError
 
 class DagTokenNetwork(AsyncIOEventEmitter):
 
-    def __init__(self, network_id: str = "mainnet", l0_host: str | None = None, cl1_host: str | None = None):
+    def __init__(self, network_id: str = "mainnet", l0_host: Optional[str] = None, cl1_host: Optional[str] = None):
         super().__init__()
         """Validate connected network"""
         # TODO: Do not hardcode urls
@@ -24,7 +24,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         # private networkChange$ = new Subject < NetworkInfo > ();
 
 
-    def config(self, network_id: None | str = None, be_url: None | str = None, l0_host: None | str = None, cl1_host: None | str = None, l0_lb_url: str | None = None, l1_lb_url: None | str = None):
+    def config(self, network_id: Optional[str] = None, be_url: Optional[str] = None, l0_host: Optional[str] = None, cl1_host: Optional[str] = None, l0_lb_url: Optional[str] = None, l1_lb_url: Optional[str] = None):
         """
         Configure a new NetworkInfo object to setup network_id, l0, l1, be, etc. (default: "mainnet" configuration)
 

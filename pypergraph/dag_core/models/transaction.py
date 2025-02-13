@@ -57,7 +57,7 @@ class Proof:
 
 class Transaction:
     value: TransactionValue
-    proofs: Union[List["Proof"] | List]
+    proofs: Union[List["Proof"], List]
 
     @classmethod
     def from_dict(cls, data: dict):
@@ -91,9 +91,9 @@ class BlockExplorerTransaction:
         self.block_hash: str = data["blockHash"]
         self.snapshot_hash: str = data["snapshotHash"]
         self.snapshot_ordinal: int = data["snapshotOrdinal"]
-        self.transaction_original: Union[Transaction | Type["Transaction"]] = data["transactionOriginal"]
+        self.transaction_original: Union[Transaction, Type["Transaction"]] = data["transactionOriginal"]
         self.timestamp: datetime = datetime.fromisoformat(data["timestamp"])
-        self.proofs: Union[List["Proof"] | List] = data["proofs"] if hasattr(data, "proofs") and data["proofs"] else []
+        self.proofs: Union[List["Proof"], List] = data["proofs"] if hasattr(data, "proofs") and data["proofs"] else []
         self.meta: Optional[dict] = meta
 
     @classmethod
