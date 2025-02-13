@@ -44,7 +44,7 @@ jobs:
         fi
 
     - name: Security check report artifacts
-      uses: actions/upload-artifact@v4  # ✅ Updated to v4
+      uses: actions/upload-artifact@v4
       with:
-        name: Security report ${{ github.run_id }}
+        name: Security-report-${{ github.run_id }}-${{ matrix.python-version }}
         path: security_report.txt
