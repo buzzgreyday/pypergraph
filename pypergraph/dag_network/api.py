@@ -30,11 +30,11 @@ class LoadBalancerApi:
 
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/dag/{address}/balance")
-        return Balance(data=result, meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_last_reference(self, address) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
-        return LastReference(data=result)
+        return LastReference(**result)
 
     async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get('/total-supply')
@@ -198,7 +198,7 @@ class BlockExplorerApi:
         :return: Balance object.
         """
         result = await self.service.get(f"/addresses/{hash}/balance")
-        return Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_checkpoint_block(self, hash: str) -> Dict:
         # TODO: Block object
@@ -228,7 +228,7 @@ class BlockExplorerApi:
 
     async def get_currency_address_balance(self, metagraph_id: str, hash: str) -> Balance:
         result = await self.service.get(f"/currency/{metagraph_id}/addresses/{hash}/balance")
-        return Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_currency_transaction(self, metagraph_id: str, hash: str) -> BlockExplorerTransaction:
         result = await self.service.get(f"/currency/{metagraph_id}/transactions/{hash}")
@@ -304,7 +304,7 @@ class L0Api:
 
     async def get_address_balance(self, address: str):
         result = await self.service.get(f"/dag/{address}/balance")
-        result = Balance(data=result, meta=result["meta"] if hasattr(result, "meta") else None)
+        result = Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
         return result
 
     async def get_address_balance_at_ordinal(self, ordinal: int, address: str):
@@ -361,7 +361,7 @@ class L1Api:
     # Transactions
     async def get_last_reference(self, address: str) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
-        return LastReference(data=result)
+        return LastReference(**result)
 
     async def get_pending_transaction(self, hash: str) -> PendingTransaction:
         result = await self.service.get(f"/transactions/{hash}")
