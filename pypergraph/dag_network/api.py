@@ -46,7 +46,7 @@ class LoadBalancerApi:
 
     async def get_pending_transaction(self, tx_hash: str):
         result = await self.service.get(f"/transactions/{tx_hash}")
-        return PendingTransaction(data=result)
+        return PendingTransaction(**result)
 
     async def get_cluster_info(self) -> List["PeerInfo"]:
         result = await self.service.get("/cluster/info")
@@ -311,7 +311,7 @@ class L0Api:
         result = await self.service.get(
             "/global-snapshots/latest"
         )
-        result = GlobalSnapshot(response=result)
+        result = GlobalSnapshot(**result)
         return result
 
     async def get_latest_snapshot_ordinal(self):
@@ -321,7 +321,7 @@ class L0Api:
         result = await self.service.get(
                      f"/global-snapshots/{id}"
                  )
-        result = Snapshot(result)
+        result = Snapshot(**result)
         return result
 
     # State Channels
@@ -345,7 +345,7 @@ class L1Api:
         """Reconfigure the RestAPIClient's base URL dynamically."""
         self.service.base_url = host
 
-    async def get_cluster_info(self) -> List[Type["PeerInfo"]]:
+    async def get_cluster_info(self) -> List["PeerInfo"]:
         result = await self.service.get("/cluster/info")
         return PeerInfo.process_cluster_peers(data=result)
 
@@ -361,7 +361,7 @@ class L1Api:
 
     async def get_pending_transaction(self, hash: str) -> PendingTransaction:
         result = await self.service.get(f"/transactions/{hash}")
-        return PendingTransaction(data=result)
+        return PendingTransaction(**result)
 
     async def post_transaction(self, tx):
         return await self.service.post("/transactions", payload=tx)
