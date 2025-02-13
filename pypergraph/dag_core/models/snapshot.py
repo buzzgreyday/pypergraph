@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 
 from pydantic import BaseModel, field_validator, Field
 
@@ -12,12 +12,12 @@ class GlobalSnapshotValue(BaseModel):
     sub_height: int
     last_snapshot_hash: str = Field(..., alias="lastSnapshotHash")
     blocks: List[str]
-    state_channel_snapshots: Dict[str, any] = Field(..., alias="stateChannelSnapshots")
-    rewards: List[Dict[str, any]]
+    state_channel_snapshots: Dict[str, Any] = Field(..., alias="stateChannelSnapshots")
+    rewards: List[Dict[str, Any]]
     epoch_progress: int
     next_facilitators: List[str] = Field(..., alias="nextFacilitators")
-    tips: Dict[str, any]
-    state_proof: Dict[str, any] = Field(..., alias="stateProof")
+    tips: Dict[str, Any]
+    state_proof: Dict[str, Any] = Field(..., alias="stateProof")
     version: str
 
 
