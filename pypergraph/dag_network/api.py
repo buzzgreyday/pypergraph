@@ -74,7 +74,7 @@ class BlockExplorerApi:
         :return: Snapshot object.
         """
         result = await self.service.get(f"/global-snapshots/{id}")
-        return Snapshot(data=result["data"])
+        return Snapshot(**result["data"])
 
     async def get_transactions_by_snapshot(self, id: Union[str, int]) -> List["BlockExplorerTransaction"]:
         """
@@ -103,7 +103,7 @@ class BlockExplorerApi:
         :return: Snapshot object.
         """
         result = await self.service.get("/global-snapshots/latest")
-        return Snapshot(data=result["data"])
+        return Snapshot(**result["data"])
 
     async def get_latest_snapshot_transactions(self) -> List["BlockExplorerTransaction"]:
         # TODO: Add parameters limit, search_after, search_before, next (according to Swagger)
@@ -206,11 +206,11 @@ class BlockExplorerApi:
 
     async def get_latest_currency_snapshot(self, metagraph_id: str) -> CurrencySnapshot:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest")
-        return CurrencySnapshot(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return CurrencySnapshot(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_currency_snapshot(self, metagraph_id: str, hash_or_ordinal: str) -> CurrencySnapshot:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}")
-        return CurrencySnapshot(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return CurrencySnapshot(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> List[Type["Reward"]]:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest/rewards")
