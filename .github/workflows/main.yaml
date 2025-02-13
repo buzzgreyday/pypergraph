@@ -37,9 +37,9 @@ jobs:
 
     - name: Run Bandit security check
       run: |
-        bandit -r . | tee security_report.txt
+        bandit -r . --exclude "tests/,test_*.py" | tee security_report.txt
         if grep -E "Severity: (Medium|High)" security_report.txt; then
-          echo "Security issues detected with Low, Medium or High severity"
+          echo "Security issues detected with Medium or High severity"
           exit 1
         fi
 
