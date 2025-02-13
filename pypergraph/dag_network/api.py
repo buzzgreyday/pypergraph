@@ -294,29 +294,26 @@ class L0Api:
     # DAG
     async def get_total_supply(self):
         result = await self.service.get("/dag/total-supply")
-        result = TotalSupply(**result)
-        return result
+        return TotalSupply(**result)
 
     async def get_total_supply_at_ordinal(self, ordinal: int):
         result = await self.service.get(f"/dag/{ordinal}/total-supply")
-        result = TotalSupply(**result)
-        return result
+        return TotalSupply(**result)
 
     async def get_address_balance(self, address: str):
         result = await self.service.get(f"/dag/{address}/balance")
-        result = Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
-        return result
+        return Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_address_balance_at_ordinal(self, ordinal: int, address: str):
-        return await self.service.get(f"/dag/{ordinal}/{address}/balance")
+        result = await self.service.get(f"/dag/{ordinal}/{address}/balance")
+        return Balance(**result)
 
     # Global Snapshot
     async def get_latest_snapshot(self) -> GlobalSnapshot:
         result = await self.service.get(
             "/global-snapshots/latest"
         )
-        result = GlobalSnapshot(**result)
-        return result
+        return GlobalSnapshot(**result)
 
     async def get_latest_snapshot_ordinal(self):
         return await self.service.get("/global-snapshots/latest/ordinal")

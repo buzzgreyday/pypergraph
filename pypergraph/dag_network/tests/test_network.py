@@ -117,6 +117,7 @@ async def test_get_cluster_info(network):
     result = await network.l0_api.get_cluster_info()
     assert bool(result)
 
+""" Block Explorer """
 @pytest.mark.asyncio
 async def test_get_latest_snapshot(network):
     result = await network.get_latest_snapshot()
@@ -229,3 +230,7 @@ async def test_get_currency_transactions_by_snapshot(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     results = await network.be_api.get_currency_transactions_by_snapshot(metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394, limit=10)
     print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
+
+
+""" L0 API """
+
