@@ -91,9 +91,9 @@ class BlockExplorerTransaction:
         self.block_hash: str = data["blockHash"]
         self.snapshot_hash: str = data["snapshotHash"]
         self.snapshot_ordinal: int = data["snapshotOrdinal"]
-        self.transaction_original: Optional[Transaction | Type["Transaction"]] = data["transactionOriginal"]
+        self.transaction_original: Optional[Transaction] = data["transactionOriginal"]
         self.timestamp: datetime = datetime.fromisoformat(data["timestamp"])
-        self.proofs: List["Proof"] | List = data["proofs"] if hasattr(data, "proofs") and data["proofs"] else []
+        self.proofs: Optional[List["Proof"]] = data["proofs"] if hasattr(data, "proofs") and data["proofs"] else []
         self.meta: Optional[dict] = meta
 
     @classmethod
