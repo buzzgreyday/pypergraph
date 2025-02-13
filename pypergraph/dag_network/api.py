@@ -235,14 +235,15 @@ class BlockExplorerApi:
         return BlockExplorerTransaction(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_currency_transactions(
-            self, metagraph_id: str, limit: Optional[int], search_after: Optional[str],
-            search_before: Optional[str]
-    ) -> List[Dict]:
+            self, metagraph_id: str, limit: Optional[int], search_after: Optional[str] = None,
+            search_before: Optional[str] = None
+    ) -> List[BlockExplorerTransaction]:
         base_path = f"/currency/{metagraph_id}/transactions"
-        result = self._get_transaction_search_path_and_params(
+        request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, False, False, search_before
         )
-        return await self.service.get(result["path"], result["params"])
+        results = await self.service.get(endpoint=request["path"], params=request["params"])
+        return BlockExplorerTransaction.process_transactions(results["data"])
 
     async def get_currency_transactions_by_address(
             self, metagraph_id: str, address: str, limit: int = 0, search_after: str = '',
