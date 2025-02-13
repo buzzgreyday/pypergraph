@@ -1,5 +1,7 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
+
+from pydantic import BaseModel, field_validator
 
 from pypergraph.dag_core.models.transaction import Proof
 
@@ -28,23 +30,26 @@ class GlobalSnapshot:
         self.proofs: list = Proof.process_snapshot_proofs(response["proofs"])
 
 """BE MODELS: DTO"""
-class Snapshot:
-    def __init__(self, data):
+class Snapshot(BaseModel):
+    hash: str
+    ordinal: int
+    height: int
+    sub_height: int
+    last_snapshot_hash: str
+    blocks: List[str]
+    timestamp: datetime
 
-        self.hash: str = data["hash"]
-        self.ordinal: int = data["ordinal"]
-        self.height: int = data["height"]
-        self.sub_height:int = data["subHeight"]
-        self.last_snapshot_hash: str = data["lastSnapshotHash"]
-        self.blocks: list = data["blocks"]
-        self.timestamp: datetime = datetime.fromisoformat(data["timestamp"])
+    @field_validator("timestamp", mode="before")
+    @classmethod
+    def parse_timestamp(cls, value: str) -> datetime:
+        if value.endswith("Z"):
+            value = value.replace("Z", "+00:00")
+        return datetime.fromisoformat(value)
+
 
 class CurrencySnapshot(Snapshot):
-    def __init__(self, data: dict, meta: Optional[dict]=None):
-        super().__init__(data=data)
-
-        self.fee: int = data["fee"]
-        self.owner_address: str = data["ownerAddress"]
-        self.staking_address: str = data["stakingAddress"]
-        self.size_in_kb: int = data["sizeInKB"]
-        self.meta: Optional[dict] = meta
+    fee: int
+    owner_address: str
+    staking_address: str
+    size_in_kb: int
+    meta: Optional[dict] = None
