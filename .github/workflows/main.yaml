@@ -37,8 +37,8 @@ jobs:
 
     - name: Run Bandit Security Check
       run: |
-        bandit -r . | tee security_report.txt
-        if grep -E "Severity: (Medium|High)" security_report.txt; then
+        bandit -r . | tee security_report_${{ github.run_id }}.txt
+        if grep -E "Severity: (Medium|High)" security_report_${{ github.run_id }}.txt; then
           echo "Security issues detected with Low, Medium or High severity"
           exit 1
         fi
@@ -46,5 +46,5 @@ jobs:
     - name: Security check report artifacts
       uses: actions/upload-artifact@v4  # ✅ Updated to v4
       with:
-        name: Security report
-        path: security_report.txt
+        name: Security report ${{ github.run_id }}
+        path: security_report_${{ github.run_id }}.txt
