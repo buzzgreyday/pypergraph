@@ -35,7 +35,7 @@ class Snapshot(BaseModel):
     ordinal: int
     height: int
     sub_height: int = Field(..., alias="subHeight")
-    last_snapshot_hash: Optional[str] = Field(..., alias="lastSnapshotHeight")
+    last_snapshot_hash: str = Field(..., alias="lastSnapshotHash")
     blocks: List[str]
     timestamp: datetime
 
@@ -51,5 +51,6 @@ class CurrencySnapshot(Snapshot):
     fee: int
     owner_address: str = Field(..., alias="ownerAddress")
     staking_address: Optional[str] = Field(..., alias="stakingAddress")
+    last_snapshot_height: int = Field(..., alias="lastSnapshotHeight")
     size_in_kb: int = Field(..., alias="sizeInKB")
     meta: Optional[dict] = None
