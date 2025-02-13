@@ -1,3 +1,4 @@
+import logging
 import asyncio
 import base58
 import hashlib
@@ -152,7 +153,7 @@ class DagAccount:
         try:
             txn = await self.network.get_pending_transaction(hash)
         except Exception:
-            pass
+            logging.debug("No pending transaction.")
 
         if txn and txn.get("status") == "Waiting":
             return True
