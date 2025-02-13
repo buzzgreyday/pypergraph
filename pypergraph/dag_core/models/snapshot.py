@@ -9,12 +9,12 @@ from pypergraph.dag_core.models.transaction import Proof
 class GlobalSnapshotValue(BaseModel):
     ordinal: int
     height: int
-    sub_height: int
+    sub_height: int = Field(..., alias="subHeight")
     last_snapshot_hash: str = Field(..., alias="lastSnapshotHash")
     blocks: List[str]
     state_channel_snapshots: Dict[str, Any] = Field(..., alias="stateChannelSnapshots")
     rewards: List[Dict[str, Any]]
-    epoch_progress: int
+    epoch_progress: int = Field(..., alias="epochProgress")
     next_facilitators: List[str] = Field(..., alias="nextFacilitators")
     tips: Dict[str, Any]
     state_proof: Dict[str, Any] = Field(..., alias="stateProof")
