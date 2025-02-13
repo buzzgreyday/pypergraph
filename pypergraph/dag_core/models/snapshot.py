@@ -51,6 +51,5 @@ class CurrencySnapshot(Snapshot):
     fee: int
     owner_address: str = Field(..., alias="ownerAddress")
     staking_address: Optional[str] = Field(..., alias="stakingAddress")
-    last_snapshot_height: Optional[int] = Field(..., alias="lastSnapshotHeight")
     size_in_kb: int = Field(..., alias="sizeInKB")
     meta: Optional[dict] = None
