@@ -35,7 +35,7 @@ jobs:
     - name: Install Bandit
       run: pip install bandit
 
-    - name: Run Bandit Security Check
+    - name: Run Bandit security check
       run: |
         bandit -r . | tee security_report.txt
         if grep -E "Severity: (Medium|High)" security_report.txt; then
