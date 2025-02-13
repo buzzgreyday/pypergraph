@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field
 
 from pypergraph.dag_core.models.transaction import Proof
 
@@ -34,8 +34,8 @@ class Snapshot(BaseModel):
     hash: str
     ordinal: int
     height: int
-    sub_height: int
-    last_snapshot_hash: str
+    sub_height: int = Field(..., alias="subHeight")
+    last_snapshot_hash: str = Field(..., alias="lastSnapshotHeight")
     blocks: List[str]
     timestamp: datetime
 
@@ -49,7 +49,7 @@ class Snapshot(BaseModel):
 
 class CurrencySnapshot(Snapshot):
     fee: int
-    owner_address: str
-    staking_address: str
-    size_in_kb: int
+    owner_address: str = Field(..., alias="ownerAddress")
+    staking_address: str = Field(..., alias="stakingAddress")
+    size_in_kb: int = Field(..., alias="sizeInKB")
     meta: Optional[dict] = None
