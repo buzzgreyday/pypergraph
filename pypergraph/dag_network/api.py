@@ -230,8 +230,9 @@ class BlockExplorerApi:
         result = await self.service.get(f"/currency/{metagraph_id}/addresses/{hash}/balance")
         return Balance(data=result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
-    async def get_currency_transaction(self, metagraph_id: str, hash: str) -> Dict:
-        return await self.service.get(f"/currency/{metagraph_id}/transactions/{hash}")
+    async def get_currency_transaction(self, metagraph_id: str, hash: str) -> BlockExplorerTransaction:
+        result = await self.service.get(f"/currency/{metagraph_id}/transactions/{hash}")
+        return BlockExplorerTransaction(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_currency_transactions(
             self, metagraph_id: str, limit: Optional[int], search_after: Optional[str],

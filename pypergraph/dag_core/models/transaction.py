@@ -105,10 +105,6 @@ class BlockExplorerTransaction(BaseModel):
     proofs: List[Proof] = Field(default_factory=list)
     meta: Optional[Dict] = None
 
-    @classmethod
-    def process_transactions(cls, data: List[dict], meta: Optional[dict] = None) -> List["BlockExplorerTransaction"]:
-        return [cls.model_validate({**tx, "meta": meta}) for tx in data]
-
     def __repr__(self):
         return (f"BlockExplorerTransaction(hash={self.hash}, amount={self.amount}, "
                 f"source={self.source}, destination={self.destination}, fee={self.fee}, "
@@ -116,6 +112,10 @@ class BlockExplorerTransaction(BaseModel):
                 f"snapshot_hash={self.snapshot_hash}, snapshot_ordinal={self.snapshot_ordinal}, "
                 f"transaction_original={self.transaction_original}, timestamp={self.timestamp}, "
                 f"proofs={self.proofs}, meta={self.meta})")
+
+    @classmethod
+    def process_transactions(cls, data: List[dict], meta: Optional[dict] = None) -> List["BlockExplorerTransaction"]:
+        return [cls.model_validate({**tx, "meta": meta}) for tx in data]
 
     class ConfigDict:
         population_by_name = True

@@ -203,3 +203,12 @@ async def test_get_currency_address_balance(network):
     )
     print(result)
 
+@pytest.mark.asyncio
+async def test_get_currency_transaction(network):
+    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+    result = await network.be_api.get_currency_transaction(
+        el_paca_metagraph_id,
+        "121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7",
+    )
+    print(result)
+
