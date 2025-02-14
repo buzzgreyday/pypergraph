@@ -1,7 +1,6 @@
-import re
 from typing import Optional, List
 
-from pydantic import Field, BaseModel, field_validator, IPvAnyNetwork, conint, constr
+from pydantic import Field, BaseModel, IPvAnyNetwork, conint, constr
 
 from pypergraph.dag_core.constants import DAG_MAX, STATE_STR_MAX_LEN, ALIAS_MAX_LEN, ORDINAL_MAX, \
     SESSION_MIN, SESSION_MAX, PORT_MAX
