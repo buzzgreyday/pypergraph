@@ -1,6 +1,11 @@
 from datetime import datetime
 from typing import List, Dict, Optional, Any
-from pydantic import BaseModel, Field, model_validator
+
+import base58
+from pycparser.c_ast import Default
+from pydantic import BaseModel, Field, model_validator, constr, field_validator
+
+from pypergraph.dag_core.constants import DAG_MAX, ORDINAL_MAX
 
 
 class PostTransactionResponse(BaseModel):
@@ -90,20 +95,20 @@ class Transaction(BaseModel):
 
 
 class BlockExplorerTransaction(BaseModel):
-    hash: str
-    amount: int
-    source: str
-    destination: str
-    fee: float
-    parent: Dict[str, Any]
-    salt: Optional[int] = None
-    block_hash: str = Field(alias="blockHash")
-    snapshot_hash: str = Field(alias="snapshotHash")
-    snapshot_ordinal: int = Field(alias="snapshotOrdinal")
+    hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
+    amount: int = Field(ge=0, le=DAG_MAX)
+    source: str # Validated below
+    destination: str # Validate below
+    fee: int = Field(ge=0, lt=DAG_MAX)
+    parent: Dict[str, Any] # TODO: Validate
+    salt: Optional[int] = Field(default=None, ge=0)
+    block_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="blockHash")
+    snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="snapshotHash")
+    snapshot_ordinal: int = Field(alias="snapshotOrdinal", ge=0, le=ORDINAL_MAX)
     transaction_original: Transaction = Field(alias="transactionOriginal")
     timestamp: datetime
     proofs: List[Proof] = Field(default_factory=list)
-    meta: Optional[Dict] = None
+    meta: Optional[Dict] = None # TODO: Validate
 
     def __repr__(self):
         return (f"BlockExplorerTransaction(hash={self.hash}, amount={self.amount}, "
@@ -116,6 +121,25 @@ class BlockExplorerTransaction(BaseModel):
     @classmethod
     def process_transactions(cls, data: List[dict], meta: Optional[dict] = None) -> List["BlockExplorerTransaction"]:
         return [cls.model_validate({**tx, "meta": meta}) for tx in data]
+
+    @model_validator(mode='before')
+    def validate_dag_address(cls, values):
+        for address in (values.get('source'), values.get('destination')):
+            if address:
+
+                valid_len = len(address) == 40
+                valid_prefix = address.startswith("DAG")
+                valid_parity = address[3].isdigit() and 0 <= int(address[3]) < 10
+                base58_part = address[4:]
+                valid_base58 = (
+                    len(base58_part) == 36 and base58_part == base58.b58encode(base58.b58decode(base58_part)).decode()
+                )
+
+                # If any validation fails, raise an error
+                if not (valid_len and valid_prefix and valid_parity and valid_base58):
+                    raise ValueError(f"CurrencySnapshot :: Invalid address: {address}")
+
+        return values
 
     class ConfigDict:
         population_by_name = True
