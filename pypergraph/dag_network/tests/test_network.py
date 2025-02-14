@@ -237,3 +237,8 @@ async def test_get_currency_transactions_by_snapshot(network):
 async def test_get_latest_snapshot(network):
     result = await network.l0_api.get_latest_snapshot()
     print(result.value)
+
+@pytest.mark.asyncio
+async def test_get_latest_snapshot_ordinal(network):
+    result = await network.l0_api.get_latest_snapshot_ordinal()
+    print(result)

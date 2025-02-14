@@ -1,6 +1,10 @@
+import re
 from typing import Optional, List
 
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, field_validator, IPvAnyNetwork, conint, constr
+
+from pypergraph.dag_core.constants import DAG_MAX, STATE_STR_MAX_LEN, ALIAS_MAX_LEN, ORDINAL_MAX, \
+    SESSION_MIN, SESSION_MAX, PORT_MAX
 
 
 class NetworkInfo:
@@ -26,12 +30,12 @@ class NetworkInfo:
 
 
 class PeerInfo(BaseModel):
-    alias: Optional[str] = None
-    id: str
-    ip: str
-    state: str
-    session: str
-    public_port: int = Field(..., alias="publicPort")
+    alias: Optional[str] = Field(default=None, max_length=ALIAS_MAX_LEN)
+    id: constr(pattern=r"^[0-9a-f]{128}$")
+    ip: IPvAnyNetwork
+    state: str = Field(max_length=STATE_STR_MAX_LEN)
+    session: conint(ge=SESSION_MIN, le=SESSION_MAX)
+    public_port: conint(ge=0, le=PORT_MAX) = Field(..., alias="publicPort")
     p2p_port: int = Field(..., alias="p2pPort")
     reputation: Optional[float] = None
 
@@ -49,10 +53,15 @@ class PeerInfo(BaseModel):
 
 
 class TotalSupply(BaseModel):
-    ordinal: int
-    total_supply: int = Field(..., alias="total")
+    ordinal: int = Field(..., ge=0, le=ORDINAL_MAX)
+    total_supply: int = Field(..., ge=0, lt=DAG_MAX, alias="total")
 
     def __repr__(self):
         return f"TotalSupply(ordinal={self.ordinal}, total_supply={self.total_supply})"
 
 
+class Ordinal(BaseModel):
+    value: int = Field(ge=0, le=ORDINAL_MAX)
+
+    def __repr__(self):
+        return f"Ordinal(value={self.value})"

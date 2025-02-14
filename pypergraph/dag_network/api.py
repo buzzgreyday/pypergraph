@@ -308,7 +308,8 @@ class L0Api:
         return GlobalSnapshot(**result)
 
     async def get_latest_snapshot_ordinal(self):
-        return await self.service.get("/global-snapshots/latest/ordinal")
+        result = await self.service.get("/global-snapshots/latest/ordinal")
+        return result
 
     async def get_snapshot(self, id: Union[str, int]) -> Snapshot:
         result = await self.service.get(
