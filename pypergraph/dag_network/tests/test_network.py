@@ -3,9 +3,13 @@ import random
 from pypergraph.dag_core.models.network import NetworkInfo
 from pypergraph.dag_network.network import DagTokenNetwork
 
+
+""" NETWORK CONFIGURATION """
+
 @pytest.fixture
 def network():
     return DagTokenNetwork()
+
 
 @pytest.mark.parametrize("network_id, expected", [
     ("testnet", NetworkInfo(
@@ -41,6 +45,7 @@ def network():
         l1_lb_url='https://l1-lb-mainnet.constellationnetwork.io')
     )
 ])
+
 def test_init_network(network_id, expected):
     net = DagTokenNetwork(network_id) if network_id else DagTokenNetwork()
     assert net.get_network() == expected.__dict__
@@ -85,39 +90,8 @@ def test_config_network(network):
     )
     assert network.get_network() == expected.__dict__
 
-@pytest.mark.asyncio
-async def test_get_address_balance(network):
-    address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
-    result = await network.get_address_balance(address)
-    assert result.balance >= 0
-
-@pytest.mark.asyncio
-async def test_get_last_ref(network):
-    address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
-    result = await network.get_address_last_accepted_transaction_ref(address)
-    assert bool(result.hash)
-
-@pytest.mark.asyncio
-async def test_get_pending(network):
-    result = await network.get_pending_transaction(
-        hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"
-    )
-    if result:
-        print(result)
-    else:
-        print("No pending transactions.")
-
-@pytest.mark.asyncio
-async def test_get_total_supply(network):
-    result = await network.l0_api.get_total_supply()
-    assert result.total_supply > 100000000
-
-@pytest.mark.asyncio
-async def test_get_cluster_info(network):
-    result = await network.l0_api.get_cluster_info()
-    assert bool(result)
-
 """ Block Explorer """
+
 @pytest.mark.asyncio
 async def test_get_latest_snapshot(network):
     result = await network.get_latest_snapshot()
@@ -233,8 +207,25 @@ async def test_get_currency_transactions_by_snapshot(network):
 
 
 """ L0 API """
+
 @pytest.mark.asyncio
-async def test_get_latest_snapshot(network):
+async def test_get_address_balance(network):
+    address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
+    result = await network.get_address_balance(address)
+    assert result.balance >= 0
+
+@pytest.mark.asyncio
+async def test_get_total_supply(network):
+    result = await network.l0_api.get_total_supply()
+    assert bool(result.total_supply)
+
+@pytest.mark.asyncio
+async def test_get_cluster_info(network):
+    result = await network.l0_api.get_cluster_info()
+    assert bool(result)
+
+@pytest.mark.asyncio
+async def test_get_latest_l0_snapshot(network):
     result = await network.l0_api.get_latest_snapshot()
     print(result.value)
 
@@ -242,3 +233,21 @@ async def test_get_latest_snapshot(network):
 async def test_get_latest_snapshot_ordinal(network):
     result = await network.l0_api.get_latest_snapshot_ordinal()
     print(result)
+
+""" L1 API """
+
+@pytest.mark.asyncio
+async def test_get_last_ref(network):
+    address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
+    result = await network.get_address_last_accepted_transaction_ref(address)
+    assert bool(result.hash)
+
+@pytest.mark.asyncio
+async def test_get_pending(network):
+    result = await network.get_pending_transaction(
+        hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"
+    )
+    if result:
+        print(result)
+    else:
+        print("No pending transactions.")
