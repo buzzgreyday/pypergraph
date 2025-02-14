@@ -62,8 +62,8 @@ class TransactionValue(BaseModel):
 
 
 class Proof(BaseModel):
-    id: str
-    signature: str
+    id: constr(pattern=r"^[a-fA-F0-9]{128}$")
+    signature: constr(pattern=r"^[a-fA-F0-9]") = Field(min_length=138, max_length=144)
 
     @classmethod
     def process_snapshot_proofs(cls, data: list) -> List["Proof"]:
