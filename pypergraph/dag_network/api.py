@@ -311,15 +311,15 @@ class L0Api:
         result = await self.service.get("/global-snapshots/latest/ordinal")
         return result
 
-    async def get_snapshot(self, id: Union[str, int]) -> Snapshot:
-        result = await self.service.get(
-                     f"/global-snapshots/{id}"
-                 )
-        result = Snapshot(**result)
-        return result
+    #async def get_snapshot(self, id: Union[str, int]) -> Snapshot:
+    #    result = await self.service.get(
+    #                 f"/global-snapshots/{id}"
+    #             )
+    #    return result
 
     # State Channels
     async def post_state_channel_snapshot(self, address: str, snapshot: dict):
+        # TODO: Validation
         return await self.service.post(
             f"/state-channel/{address}/snapshot",
             payload=snapshot

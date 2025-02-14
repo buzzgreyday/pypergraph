@@ -1,3 +1,5 @@
+from decimal import Decimal
+import random
 from typing import Tuple
 
 # from cryptography.hazmat.primitives import hashes
@@ -18,12 +20,15 @@ from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
 
 from .bip import Bip39, Bip32
-from .tx_encode import TxEncode, TransactionV2
+from .tx_encode import Kryo
 from pypergraph.dag_core.constants import PKCS_PREFIX
 
 # import datetime
 import hashlib
 import base58
+
+from ..dag_core.models.account import LastReference
+from ..dag_core.models.transaction import Transaction, TransactionValue
 
 
 class KeyStore:
@@ -114,7 +119,7 @@ class KeyStore:
     #         raise ValueError("KeyStore :: No private key found in the .p12 file.")
 
     @staticmethod
-    def prepare_tx (amount: int, to_address: str, from_address: str, last_ref: dict, fee: int = 0) -> Tuple[TransactionV2, str]:
+    def prepare_tx (amount: int, to_address: str, from_address: str, last_ref: LastReference, fee: int = 0) -> Tuple[TransactionValue, str]:
         """
         Prepare a new transaction.
 
@@ -135,12 +140,16 @@ class KeyStore:
           raise ValueError('KeyStore :: Send fee must be greater or equal to zero')
 
         # Create transaction
-        tx = TxEncode.get_tx_v2(amount, to_address, from_address, last_ref, fee)
+        #tx = TxEncode.get_tx_v2(amount, to_address, from_address, last_ref, fee)
+        MIN_SALT = int(Decimal("1e8"))
+        tx = TransactionValue(source=from_address, destination=to_address, amount=amount, fee=fee, parent=last_ref, salt=MIN_SALT + int(random.getrandbits(48)))
+
 
         # Get encoded transaction
         encoded_tx = tx.get_encoded()
 
-        serialized_tx = TxEncode().kryo_serialize(msg=encoded_tx, set_references=False)
+        kryo = Kryo()
+        serialized_tx = kryo.serialize(msg=encoded_tx, set_references=False)
         hash_value = hashlib.sha512(hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest().encode("utf-8")).hexdigest()
 
         return tx, hash_value

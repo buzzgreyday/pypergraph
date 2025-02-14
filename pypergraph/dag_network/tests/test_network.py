@@ -1,6 +1,11 @@
+import json
+
 import pytest
 import random
+
+import pypergraph.dag_account
 from pypergraph.dag_core.models.network import NetworkInfo
+from pypergraph.dag_core.models.transaction import Transaction
 from pypergraph.dag_network.network import DagTokenNetwork
 
 
@@ -234,7 +239,13 @@ async def test_get_latest_snapshot_ordinal(network):
     result = await network.l0_api.get_latest_snapshot_ordinal()
     print(result)
 
+
 """ L1 API """
+
+@pytest.mark.asyncio
+async def test_get_l1_cluster_info(network):
+    result = await network.cl1_api.get_cluster_info()
+    assert bool(result)
 
 @pytest.mark.asyncio
 async def test_get_last_ref(network):
@@ -251,3 +262,16 @@ async def test_get_pending(network):
         print(result)
     else:
         print("No pending transactions.")
+
+@pytest.mark.asyncio
+async def test_post_transaction(network):
+    from .secrets import mnemo, address
+    account = pypergraph.dag_account.DagAccount()
+    account.connect(network_id="mainnet")
+    account.network.config("mainnet")
+    print(account.network.connected_network.network_id)
+    if account.network.connected_network.network_id == "mainnet":
+        account.login_with_seed_phrase(mnemo)
+        tx, hash_ = await account.generate_signed_transaction(to_address=address, amount=100000000, fee=200000000)
+        print(tx.model_dump_json())
+        await network.cl1_api.post_transaction(json.loads(tx.model_dump_json()))

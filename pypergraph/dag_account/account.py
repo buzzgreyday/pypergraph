@@ -4,12 +4,13 @@ import base58
 import hashlib
 import time
 from decimal import Decimal
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import NetworkId
 from pypergraph.dag_core.constants import PKCS_PREFIX
+from pypergraph.dag_core.models.transaction import Proof, Transaction
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
 
@@ -93,16 +94,16 @@ class DagAccount:
             return address_obj.balance
         return 0
 
-    async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None):
+    async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None) -> Tuple[Transaction, str]:
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
         tx, hash_ = KeyStore.prepare_tx(amount, to_address, self.key_trio["address"], last_ref, fee)
         signature = KeyStore.sign(self.key_trio["private_key"], hash_)
         valid = KeyStore.verify(self.public_key, hash_, signature)
         if not valid:
             raise ValueError("Wallet :: Invalid signature.")
-        proof = {"id": self.public_key[2:], "signature": signature}
-        tx.add_proof(proof=proof)
-        return tx.serialize(), hash_
+        proof = Proof(id=self.public_key[2:], signature=signature)
+        tx = Transaction(value=tx, proofs=[proof])
+        return tx, hash_
 
 
     async def send(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False) -> dict:

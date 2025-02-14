@@ -126,6 +126,7 @@ class RestAPIClient:
 
         except json.JSONDecodeError as e:
             # Handle malformed JSON
+            print(response)
             raise NetworkError(f"RestAPIClient :: {method} {self.base_url}/{endpoint} failed to parse response {e}, raw response: {response}", response.status_code)
 
     async def request(
@@ -134,7 +135,7 @@ class RestAPIClient:
             endpoint: str,
             headers: Optional[Dict[str, str]] = None,
             params: Optional[Dict[str, Any]] = None,
-            payload: Optional[Dict[str, Any]] = None,
+            payload: Optional[json] = None,
     ):
         """
         Makes an HTTP request.
@@ -157,14 +158,14 @@ class RestAPIClient:
             params=params,
             json=payload,
         )
-
+        print("Response:", response.text)
         self.handle_api_response(response, method, endpoint)
         return response.json()
 
     async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> json:
         return await self.request("GET", endpoint, headers=headers, params=params)
 
-    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> json:
+    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[json] = None) -> json:
         # TODO: serialize json
         return await self.request("POST", endpoint, headers=headers, payload=payload)
 

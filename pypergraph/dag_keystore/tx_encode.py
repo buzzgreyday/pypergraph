@@ -3,6 +3,8 @@ from decimal import Decimal
 import random
 from typing import Optional, Dict
 
+from pypergraph.dag_core.models.transaction import TransactionValue
+
 
 @dataclass
 class PostTransactionV2:
@@ -18,33 +20,11 @@ class PostTransactionV2:
 
 
 class TransactionV2:
-    MIN_SALT = Decimal("1e8")
+    MIN_SALT = int(Decimal("1e8"))
 
     def __init__(self, from_address=None, to_address=None, amount=None, fee=None, last_tx_ref=None, salt=None):
-        self.tx = PostTransactionV2()
+        self.tx = TransactionValue(source=from_address, destination=to_address, amount=amount, fee=fee, parent=last_tx_ref, salt=self.MIN_SALT + int(random.getrandbits(48)))
 
-        if from_address:
-            self.tx.value["source"] = from_address
-        if to_address:
-            self.tx.value["destination"] = to_address
-        if amount is not None:
-            self.tx.value["amount"] = amount
-        if fee is not None:
-            self.tx.value["fee"] = fee
-        if last_tx_ref:
-            self.tx.value["parent"] = last_tx_ref
-        if salt is None:
-            salt = self.MIN_SALT + int(random.getrandbits(48))
-        self.tx.value["salt"] = salt
-
-    @staticmethod
-    def to_hex_string(val):
-        val = Decimal(val)
-        if val < 0:
-            b_int = (1 << 64) + int(val)
-        else:
-            b_int = int(val)
-        return format(b_int, "x")
 
     def serialize(self, proof: Optional[Dict]=None):
         """
@@ -102,18 +82,9 @@ class TransactionV2:
         self.tx.proofs.append(proof)
 
 
-class TxEncode:
-    @staticmethod
-    def get_tx_v2(amount, to_address, from_address, last_ref, fee=None):
-        return TransactionV2(
-            amount=amount,
-            to_address=to_address,
-            from_address=from_address,
-            last_tx_ref=last_ref,
-            fee=fee,
-        )
+class Kryo:
 
-    def kryo_serialize(self, msg: str, set_references: bool = True) -> str:
+    def serialize(self, msg: str, set_references: bool = True) -> str:
         """
         Serialize a message using a custom kryo-like serialization method. Used after encoding the message to sign.
 

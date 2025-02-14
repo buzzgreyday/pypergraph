@@ -1,10 +1,12 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import List, Dict, Optional, Any
 
 import base58
 from pydantic import BaseModel, Field, model_validator, constr, conint
 
 from pypergraph.dag_core.constants import DAG_MAX
+from pypergraph.dag_core.models.account import LastReference
 
 
 class PostTransactionResponse(BaseModel):
@@ -71,7 +73,7 @@ class TransactionValue(BaseModel):
     destination: str # Validated below
     amount: int = Field(ge=0, le=DAG_MAX)
     fee: int = Field(ge=0, le=DAG_MAX)
-    parent: Dict[str, Any] # TODO: Validate
+    parent: LastReference # TODO: Validate
     salt: int = Field(default=None, ge=0)
 
     def __repr__(self):
@@ -96,6 +98,47 @@ class TransactionValue(BaseModel):
                     raise ValueError(f"CurrencySnapshot :: Invalid address: {address}")
 
         return values
+
+    def get_encoded(self) -> str:
+        """
+        :return: An encoded version of the transaction used for signing
+        """
+        parent_count = "2"  # Always 2 parents
+        source_address = self.source
+        dest_address = self.destination
+        amount = format(self.amount, "x")  # amount as hex
+        parent_hash = self.parent.hash
+        ordinal = str(self.parent.ordinal)
+        fee = str(self.fee)
+        salt = self.to_hex_string(self.salt)
+
+        return "".join([
+            parent_count,
+            str(len(source_address)),
+            source_address,
+            str(len(dest_address)),
+            dest_address,
+            str(len(amount)),
+            amount,
+            str(len(parent_hash)),
+            parent_hash,
+            str(len(ordinal)),
+            ordinal,
+            str(len(fee)),
+            fee,
+            str(len(salt)),
+            salt,
+        ])
+
+    @staticmethod
+    def to_hex_string(val):
+        val = Decimal(val)
+        if val < 0:
+            b_int = (1 << 64) + int(val)
+        else:
+            b_int = int(val)
+        return format(b_int, "x")
+
 
 
 class Proof(BaseModel):
@@ -129,6 +172,8 @@ class Transaction(BaseModel):
 
     def add_proof(self, proof: Proof) -> None:
         self.proofs.append(proof)
+
+
 
 
 class BlockExplorerTransaction(BaseModel):

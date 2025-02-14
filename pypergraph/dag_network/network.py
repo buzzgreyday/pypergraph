@@ -20,7 +20,6 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         """Validate connected network"""
         # TODO: Do not hardcode urls
         self.connected_network = NetworkInfo(network_id=network_id, l0_host=l0_host, cl1_host=cl1_host)
-        print(self.connected_network.l1_lb_url)
         self.l1_lb_api = LoadBalancerApi(host=self.connected_network.l1_lb_url)
         self.l0_lb_api = LoadBalancerApi(host=self.connected_network.l0_lb_url)
         self.be_api = BlockExplorerApi(host=self.connected_network.be_url)
