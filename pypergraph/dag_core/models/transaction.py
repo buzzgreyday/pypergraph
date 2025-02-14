@@ -49,16 +49,35 @@ class PendingTransaction(BaseModel):
 
 
 class TransactionValue(BaseModel):
-    source: str
-    destination: str
-    amount: int
-    fee: int
-    parent: Dict[str, Any]
-    salt: int
+    source: str # Validated below
+    destination: str # Validated below
+    amount: int = Field(ge=0, le=DAG_MAX)
+    fee: int = Field(ge=0, le=DAG_MAX)
+    parent: Dict[str, Any] # TODO: Validate
+    salt: int = Field(default=None, ge=0)
 
     def __repr__(self):
         return (f"TransactionValue(source={self.source}, destination={self.destination}, "
                 f"amount={self.amount}, fee={self.fee}, parent={self.parent}, salt={self.salt})")
+
+    @model_validator(mode='before')
+    def validate_dag_address(cls, values):
+        for address in (values.get('source'), values.get('destination')):
+            if address:
+
+                valid_len = len(address) == 40
+                valid_prefix = address.startswith("DAG")
+                valid_parity = address[3].isdigit() and 0 <= int(address[3]) < 10
+                base58_part = address[4:]
+                valid_base58 = (
+                    len(base58_part) == 36 and base58_part == base58.b58encode(base58.b58decode(base58_part)).decode()
+                )
+
+                # If any validation fails, raise an error
+                if not (valid_len and valid_prefix and valid_parity and valid_base58):
+                    raise ValueError(f"CurrencySnapshot :: Invalid address: {address}")
+
+        return values
 
 
 class Proof(BaseModel):
