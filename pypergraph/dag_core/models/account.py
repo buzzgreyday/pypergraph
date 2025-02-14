@@ -2,11 +2,11 @@ from typing import Optional, Dict, Any
 
 from pydantic import BaseModel, Field, constr
 
-from pypergraph.dag_core.constants import ORDINAL_MAX, DAG_MAX
+from pypergraph.dag_core.constants import DAG_MAX
 
 
 class LastReference(BaseModel):
-    ordinal: int = Field(ge=0, le=ORDINAL_MAX)
+    ordinal: int = Field(ge=0)
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
 
     def __repr__(self):
@@ -14,7 +14,7 @@ class LastReference(BaseModel):
 
 
 class Balance(BaseModel):
-    ordinal: int = Field(ge=0, le=ORDINAL_MAX)
+    ordinal: int = Field(ge=0)
     balance: int = Field(ge=0, le=DAG_MAX)
     address: Optional[str] = Field(default=None, min_length=40, max_length=128)
     meta: Optional[Dict[str, Any]] = None # TODO: Validate

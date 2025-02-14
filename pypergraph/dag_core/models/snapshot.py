@@ -4,12 +4,11 @@ from typing import Optional, List, Dict, Any
 import base58
 from pydantic import BaseModel, field_validator, Field, model_validator, constr
 
-from pypergraph.dag_core.constants import DAG_MAX, SNAPSHOT_MAX_KB, BLOCK_MAX_LEN, ORDINAL_MAX, HEIGHT_MAX, \
-    REWARDS_PER_SNAPSHOT_MAX_LEN, EPOCH_MAX, LEAF_COUNT_MAX
+from pypergraph.dag_core.constants import DAG_MAX, SNAPSHOT_MAX_KB, BLOCK_MAX_LEN,EPOCH_MAX
 from pypergraph.dag_core.models.transaction import Proof
 
 class LastCurrencySnapshotProof(BaseModel):
-    leaf_count: int = Field(..., alias="leafCount", ge=0, le=LEAF_COUNT_MAX)
+    leaf_count: int = Field(..., alias="leafCount", ge=0)
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
 
 class StateProof(BaseModel):
@@ -19,13 +18,13 @@ class StateProof(BaseModel):
     lastCurrencySnapshotsProof: LastCurrencySnapshotProof
 
 class GlobalSnapshotValue(BaseModel):
-    ordinal: int = Field(ge=0, le=ORDINAL_MAX)
-    height: int = Field(ge=0, le=HEIGHT_MAX)
-    sub_height: int = Field(..., alias="subHeight", ge=0, le=HEIGHT_MAX)
+    ordinal: int = Field(ge=0)
+    height: int = Field(ge=0)
+    sub_height: int = Field(..., alias="subHeight", ge=0)
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
     blocks: List[str] = Field(max_length=BLOCK_MAX_LEN)
     state_channel_snapshots: Dict[str, List[Dict]] = Field(..., alias="stateChannelSnapshots") # TODO: Validate
-    rewards: List[Dict[str, Any]] = Field(max_length=REWARDS_PER_SNAPSHOT_MAX_LEN) # TODO: Validate
+    rewards: List[Dict[str, Any]] # TODO: Validate
     epoch_progress: int = Field(..., alias="epochProgress", ge=0, le=EPOCH_MAX)
     next_facilitators: List[constr(pattern=r"^[a-fA-F0-9]{128}$")] = Field(..., alias="nextFacilitators")
     tips: Dict[str, Any] # TODO: Validate
@@ -47,9 +46,9 @@ class GlobalSnapshot(BaseModel):
 """BE MODELS: DTO"""
 class Snapshot(BaseModel):
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
-    ordinal: int = Field(ge=0, le=ORDINAL_MAX)
-    height: int = Field(ge=0, le=HEIGHT_MAX)
-    sub_height: int = Field(..., alias="subHeight", ge=0, le=HEIGHT_MAX)
+    ordinal: int = Field(ge=0)
+    height: int = Field(ge=0)
+    sub_height: int = Field(..., alias="subHeight", ge=0)
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
     blocks: List[str] = Field(max_length=BLOCK_MAX_LEN)
     timestamp: datetime

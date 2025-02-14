@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from pydantic import Field, BaseModel, IPvAnyNetwork, conint, constr
 
-from pypergraph.dag_core.constants import DAG_MAX, STATE_STR_MAX_LEN, ALIAS_MAX_LEN, ORDINAL_MAX, \
+from pypergraph.dag_core.constants import DAG_MAX, STATE_STR_MAX_LEN, ALIAS_MAX_LEN, \
     SESSION_MIN, SESSION_MAX, PORT_MAX
 
 
@@ -52,7 +52,7 @@ class PeerInfo(BaseModel):
 
 
 class TotalSupply(BaseModel):
-    ordinal: int = Field(..., ge=0, le=ORDINAL_MAX)
+    ordinal: int = Field(..., ge=0)
     total_supply: int = Field(..., ge=0, lt=DAG_MAX, alias="total")
 
     def __repr__(self):
@@ -60,7 +60,7 @@ class TotalSupply(BaseModel):
 
 
 class Ordinal(BaseModel):
-    value: int = Field(ge=0, le=ORDINAL_MAX)
+    value: int = Field(ge=0)
 
     def __repr__(self):
         return f"Ordinal(value={self.value})"
