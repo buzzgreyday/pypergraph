@@ -73,7 +73,7 @@ class TransactionValue(BaseModel):
     destination: str # Validated below
     amount: int = Field(ge=0, le=DAG_MAX)
     fee: int = Field(ge=0, le=DAG_MAX)
-    parent: LastReference # TODO: Validate
+    parent: LastReference
     salt: int = Field(default=None, ge=0)
 
     def __repr__(self):
@@ -182,7 +182,7 @@ class BlockExplorerTransaction(BaseModel):
     source: str # Validated below
     destination: str # Validate below
     fee: int = Field(ge=0, lt=DAG_MAX)
-    parent: Dict[str, Any] # TODO: Validate
+    parent: LastReference
     salt: Optional[int] = Field(default=None, ge=0)
     block_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="blockHash")
     snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="snapshotHash")
