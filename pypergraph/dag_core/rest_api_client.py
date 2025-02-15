@@ -117,17 +117,15 @@ class RestAPIClient:
                 for error in errors:
                     # TODO: Custom exceptions
                     if isinstance(error, dict):
-                        # Handle structured errors
                         errors = error.get("message")
-                        raise ValueError(f"RestAPIClient :: {method} {self.base_url}/{endpoint} returned error(s): {errors}")
+                        raise ValueError(f"RestAPIClient :: {method} {self.base_url + endpoint} returned error(s): {errors}")
                     else:
                         # Handle unstructured errors (e.g., strings)
-                        raise ValueError(f"RestAPIClient :: {method} {self.base_url}/{endpoint} returned error(s): {error}")
+                        raise ValueError(f"RestAPIClient :: {method} {self.base_url + endpoint} returned error(s): {error}")
 
         except json.JSONDecodeError as e:
             # Handle malformed JSON
-            print(response)
-            raise NetworkError(f"RestAPIClient :: {method} {self.base_url}/{endpoint} failed to parse response {e}, raw response: {response}", response.status_code)
+            raise NetworkError(f"RestAPIClient :: {method} {self.base_url} with endpoint {endpoint} failed to parse response {e}, raw response: {response}", response.status_code)
 
     async def request(
             self,
@@ -148,6 +146,7 @@ class RestAPIClient:
         :return: Response object.
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        print(url)
         # TODO: All headers should be string
         if headers:
             headers = {k: str(v) for k, v in headers.items()}

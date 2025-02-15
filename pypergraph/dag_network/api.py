@@ -21,7 +21,7 @@ class LoadBalancerApi:
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL."""
-        self.service.base_url = host
+        self.service = RestAPIClient(host)
 
     async def get_metrics(self):
         # TODO: Handle text response
@@ -65,7 +65,7 @@ class BlockExplorerApi:
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL dynamically."""
-        self.service.base_url = host
+        self.service = RestAPIClient(host)
 
     async def get_snapshot(self, id: Union[str, int]) -> Snapshot:
         """
@@ -280,7 +280,8 @@ class L0Api:
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL dynamically."""
-        self.service.base_url = host
+        self.service = RestAPIClient(host)
+
 
     async def get_cluster_info(self):
         result = await self.service.get("/cluster/info")
@@ -337,7 +338,8 @@ class L1Api:
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL dynamically."""
-        self.service.base_url = host
+        self.service = RestAPIClient(host)
+
 
     async def get_cluster_info(self) -> List["PeerInfo"]:
         result = await self.service.get("/cluster/info")
@@ -364,9 +366,10 @@ class ML0Api(L0Api):
     def __init__(self, host):
         super().__init__(host)
 
-    def config(self, net_info: dict):
+    def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL dynamically."""
-        self.service.base_url = net_info
+        self.service = RestAPIClient(host)
+
 
     # State Channel Token
     async def get_total_supply(self) -> TotalSupply:

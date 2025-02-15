@@ -28,7 +28,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         # private networkChange$ = new Subject < NetworkInfo > ();
 
 
-    def config(self, network_id: Optional[str] = None, be_url: Optional[str] = None, l0_host: Optional[str] = None, cl1_host: Optional[str] = None, l0_lb_url: Optional[str] = None, l1_lb_url: Optional[str] = None):
+    def config(self, network_id: str = None, be_url: Optional[str] = None, l0_host: Optional[str] = None, cl1_host: Optional[str] = None, l0_lb_url: Optional[str] = None, l1_lb_url: Optional[str] = None):
         """
         Configure a new NetworkInfo object to setup network_id, l0, l1, be, etc. (default: "mainnet" configuration)
 
@@ -56,6 +56,8 @@ class DagTokenNetwork(AsyncIOEventEmitter):
             self.connected_network = network_info
             self.be_api.config(network_info.be_url)
             self.l0_api.config(network_info.l0_host)
+            self.l0_lb_api.config(network_info.l0_lb_url)
+            self.l1_lb_api.config(network_info.l1_lb_url)
             self.cl1_api.config(network_info.cl1_host)
 
             # Emit a network change event
@@ -138,6 +140,7 @@ class MetagraphTokenNetwork:
         return await self.l0_api.get_address_balance(address)
 
     async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
+        print(self.l1_api.service.base_url)
         return await self.l1_api.get_last_reference(address)
 
     async def get_pending_transaction(self, hash: Optional[str]) -> Optional[PendingTransaction]:
