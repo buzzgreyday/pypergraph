@@ -273,5 +273,5 @@ async def test_post_transaction(network):
     if account.network.connected_network.network_id == "mainnet":
         account.login_with_seed_phrase(mnemo)
         tx, hash_ = await account.generate_signed_transaction(to_address=address, amount=100000000, fee=200000000)
-        print(tx.model_dump_json())
-        await network.cl1_api.post_transaction(json.loads(tx.model_dump_json()))
+        print(tx.model_dump())
+        await network.cl1_api.post_transaction(tx.model_dump())
