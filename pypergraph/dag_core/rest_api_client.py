@@ -162,7 +162,7 @@ class RestAPIClient:
     async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> json:
         return await self.request("GET", endpoint, headers=headers, params=params)
 
-    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[json] = None) -> json:
+    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> json:
         # TODO: serialize json
         return await self.request("POST", endpoint, headers=headers, payload=payload)
 
