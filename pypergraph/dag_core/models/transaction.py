@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import List, Dict, Optional, Any
 
 import base58
-from pydantic import BaseModel, Field, model_validator, constr, conint
+from pydantic import BaseModel, Field, model_validator, constr, conint, computed_field
 
 from pypergraph.dag_core.constants import DAG_MAX
 from pypergraph.dag_core.models.account import LastReference
@@ -99,36 +99,25 @@ class TransactionValue(BaseModel):
 
         return values
 
-    def get_encoded(self) -> str:
-        """
-        :return: An encoded version of the transaction used for signing
-        """
-        parent_count = "2"  # Always 2 parents
-        source_address = self.source
-        dest_address = self.destination
-        amount = format(self.amount, "x")  # amount as hex
-        parent_hash = self.parent.hash
-        ordinal = str(self.parent.ordinal)
-        fee = str(self.fee)
-        salt = self.to_hex_string(self.salt)
+    @computed_field
+    @property
+    def encoded(self) -> str:
+        """Automatically generates the encoded signing string"""
+        components = [
+            ("2", False),  # Parent count (fixed)
+            (self.source, True),
+            (self.destination, True),
+            (format(self.amount, "x"), True),  # Hex amount
+            (self.parent.hash, True),
+            (str(self.parent.ordinal), True),
+            (str(self.fee), True),
+            (self.to_hex_string(self.salt), True)
+        ]
 
-        return "".join([
-            parent_count,
-            str(len(source_address)),
-            source_address,
-            str(len(dest_address)),
-            dest_address,
-            str(len(amount)),
-            amount,
-            str(len(parent_hash)),
-            parent_hash,
-            str(len(ordinal)),
-            ordinal,
-            str(len(fee)),
-            fee,
-            str(len(salt)),
-            salt,
-        ])
+        return "".join(
+            f"{len(str(value))}{value}" if include_length else str(value)
+            for value, include_length in components
+        )
 
     @staticmethod
     def to_hex_string(val):
