@@ -146,7 +146,7 @@ class KeyStore:
 
 
         # Get encoded transaction
-        encoded_tx = tx.get_encoded()
+        encoded_tx = tx.encoded
 
         kryo = Kryo()
         serialized_tx = kryo.serialize(msg=encoded_tx, set_references=False)
