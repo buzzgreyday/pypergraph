@@ -133,7 +133,7 @@ class RestAPIClient:
             endpoint: str,
             headers: Optional[Dict[str, str]] = None,
             params: Optional[Dict[str, Any]] = None,
-            payload: Optional[json] = None,
+            payload: Optional[Dict[str, Any]] = None,
     ):
         """
         Makes an HTTP request.
