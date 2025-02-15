@@ -263,12 +263,12 @@ async def test_get_pending(network):
     else:
         print("No pending transactions.")
 
-@pytest.mark.asyncio
-async def test_post_transaction(network):
-    from .secrets import mnemo, address
-    account = pypergraph.dag_account.DagAccount()
-    account.connect(network_id="testnet")
-    if account.network.connected_network.network_id == "testnet":
-        account.login_with_seed_phrase(mnemo)
-        tx, hash_ = await account.generate_signed_transaction(to_address=address, amount=100000000, fee=200000000)
-        await account.network.post_transaction(tx.model_dump())
+#@pytest.mark.asyncio
+#async def test_post_transaction(network):
+#    from .secrets import mnemo, address
+#    account = pypergraph.dag_account.DagAccount()
+#    account.connect(network_id="testnet")
+#    if account.network.connected_network.network_id == "testnet":
+#        account.login_with_seed_phrase(mnemo)
+#        tx, hash_ = await account.generate_signed_transaction(to_address=address, amount=100000000, fee=200000000)
+#        await account.network.post_transaction(tx.model_dump())

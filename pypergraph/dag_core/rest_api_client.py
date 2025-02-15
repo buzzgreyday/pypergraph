@@ -146,7 +146,6 @@ class RestAPIClient:
         :return: Response object.
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        print(url)
         # TODO: All headers should be string
         if headers:
             headers = {k: str(v) for k, v in headers.items()}
@@ -157,7 +156,6 @@ class RestAPIClient:
             params=params,
             json=payload,
         )
-        print("Response:", response.text)
         self.handle_api_response(response, method, endpoint)
         return response.json()
 

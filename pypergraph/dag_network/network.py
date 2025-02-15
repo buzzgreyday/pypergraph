@@ -140,7 +140,6 @@ class MetagraphTokenNetwork:
         return await self.l0_api.get_address_balance(address)
 
     async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
-        print(self.l1_api.service.base_url)
         return await self.l1_api.get_last_reference(address)
 
     async def get_pending_transaction(self, hash: Optional[str]) -> Optional[PendingTransaction]:
@@ -175,7 +174,6 @@ class MetagraphTokenNetwork:
         return response.get("data", None)
 
     async def post_transaction(self, tx) -> str:
-        print("Posting transaction with the following config:", self.l1_api.__dict__)
         response = await self.l1_api.post_transaction(tx)
         # Support data/meta format and object return format
         return response["data"]["hash"] if "data" in response else response["hash"]
