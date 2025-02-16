@@ -1,0 +1,492 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypergraph.dag_keyring.accounts &mdash; pypergraph 2025.0.0a3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=d273756d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pypergraph
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pypergraph</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pypergraph.html">pypergraph</a></li>
+      <li class="breadcrumb-item active">pypergraph.dag_keyring.accounts</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pypergraph.dag_keyring.accounts</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">import</span> <span class="nn">base58</span>
+<span class="kn">from</span> <span class="nn">ecdsa</span> <span class="kn">import</span> <span class="n">SigningKey</span><span class="p">,</span> <span class="n">SECP256k1</span>
+<span class="kn">from</span> <span class="nn">eth_utils</span> <span class="kn">import</span> <span class="n">keccak</span><span class="p">,</span> <span class="n">to_checksum_address</span><span class="p">,</span> <span class="n">is_checksum_address</span>
+<span class="kn">from</span> <span class="nn">eth_keys</span> <span class="kn">import</span> <span class="n">keys</span>
+
+<span class="kn">from</span> <span class="nn">pypergraph.dag_core</span> <span class="kn">import</span> <span class="n">NetworkId</span><span class="p">,</span> <span class="n">KeyringAssetType</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_core.constants</span> <span class="kn">import</span> <span class="n">PKCS_PREFIX</span>
+
+
+<span class="c1"># For dependency security reasons accounts for account creation should go here</span>
+
+<div class="viewcode-block" id="EcdsaAccount">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount">[docs]</a>
+<span class="k">class</span> <span class="nc">EcdsaAccount</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SigningKey</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bip44_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Placeholder for Web3 provider</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">decimals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">network_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">has_token_support</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">supported_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="EcdsaAccount.verify_message">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.verify_message">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">verify_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">signature</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">says_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_decimals">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_decimals">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_decimals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decimals</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_label">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_label">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.create">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.create">[docs]</a>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">private_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">private_key</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span> <span class="o">=</span> <span class="n">SigningKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">private_key</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="n">SECP256k1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span> <span class="o">=</span> <span class="n">SigningKey</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">curve</span><span class="o">=</span><span class="n">SECP256k1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.save_token_info">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.save_token_info">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_token_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_web3_provider">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_web3_provider">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_web3_provider</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_provider</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.set_web3_provider">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.set_web3_provider">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_web3_provider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provider</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_provider</span> <span class="o">=</span> <span class="n">provider</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_tokens">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_tokens">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span> <span class="k">else</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.set_tokens">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.set_tokens">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">tokens</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_bip44_index">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_bip44_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_bip44_index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bip44_index</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_state">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_address</span><span class="p">(),</span>
+            <span class="s2">&quot;supportedAssets&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_assets</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_network_id">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_network_id">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_network_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_id</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.serialize">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.serialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_private_key</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">include_private_key</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;privateKey&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_private_key</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bip44_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;bip44Index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bip44_index</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.deserialize">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.deserialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+
+        <span class="n">private_key</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;privateKey&quot;</span><span class="p">))</span>
+        <span class="c1"># public_key = data.get(&quot;publicKey&quot;)</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tokens&quot;</span><span class="p">)</span>
+        <span class="n">bip44_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bip44Index&quot;</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">private_key</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span> <span class="o">=</span> <span class="n">SigningKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">private_key</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="n">SECP256k1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;EcdsaAccount :: Wallet instance from public key isn&#39;t supported.&quot;</span><span class="p">)</span>
+            <span class="c1"># TODO: This doesn&#39;t work since the library doens&#39;t seem to have any equivalent</span>
+            <span class="c1">#self.wallet = Wallet.from_public_key(bytes.fromhex(public_key))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bip44_index</span> <span class="o">=</span> <span class="n">bip44_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="c1"># def sign_message(self, msg: str) -&gt; str:</span>
+    <span class="c1">#     private_key = self.get_private_key_buffer()</span>
+    <span class="c1">#     msg_hash = eth_util.hash_personal_message(msg.encode())</span>
+    <span class="c1">#</span>
+    <span class="c1">#     v, r, s = eth_util.ecsign(msg_hash, private_key)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if not eth_util.is_valid_signature(v, r, s):</span>
+    <span class="c1">#         raise ValueError(&quot;Sign-Verify failed&quot;)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return eth_util.strip_hex_prefix(eth_util.to_rpc_sig(v, r, s))</span>
+
+<div class="viewcode-block" id="EcdsaAccount.recover_signed_msg_public_key">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.recover_signed_msg_public_key">[docs]</a>
+    <span class="k">def</span> <span class="nf">recover_signed_msg_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">signature</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># Compute the hash of the message in Ethereum&#39;s personal_sign format</span>
+        <span class="n">msg_hash</span> <span class="o">=</span> <span class="n">keccak</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\x19</span><span class="s2">Ethereum Signed Message:</span><span class="se">\n</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="si">}{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Decode the signature (remove &#39;0x&#39; prefix if present)</span>
+        <span class="n">signature_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">signature</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="k">if</span> <span class="n">signature</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;0x&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">signature</span><span class="p">)</span>
+        <span class="n">v</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">signature_bytes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">signature_bytes</span><span class="p">[:</span><span class="mi">32</span><span class="p">],</span> <span class="n">signature_bytes</span><span class="p">[</span><span class="mi">32</span><span class="p">:</span><span class="mi">64</span><span class="p">]</span>
+
+        <span class="c1"># Recover the public key</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">public_key</span> <span class="o">=</span> <span class="n">keys</span><span class="o">.</span><span class="n">ecdsa_recover</span><span class="p">(</span><span class="n">msg_hash</span><span class="p">,</span>
+                                            <span class="n">keys</span><span class="o">.</span><span class="n">Signature</span><span class="p">(</span><span class="n">vrs</span><span class="o">=</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s1">&#39;big&#39;</span><span class="p">),</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s1">&#39;big&#39;</span><span class="p">))))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EcdsaAccount :: Failed to recover public key: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Return the public key in hexadecimal format</span>
+        <span class="k">return</span> <span class="n">public_key</span><span class="o">.</span><span class="n">to_hex</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_address">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_address">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_address</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1">#return self.wallet.get_checksum_address_string()</span>
+        <span class="n">vk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">get_verifying_key</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+
+        <span class="c1"># Compute the keccak hash of the public key (last 20 bytes is the address)</span>
+        <span class="n">public_key</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x04</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">vk</span>  <span class="c1"># Add the uncompressed prefix</span>
+        <span class="n">address</span> <span class="o">=</span> <span class="n">keccak</span><span class="p">(</span><span class="n">public_key</span><span class="p">[</span><span class="mi">1</span><span class="p">:])[</span><span class="o">-</span><span class="mi">20</span><span class="p">:]</span>  <span class="c1"># Drop the first byte (x-coord prefix)</span>
+
+        <span class="k">return</span> <span class="n">to_checksum_address</span><span class="p">(</span><span class="s2">&quot;0x&quot;</span> <span class="o">+</span> <span class="n">address</span><span class="o">.</span><span class="n">hex</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_public_key">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_public_key">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">get_verifying_key</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_private_key">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_private_key">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_private_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EcdsaAccount.get_private_key_buffer">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EcdsaAccount.get_private_key_buffer">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_private_key_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EthAccount">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EthAccount">[docs]</a>
+<span class="k">class</span> <span class="nc">EthAccount</span><span class="p">(</span><span class="n">EcdsaAccount</span><span class="p">):</span>
+    <span class="n">decimals</span> <span class="o">=</span> <span class="mi">18</span>
+    <span class="n">network_id</span> <span class="o">=</span> <span class="n">NetworkId</span><span class="o">.</span><span class="n">Ethereum</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">has_token_support</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">supported_assets</span> <span class="o">=</span> <span class="p">[</span><span class="n">KeyringAssetType</span><span class="o">.</span><span class="n">ETH</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">KeyringAssetType</span><span class="o">.</span><span class="n">ERC20</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0xa393473d64d2F9F026B60b6Df7859A689715d092&quot;</span><span class="p">]</span>  <span class="c1"># LTX</span>
+
+<div class="viewcode-block" id="EthAccount.save_token_info">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EthAccount.save_token_info">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_token_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the token info if not already present in the tokens list.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">address</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EthAccount.validate_address">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EthAccount.validate_address">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate an Ethereum address.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">is_checksum_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EthAccount.sign_transaction">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EthAccount.sign_transaction">[docs]</a>
+    <span class="k">def</span> <span class="nf">sign_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sign an Ethereum transaction with the account&#39;s private key.</span>
+
+<span class="sd">        tx is an instance of the transaction object from a library like web3.eth.account.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">private_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_private_key_buffer</span><span class="p">()</span>
+        <span class="n">signed_tx</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">signed_tx</span></div>
+
+
+<div class="viewcode-block" id="EthAccount.verify_message">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EthAccount.verify_message">[docs]</a>
+    <span class="k">def</span> <span class="nf">verify_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">signature</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">says_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verify if a signed message matches the provided address.&quot;&quot;&quot;</span>
+        <span class="n">public_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recover_signed_msg_public_key</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
+        <span class="n">actual_address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">to_checksum_address</span><span class="p">(</span><span class="n">says_address</span><span class="p">)</span> <span class="o">==</span> <span class="n">actual_address</span></div>
+
+
+<div class="viewcode-block" id="EthAccount.get_address_from_public_key">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EthAccount.get_address_from_public_key">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_address_from_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">public_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Derive the Ethereum address from the public key.&quot;&quot;&quot;</span>
+        <span class="n">address</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x04</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha3_256</span><span class="p">(</span><span class="n">public_key</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">to_checksum_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EthAccount.get_encryption_public_key">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.EthAccount.get_encryption_public_key">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_encryption_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the public key for encryption.&quot;&quot;&quot;</span>
+        <span class="c1"># This is a placeholder. Replace it with the appropriate implementation.</span>
+        <span class="c1"># For example, if using web3py, you can use `eth_account.Account.encrypt()` for encryption keys.</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Encryption public key generation is not yet implemented.&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DagAccount">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.DagAccount">[docs]</a>
+<span class="k">class</span> <span class="nc">DagAccount</span><span class="p">(</span><span class="n">EcdsaAccount</span><span class="p">):</span>
+
+    <span class="n">decimals</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">network_id</span> <span class="o">=</span> <span class="n">NetworkId</span><span class="o">.</span><span class="n">Constellation</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">has_token_support</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">supported_assets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DAG&quot;</span><span class="p">]</span>
+    <span class="c1">### --&gt; KEYRING:DAGACCOUNT</span>
+
+<div class="viewcode-block" id="DagAccount.validate_address">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.DagAccount.validate_address">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">validate_address</span><span class="p">(</span><span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">address</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">valid_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">address</span><span class="p">)</span> <span class="o">==</span> <span class="mi">40</span>
+        <span class="n">valid_prefix</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DAG&quot;</span><span class="p">)</span>
+        <span class="n">valid_parity</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">10</span>
+        <span class="n">base58_part</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+        <span class="n">valid_base58</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">base58_part</span><span class="p">)</span> <span class="o">==</span> <span class="mi">36</span> <span class="ow">and</span> <span class="n">base58_part</span> <span class="o">==</span> <span class="n">base58</span><span class="o">.</span><span class="n">b58encode</span><span class="p">(</span><span class="n">base58</span><span class="o">.</span><span class="n">b58decode</span><span class="p">(</span><span class="n">base58_part</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">valid_len</span> <span class="ow">and</span> <span class="n">valid_prefix</span> <span class="ow">and</span> <span class="n">valid_parity</span> <span class="ow">and</span> <span class="n">valid_base58</span></div>
+
+
+<div class="viewcode-block" id="DagAccount.get_public_key">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.DagAccount.get_public_key">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">get_verifying_key</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DagAccount.get_address">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.DagAccount.get_address">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_address</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_address_from_public_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_public_key</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="DagAccount.verify_message">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.DagAccount.verify_message">[docs]</a>
+    <span class="k">def</span> <span class="nf">verify_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">signature</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">says_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">public_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recover_signed_msg_public_key</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
+        <span class="n">actual_address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">says_address</span> <span class="o">==</span> <span class="n">actual_address</span></div>
+
+
+<div class="viewcode-block" id="DagAccount.sha256">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.DagAccount.sha256">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">sha256</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DagAccount.get_address_from_public_key">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.DagAccount.get_address_from_public_key">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_address_from_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">public_key_hex</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param public_key_hex: The private key as a hexadecimal string.</span>
+<span class="sd">        :return: The DAG address corresponding to the public key (node ID).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">public_key_hex</span><span class="p">)</span> <span class="o">==</span> <span class="mi">128</span><span class="p">:</span>
+            <span class="n">public_key</span> <span class="o">=</span> <span class="n">PKCS_PREFIX</span> <span class="o">+</span> <span class="s2">&quot;04&quot;</span> <span class="o">+</span> <span class="n">public_key_hex</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">public_key_hex</span><span class="p">)</span> <span class="o">==</span> <span class="mi">130</span> <span class="ow">and</span> <span class="n">public_key_hex</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;04&quot;</span><span class="p">:</span>
+            <span class="n">public_key</span> <span class="o">=</span> <span class="n">PKCS_PREFIX</span> <span class="o">+</span> <span class="n">public_key_hex</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;KeyStore :: Not a valid public key.&quot;</span><span class="p">)</span>
+
+        <span class="n">public_key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">public_key</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="n">public_key</span> <span class="o">=</span> <span class="n">base58</span><span class="o">.</span><span class="n">b58encode</span><span class="p">(</span><span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">public_key</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="n">public_key</span> <span class="o">=</span> <span class="n">public_key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span> <span class="o">-</span> <span class="mi">36</span><span class="p">:]</span>
+
+        <span class="n">check_digits</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">public_key</span> <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()])</span>
+        <span class="n">check_digit</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">check_digits</span><span class="p">:</span>
+            <span class="n">check_digit</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">check_digit</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">:</span>
+                <span class="n">check_digit</span> <span class="o">=</span> <span class="n">check_digit</span> <span class="o">%</span> <span class="mi">9</span>
+
+        <span class="n">address</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;DAG</span><span class="si">{</span><span class="n">check_digit</span><span class="si">}{</span><span class="n">public_key</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="n">address</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Michael Brummer Ringdal.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

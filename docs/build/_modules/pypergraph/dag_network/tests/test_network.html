@@ -1,0 +1,465 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypergraph.dag_network.tests.test_network &mdash; pypergraph 2025.0.0a3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=d273756d"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            pypergraph
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pypergraph</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../../pypergraph.html">pypergraph</a></li>
+      <li class="breadcrumb-item active">pypergraph.dag_network.tests.test_network</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pypergraph.dag_network.tests.test_network</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">pypergraph.dag_account</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_core.models.network</span> <span class="kn">import</span> <span class="n">NetworkInfo</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.network</span> <span class="kn">import</span> <span class="n">DagTokenNetwork</span>
+
+
+<span class="sd">&quot;&quot;&quot; NETWORK CONFIGURATION &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="network">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.network">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">network</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">DagTokenNetwork</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="test_init_network">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_init_network">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;network_id, expected&quot;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;testnet&quot;</span><span class="p">,</span> <span class="n">NetworkInfo</span><span class="p">(</span>
+        <span class="n">network_id</span><span class="o">=</span><span class="s1">&#39;testnet&#39;</span><span class="p">,</span>
+        <span class="n">be_url</span><span class="o">=</span><span class="s1">&#39;https://be-testnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-testnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-testnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-testnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l1_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-testnet.constellationnetwork.io&#39;</span><span class="p">)</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;integrationnet&quot;</span><span class="p">,</span> <span class="n">NetworkInfo</span><span class="p">(</span>
+        <span class="n">network_id</span><span class="o">=</span><span class="s1">&#39;integrationnet&#39;</span><span class="p">,</span>
+        <span class="n">be_url</span><span class="o">=</span><span class="s1">&#39;https://be-integrationnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-integrationnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-integrationnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-integrationnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l1_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-integrationnet.constellationnetwork.io&#39;</span><span class="p">)</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;mainnet&quot;</span><span class="p">,</span> <span class="n">NetworkInfo</span><span class="p">(</span>
+        <span class="n">network_id</span><span class="o">=</span><span class="s1">&#39;mainnet&#39;</span><span class="p">,</span>
+        <span class="n">be_url</span><span class="o">=</span><span class="s1">&#39;https://be-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l1_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-mainnet.constellationnetwork.io&#39;</span><span class="p">)</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">NetworkInfo</span><span class="p">(</span>
+        <span class="n">network_id</span><span class="o">=</span><span class="s1">&#39;mainnet&#39;</span><span class="p">,</span>
+        <span class="n">be_url</span><span class="o">=</span><span class="s1">&#39;https://be-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l1_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-mainnet.constellationnetwork.io&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">test_init_network</span><span class="p">(</span><span class="n">network_id</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+    <span class="n">net</span> <span class="o">=</span> <span class="n">DagTokenNetwork</span><span class="p">(</span><span class="n">network_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">network_id</span> <span class="k">else</span> <span class="n">DagTokenNetwork</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">net</span><span class="o">.</span><span class="n">get_network</span><span class="p">()</span> <span class="o">==</span> <span class="n">expected</span><span class="o">.</span><span class="vm">__dict__</span></div>
+
+
+<div class="viewcode-block" id="test_init_custom">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_init_custom">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_init_custom</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">l0_api_cluster_data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">d</span><span class="o">.</span><span class="n">ip</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">public_port</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">l0_api</span><span class="o">.</span><span class="n">get_cluster_info</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">l0_api_cluster_data</span><span class="p">:</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s2">&quot;No L0 cluster nodes available&quot;</span><span class="p">)</span>
+    <span class="n">l0_api_cluster_node</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">l0_api_cluster_data</span><span class="p">)</span>
+    <span class="n">l1_api_cluster_data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">d</span><span class="o">.</span><span class="n">ip</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">public_port</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">cl1_api</span><span class="o">.</span><span class="n">get_cluster_info</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">l1_api_cluster_data</span><span class="p">:</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s2">&quot;No L1 cluster nodes available&quot;</span><span class="p">)</span>
+    <span class="n">l1_api_cluster_node</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">l1_api_cluster_data</span><span class="p">)</span>
+
+    <span class="n">net</span> <span class="o">=</span> <span class="n">DagTokenNetwork</span><span class="p">(</span>
+        <span class="n">network_id</span><span class="o">=</span><span class="s2">&quot;mainnet&quot;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">l0_api_cluster_node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">l0_api_cluster_node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">l1_api_cluster_node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">l1_api_cluster_node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">NetworkInfo</span><span class="p">(</span>
+        <span class="n">network_id</span><span class="o">=</span><span class="s2">&quot;mainnet&quot;</span><span class="p">,</span>
+        <span class="n">be_url</span><span class="o">=</span><span class="s1">&#39;https://be-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">l0_api_cluster_node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">l0_api_cluster_node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">l1_api_cluster_node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">l1_api_cluster_node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">l0_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-mainnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l1_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-mainnet.constellationnetwork.io&#39;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">net</span><span class="o">.</span><span class="n">get_network</span><span class="p">()</span> <span class="o">==</span> <span class="nb">vars</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_config_network">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_config_network">[docs]</a>
+<span class="k">def</span> <span class="nf">test_config_network</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">network</span><span class="o">.</span><span class="n">connected_network</span><span class="o">.</span><span class="n">network_id</span> <span class="o">==</span> <span class="s2">&quot;mainnet&quot;</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s2">&quot;integrationnet&quot;</span><span class="p">)</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">NetworkInfo</span><span class="p">(</span>
+        <span class="n">network_id</span><span class="o">=</span><span class="s1">&#39;integrationnet&#39;</span><span class="p">,</span>
+        <span class="n">be_url</span><span class="o">=</span><span class="s1">&#39;https://be-integrationnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-integrationnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-integrationnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l0_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l0-lb-integrationnet.constellationnetwork.io&#39;</span><span class="p">,</span>
+        <span class="n">l1_lb_url</span><span class="o">=</span><span class="s1">&#39;https://l1-lb-integrationnet.constellationnetwork.io&#39;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">network</span><span class="o">.</span><span class="n">get_network</span><span class="p">()</span> <span class="o">==</span> <span class="n">expected</span><span class="o">.</span><span class="vm">__dict__</span></div>
+
+
+<span class="sd">&quot;&quot;&quot; Block Explorer &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="test_get_latest_snapshot">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_latest_snapshot">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">get_latest_snapshot</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">hash</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">timestamp</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">ordinal</span><span class="p">,</span> <span class="s2">&quot;Snapshot data should not be empty&quot;</span></div>
+
+
+<div class="viewcode-block" id="test_get_snapshot_by_id">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_snapshot_by_id">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_snapshot_by_id</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_snapshot</span><span class="p">(</span>
+        <span class="s2">&quot;2404170&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">hash</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">timestamp</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">ordinal</span><span class="p">,</span> <span class="s2">&quot;Snapshot data should not be empty&quot;</span></div>
+
+
+<div class="viewcode-block" id="test_get_transactions_by_snapshot">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_transactions_by_snapshot">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_transactions_by_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_transactions_by_snapshot</span><span class="p">(</span><span class="s2">&quot;2404170&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span> <span class="ow">and</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span> <span class="ow">and</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="s2">&quot;Transaction data should not be empty&quot;</span></div>
+
+
+<div class="viewcode-block" id="test_get_rewards_by_snapshot">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_rewards_by_snapshot">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_rewards_by_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_rewards_by_snapshot</span><span class="p">(</span><span class="mi">2404170</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_latest_snapshot_transactions">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_latest_snapshot_transactions">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_snapshot_transactions</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_latest_snapshot_transactions</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_latest_snapshot_rewards">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_latest_snapshot_rewards">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_snapshot_rewards</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_latest_snapshot_rewards</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_transactions">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_transactions">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_transactions</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_transaction">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_transaction">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_transaction</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_transaction</span><span class="p">(</span>
+        <span class="s2">&quot;dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_latest_currency_snapshot">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_latest_currency_snapshot">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_currency_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_latest_currency_snapshot</span><span class="p">(</span><span class="n">el_paca_metagraph_id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_currency_snapshot">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_currency_snapshot">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_snapshot</span><span class="p">(</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="mi">950075</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_latest_currency_snapshot_rewards">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_latest_currency_snapshot_rewards">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_currency_snapshot_rewards</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_latest_currency_snapshot_rewards</span><span class="p">(</span><span class="n">el_paca_metagraph_id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_currency_snapshot_rewards">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_currency_snapshot_rewards">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_snapshot_rewards</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_snapshot_rewards</span><span class="p">(</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="mi">950075</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+
+
+<span class="c1">#@pytest.mark.asyncio</span>
+<span class="c1">#async def test_get_currency_block(network):</span>
+<span class="c1">#    el_paca_metagraph_id = &quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+<span class="c1">#    results = await network.be_api.get_currency_block(</span>
+<span class="c1">#        el_paca_metagraph_id,</span>
+<span class="c1">#        &quot;b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364&quot;,</span>
+<span class="c1">#    )</span>
+<span class="c1">#    print(results)</span>
+
+<div class="viewcode-block" id="test_get_currency_address_balance">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_currency_address_balance">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_address_balance</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_address_balance</span><span class="p">(</span>
+        <span class="n">el_paca_metagraph_id</span><span class="p">,</span>
+        <span class="s2">&quot;b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_currency_transaction">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_currency_transaction">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_transaction</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_transaction</span><span class="p">(</span>
+        <span class="n">el_paca_metagraph_id</span><span class="p">,</span>
+        <span class="s2">&quot;121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_currency_transactions">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_currency_transactions">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_transactions</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_transactions</span><span class="p">(</span><span class="n">metagraph_id</span><span class="o">=</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_currency_transactions_by_address">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_currency_transactions_by_address">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_transactions_by_address</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_transactions_by_address</span><span class="p">(</span><span class="n">metagraph_id</span><span class="o">=</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s2">&quot;DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_currency_transactions_by_snapshot">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_currency_transactions_by_snapshot">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_transactions_by_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_transactions_by_snapshot</span><span class="p">(</span><span class="n">metagraph_id</span><span class="o">=</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="n">hash_or_ordinal</span><span class="o">=</span><span class="mi">952394</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
+
+
+
+<span class="sd">&quot;&quot;&quot; L0 API &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="test_get_address_balance">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_address_balance">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_address_balance</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">address</span> <span class="o">=</span> <span class="s2">&quot;DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">balance</span> <span class="o">&gt;=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="test_get_total_supply">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_total_supply">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_total_supply</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">l0_api</span><span class="o">.</span><span class="n">get_total_supply</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">total_supply</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_cluster_info">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_cluster_info">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_cluster_info</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">l0_api</span><span class="o">.</span><span class="n">get_cluster_info</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_latest_l0_snapshot">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_latest_l0_snapshot">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_l0_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">l0_api</span><span class="o">.</span><span class="n">get_latest_snapshot</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_latest_snapshot_ordinal">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_latest_snapshot_ordinal">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_snapshot_ordinal</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">l0_api</span><span class="o">.</span><span class="n">get_latest_snapshot_ordinal</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+
+<span class="sd">&quot;&quot;&quot; L1 API &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="test_get_l1_cluster_info">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_l1_cluster_info">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_l1_cluster_info</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">cl1_api</span><span class="o">.</span><span class="n">get_cluster_info</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_last_ref">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_last_ref">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_last_ref</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">address</span> <span class="o">=</span> <span class="s2">&quot;DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_pending">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_pending">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_pending</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">get_pending_transaction</span><span class="p">(</span>
+        <span class="nb">hash</span><span class="o">=</span><span class="s2">&quot;fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No pending transactions.&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1">#@pytest.mark.asyncio</span>
+<span class="c1">#async def test_post_transaction(network):</span>
+<span class="c1">#    from .secrets import mnemo, address</span>
+<span class="c1">#    account = pypergraph.dag_account.DagAccount()</span>
+<span class="c1">#    account.connect(network_id=&quot;testnet&quot;)</span>
+<span class="c1">#    if account.network.connected_network.network_id == &quot;testnet&quot;:</span>
+<span class="c1">#        account.login_with_seed_phrase(mnemo)</span>
+<span class="c1">#        tx, hash_ = await account.generate_signed_transaction(to_address=address, amount=100000000, fee=200000000)</span>
+<span class="c1">#        await account.network.post_transaction(tx.model_dump())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Michael Brummer Ringdal.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

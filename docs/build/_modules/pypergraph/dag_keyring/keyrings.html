@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypergraph.dag_keyring.keyrings &mdash; pypergraph 2025.0.0a3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=d273756d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pypergraph
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pypergraph</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pypergraph.html">pypergraph</a></li>
+      <li class="breadcrumb-item active">pypergraph.dag_keyring.keyrings</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pypergraph.dag_keyring.keyrings</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_core.constants</span> <span class="kn">import</span> <span class="n">NetworkId</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_keyring.registry</span> <span class="kn">import</span> <span class="n">KeyringRegistry</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_keyring.bip</span> <span class="kn">import</span> <span class="n">Bip32Helper</span><span class="p">,</span> <span class="n">Bip39Helper</span>
+
+
+<div class="viewcode-block" id="HdKeyring">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring">[docs]</a>
+<span class="k">class</span> <span class="nc">HdKeyring</span><span class="p">:</span>
+
+    <span class="n">accounts</span><span class="p">:</span> <span class="p">[]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">hd_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">mnemonic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">extended_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">root_key</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">network</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># Read-only wallet</span>
+<div class="viewcode-block" id="HdKeyring.create_from_extended_key">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.create_from_extended_key">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_from_extended_key</span><span class="p">(</span><span class="n">extended_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network</span><span class="p">:</span> <span class="n">NetworkId</span><span class="p">,</span> <span class="n">number_of_accounts</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="c1"># TODO: check _init_from...</span>
+        <span class="n">inst</span> <span class="o">=</span> <span class="n">HdKeyring</span><span class="p">()</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">extendedKey</span> <span class="o">=</span> <span class="n">extended_key</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">_init_from_extended_key</span><span class="p">(</span><span class="n">extended_key</span><span class="p">)</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span> <span class="p">{</span> <span class="s2">&quot;network&quot;</span><span class="p">:</span> <span class="n">network</span><span class="p">,</span> <span class="s2">&quot;accounts&quot;</span><span class="p">:</span> <span class="n">inst</span><span class="o">.</span><span class="n">create_accounts</span><span class="p">(</span><span class="n">number_of_accounts</span><span class="p">)</span> <span class="p">})</span>
+        <span class="k">return</span> <span class="n">inst</span></div>
+
+
+<div class="viewcode-block" id="HdKeyring.create">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.create">[docs]</a>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hd_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">number_of_accounts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a hierarchical deterministic keyring.</span>
+
+<span class="sd">        :param mnemonic: Mnemonic phrase.</span>
+<span class="sd">        :param hd_path: The derivation path for the coin.</span>
+<span class="sd">        :param network: The network associated with the coin.</span>
+<span class="sd">        :param number_of_accounts: How many accounts to create.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">network</span>
+        <span class="n">inst</span> <span class="o">=</span> <span class="n">HdKeyring</span><span class="p">()</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">mnemonic</span> <span class="o">=</span> <span class="n">mnemonic</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">hd_path</span> <span class="o">=</span> <span class="n">hd_path</span>
+        <span class="n">seed_bytes</span> <span class="o">=</span> <span class="n">Bip39Helper</span><span class="p">()</span><span class="o">.</span><span class="n">get_seed_bytes_from_mnemonic</span><span class="p">(</span><span class="n">mnemonic</span><span class="o">=</span><span class="n">inst</span><span class="o">.</span><span class="n">mnemonic</span><span class="p">)</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">root_key</span> <span class="o">=</span> <span class="n">Bip32Helper</span><span class="p">()</span><span class="o">.</span><span class="n">get_hd_root_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="o">=</span><span class="n">seed_bytes</span><span class="p">,</span> <span class="n">hd_path</span><span class="o">=</span><span class="n">inst</span><span class="o">.</span><span class="n">hd_path</span><span class="p">)</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span> <span class="p">{</span> <span class="s2">&quot;network&quot;</span><span class="p">:</span> <span class="n">network</span><span class="p">,</span> <span class="s2">&quot;accounts&quot;</span><span class="p">:</span> <span class="n">inst</span><span class="o">.</span><span class="n">create_accounts</span><span class="p">(</span><span class="n">number_of_accounts</span><span class="p">)</span> <span class="p">})</span>
+        <span class="k">return</span> <span class="n">inst</span></div>
+
+
+<div class="viewcode-block" id="HdKeyring.get_network">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.get_network">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span></div>
+
+
+<div class="viewcode-block" id="HdKeyring.get_hd_path">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.get_hd_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_hd_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hd_path</span></div>
+
+
+<div class="viewcode-block" id="HdKeyring.get_extended_public_key">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.get_extended_public_key">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_extended_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mnemonic</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_key</span><span class="o">.</span><span class="n">ExtendedKey</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># return self.root_key.publicExtendedKey().toString(&#39;hex&#39;)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extended_key</span></div>
+
+
+    <span class="c1"># Serialize all accounts</span>
+<div class="viewcode-block" id="HdKeyring.serialize">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.serialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span> <span class="s2">&quot;network&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="s2">&quot;accounts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">acc</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">acc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span><span class="p">]</span> <span class="p">}</span> <span class="c1"># this.accounts.map(a =&gt; a.serialize(false))</span></div>
+
+
+
+<div class="viewcode-block" id="HdKeyring.deserialize">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.deserialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deserialize then add account (bip44Index) to the keyring being constructed.</span>
+<span class="sd">        :param data:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;network&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accounts&quot;</span><span class="p">):</span>
+                <span class="n">account</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_account_at</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bip44Index&quot;</span><span class="p">))</span>
+                <span class="c1"># TODO: Add ecdsa account and token support</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">set_tokens</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tokens&quot;</span><span class="p">))</span></div>
+
+                <span class="c1">#self.accounts.append(account)</span>
+
+
+<div class="viewcode-block" id="HdKeyring.create_accounts">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.create_accounts">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_accounts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number_of_accounts</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When adding an account (after accounts have been removed), it will add back the ones removed first.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            number_of_accounts (int): The number of accounts to create.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[dict]: A list of dictionaries representing the accounts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">accounts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_accounts</span><span class="p">):</span>
+            <span class="n">accounts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;bip44Index&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">accounts</span></div>
+
+
+<div class="viewcode-block" id="HdKeyring.remove_last_added_account">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.remove_last_added_account">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_last_added_account</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="HdKeyring.add_account_at">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.add_account_at">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_account_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add account class object with a signing key to the keyring being constructed.</span>
+
+<span class="sd">        :param index: Account number (bipIndex).</span>
+<span class="sd">        :return: EcdsaAccount or DagAccount class object (dag_keyring.accounts) with signing key at self.wallet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accounts</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mnemonic</span><span class="p">:</span>
+            <span class="n">private_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_key</span><span class="o">.</span><span class="n">PrivateKey</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+            <span class="n">account</span> <span class="o">=</span> <span class="n">KeyringRegistry</span><span class="p">()</span><span class="o">.</span><span class="n">create_account</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">)</span><span class="o">.</span><span class="n">deserialize</span><span class="p">({</span> <span class="s2">&quot;privateKey&quot;</span><span class="p">:</span> <span class="n">private_key</span><span class="p">,</span> <span class="s2">&quot;bip44Index&quot;</span><span class="p">:</span> <span class="n">index</span> <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># raise NotImplementedError(&quot;HDKeyring :: Wallet from public key isn&#39;t supported.&quot;)</span>
+            <span class="n">public_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_key</span><span class="o">.</span><span class="n">PublicKey</span><span class="p">()</span>
+            <span class="n">account</span> <span class="o">=</span> <span class="n">KeyringRegistry</span><span class="p">()</span><span class="o">.</span><span class="n">create_account</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">)</span><span class="o">.</span><span class="n">deserialize</span><span class="p">({</span> <span class="s2">&quot;publicKey&quot;</span><span class="p">:</span> <span class="n">public_key</span><span class="p">,</span> <span class="s2">&quot;bip44Index&quot;</span><span class="p">:</span> <span class="n">index</span> <span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">account</span></div>
+
+
+<div class="viewcode-block" id="HdKeyring.get_accounts">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.get_accounts">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_accounts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span></div>
+
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; PRIVATE METHODS &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO: Library</span>
+    <span class="k">def</span> <span class="nf">_init_from_mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+    <span class="k">def</span> <span class="nf">_init_from_extended_key</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># TODO:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extended_key</span> <span class="o">=</span> <span class="n">extended_key</span>
+        <span class="c1"># self.root_key = hdkey.fromExtendedKey(extended_key)</span>
+
+<div class="viewcode-block" id="HdKeyring.export_account">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.export_account">[docs]</a>
+    <span class="k">def</span> <span class="nf">export_account</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">account</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="c1"># account is IKeyringAccount</span>
+        <span class="k">return</span> <span class="n">account</span><span class="o">.</span><span class="n">get_private_key</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="HdKeyring.get_account_by_address">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.get_account_by_address">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_account_by_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="c1"># account is IKeyringAccount</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">acc</span> <span class="k">for</span> <span class="n">acc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span> <span class="k">if</span> <span class="n">acc</span><span class="o">.</span><span class="n">get_address</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">address</span><span class="o">.</span><span class="n">lower</span><span class="p">()),</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HdKeyring.remove_account">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.HdKeyring.remove_account">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_account</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">account</span><span class="p">):</span> <span class="c1"># account is IKeyringAccount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span> <span class="o">=</span> <span class="p">[</span><span class="n">acc</span> <span class="k">for</span> <span class="n">acc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span> <span class="k">if</span> <span class="n">acc</span> <span class="o">!=</span> <span class="n">account</span><span class="p">]</span> <span class="c1"># orig. == account</span></div>
+</div>
+
+
+<span class="c1"># rings.simple_keyring</span>
+
+<div class="viewcode-block" id="SimpleKeyring">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.SimpleKeyring">[docs]</a>
+<span class="k">class</span> <span class="nc">SimpleKeyring</span><span class="p">:</span>
+
+    <span class="n">account</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1">#IKeyringAccount;</span>
+    <span class="n">network</span><span class="p">:</span> <span class="n">NetworkId</span><span class="o">.</span><span class="n">Constellation</span><span class="o">.</span><span class="n">value</span> <span class="c1">#KeyringNetwork</span>
+
+<div class="viewcode-block" id="SimpleKeyring.create_for_network">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.SimpleKeyring.create_for_network">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_for_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">private_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">inst</span> <span class="o">=</span> <span class="n">SimpleKeyring</span><span class="p">()</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">network</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="n">KeyringRegistry</span><span class="p">()</span><span class="o">.</span><span class="n">create_account</span><span class="p">(</span><span class="n">network</span><span class="p">)</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inst</span></div>
+
+
+
+<div class="viewcode-block" id="SimpleKeyring.get_state">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.SimpleKeyring.get_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+          <span class="s2">&quot;network&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span>
+          <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="SimpleKeyring.serialize">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.SimpleKeyring.serialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+          <span class="s2">&quot;network&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span>
+          <span class="s2">&quot;accounts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="kc">True</span><span class="p">)]</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="SimpleKeyring.deserialize">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.SimpleKeyring.deserialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deserialize and add an account class object to the keyring being constructed.</span>
+
+<span class="sd">        :param data:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;network&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="n">KeyringRegistry</span><span class="p">()</span><span class="o">.</span><span class="n">create_account</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;network&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accounts&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="SimpleKeyring.add_account_at">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.SimpleKeyring.add_account_at">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_account_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+        <span class="c1">#throw error</span>
+
+<div class="viewcode-block" id="SimpleKeyring.get_accounts">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.SimpleKeyring.get_accounts">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_accounts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SimpleKeyring.get_account_by_address">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.SimpleKeyring.get_account_by_address">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_account_by_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="k">if</span> <span class="n">address</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">get_address</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SimpleKeyring.remove_account">
+<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.keyrings.SimpleKeyring.remove_account">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_account</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">account</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+</div>
+
+     <span class="c1">#throw error</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Michael Brummer Ringdal.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
