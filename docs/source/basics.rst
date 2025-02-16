@@ -4,9 +4,6 @@ Basics
 Pypergraph Wallets
 ------------------
 
-.. note::
-    Account methods can be imported from :class:`pypergraph.dag_wallet.Account` and key related classes and methods are imported from :mod:`pypergraph.dag_keystore`.
-
 .. dropdown:: The Constellation Key Trio
     :animate: fade-in
 
@@ -32,34 +29,42 @@ Pypergraph Wallets
 
 ------
 
-* **CREATE NEW WALLET**
+* **CREATE NEW ACCOUNT/WALLET**
 
 .. code-block:: python
 
-    wallet = Account.new()
+    account = pypergraph.dag-account.DagAccount()
 
-.. dropdown:: How is a new wallet object created?
+.. dropdown:: Object variables
     :animate: fade-in
 
     .. code-block:: python
 
-        from pypergraph.dag_keystore import KeyStore
-
-        mnemonic_values = KeyStore.get_mnemonic()
-        private_key = KeyStore.get_private_key_from_seed(seed=mnemonic_values["seed"])
-        public_key = KeyStore.get_public_key_from_private_key(private_key)
-        address = KeyStore.get_dag_address_from_public_key(public_key=public_key)
-        valid = KeyStore.validate_dag_address(address=address)
-        if not valid:
-            raise ValueError("Wallet :: Not a valid DAG address.")
+        Placeholder
 
 -----
 
-* **IMPORT WALLET FROM MNEMONIC PHRASE**
+* **LOGIN OPTIONS**
+
+    After creating the account object you can login and start interacting with the Constellation APIs.
+
+1. Login with seed phrase:
 
 .. code-block:: python
 
-    wallet = Account.from_mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon")
+        account.login_with_seed_phrase("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon")
+
+2. Login with private key:
+
+.. code-block:: python
+
+        account.login_with_private_key("your_private_key_here")
+
+3. Login with public key (private key is needed to send transactions, etc.):
+
+.. code-block:: python
+
+        account.login_with_public_key("your_public_key_here")
 
 .. dropdown:: How is the private key, public key and DAG address derived from mnemonic phrase?
     :animate: fade-in
