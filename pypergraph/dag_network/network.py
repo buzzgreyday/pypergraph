@@ -132,9 +132,9 @@ class MetagraphTokenNetwork(AsyncIOEventEmitter):
         # TODO: Do not hardcode urls
         if not metagraph_id or not l0_host or not cl1_host:
             raise ValueError("MetagraphTokenNetwork :: Parameters 'metagraph_id', 'l0_host' and 'cl1_host' must be set.")
-        self.connected_network = NetworkInfo(network_id=network_id, metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host)
-        self.l1_lb_api = LoadBalancerApi(host=l1_load_balancer) if l1_load_balancer else LoadBalancerApi(host=self.connected_network.l1_lb_url)
-        self.l0_lb_api = LoadBalancerApi(host=l0_load_balancer) if l0_load_balancer else LoadBalancerApi(host=self.connected_network.l0_lb_url)
+        self.connected_network = NetworkInfo(network_id=network_id, metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, be_url=block_explorer)
+        #self.l1_lb_api = LoadBalancerApi(host=l1_load_balancer) if l1_load_balancer else LoadBalancerApi(host=self.connected_network.l1_lb_url)
+        #self.l0_lb_api = LoadBalancerApi(host=l0_load_balancer) if l0_load_balancer else LoadBalancerApi(host=self.connected_network.l0_lb_url)
         self.be_api = BlockExplorerApi(host=block_explorer) if block_explorer else BlockExplorerApi(host=self.connected_network.be_url)
         self.l0_api = ML0Api(host=l0_host)
         self.cl1_api = ML1Api(host=cl1_host)
