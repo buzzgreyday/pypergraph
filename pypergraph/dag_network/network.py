@@ -1,5 +1,6 @@
 from typing import Optional, Dict
 
+from cryptography.x509 import load_pem_x509_certificate
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core.models.account import LastReference
@@ -123,29 +124,42 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         return response
 
 
-class MetagraphTokenNetwork:
-    def __init__(self, network_info: dict ):
-        self.connected_network = {"network_id": None, "be_url": "https://be-mainnet.constellationnetwork.io", "l0_host": None, "cl1_host": None }
-        self.network_id = self.connected_network["network_id"]
-        self.l0_api = ML0Api(self.connected_network["l0_url"])
-        self.l1_api = ML1Api(self.connected_network["l1_url"])
-        self.be_api = BlockExplorerApi(self.connected_network["be_url"])
+class MetagraphTokenNetwork(AsyncIOEventEmitter):
+
+    def __init__(self, metagraph_id: str, l0_host: str, cl1_host: str, network_id: str = "mainnet", block_explorer: Optional[str] = None, l0_load_balancer: Optional[str] = None, l1_load_balancer: str = None):
+        super().__init__()
+        """Validate connected network"""
+        # TODO: Do not hardcode urls
+        if not metagraph_id or not l0_host or not cl1_host:
+            raise ValueError("MetagraphTokenNetwork :: Parameters 'metagraph_id', 'l0_host' and 'cl1_host' must be set.")
+        self.connected_network = NetworkInfo(network_id=network_id, metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host)
+        self.l1_lb_api = LoadBalancerApi(host=l1_load_balancer) if l1_load_balancer else LoadBalancerApi(host=self.connected_network.l1_lb_url)
+        self.l0_lb_api = LoadBalancerApi(host=l0_load_balancer) if l0_load_balancer else LoadBalancerApi(host=self.connected_network.l0_lb_url)
+        self.be_api = BlockExplorerApi(host=block_explorer) if block_explorer else BlockExplorerApi(host=self.connected_network.be_url)
+        self.l0_api = ML0Api(host=l0_host)
+        self.cl1_api = ML1Api(host=cl1_host)
+        # private networkChange$ = new Subject < NetworkInfo > ();
 
 
+    def get_network(self) -> Dict:
+        """
+        Returns the DagTokenNetwork NetworkInfo object as dictionary.
 
-    def get_network(self) -> dict:
-        return self.connected_network
+        :return: Serialized NetworkInfo object.
+        """
+        return self.connected_network.__dict__
+
 
     async def get_address_balance(self, address: str) -> Optional[float]:
         return await self.l0_api.get_address_balance(address)
 
     async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
-        return await self.l1_api.get_last_reference(address)
+        return await self.cl1_api.get_last_reference(address)
 
     async def get_pending_transaction(self, hash: Optional[str]) -> Optional[PendingTransaction]:
         pending_transaction = None
         try:
-            pending_transaction = await self.l1_api.get_pending_transaction(hash)
+            pending_transaction = await self.cl1_api.get_pending_transaction(hash)
         except Exception:
             # NOOP 404
             logger.debug("No pending transaction.")
@@ -157,7 +171,7 @@ class MetagraphTokenNetwork:
         response = None
         try:
             response = await self.be_api.get_currency_transactions_by_address(
-                self.connected_network["metagraph_id"], address, limit, search_after
+                self.connected_network.metagraph_id, address, limit, search_after
             )
         except Exception:
             # NOOP 404
@@ -167,17 +181,17 @@ class MetagraphTokenNetwork:
     async def get_transaction(self, hash: Optional[str]):
         response = None
         try:
-            response = await self.be_api.get_currency_transaction(self.connected_network["metagraph_id"], hash)
+            response = await self.be_api.get_currency_transaction(self.connected_network.metagraph_id, hash)
         except Exception:
             # NOOP 404
             logger.debug("No transaction found.")
         return response.get("data", None)
 
     async def post_transaction(self, tx) -> str:
-        response = await self.l1_api.post_transaction(tx)
+        response = await self.cl1_api.post_transaction(tx)
         # Support data/meta format and object return format
         return response["data"]["hash"] if "data" in response else response["hash"]
 
     async def get_latest_snapshot(self):
-        response = await self.be_api.get_latest_currency_snapshot(self.connected_network["metagraph_id"])
+        response = await self.be_api.get_latest_currency_snapshot(self.connected_network.metagraph_id)
         return response

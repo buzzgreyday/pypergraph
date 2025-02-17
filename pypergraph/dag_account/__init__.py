@@ -1,2 +1,2 @@
-from .account import DagAccount
-__all__ = ["DagAccount"]
+from .account import DagAccount, MetagraphTokenClient
+__all__ = ["DagAccount", "MetagraphTokenClient"]

@@ -7,7 +7,7 @@ from pypergraph.dag_core.constants import DAG_MAX, STATE_STR_MAX_LEN, ALIAS_MAX_
 
 
 class NetworkInfo:
-    def __init__(self, network_id="mainnet", be_url=None, l0_host=None, cl1_host=None, l0_lb_url=None, l1_lb_url=None):
+    def __init__(self, network_id="mainnet", be_url=None, l0_host=None, cl1_host=None, l0_lb_url=None, l1_lb_url=None, metagraph_id=None):
         self.network_id = network_id.lower()
 
         if self.network_id in ("mainnet", "integrationnet", "testnet"):
@@ -21,11 +21,12 @@ class NetworkInfo:
 
         self.l0_host = l0_host or self.l0_lb_url
         self.cl1_host = cl1_host or self.l1_lb_url
+        self.metagraph_id = metagraph_id
 
     def __repr__(self):
         return (f"NetworkInfo(network_id={self.network_id}, be_url={self.be_url}, "
                 f"l0_host={self.l0_host}, cl1_host={self.cl1_host}, "
-                f"l0_lb_url={self.l0_lb_url}, l1_lb_url={self.l1_lb_url})")
+                f"l0_lb_url={self.l0_lb_url}, l1_lb_url={self.l1_lb_url}, metagraph_id={self.metagraph_id})")
 
 
 class PeerInfo(BaseModel):
