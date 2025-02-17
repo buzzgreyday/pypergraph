@@ -276,5 +276,5 @@ async def test_post_metagraph_transaction(network):
     account = pypergraph.dag_account.DagAccount()
     account.login_with_seed_phrase(mnemo)
     account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(account=account, metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43", l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100", cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200")
-
-    await account_metagraph_client.network.post_transaction()
+    tx, hash_ = await account.generate_signed_transaction(to_address=address, amount=100000000)
+    await account_metagraph_client.network.post_transaction(tx=tx)
