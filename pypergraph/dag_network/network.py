@@ -1,11 +1,10 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
-from cryptography.x509 import load_pem_x509_certificate
 from pyee.asyncio import AsyncIOEventEmitter
 
-from pypergraph.dag_core.models.account import LastReference
+from pypergraph.dag_core.models.account import LastReference, Balance
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
-from pypergraph.dag_core.models.transaction import PendingTransaction
+from pypergraph.dag_core.models.transaction import PendingTransaction, BlockExplorerTransaction, Transaction
 from pypergraph.dag_core.models.snapshot import Snapshot
 from pypergraph.dag_core.models.network import NetworkInfo
 from pypergraph.dag_core.exceptions import NetworkError
@@ -72,16 +71,15 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         """
         return self.connected_network.__dict__
 
-    async def get_address_balance(self, address: str):
+    async def get_address_balance(self, address: str) -> Balance:
         return await self.l0_api.get_address_balance(address)
 
-    async def get_address_last_accepted_transaction_ref(self, address: str):
+    async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
         return await self.cl1_api.get_last_reference(address)
 
-    async def get_pending_transaction(self, hash: str) -> Optional[dict]:
-        pending_transaction = None
+    async def get_pending_transaction(self, hash: str) -> PendingTransaction:
         try:
-            pending_transaction = await self.cl1_api.get_pending_transaction(hash)
+            return await self.cl1_api.get_pending_transaction(hash)
         except NetworkError as e:
             # NOOP for 404 or other exceptions
             if e.status == 404:
@@ -89,31 +87,27 @@ class DagTokenNetwork(AsyncIOEventEmitter):
             else:
                 logger.error(f"{e}")
                 raise e
-        return pending_transaction
 
 
     async def get_transactions_by_address(self, address: str, limit: Optional[int] = None,
-                                          search_after: Optional[str] = None):
-        response = None
+                                          search_after: Optional[str] = None) -> List[BlockExplorerTransaction]:
         try:
-            response = await self.be_api.get_transactions_by_address(address, limit, search_after)
+            return await self.be_api.get_transactions_by_address(address, limit, search_after)
         except Exception:
             # NOOP for 404 or other exceptions
             logger.warning("No transaction found.")
-        return response.get('data', None)
 
 
-    async def get_transaction(self, hash: Optional[str]) -> Optional[dict]:
-        response = None
+
+    async def get_transaction(self, hash: str) -> BlockExplorerTransaction:
         try:
-            response = await self.be_api.get_transaction(hash)
+            return await self.be_api.get_transaction(hash)
         except Exception:
             # NOOP for 404 or other exceptions
             logger.warning("No transaction found.")
-        return response.get('data', None)
 
 
-    async def post_transaction(self, tx: dict) -> str:
+    async def post_transaction(self, tx: Transaction) -> str:
         response = await self.cl1_api.post_transaction(tx)
         # Support both data/meta format and object return format
         return response.get('data', {}).get('hash') or response.get('hash')
@@ -147,7 +141,7 @@ class MetagraphTokenNetwork(AsyncIOEventEmitter):
         return self.connected_network.__dict__
 
 
-    async def get_address_balance(self, address: str) -> Optional[float]:
+    async def get_address_balance(self, address: str) -> Balance:
         return await self.l0_api.get_address_balance(address)
 
     async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
@@ -164,16 +158,14 @@ class MetagraphTokenNetwork(AsyncIOEventEmitter):
 
     async def get_transactions_by_address(
         self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None
-    ):
-        response = None
+    ) -> List[BlockExplorerTransaction]:
         try:
-            response = await self.be_api.get_currency_transactions_by_address(
+            return await self.be_api.get_currency_transactions_by_address(
                 self.connected_network.metagraph_id, address, limit, search_after
             )
         except Exception:
             # NOOP 404
             logger.debug("No transaction found.")
-        return response.get("data", None)
 
     async def get_transaction(self, hash: Optional[str]):
         response = None

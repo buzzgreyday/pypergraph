@@ -4,7 +4,7 @@ from typing import Optional, Any, Dict, List, Union
 from pypergraph.dag_core.models.reward import Reward
 from pypergraph.dag_core.rest_api_client import RestAPIClient
 from pypergraph.dag_core.models.account import Balance, LastReference
-from pypergraph.dag_core.models.transaction import  PendingTransaction, BlockExplorerTransaction
+from pypergraph.dag_core.models.transaction import PendingTransaction, BlockExplorerTransaction, Transaction
 from pypergraph.dag_core.models.network import TotalSupply, PeerInfo
 from pypergraph.dag_core.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot
 
@@ -297,7 +297,7 @@ class L0Api:
         result = await self.service.get("/dag/total-supply")
         return TotalSupply(**result)
 
-    async def get_address_balance(self, address: str):
+    async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/dag/{address}/balance")
         return Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
 
@@ -359,8 +359,8 @@ class L1Api:
         result = await self.service.get(f"/transactions/{hash}")
         return PendingTransaction(**result)
 
-    async def post_transaction(self, tx):
-        return await self.service.post("/transactions", payload=tx)
+    async def post_transaction(self, tx: Transaction):
+        return await self.service.post("/transactions", payload=tx.model_dump())
 
 class ML0Api(L0Api):
     def __init__(self, host):
@@ -380,11 +380,13 @@ class ML0Api(L0Api):
         result = await self.service.get(f"/currency/{ordinal}/total-supply")
         return TotalSupply(**result)
 
-    async def get_address_balance(self, address: str):
-        return await self.service.get(f"/currency/{address}/balance")
+    async def get_address_balance(self, address: str) -> Balance:
+        result = await self.service.get(f"/currency/{address}/balance")
+        return Balance(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
-    async def get_address_balance_at_ordinal(self, ordinal: int, address: str):
-        return await self.service.get(f"/currency/{ordinal}/{address}/balance")
+    async def get_address_balance_at_ordinal(self, ordinal: int, address: str) -> Balance:
+        result = await self.service.get(f"/currency/{ordinal}/{address}/balance")
+        return Balance(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
 
 class ML1Api(L1Api):

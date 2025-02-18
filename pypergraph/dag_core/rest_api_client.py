@@ -7,6 +7,7 @@ from typing import Callable, Optional, Any, Dict, Union
 from httpx import Response
 
 from pypergraph.dag_core.exceptions import NetworkError
+from pypergraph.dag_core.models.transaction import Transaction
 
 
 class DI:
@@ -43,7 +44,7 @@ class RestConfig:
         self.service_base_url = None
         self.service_auth_token: str = ""
         self.service_protocol_client = None
-        self.error_hook_callback: Union[Callable[[Exception], None], None] = None
+        self.error_hook_callback: Optional[Callable[[Exception], None]] = None
 
     def set_base_url(self, base_url: str) -> None:
         self.service_base_url = base_url
@@ -154,7 +155,7 @@ class RestAPIClient:
             url=url,
             headers=headers,
             params=params,
-            json=payload,
+            json=payload
         )
         self.handle_api_response(response, method, endpoint)
         return response.json()
@@ -162,8 +163,7 @@ class RestAPIClient:
     async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> json:
         return await self.request("GET", endpoint, headers=headers, params=params)
 
-    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> json:
-        # TODO: serialize json
+    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]]= None) -> json:
         return await self.request("POST", endpoint, headers=headers, payload=payload)
 
     async def put(self, endpoint: str, headers: Optional[Dict[str, str]] = None, payload: Optional[Dict[str, Any]] = None) -> json:
