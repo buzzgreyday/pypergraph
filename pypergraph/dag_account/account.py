@@ -273,11 +273,11 @@ class DagAccount:
 
 
 class MetagraphTokenClient:
-    def __init__(self, account: DagAccount, metagraph_id: Optional[str], block_explorer_url: Optional[str] = None, l0_host: Optional[str] = None, cl1_host: Optional[str] = None, l0_lb_url: Optional[str] = None, l1_lb_url: Optional[str] = None, token_decimals: int = 8):
+    def __init__(self, account: DagAccount, metagraph_id: Optional[str], block_explorer_url: Optional[str] = None, l0_host: Optional[str] = None, cl1_host: Optional[str] = None, token_decimals: int = 8):
         self.account = account
         if not l0_host or not cl1_host or not metagraph_id:
             raise ValueError(f"MetagraphTokenClient :: Parameters 'l0_host', 'l1_host' and 'metagraph_id' must be set.")
-        self.network = MetagraphTokenNetwork(metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, network_id=account.network_id, block_explorer=block_explorer_url or account.network.be_api.service.base_url, l0_load_balancer=l0_lb_url, l1_load_balancer=l1_lb_url)
+        self.network = MetagraphTokenNetwork(metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, network_id=account.network_id, block_explorer=block_explorer_url or account.network.be_api.service.base_url)
         self.token_decimals = token_decimals
 
 

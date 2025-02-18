@@ -270,16 +270,16 @@ async def test_get_pending(network):
 #        tx, hash_ = await account.generate_signed_transaction(to_address=address, amount=100000000, fee=200000000)
 #        await account.network.post_transaction(tx.model_dump())
 
-# @pytest.mark.asyncio
-# async def test_post_metagraph_transaction(network):
-#     from .secrets import mnemo, to_address, from_address
-#     from pypergraph.dag_keystore import KeyStore
-#     from pypergraph.dag_core.models.transaction import Proof, Transaction
-#     account = pypergraph.dag_account.DagAccount()
-#     account.login_with_seed_phrase(mnemo)
-#     account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(account=account, metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43", l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100", cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200")
+@pytest.mark.asyncio
+async def test_post_metagraph_transaction(network):
+    from .secrets import mnemo, to_address, from_address
+    from pypergraph.dag_keystore import KeyStore
+    from pypergraph.dag_core.models.transaction import Proof, Transaction
+    account = pypergraph.dag_account.DagAccount()
+    account.login_with_seed_phrase(mnemo)
+    account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(account=account, metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43", l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100", cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200")
 #     # Generate signed tx
-#     last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(address=from_address)
+    last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(address=from_address)
 #     tx, hash_ = KeyStore.prepare_tx(amount=100000000, to_address=to_address, from_address=from_address, last_ref=last_ref, fee=0)
 #     signature = KeyStore.sign(account_metagraph_client.account.private_key, hash_)
 #     valid = KeyStore.verify(account_metagraph_client.account.public_key, hash_, signature)
@@ -287,4 +287,5 @@ async def test_get_pending(network):
 #         raise ValueError("Wallet :: Invalid signature.")
 #     proof = Proof(id=account_metagraph_client.account.public_key[2:], signature=signature)
 #     tx = Transaction(value=tx, proofs=[proof])
-#     await account_metagraph_client.network.post_transaction(tx=tx.model_dump())
+    tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=0, last_ref=last_ref)
+    await account_metagraph_client.network.post_transaction(tx=tx.model_dump())
