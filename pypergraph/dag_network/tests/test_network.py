@@ -268,6 +268,7 @@ async def test_post_transaction(network):
    if account.network.connected_network.network_id == "testnet":
        account.login_with_seed_phrase(mnemo)
        tx, hash_ = await account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=200000000)
+
        await account.network.post_transaction(tx)
 
 # @pytest.mark.asyncio
