@@ -10,8 +10,8 @@ from pypergraph.dag_core.models.account import LastReference
 
 
 class BaseTransaction(BaseModel):
-    source: str  # Validated in validate_dag_address
-    destination: str  # Validated in validate_dag_address
+    source: str
+    destination: str
     amount: int = Field(ge=0, le=DAG_MAX)
     fee: int = Field(ge=0, lt=DAG_MAX)
 
