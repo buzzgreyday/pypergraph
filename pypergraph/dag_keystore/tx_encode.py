@@ -8,12 +8,12 @@ class Kryo:
         :param set_references: Whether to include references in the prefix.
         :return: The serialized message as a hexadecimal string.
         """
-        prefix = "03" + ("01" if set_references else "") + self.utf8_length(len(msg) + 1).hex()
+        prefix = "03" + ("01" if set_references else "") + self._utf8_length(len(msg) + 1).hex()
         coded = msg.encode("utf-8").hex()
         return prefix + coded
 
     @staticmethod
-    def utf8_length(value: int) -> bytes:
+    def _utf8_length(value: int) -> bytes:
         """
         Encodes the length of a UTF8 string as a variable-length encoded integer.
 
