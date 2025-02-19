@@ -12,6 +12,8 @@ from pypergraph.dag_core.models.account import LastReference
 class BaseTransaction(BaseModel):
     source: str  # Validated in validate_dag_address
     destination: str  # Validated in validate_dag_address
+    amount: int = Field(ge=0, le=DAG_MAX)
+    fee: int = Field(ge=0, lt=DAG_MAX)
 
     @model_validator(mode='before')
     def validate_dag_address(cls, values):
@@ -40,10 +42,7 @@ class PostTransactionResponse(BaseModel):
         return f"PostTransactionResponse(hash={self.hash!r})"
 
 class PendingTransaction(BaseTransaction):
-    amount: int = Field(ge=0, le=DAG_MAX)
-    fee: int = Field(ge=0, le=DAG_MAX)
-    parent_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="parentHash")
-    parent_ordinal: int = Field(..., alias="parentOrdinal", ge=0)
+    parent: LastReference
     salt: int = Field(ge=0)
     transaction_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="hash")
     status: conint(ge=100, le=599)
@@ -51,14 +50,13 @@ class PendingTransaction(BaseTransaction):
     @model_validator(mode="before")
     def flatten_data(cls, values: dict) -> dict:
         transaction = values.get("transaction", {})
-        parent = transaction.get("parent", {})
+        parent = values.get("parent", {}),
         return {
             "source": transaction.get("source"),
             "destination": transaction.get("destination"),
             "amount": transaction.get("amount"),
             "fee": transaction.get("fee"),
-            "parent_hash": parent.get("hash"),
-            "parent_ordinal": parent.get("ordinal"),
+            "parent": parent,
             "salt": transaction.get("salt"),
             "hash": values.get("hash"),
             "status": values.get("status"),
@@ -72,8 +70,6 @@ class PendingTransaction(BaseTransaction):
 
 
 class Transaction(BaseTransaction):
-    amount: int = Field(ge=0, le=DAG_MAX)
-    fee: int = Field(ge=0, le=DAG_MAX)
     parent: LastReference
     salt: int = Field(default=None, ge=0)
 
@@ -143,8 +139,6 @@ class SignedTransaction(BaseModel):
 
 class BlockExplorerTransaction(BaseTransaction):
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
-    amount: int = Field(ge=0, le=DAG_MAX)
-    fee: int = Field(ge=0, lt=DAG_MAX)
     parent: LastReference
     salt: Optional[int] = Field(default=None, ge=0)
     block_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="blockHash")
