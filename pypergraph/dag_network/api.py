@@ -4,7 +4,7 @@ from typing import Optional, Any, Dict, List, Union
 from pypergraph.dag_core.models.reward import Reward
 from pypergraph.dag_core.rest_api_client import RestAPIClient
 from pypergraph.dag_core.models.account import Balance, LastReference
-from pypergraph.dag_core.models.transaction import PendingTransaction, BlockExplorerTransaction, Transaction
+from pypergraph.dag_core.models.transaction import PendingTransaction, BlockExplorerTransaction, SignedTransaction
 from pypergraph.dag_core.models.network import TotalSupply, PeerInfo
 from pypergraph.dag_core.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot
 
@@ -359,7 +359,7 @@ class L1Api:
         result = await self.service.get(f"/transactions/{hash}")
         return PendingTransaction(**result)
 
-    async def post_transaction(self, tx: Transaction):
+    async def post_transaction(self, tx: SignedTransaction):
         return await self.service.post("/transactions", payload=tx.model_dump())
 
 class ML0Api(L0Api):

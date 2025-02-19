@@ -28,7 +28,7 @@ import hashlib
 import base58
 
 from ..dag_core.models.account import LastReference
-from ..dag_core.models.transaction import Transaction, TransactionValue
+from ..dag_core.models.transaction import Transaction
 
 
 class KeyStore:
@@ -119,7 +119,7 @@ class KeyStore:
     #         raise ValueError("KeyStore :: No private key found in the .p12 file.")
 
     @staticmethod
-    def prepare_tx (amount: int, to_address: str, from_address: str, last_ref: LastReference, fee: int = 0) -> Tuple[TransactionValue, str]:
+    def prepare_tx (amount: int, to_address: str, from_address: str, last_ref: LastReference, fee: int = 0) -> Tuple[Transaction, str]:
         """
         Prepare a new transaction.
 
@@ -142,7 +142,7 @@ class KeyStore:
         # Create transaction
         #tx = TxEncode.get_tx_v2(amount, to_address, from_address, last_ref, fee)
         MIN_SALT = int(Decimal("1e8"))
-        tx = TransactionValue(source=from_address, destination=to_address, amount=amount, fee=fee, parent=last_ref, salt=MIN_SALT + int(random.getrandbits(48)))
+        tx = Transaction(source=from_address, destination=to_address, amount=amount, fee=fee, parent=last_ref, salt=MIN_SALT + int(random.getrandbits(48)))
 
 
         # Get encoded transaction
@@ -299,7 +299,7 @@ class KeyStore:
         """
         Get private key from mnemonic seed (not phrase)
 
-        :param seed:
+        :param phrase:
         :return: Private key as hexadecimal string
         """
         bip32 = Bip32()

@@ -7,7 +7,6 @@ from typing import Callable, Optional, Any, Dict, Union
 from httpx import Response
 
 from pypergraph.dag_core.exceptions import NetworkError
-from pypergraph.dag_core.models.transaction import Transaction
 
 
 class DI:
@@ -150,13 +149,14 @@ class RestAPIClient:
         # TODO: All headers should be string
         if headers:
             headers = {k: str(v) for k, v in headers.items()}
-        response = await self.client.request(
-            method=method.upper(),
-            url=url,
-            headers=headers,
-            params=params,
-            json=payload
-        )
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.request(
+                method=method.upper(),
+                url=url,
+                headers=headers,
+                params=params,
+                json=payload
+            )
         self.handle_api_response(response, method, endpoint)
         return response.json()
 

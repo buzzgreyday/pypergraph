@@ -10,7 +10,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import NetworkId
 from pypergraph.dag_core.constants import PKCS_PREFIX
-from pypergraph.dag_core.models.transaction import Proof, Transaction
+from pypergraph.dag_core.models.transaction import SignatureProof, SignedTransaction
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
 
@@ -94,15 +94,15 @@ class DagAccount:
             return address_obj.balance
         return 0
 
-    async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None) -> Tuple[Transaction, str]:
+    async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None) -> Tuple[SignedTransaction, str]:
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
         tx, hash_ = KeyStore.prepare_tx(amount, to_address, self.key_trio["address"], last_ref, fee)
         signature = KeyStore.sign(self.key_trio["private_key"], hash_)
         valid = KeyStore.verify(self.public_key, hash_, signature)
         if not valid:
             raise ValueError("Wallet :: Invalid signature.")
-        proof = Proof(id=self.public_key[2:], signature=signature)
-        tx = Transaction(value=tx, proofs=[proof])
+        proof = SignatureProof(id=self.public_key[2:], signature=signature)
+        tx = SignedTransaction(value=tx, proofs=[proof])
         return tx, hash_
 
 
@@ -205,7 +205,7 @@ class DagAccount:
 
         return txns
 
-    async def send_batch_transactions(self, transactions: List[dict]):
+    async def send_batch_transactions(self, transactions: List[SignedTransaction]):
 
         hashes = []
         for txn in transactions:
@@ -325,7 +325,7 @@ class MetagraphTokenClient:
                     normalized_amount -= 1
                 fee = self.token_decimals
 
-        tx = await self.account.generate_signed_transaction(to_address, amount, fee, last_ref)
+        tx, hash_ = await self.account.generate_signed_transaction(to_address, amount, fee, last_ref)
 
         if "edge" in tx:
             raise ValueError("Unable to post v1 transaction")
@@ -363,7 +363,7 @@ class MetagraphTokenClient:
 
         txns = []
         for transfer in transfers:
-            transaction, hash_ = await self.account.generate_signed_transaction_with_hash(
+            transaction, hash_ = await self.account.generate_signed_transaction(
                 transfer["address"],
                 transfer["amount"],
                 transfer.get("fee", 0),
@@ -374,7 +374,7 @@ class MetagraphTokenClient:
 
         return txns
 
-    async def send_batch_transactions(self, transactions: List[Dict[str, Any]]):
+    async def send_batch_transactions(self, transactions: List[SignedTransaction]):
         hashes = []
         for txn in transactions:
             tx_hash = await self.network.post_transaction(txn)

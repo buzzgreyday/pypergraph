@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional
 
 import base58
 from pydantic import BaseModel, Field, model_validator, constr, conint, computed_field
@@ -68,7 +68,7 @@ class PendingTransaction(BaseModel):
         return values
 
 
-class TransactionValue(BaseModel):
+class Transaction(BaseModel):
     source: str # Validated below
     destination: str # Validated below
     amount: int = Field(ge=0, le=DAG_MAX)
@@ -130,36 +130,36 @@ class TransactionValue(BaseModel):
 
 
 
-class Proof(BaseModel):
+class SignatureProof(BaseModel):
     id: constr(pattern=r"^[a-fA-F0-9]{128}$")
     signature: constr(pattern=r"^[a-fA-F0-9]") = Field(min_length=138, max_length=144)
 
     @classmethod
-    def process_snapshot_proofs(cls, data: list) -> List["Proof"]:
+    def process_snapshot_proofs(cls, data: list) -> List["SignatureProof"]:
         return [cls(**item) for item in data]
 
     def __repr__(self):
         return f"Proof(id={self.id}, signature={self.signature})"
 
 
-class Transaction(BaseModel):
-    value: TransactionValue
-    proofs: List[Proof] = Field(default_factory=list)
+class SignedTransaction(BaseModel):
+    value: Transaction
+    proofs: List[SignatureProof] = Field(default_factory=list)
 
     def __repr__(self):
         return f"Transaction(value={self.value}, proofs={self.proofs})"
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Transaction":
+    def from_dict(cls, data: dict) -> "SignedTransaction":
         return cls(
-            value=TransactionValue(**data["value"]),
-            proofs=Proof.process_snapshot_proofs(data.get("proofs", []))
+            value=Transaction(**data["value"]),
+            proofs=SignatureProof.process_snapshot_proofs(data.get("proofs", []))
         )
 
-    def add_value(self, value: TransactionValue) -> None:
+    def add_value(self, value: Transaction) -> None:
         self.value = value
 
-    def add_proof(self, proof: Proof) -> None:
+    def add_proof(self, proof: SignatureProof) -> None:
         self.proofs.append(proof)
 
 
@@ -178,7 +178,7 @@ class BlockExplorerTransaction(BaseModel):
     snapshot_ordinal: int = Field(alias="snapshotOrdinal", ge=0)
     transaction_original: Transaction = Field(alias="transactionOriginal")
     timestamp: datetime
-    proofs: List[Proof] = Field(default_factory=list)
+    proofs: List[SignatureProof] = Field(default_factory=list)
     meta: Optional[Dict] = None # TODO: Validate
 
     def __repr__(self):

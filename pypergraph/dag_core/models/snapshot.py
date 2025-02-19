@@ -5,7 +5,7 @@ import base58
 from pydantic import BaseModel, field_validator, Field, model_validator, constr
 
 from pypergraph.dag_core.constants import DAG_MAX, SNAPSHOT_MAX_KB, BLOCK_MAX_LEN,EPOCH_MAX
-from pypergraph.dag_core.models.transaction import Proof
+from pypergraph.dag_core.models.transaction import SignatureProof
 
 class LastCurrencySnapshotProof(BaseModel):
     leaf_count: int = Field(..., alias="leafCount", ge=0)
@@ -34,13 +34,13 @@ class GlobalSnapshotValue(BaseModel):
 
 class GlobalSnapshot(BaseModel):
     value: GlobalSnapshotValue
-    proofs: List[Proof]
+    proofs: List[SignatureProof]
 
     @classmethod
     def from_response(cls, response: dict) -> "GlobalSnapshot":
         return cls(
             value=GlobalSnapshotValue(**response["value"]),
-            proofs=Proof.process_snapshot_proofs(response["proofs"]),
+            proofs=SignatureProof.process_snapshot_proofs(response["proofs"]),
         )
 
 """BE MODELS: DTO"""

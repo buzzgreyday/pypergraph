@@ -4,7 +4,8 @@ from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core.models.account import LastReference, Balance
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
-from pypergraph.dag_core.models.transaction import PendingTransaction, BlockExplorerTransaction, Transaction
+from pypergraph.dag_core.models.transaction import PendingTransaction, BlockExplorerTransaction, \
+    SignedTransaction
 from pypergraph.dag_core.models.snapshot import Snapshot
 from pypergraph.dag_core.models.network import NetworkInfo
 from pypergraph.dag_core.exceptions import NetworkError
@@ -107,7 +108,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
             logger.warning("No transaction found.")
 
 
-    async def post_transaction(self, tx: Transaction) -> str:
+    async def post_transaction(self, tx: SignedTransaction) -> str:
         response = await self.cl1_api.post_transaction(tx)
         # Support both data/meta format and object return format
         return response.get('data', {}).get('hash') or response.get('hash')
@@ -176,7 +177,7 @@ class MetagraphTokenNetwork(AsyncIOEventEmitter):
             logger.debug("No transaction found.")
         return response.get("data", None)
 
-    async def post_transaction(self, tx) -> str:
+    async def post_transaction(self, tx: SignedTransaction) -> str:
         response = await self.cl1_api.post_transaction(tx)
         # Support data/meta format and object return format
         return response["data"]["hash"] if "data" in response else response["hash"]
