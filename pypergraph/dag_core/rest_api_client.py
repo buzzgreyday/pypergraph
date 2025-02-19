@@ -2,7 +2,7 @@ import httpx
 import json
 
 
-from typing import Callable, Optional, Any, Dict, Union
+from typing import Callable, Optional, Any, Dict
 
 from httpx import Response
 
@@ -149,7 +149,7 @@ class RestAPIClient:
         # TODO: All headers should be string
         if headers:
             headers = {k: str(v) for k, v in headers.items()}
-        async with httpx.AsyncClient(timeout=10) as client:
+        async with self.client as client:
             response = await client.request(
                 method=method.upper(),
                 url=url,
