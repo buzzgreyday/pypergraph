@@ -93,7 +93,7 @@ class DagAccount:
 
     async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None) -> Tuple[SignedTransaction, str]:
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
-        tx, hash_ = KeyStore.prepare_tx(amount, to_address, self.key_trio.address, last_ref, fee)
+        tx, hash_ = KeyStore.prepare_tx(amount=amount, to_address=to_address, from_address=self.key_trio.address, last_ref=last_ref, fee=fee)
         signature = KeyStore.sign(self.key_trio.private_key, hash_)
         valid = KeyStore.verify(self.public_key, hash_, signature)
         if not valid:

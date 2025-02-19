@@ -29,6 +29,10 @@ class KeyStore:
     DATA_SIGN_PREFIX = "\u0019Constellation Signed Data:\n"
 
     @staticmethod
+    def _double_hash(msg: str):
+        return hashlib.sha512(hashlib.sha256(bytes.fromhex(msg)).hexdigest().encode("utf-8")).hexdigest()
+
+    @staticmethod
     def prepare_tx (amount: int, to_address: str, from_address: str, last_ref: LastReference, fee: int = 0) -> Tuple[Transaction, str]:
         """
         Prepare a new transaction.
@@ -43,7 +47,7 @@ class KeyStore:
         if to_address == from_address:
           raise ValueError('KeyStore :: An address cannot send a transaction to itself')
 
-        if amount < 1e-8:
+        if int(amount) < 1e-8:
           raise ValueError('KeyStore :: Send amount must be greater than 1e-8')
 
         if fee < 0:
@@ -57,7 +61,7 @@ class KeyStore:
 
         kryo = Kryo()
         serialized_tx = kryo.serialize(msg=encoded_tx, set_references=False)
-        hash_value = hashlib.sha512(hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest().encode("utf-8")).hexdigest()
+        hash_value = KeyStore._double_hash(serialized_tx)
 
         return tx, hash_value
 

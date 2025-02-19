@@ -1,7 +1,6 @@
 import httpx
 import json
 
-
 from typing import Callable, Optional, Any, Dict
 
 from httpx import Response
