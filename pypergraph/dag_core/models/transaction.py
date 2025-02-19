@@ -149,13 +149,6 @@ class SignedTransaction(BaseModel):
     def __repr__(self):
         return f"Transaction(value={self.value}, proofs={self.proofs})"
 
-    @classmethod
-    def from_dict(cls, data: dict) -> "SignedTransaction":
-        return cls(
-            value=Transaction(**data["value"]),
-            proofs=SignatureProof.process_snapshot_proofs(data.get("proofs", []))
-        )
-
     def add_value(self, value: Transaction) -> None:
         self.value = value
 
