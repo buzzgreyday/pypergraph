@@ -10,6 +10,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import NetworkId
 from pypergraph.dag_core.constants import PKCS_PREFIX
+from pypergraph.dag_core.models.account import KeyTrio
 from pypergraph.dag_core.models.transaction import SignatureProof, SignedTransaction
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
@@ -22,7 +23,7 @@ class DagAccount:
 
 
     network: Optional[DagTokenNetwork] = DagTokenNetwork()
-    key_trio: Optional[Dict[str, Optional[str]]] = None
+    key_trio: Optional[KeyTrio] = None
     emitter = AsyncIOEventEmitter()
     decimals = 8
     network_id = NetworkId.Constellation.value
@@ -39,17 +40,17 @@ class DagAccount:
 
     @property
     def address(self):
-        if not self.key_trio or not self.key_trio.get("address"):
+        if not self.key_trio or not self.key_trio.address:
             raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
-        return self.key_trio["address"]
+        return self.key_trio.address
 
     @property
     def public_key(self):
-        return self.key_trio.get("public_key")
+        return self.key_trio.public_key
 
     @property
     def private_key(self):
-        return self.key_trio.get("private_key")
+        return self.key_trio.private_key
 
     def login_with_seed_phrase(self, words: str):
         private_key = KeyStore.get_private_key_from_mnemonic(words)
@@ -78,11 +79,7 @@ class DagAccount:
         self.emitter.on("session_change", on_network_change)
 
     def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
-        self.key_trio = {
-            "private_key": private_key,
-            "public_key": public_key,
-            "address": address
-        }
+        self.key_trio = KeyTrio(private_key=private_key, public_key=public_key, address=address)
         self.emitter.emit("session_change", True)
 
     async def get_balance(self):
@@ -96,8 +93,8 @@ class DagAccount:
 
     async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None) -> Tuple[SignedTransaction, str]:
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
-        tx, hash_ = KeyStore.prepare_tx(amount, to_address, self.key_trio["address"], last_ref, fee)
-        signature = KeyStore.sign(self.key_trio["private_key"], hash_)
+        tx, hash_ = KeyStore.prepare_tx(amount, to_address, self.key_trio.address, last_ref, fee)
+        signature = KeyStore.sign(self.key_trio.private_key, hash_)
         valid = KeyStore.verify(self.public_key, hash_, signature)
         if not valid:
             raise ValueError("Wallet :: Invalid signature.")
@@ -120,6 +117,7 @@ class DagAccount:
         normalized_amount = int(amount * DAG_DECIMALS)
         last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
 
+        # TODO: There's a new endpoint for estimating fees
         if fee == Decimal(0) and auto_estimate_fee:
             pending_tx = await self.network.get_pending_transaction(last_ref.get("prev_hash", last_ref.get("hash")))
 
@@ -136,7 +134,6 @@ class DagAccount:
         tx_hash = await self.network.post_transaction(signed_tx)
 
         if tx_hash:
-            # TODO: Tax software standards
             return {
                 #"timestamp": self.network.get_current_time(),
                 "hash": tx_hash,

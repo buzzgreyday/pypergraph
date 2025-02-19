@@ -2,17 +2,6 @@ from decimal import Decimal
 import random
 from typing import Tuple
 
-# from cryptography.hazmat.primitives import hashes
-# from cryptography.hazmat.primitives.serialization import load_pem_private_key
-# from cryptography.x509 import CertificateBuilder, Name, NameAttribute, random_serial_number
-# from cryptography.x509.oid import NameOID
-# from cryptography.hazmat.primitives.serialization import (
-#             Encoding,
-#             PrivateFormat,
-#             NoEncryption,
-#         )
-# from cryptography.hazmat.primitives.serialization import pkcs12
-
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
 from pyasn1.codec.der.decoder import decode as der_decode
@@ -20,16 +9,16 @@ from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
 
 from .bip import Bip39, Bip32
-from .tx_encode import Kryo
+from .kryo import Kryo
 from pypergraph.dag_core.constants import PKCS_PREFIX
 
-# import datetime
 import hashlib
 import base58
 
 from ..dag_core.models.account import LastReference
 from ..dag_core.models.transaction import Transaction
 
+MIN_SALT = int(Decimal("1e8"))
 
 class KeyStore:
     """
@@ -38,85 +27,6 @@ class KeyStore:
 
     PERSONAL_SIGN_PREFIX = "\u0019Constellation Signed Message:\n"
     DATA_SIGN_PREFIX = "\u0019Constellation Signed Data:\n"
-    # @staticmethod
-    # def get_p12_from_private_key(private_key: bytes, destination: str = "wallet.p12"):
-    #     """
-    #     Not in use for now.
-    #
-    #     :param private_key:
-    #     :param destination:
-    #     :return:
-    #     """
-    #     # Input: Private key PEM and optional certificate
-    #
-    #     sk = SigningKey.from_string(private_key, curve=SECP256k1)
-    #     private_key_pem = sk.to_pem()
-    #     private_key = load_pem_private_key(private_key_pem, password=None)
-    #
-    #     # Generate a self-signed certificate (optional)
-    #     subject = issuer = Name([
-    #         NameAttribute(NameOID.COMMON_NAME, u"Pypergraph Wallet v1"),
-    #     ])
-    #
-    #     # Use timezone-aware UTC datetimes
-    #     current_time = datetime.datetime.now(datetime.UTC)
-    #     certificate = CertificateBuilder() \
-    #         .subject_name(subject) \
-    #         .issuer_name(issuer) \
-    #         .public_key(private_key.public_key()) \
-    #         .serial_number(random_serial_number()) \
-    #         .not_valid_before(current_time) \
-    #         .not_valid_after(current_time + datetime.timedelta(days=365 * 1000)) \
-    #         .sign(private_key, hashes.SHA256())
-    #
-    #     # Create PKCS#12 archive
-    #     p12_data = pkcs12.serialize_key_and_certificates(
-    #         name=b"pypergraph_wallet",
-    #         key=private_key,
-    #         cert=certificate,
-    #         cas=None,
-    #         encryption_algorithm=NoEncryption()  # Use BestAvailableEncryption(b"password") for encrypted .p12
-    #     )
-    #
-    #     # Save the .p12 file
-    #     with open(destination, "wb") as p12_file:
-    #         p12_file.write(p12_data)
-    #
-    # @staticmethod
-    # def get_private_key_from_p12(destination: str = "wallet.p12", password: Optional[str] = None) -> str:
-    #     """
-    #     Not in use for now.
-    #
-    #     :param destination: Fullpath to the p12 file.
-    #     :param password: Encrypt the p12 with password (default: None | unencrypted).
-    #     :return: Private key as hex string.
-    #     """
-    #
-    #     # Load the .p12 file
-    #     with open(destination, "rb") as p12_file:
-    #         p12_data = p12_file.read()
-    #
-    #     # Load PKCS#12 data
-    #     private_key, certificate, additional_certificates = pkcs12.load_key_and_certificates(
-    #         p12_data, password
-    #     )
-    #
-    #     # Extract the private key in PEM format
-    #     if private_key:
-    #         # Convert the private key to DER format
-    #         private_key_der = private_key.private_bytes(
-    #             encoding=Encoding.DER,
-    #             format=PrivateFormat.PKCS8,
-    #             encryption_algorithm=NoEncryption()
-    #         )
-    #
-    #         # Use coincurve to load the private key and get its raw format
-    #         sk = SigningKey.from_der(private_key)
-    #         private_key_hex = sk.to_string().hex()
-    #
-    #         return private_key_hex
-    #     else:
-    #         raise ValueError("KeyStore :: No private key found in the .p12 file.")
 
     @staticmethod
     def prepare_tx (amount: int, to_address: str, from_address: str, last_ref: LastReference, fee: int = 0) -> Tuple[Transaction, str]:
@@ -140,10 +50,7 @@ class KeyStore:
           raise ValueError('KeyStore :: Send fee must be greater or equal to zero')
 
         # Create transaction
-        #tx = TxEncode.get_tx_v2(amount, to_address, from_address, last_ref, fee)
-        MIN_SALT = int(Decimal("1e8"))
         tx = Transaction(source=from_address, destination=to_address, amount=amount, fee=fee, parent=last_ref, salt=MIN_SALT + int(random.getrandbits(48)))
-
 
         # Get encoded transaction
         encoded_tx = tx.encoded
