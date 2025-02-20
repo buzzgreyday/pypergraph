@@ -52,4 +52,3 @@ class Balance(BaseModel):
 
     def __repr__(self):
         return f"Balance(ordinal={self.ordinal}, balance={self.balance}, address='{self.address}', meta='{self.meta}')"
-

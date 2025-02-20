@@ -6,21 +6,23 @@ import base58
 from ecdsa import SigningKey, SECP256k1
 from eth_utils import keccak, to_checksum_address, is_checksum_address
 from eth_keys import keys
+from pydantic import BaseModel, Field
 
 from pypergraph.dag_core import NetworkId, KeyringAssetType
 from pypergraph.dag_core.constants import PKCS_PREFIX
 
-
 # For dependency security reasons accounts for account creation should go here
 
-class EcdsaAccount(ABC):
-    def __init__(self):
-        self.tokens: Optional[List[str]] = []
-        self.wallet: Optional[SigningKey] = None
-        self.assets: Optional[List[Any]] = []
-        self.bip44_index: Optional[int] = None
-        self.provider = None  # Placeholder for Web3 provider
-        self._label: Optional[str] = None
+class EcdsaAccount(BaseModel, ABC):
+    tokens: List[str] = Field(default_factory=list)
+    wallet: Optional[SigningKey] = None
+    assets: List[Any] = Field(default_factory=list)
+    bip44_index: Optional[int] = None
+    provider: Any = None
+    label: Optional[str] = None
+
+    class Config:
+        arbitrary_types_allowed = True
 
     @property
     @abstractmethod
@@ -50,7 +52,7 @@ class EcdsaAccount(ABC):
         return self.decimals
 
     def get_label(self) -> str:
-        return self._label
+        return self.label
 
     def create(self, private_key: Optional[str]):
         if private_key:
@@ -83,8 +85,8 @@ class EcdsaAccount(ABC):
             "address": self.get_address(),
             "supportedAssets": self.supported_assets,
         }
-        if self._label:
-            result["label"] = self._label
+        if self.label:
+            result["label"] = self.label
         if self.tokens:
             result["tokens"] = self.tokens
         return result
@@ -95,33 +97,30 @@ class EcdsaAccount(ABC):
     def serialize(self, include_private_key: bool = True) -> Dict[str, Any]:
         result = {}
         if include_private_key:
-            result["privateKey"] = self.get_private_key()
-        if self._label:
-            result["label"] = self._label
+            result["private_key"] = self.get_private_key()
+        if self.label:
+            result["label"] = self.label
         if self.tokens:
             result["tokens"] = self.tokens.copy()
         if self.bip44_index is not None:
-            result["bip44Index"] = self.bip44_index
+            result["bip44_index"] = self.bip44_index
         return result
 
-    def deserialize(self, data: Dict[str, Any]):
+    def deserialize(self, bip44_index: int, label: str, private_key: Optional[str] = None, tokens: Optional[List[str]] = None):
 
-        private_key = bytes.fromhex(data.get("privateKey"))
-        # public_key = data.get("publicKey")
-        tokens = data.get("tokens")
-        bip44_index = data.get("bip44Index")
-        label = data.get("label")
+        self.label = label
+        self.bip44_index = bip44_index
+        self.tokens = tokens or self.tokens
 
         if private_key:
+            private_key = bytes.fromhex(private_key)
             self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
         else:
             raise NotImplementedError("EcdsaAccount :: Wallet instance from public key isn't supported.")
             # TODO: This doesn't work since the library doens't seem to have any equivalent
             #self.wallet = Wallet.from_public_key(bytes.fromhex(public_key))
 
-        self._label = label
-        self.bip44_index = bip44_index
-        self.tokens = tokens or self.tokens
+
         return self
 
     # def sign_message(self, msg: str) -> str:
@@ -174,11 +173,23 @@ class EcdsaAccount(ABC):
 
 
 class EthAccount(EcdsaAccount):
-    decimals = 18
-    network_id = NetworkId.Ethereum.value
-    has_token_support = True
-    supported_assets = [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
-    tokens = ["0xa393473d64d2F9F026B60b6Df7859A689715d092"]  # LTX
+    @property
+    def decimals(self) -> int:
+        return 18
+
+    @property
+    def network_id(self) -> str:
+        return NetworkId.Ethereum.value
+
+    @property
+    def has_token_support(self) -> bool:
+        return True
+
+    @property
+    def supported_assets(self) -> List[str]:
+        return [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
+
+    tokens: List[str] = Field(default=["0xa393473d64d2F9F026B60b6Df7859A689715d092"])
 
     def save_token_info(self, address: str):
         """Save the token info if not already present in the tokens list."""
@@ -219,10 +230,21 @@ class EthAccount(EcdsaAccount):
 
 class DagAccount(EcdsaAccount):
 
-    decimals = 8
-    network_id = NetworkId.Constellation.value
-    has_token_support = False
-    supported_assets = ["DAG"]
+    @property
+    def decimals(self) -> int:
+        return 8
+
+    @property
+    def network_id(self) -> str:
+        return NetworkId.Constellation.value
+
+    @property
+    def has_token_support(self) -> bool:
+        return False
+
+    @property
+    def supported_assets(self) -> List[str]:
+        return [KeyringAssetType.DAG.value]
     ### --> KEYRING:DAGACCOUNT
 
     @staticmethod

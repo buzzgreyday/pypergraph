@@ -36,7 +36,7 @@ class KeyringManager(AsyncIOEventEmitter):
     def generate_mnemonic():
         return Bip39Helper().generate_mnemonic()
 
-    async def create_multi_chain_hd_wallet(self, label: str, seed: str = ""):
+    async def create_multi_chain_hd_wallet(self, label: Optional[str] = None, seed: Optional[str] = None) -> MultiChainWallet:
         """
         After validating password and seed phrase and deleting wallet cache, this is the next step in creating or restoring a wallet, by default.
 
@@ -55,7 +55,7 @@ class KeyringManager(AsyncIOEventEmitter):
         await self.full_update()
         return wallet
 
-    async def create_or_restore_vault(self, label: str, seed: str, password: str):
+    async def create_or_restore_vault(self, password: str, label: Optional[str] = None, seed: Optional[str] = None) -> MultiChainWallet:
         """
         First step, creating or restoring a wallet.
         This is the default wallet type when creating a new wallet.
@@ -65,7 +65,7 @@ class KeyringManager(AsyncIOEventEmitter):
         :param password: A string of characters.
         :return:
         """
-
+        bip39 = Bip39Helper()
         if not password:
             raise ValueError("KeyringManager :: A password is required to create or restore a Vault.")
         elif type(password) is not str:
@@ -74,22 +74,17 @@ class KeyringManager(AsyncIOEventEmitter):
             # Set the password to be associated with the wallet.
             self.password = password
 
-        if len(label) > 12 or type(label) is not str:
-            raise ValueError("KeyringManager :: Label must be a string below 12 characters.")
-
-        if type(seed) is not str:
+        if type(seed) not in (str, None):
             raise ValueError(f"KeyringManager :: A seed phrase must be a string, got {type(seed)}.")
         if seed:
             if len(seed.split(' ')) not in (12, 24):
                 raise ValueError("KeyringManager :: The seed phrase must be 12 or 24 words long.")
-            if not Bip39Helper().is_valid(seed):
+            if not bip39.is_valid(seed):
                 raise ValueError("KeyringManager :: The seed phrase is invalid.")
 
         # Starts fresh
         await self.clear_wallets()
         wallet = await self.create_multi_chain_hd_wallet(label, seed)
-        await self.full_update()
-
         return wallet
 
     # creates a single wallet with one chain, creates first account by default, one per chain.

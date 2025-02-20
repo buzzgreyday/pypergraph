@@ -1,4 +1,7 @@
+from typing import Optional, List, Dict, Any, Tuple
+
 from ecdsa import SigningKey, SECP256k1
+from pydantic import constr, Field, BaseModel, model_serializer
 
 from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, NetworkId
 from .keyrings import HdKeyring, SimpleKeyring
@@ -211,30 +214,44 @@ class MultiKeyWallet:
         ValueError("MultiKeyWallet :: Does not allow exporting secrets.")
 
 
-class MultiChainWallet:
-    SID = 0
-    def __init__(self):
+class MultiChainWallet(BaseModel):
 
-        self.type = KeyringWalletType.MultiChainWallet.value
-        self.id = f"{self.type}{self.SID + 1}"
-        self.SID += 1
-        #self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value] Original
-        self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
-        self.label: str = ""
-        self.keyrings: [] = []
-        self.mnemonic: str = ""
+    sid: int = Field(default=1)
+    type: constr(pattern=r"^[ABCKLMSW]{3}$")
+    id: str = Field(default=f"{type}{sid}")
+    supported_assets: Tuple[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value] = Field(default=(KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value))
+    label: Optional[str] = Field(max_length=12)
+    keyrings: List[HdKeyring] = Field(default_factory=list)
+    mnemonic: Optional[str] = Field(default=None)
 
-    def create(self, label: str, mnemonic: str = ""):
+    @model_serializer
+    def model_serialize(self):
+        return {
+            "type": self.type,
+            "label": self.label,
+            "secret": self.mnemonic,
+            "rings": [ring.model_dump() for ring in self.keyrings]
+        }
+
+    def create(self, label: str, mnemonic: Optional[str] = None, rings: Optional[list] = None):
         """
         If mnemonic is set, restore the wallet. Else, generate mnemonic and create new wallet.
 
         :param label: Name of the wallet.
         :param mnemonic: Seed phrase.
+        :param rings: Keyrings.
         """
 
         self.label = label
-        self.mnemonic = mnemonic or Bip39Helper().generate_mnemonic()
-        self.deserialize({ "secret": self.mnemonic, "type": self.type, "label": self.label })
+        self.secret = mnemonic or Bip39Helper().generate_mnemonic()
+        # Deserialize
+        self.rings =  [
+            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=NetworkId.Constellation.value, number_of_accounts=1),
+            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=NetworkId.Ethereum.value, number_of_accounts=1)
+        ]
+        if rings:
+            for i, r in enumerate(rings):
+                self.keyrings[i].deserialize(r)
 
     def set_label(self, val: str):
         self.label = val
@@ -261,28 +278,6 @@ class MultiChainWallet:
                 for a in self.get_accounts()
             ],
         }
-
-    def serialize(self): # Returns KeyringWalletSerialized
-        return { "type": self.type, "label": self.label, "secret": self.mnemonic, "rings": [ring.serialize() for ring in self.keyrings] }
-
-    def deserialize(self, data: dict):
-        """
-        Main functionality of this MultiChainWallet method is to create hierarchical determinable wallet keyring containing:
-        { "network": network, "accounts": [{ "bipIndex44": integer }] }
-
-        :param data: { "label": self.label, "secret": self.mnemonic }
-        """
-        self.label = data.get("label")
-        self.mnemonic = data.get("secret")
-
-        self.keyrings = [
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=NetworkId.Constellation.value, number_of_accounts=1),
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=NetworkId.Ethereum.value, number_of_accounts=1)
-        ]
-
-        if data.get("rings"):
-            for i, r in enumerate(data.get("rings")):
-                self.keyrings[i].deserialize(r)
 
     def import_account(self, hd_path: str, label: str):
         ValueError("MultiChainWallet :: Does not support importAccount")
@@ -312,7 +307,7 @@ class MultiChainWallet:
 
 
     def reset_sid(self):
-        self.SID = 0
+        self.sid = 1
 
 # accounts.single_account_wallet
 
