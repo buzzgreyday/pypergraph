@@ -49,7 +49,7 @@ class HdKeyring(BaseModel):
         )
         return inst
 
-    def create_accounts(self, number_of_accounts: int =0) -> List[dict]:
+    def create_accounts(self, number_of_accounts: int = 0) -> List[dict]:
         """
         When adding an account (after accounts have been removed), it will add back the ones removed first.
 
@@ -69,7 +69,7 @@ class HdKeyring(BaseModel):
 
     def deserialize(self, data: dict):
         """
-        Deserialize then add account (bip44Index) to the keyring being constructed.
+        Deserialize then add account (bip44_index) to the keyring being constructed.
         :param data:
         :return:
         """
@@ -77,12 +77,12 @@ class HdKeyring(BaseModel):
             self.network = data.get("network")
             self.accounts = []
             for d in data.get("accounts"):
-                account = self.add_account_at(d.get("bip44Index"))
+                account = self.add_account_at(d.get("bip44_index"))
                 # TODO: Add ecdsa account and token support
                 account.set_tokens(d.get("tokens"))
                 self.accounts.append(account)
 
-    def add_account_at(self, index: int):
+    def add_account_at(self, index: int = 0):
         """
         Add account class object with a signing key to the keyring being constructed.
 
@@ -94,12 +94,12 @@ class HdKeyring(BaseModel):
         if self.mnemonic:
             private_key = self.root_key.PrivateKey().hex()
             account = registry.create_account(self.network)
-            account = account.deserialize({ "privateKey": private_key, "bip44Index": index })
+            account = account.deserialize(**{ "private_key": private_key, "bip44_index": index })
         else:
             # raise NotImplementedError("HDKeyring :: Wallet from public key isn't supported.")
             public_key = self.root_key.PublicKey()
             account = registry.create_account(self.network)
-            account = account.deserialize({ "publicKey": public_key, "bip44Index": index })
+            account = account.deserialize(**{ "public_key": public_key, "bip44_index": index })
 
         # self.accounts.append(account)
         return account
@@ -137,6 +137,9 @@ class HdKeyring(BaseModel):
 
     def export_account (self, account) -> str: # account is IKeyringAccount
         return account.get_private_key()
+
+    def get_accounts(self):
+        return self.accounts
 
     def get_account_by_address(self, address: str): # account is IKeyringAccount
         return next((acc for acc in self.accounts if acc.get_address().lower() == address.lower()), None)

@@ -106,7 +106,7 @@ class EcdsaAccount(BaseModel, ABC):
             result["bip44_index"] = self.bip44_index
         return result
 
-    def deserialize(self, bip44_index: int, label: str, private_key: Optional[str] = None, tokens: Optional[List[str]] = None):
+    def deserialize(self, bip44_index: int, label: Optional[str] = None, private_key: Optional[str] = None, tokens: Optional[List[str]] = None):
 
         self.label = label
         self.bip44_index = bip44_index

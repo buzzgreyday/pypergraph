@@ -18,7 +18,7 @@ class MultiAccountWallet:
         self.SID += 1
         self.supported_assets = []
         self.label: str = ""
-        self.keyring = [] # HdKeyring
+        self.keyring: Optional[HdKeyring] = None # HdKeyring
         self.mnemonic: str = ""
         self.network: str = "" # KeyringNetwork
 
@@ -217,15 +217,15 @@ class MultiKeyWallet:
 class MultiChainWallet(BaseModel):
 
     sid: int = Field(default=1)
-    type: constr(pattern=r"^[ABCKLMSW]{3}$")
+    type: constr(pattern=r"^[ABCKLMSW]{3}$") = Field(default=KeyringWalletType.MultiChainWallet.value)
     id: str = Field(default=f"{type}{sid}")
-    supported_assets: Tuple[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value] = Field(default=(KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value))
-    label: Optional[str] = Field(max_length=12)
+    supported_assets: Tuple = Field(default=(KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value))
+    label: Optional[str] = Field(default=None, max_length=12)
     keyrings: List[HdKeyring] = Field(default_factory=list)
     mnemonic: Optional[str] = Field(default=None)
 
     @model_serializer
-    def model_serialize(self):
+    def model_serialize(self) -> Dict[str, Any]:
         return {
             "type": self.type,
             "label": self.label,
@@ -241,11 +241,11 @@ class MultiChainWallet(BaseModel):
         :param mnemonic: Seed phrase.
         :param rings: Keyrings.
         """
-
+        bip39 = Bip39Helper()
         self.label = label
-        self.secret = mnemonic or Bip39Helper().generate_mnemonic()
+        self.mnemonic = mnemonic or bip39.generate_mnemonic()
         # Deserialize
-        self.rings =  [
+        self.keyrings =  [
             HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=NetworkId.Constellation.value, number_of_accounts=1),
             HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=NetworkId.Ethereum.value, number_of_accounts=1)
         ]
@@ -261,7 +261,7 @@ class MultiChainWallet(BaseModel):
 
     def get_network(self):
         ValueError("MultiChainWallet :: Does not support this method")
-        return ""
+        return None
 
     def get_state(self):
         return {

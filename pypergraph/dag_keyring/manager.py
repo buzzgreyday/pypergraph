@@ -49,6 +49,7 @@ class KeyringManager(AsyncIOEventEmitter):
         label = label or "Wallet #" + f"{len(self.wallets) + 1}"
         # Create the multichain wallet from a seed phrase.
         wallet.create(label, seed)
+        print(wallet)
         # Save safe wallet values in the manager cache
         # Secret values are encrypted and stored (default: encrypted JSON)
         self.wallets.append(wallet)
@@ -85,6 +86,7 @@ class KeyringManager(AsyncIOEventEmitter):
         # Starts fresh
         await self.clear_wallets()
         wallet = await self.create_multi_chain_hd_wallet(label, seed)
+        await self.full_update()
         return wallet
 
     # creates a single wallet with one chain, creates first account by default, one per chain.
@@ -114,8 +116,7 @@ class KeyringManager(AsyncIOEventEmitter):
 
         self.password = password
 
-        s_wallets = [w.serialize() for w in self.wallets]
-        print(s_wallets)
+        s_wallets = [w.model_dump() for w in self.wallets]
 
         encrypted_string = await self.encryptor.encrypt(self.password, { "wallets": s_wallets })
 

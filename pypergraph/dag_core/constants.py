@@ -13,12 +13,12 @@ PORT_MAX = 65535
 BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 PKCS_PREFIX = "3056301006072a8648ce3d020106052b8104000a034200"  # Removed last 2 digits. 04 is part of Public Key.
 
-class DERIVATION_PATH(Enum):
+class DERIVATION_PATH(str, Enum):
     DAG = "DAG"
     ETH = "ETH"
     ETH_LEDGER = "ETH_LEDGER"
 
-class KeyringWalletType(Enum):
+class KeyringWalletType(str, Enum):
   MultiChainWallet = 'MCW'
   CrossChainWallet = 'CCW'
   MultiAccountWallet = 'MAW'  #Single Chain, Multiple seed accounts, MSW
@@ -27,7 +27,7 @@ class KeyringWalletType(Enum):
   LedgerAccountWallet = "LAW"
   BitfiAccountWallet  = "BAW"
 
-class KeyringAssetType(Enum):
+class KeyringAssetType(str, Enum):
   DAG = 'DAG'
   ETH = 'ETH'
   ERC20 = 'ERC20'
