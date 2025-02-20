@@ -49,7 +49,6 @@ class KeyringManager(AsyncIOEventEmitter):
         label = label or "Wallet #" + f"{len(self.wallets) + 1}"
         # Create the multichain wallet from a seed phrase.
         wallet.create(label, seed)
-        print(wallet)
         # Save safe wallet values in the manager cache
         # Secret values are encrypted and stored (default: encrypted JSON)
         self.wallets.append(wallet)

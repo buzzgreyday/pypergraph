@@ -214,21 +214,23 @@ class MultiKeyWallet:
     def export_secret_key(self):
         ValueError("MultiKeyWallet :: Does not allow exporting secrets.")
 
+SID = 0  # Module-level counter
 
 class MultiChainWallet(BaseModel):
-
-    sid: int = Field(default=1)
-    type: constr(pattern=r"^[ABCKLMSW]{3}$") = Field(default=KeyringWalletType.MultiChainWallet.value)
+    type: str = Field(default=KeyringWalletType.MultiChainWallet.value)
     id: str = Field(default=None)
-    supported_assets: Tuple = Field(default=(KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value))
+    supported_assets: Tuple = Field(default=(KeyringAssetType.DAG.value,
+                                           KeyringAssetType.ETH.value,
+                                           KeyringAssetType.ERC20.value))
     label: Optional[str] = Field(default=None, max_length=12)
     keyrings: List[HdKeyring] = Field(default_factory=list)
     mnemonic: Optional[str] = Field(default=None)
 
     @model_validator(mode="after")
     def compute_id(self):
-        # Compute `id` after all fields are initialized
-        self.id = f"{self.type}{self.sid}"
+        global SID
+        SID += 1
+        self.id = f"{self.type}{SID}"
         return self
 
     @model_serializer
@@ -312,9 +314,10 @@ class MultiChainWallet(BaseModel):
     def export_secret_key(self):
         return self.mnemonic
 
-
-    def reset_sid(self):
-        self.sid = 1
+    @classmethod
+    def reset_sid(cls):
+        global SID
+        SID = 0
 
 # accounts.single_account_wallet
 
