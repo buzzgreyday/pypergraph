@@ -1,7 +1,8 @@
 from typing import Optional, List, Dict, Any, Tuple
 
 from ecdsa import SigningKey, SECP256k1
-from pydantic import constr, Field, BaseModel, model_serializer
+from pydantic import constr, Field, BaseModel, model_serializer, validator, field_validator, model_validator
+from pydantic_core.core_schema import computed_field
 
 from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, NetworkId
 from .keyrings import HdKeyring, SimpleKeyring
@@ -218,11 +219,17 @@ class MultiChainWallet(BaseModel):
 
     sid: int = Field(default=1)
     type: constr(pattern=r"^[ABCKLMSW]{3}$") = Field(default=KeyringWalletType.MultiChainWallet.value)
-    id: str = Field(default=f"{type}{sid}")
+    id: str = Field(default=None)
     supported_assets: Tuple = Field(default=(KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value))
     label: Optional[str] = Field(default=None, max_length=12)
     keyrings: List[HdKeyring] = Field(default_factory=list)
     mnemonic: Optional[str] = Field(default=None)
+
+    @model_validator(mode="after")
+    def compute_id(self):
+        # Compute `id` after all fields are initialized
+        self.id = f"{self.type}{self.sid}"
+        return self
 
     @model_serializer
     def model_serialize(self) -> Dict[str, Any]:

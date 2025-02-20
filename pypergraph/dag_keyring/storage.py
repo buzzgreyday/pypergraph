@@ -111,37 +111,18 @@ class JsonStorage:
         with self.file_path.open("w") as f:
             json.dump(data, f, indent=2)
 
-class ObservableStore:
-    def __init__(self, initial_state: dict):
-        self._state = initial_state
-        self._observers = []
 
-    def get_state(self):
-        return self._state
-
-    def update_state(self, new_state: dict):
-        self._state.update(new_state)
-        self.notify_observers()
-
-    def subscribe(self, callback):
-        self._observers.append(callback)
-
-    def notify_observers(self):
-        for observer in self._observers:
-            observer(self._state)
-
-
-class ObservableStoreNew(BaseModel):
+class ObservableStore(BaseModel):
 
     is_unlocked: bool = Field(default=False)
-    wallets: List = Field(default=list)
-    observers: List = Field(default=list)
+    wallets: List[dict] = Field(default_factory=list)
+    observers: List = Field(default_factory=list)
 
 
     def get_state(self):
         return {"is_unlocked": self.is_unlocked, "wallets": self.wallets}
 
-    def update_state(self, is_unlocked: Optional[bool] = None, wallets: Optional[list] = None):
+    def update_state(self, is_unlocked: Optional[bool] = None, wallets: Optional[List[dict]] = None):
         if is_unlocked is not None:
             self.is_unlocked = is_unlocked
         if wallets is not None:

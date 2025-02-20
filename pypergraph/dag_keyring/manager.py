@@ -18,7 +18,7 @@ class KeyringManager(AsyncIOEventEmitter):
         self.storage = StateStorageDb()
         self.wallets = []
         self.password: Optional[str] = None  # Use None instead of an empty string
-        self.mem_store = ObservableStore({"is_unlocked": False, "wallets": []}) # Memory storage
+        self.mem_store = ObservableStore() # Memory storage
         # KeyringManager is also an event emitter
         self.on("new_account", self.create_multi_chain_hd_wallet)
         self.on("remove_account", self.remove_account)
@@ -30,7 +30,7 @@ class KeyringManager(AsyncIOEventEmitter):
         """Clear wallet cahce."""
 
         self.wallets = []
-        self.mem_store.update_state({ "wallets": [] })
+        self.mem_store.update_state(wallets=[])
 
     @staticmethod
     def generate_mnemonic():
@@ -124,7 +124,7 @@ class KeyringManager(AsyncIOEventEmitter):
 
     async def update_mem_store_wallets(self):
         wallets = [w.get_state() for w in self.wallets]
-        self.mem_store.update_state({"wallets": wallets})
+        self.mem_store.update_state(wallets=wallets)
 
     def set_password(self, password):
         self.password = password
@@ -179,7 +179,7 @@ class KeyringManager(AsyncIOEventEmitter):
         # Reset ID counter that used to enumerate wallet IDs. \
         [w.reset_sid() for w in self.wallets]
         self.password = None
-        self.mem_store.update_state({ "is_unlocked": False })
+        self.mem_store.update_state(is_unlocked=False)
         await self.clear_wallets()
         self.emit('lock')
         self.notify_update()
@@ -204,7 +204,7 @@ class KeyringManager(AsyncIOEventEmitter):
         return self.wallets
 
     def update_unlocked(self):
-        self.mem_store.update_state({"is_unlocked": True})
+        self.mem_store.update_state(is_unlocked=True)
         self.emit("unlock")
 
     async def _restore_wallet(self, w_data): # KeyringSerialized
