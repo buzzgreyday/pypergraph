@@ -2,12 +2,12 @@ from typing import Optional, Dict, List
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from pypergraph.dag_core.models.account import LastReference, Balance
+from pypergraph.dag_network.models.account import LastReference, Balance
 from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
-from pypergraph.dag_core.models.transaction import PendingTransaction, BlockExplorerTransaction, \
+from pypergraph.dag_network.models.transaction import PendingTransaction, BlockExplorerTransaction, \
     SignedTransaction
-from pypergraph.dag_core.models.snapshot import Snapshot
-from pypergraph.dag_core.models.network import NetworkInfo
+from pypergraph.dag_network.models.snapshot import Snapshot
+from pypergraph.dag_network.models.network import NetworkInfo
 from pypergraph.dag_core.exceptions import NetworkError
 import logging
 

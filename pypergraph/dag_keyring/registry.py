@@ -1,3 +1,5 @@
+from typing import Union
+
 from pypergraph.dag_core import NetworkId
 from .accounts import DagAccount, EthAccount
 
@@ -21,7 +23,7 @@ class KeyringRegistry:
             raise ValueError(f"KeyringRegistry :: Unsupported type of data: {data}")
         self.registry = data
 
-    def create_account(self, network: str):
+    def create_account(self, network: str) -> Union[DagAccount, EthAccount]:
         """
         Determine the account class dependent on network.
 

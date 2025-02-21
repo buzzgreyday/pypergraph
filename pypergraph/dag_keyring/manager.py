@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, Union
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from pypergraph.dag_core import KeyringWalletType
+from pypergraph.dag_core import KeyringWalletType, NetworkId
 from pypergraph.dag_keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
 from pypergraph.dag_keyring.bip import Bip39Helper
 
@@ -89,7 +89,7 @@ class KeyringManager(AsyncIOEventEmitter):
         return wallet
 
     # creates a single wallet with one chain, creates first account by default, one per chain.
-    async def create_single_account_wallet(self, label: str, network, private_key: str):
+    async def create_single_account_wallet(self, label: str, private_key: str, network: Optional[Union[NetworkId.Constellation.value, NetworkId.Ethereum.value]] = None):
 
         wallet = SingleAccountWallet()
         label = label or "Wallet #" + f"{len(self.wallets) + 1}"

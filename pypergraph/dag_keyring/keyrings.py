@@ -107,7 +107,6 @@ class HdKeyring(BaseModel):
     # Read-only wallet
     @staticmethod
     def create_from_extended_key(extended_key: str, network: NetworkId, number_of_accounts: int):
-        # TODO: check _init_from...
         inst = HdKeyring()
         inst.extendedKey = extended_key
         inst._init_from_extended_key(extended_key)
@@ -127,7 +126,7 @@ class HdKeyring(BaseModel):
 
     def get_extended_public_key(self):
         if self.mnemonic:
-            return self.root_key.ExtendedKey(private=False)
+            return self.root_key.ExtendedKey(private=False).hex()
             # return self.root_key.publicExtendedKey().toString('hex')
 
         return self.extended_key
@@ -162,15 +161,25 @@ class HdKeyring(BaseModel):
 
 # rings.simple_keyring
 
-class SimpleKeyring:
+class SimpleKeyring(BaseModel):
 
-    account = None #IKeyringAccount;
-    network: NetworkId.Constellation.value #KeyringNetwork
+    account: Union[DagAccount, EthAccount] = Field(default=None) #IKeyringAccount;
+    network: str = Field(default=NetworkId.Constellation.value)#KeyringNetwork
+
+        # Serialize all accounts
+    @model_serializer
+    def model_serialize(self) -> Dict[str, Any]:
+        return {
+            "network": self.network,
+            "accounts": [self.account.serialize(True)]
+        } # this.accounts.map(a => a.serialize(false))
 
     def create_for_network(self, network, private_key: str):
         inst = SimpleKeyring()
         inst.network = network
-        inst.account = KeyringRegistry().create_account(network).create(private_key)
+        registry = KeyringRegistry()
+        account = registry.create_account(network)
+        inst.account = account.create(private_key)
         return inst
 
 
@@ -180,20 +189,16 @@ class SimpleKeyring:
           "account": self.account.serialize(False)
         }
 
-    def serialize(self):
-        return {
-          "network": self.network,
-          "accounts": [self.account.serialize(True)]
-        }
-
-    def deserialize(self, data: dict):
+    def deserialize(self, network: str, accounts: list):
         """
         Deserialize and add an account class object to the keyring being constructed.
 
         :param data:
         """
-        self.network = data.get("network")
-        self.account = KeyringRegistry().create_account(data.get("network")).deserialize(data.get("accounts")[0])
+        self.network = network
+        registry = KeyringRegistry()
+        account = registry.create_account(network)
+        self.account = account.deserialize(**accounts[0])
 
     def add_account_at(self, index: int):
         pass

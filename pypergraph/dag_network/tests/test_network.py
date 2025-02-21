@@ -2,7 +2,7 @@ import pytest
 import random
 
 import pypergraph.dag_account
-from pypergraph.dag_core.models.network import NetworkInfo
+from pypergraph.dag_network.models.network import NetworkInfo
 from pypergraph.dag_network.network import DagTokenNetwork
 
 

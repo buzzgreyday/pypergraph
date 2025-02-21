@@ -6,7 +6,7 @@ import base58
 from pydantic import BaseModel, Field, model_validator, constr, conint, computed_field
 
 from pypergraph.dag_core.constants import DAG_MAX
-from pypergraph.dag_core.models.account import LastReference
+from pypergraph.dag_network.models.account import LastReference
 
 
 class BaseTransaction(BaseModel):

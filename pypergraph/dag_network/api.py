@@ -1,12 +1,12 @@
 import warnings
 from typing import Optional, Any, Dict, List, Union
 
-from pypergraph.dag_core.models.reward import Reward
+from pypergraph.dag_network.models.reward import Reward
 from pypergraph.dag_core.rest_api_client import RestAPIClient
-from pypergraph.dag_core.models.account import Balance, LastReference
-from pypergraph.dag_core.models.transaction import PendingTransaction, BlockExplorerTransaction, SignedTransaction
-from pypergraph.dag_core.models.network import TotalSupply, PeerInfo
-from pypergraph.dag_core.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot
+from pypergraph.dag_network.models.account import Balance, LastReference
+from pypergraph.dag_network.models.transaction import PendingTransaction, BlockExplorerTransaction, SignedTransaction
+from pypergraph.dag_network.models.network import TotalSupply, PeerInfo
+from pypergraph.dag_network.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot
 
 
 class LoadBalancerApi:

@@ -15,8 +15,8 @@ from pypergraph.dag_core.constants import PKCS_PREFIX
 import hashlib
 import base58
 
-from ..dag_core.models.account import LastReference
-from ..dag_core.models.transaction import Transaction
+from pypergraph.dag_network.models.account import LastReference
+from pypergraph.dag_network.models.transaction import Transaction
 
 MIN_SALT = int(Decimal("1e8"))
 

@@ -1,17 +1,15 @@
 from typing import Optional, List, Dict, Any, Tuple
 
 from ecdsa import SigningKey, SECP256k1
-from pydantic import constr, Field, BaseModel, model_serializer, validator, field_validator, model_validator
-from pydantic_core.core_schema import computed_field
+from pydantic import Field, BaseModel, model_serializer, model_validator
 
 from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, NetworkId
 from .keyrings import HdKeyring, SimpleKeyring
 from .bip import Bip39Helper
 
+SID = 0  # Module-level counter
 
 class MultiAccountWallet:
-
-    SID = 0
 
     def __init__(self):
         self.type = KeyringWalletType.MultiAccountWallet.value
@@ -214,8 +212,6 @@ class MultiKeyWallet:
     def export_secret_key(self):
         ValueError("MultiKeyWallet :: Does not allow exporting secrets.")
 
-SID = 0  # Module-level counter
-
 class MultiChainWallet(BaseModel):
     type: str = Field(default=KeyringWalletType.MultiChainWallet.value)
     id: str = Field(default=None)
@@ -322,19 +318,30 @@ class MultiChainWallet(BaseModel):
 # accounts.single_account_wallet
 
 # SingleKeyWallet
-class SingleAccountWallet:
+class SingleAccountWallet(BaseModel):
 
-    SID = 0
+    type: str = Field(default=KeyringWalletType.SingleAccountWallet.value)
+    id: str = Field(default=None)
+    supported_assets: List = Field(default_factory=list)
+    label: Optional[str] = Field(default=None, max_length=12)
+    keyring: Optional[Any] = Field(default=None)
+    network: Optional[str] = Field(default=None)
 
-    def __init__(self):
-        self.type = KeyringWalletType.SingleAccountWallet.value
-        self.id = f"{self.type}{self.SID + 1}"
-        self.SID += 1
-        self.supported_assets = []
+    @model_validator(mode="after")
+    def compute_id(self):
+        global SID
+        SID += 1
+        self.id = f"{self.type}{SID}"
+        return self
 
-        self.keyring = None #SimpleKeyring
-        self.network_id = None #KeyringNetwork;
-        self.label: str = ""
+    @model_serializer
+    def model_serialize(self) -> Dict[str, Any]:
+        return {
+            "type": self.type,
+            "label": self.label,
+            "network": self.network,
+            "secret": self.export_secret_key(),
+        }
 
     def create(self, network_id: str, private_key: str, label: str):
         """
@@ -348,7 +355,7 @@ class SingleAccountWallet:
         if not private_key:
             private_key = SigningKey.generate(SECP256k1).to_string().hex()
 
-        self.deserialize({ "type": self.type, "label": label, "network": network_id, "secret": private_key })
+        self.deserialize(**{ "type": self.type, "label": label, "network": network_id, "secret": private_key })
 
     def set_label(self, val: str):
         self.label = val
@@ -375,26 +382,18 @@ class SingleAccountWallet:
             ],
         }
 
-    def serialize(self):
-        return {
-          "type": self.type,
-          "label": self.label,
-          "network": self.network,
-          "secret": self.export_secret_key()
-        }
-
-    def deserialize(self, data):
+    def deserialize(self, type, network, label, secret):
         """
         Deserializes the single account data and creates a new simple keyring.
 
         :param data: { "type": self.type, "label": label, "network": network, "secret": private_key }
         """
 
-        self.label = data.get("label")
-        self.network = data.get("network") or NetworkId.Constellation.value
+        self.label = label
+        self.network = network or NetworkId.Constellation.value
         self.keyring = SimpleKeyring()
 
-        self.keyring.deserialize({"network": self.network, "accounts": [{ "privateKey": data.get("secret") }]})
+        self.keyring.deserialize(**{"network": self.network, "accounts": [{ "private_key": secret }]})
 
         if self.network == NetworkId.Ethereum.value:
           self.supported_assets.append(KeyringAssetType.ETH.value)
@@ -419,5 +418,7 @@ class SingleAccountWallet:
     def export_secret_key(self) -> str:
         return self.keyring.get_accounts()[0].wallet.to_string().hex()
 
-    def reset_sid(self):
-        self.SID = 0
+    @classmethod
+    def reset_sid(cls):
+        global SID
+        SID = 0

@@ -5,7 +5,7 @@ import base58
 from pydantic import BaseModel, field_validator, Field, model_validator, constr
 
 from pypergraph.dag_core.constants import DAG_MAX, SNAPSHOT_MAX_KB, BLOCK_MAX_LEN,EPOCH_MAX
-from pypergraph.dag_core.models.transaction import SignatureProof
+from pypergraph.dag_network.models.transaction import SignatureProof
 
 class LastCurrencySnapshotProof(BaseModel):
     leaf_count: int = Field(..., alias="leafCount", ge=0)
