@@ -10,7 +10,6 @@ from pypergraph.dag_network.models.snapshot import Snapshot, GlobalSnapshot, Cur
 
 
 class LoadBalancerApi:
-    # TODO: Data cleaning and validation for all API classes
     def __init__(self, host):
         if not host.startswith("http"):
             warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
@@ -289,7 +288,7 @@ class L0Api:
 
     # Metrics
     async def get_metrics(self):
-        # TODO: Data clean up - parsing
+        # TODO: Handle text response
         return await self.service.get("/metrics")
 
     # DAG
@@ -347,7 +346,7 @@ class L1Api:
 
     # Metrics
     async def get_metrics(self):
-        # TODO: add parsing for v2 response... returns 404
+        # TODO: Handle text response
         return await self.service.get("/metrics")
 
     # Transactions
