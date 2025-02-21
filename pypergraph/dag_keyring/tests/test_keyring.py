@@ -84,3 +84,11 @@ async def test_create_single_account_wallet(key_manager):
         'secret': '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'
     }
 
+
+@pytest.mark.asyncio
+async def test_create_wallet_ids(key_manager):
+    key_manager.set_password("super_S3cretP_Asswo0rd")
+    pk = KeyStore.get_private_key_from_mnemonic(mnemo)
+    await key_manager.create_single_account_wallet(label="New SAW", private_key=pk)
+    await key_manager.create_multi_chain_hd_wallet(seed=mnemo)
+    assert [wallet.id for wallet in key_manager.wallets] == ['SAW1', 'MCW2']
