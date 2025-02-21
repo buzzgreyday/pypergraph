@@ -250,13 +250,8 @@ class MultiChainWallet(BaseModel):
         self.label = label
         self.mnemonic = mnemonic or bip39.generate_mnemonic()
         # Deserialize
-        self.keyrings =  [
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=NetworkId.Constellation.value, number_of_accounts=1),
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=NetworkId.Ethereum.value, number_of_accounts=1)
-        ]
-        if rings:
-            for i, r in enumerate(rings):
-                self.keyrings[i].deserialize(r)
+        self.deserialize(secret=mnemonic, label=label)
+
 
     def set_label(self, val: str):
         self.label = val
@@ -309,6 +304,25 @@ class MultiChainWallet(BaseModel):
 
     def export_secret_key(self):
         return self.mnemonic
+
+    def deserialize(self, label: str, secret: str, rings: Optional[list] = None, type: Optional[str] = None):
+        """
+        Main functionality of this MultiChainWallet method is to create hierarchical determinable wallet keyring containing:
+        { "network": network, "accounts": [{ "bipIndex44": integer }] }
+
+        :param data: { "label": self.label, "secret": self.mnemonic }
+        """
+        self.label = label
+        self.mnemonic = secret
+
+        self.keyrings = [
+            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=NetworkId.Constellation.value, number_of_accounts=1),
+            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=NetworkId.Ethereum.value, number_of_accounts=1)
+        ]
+
+        if rings:
+            for i, r in enumerate(rings):
+                self.keyrings[i].deserialize(r)
 
     @classmethod
     def reset_sid(cls):

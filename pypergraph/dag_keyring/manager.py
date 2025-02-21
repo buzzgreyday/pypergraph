@@ -210,21 +210,21 @@ class KeyringManager(AsyncIOEventEmitter):
         if w_data["type"] == KeyringWalletType.MultiChainWallet.value:
             ## Can export secret (mnemonic) but cant remove or import
             wallet = MultiChainWallet()
-            wallet.deserialize(w_data)
+            wallet.deserialize(**w_data)
 
         elif w_data["type"] == KeyringWalletType.SingleAccountWallet.value:
             ## Can export secret (private key) but not remove or import account
             wallet = SingleAccountWallet()
-            wallet.deserialize(w_data)
+            wallet.deserialize(**w_data)
 
         elif w_data["type"] == KeyringWalletType.MultiAccountWallet.value:
             ## This can export secret key (mnemonic), remove account but not import
             wallet = MultiAccountWallet()
-            wallet.deserialize(w_data)
+            wallet.deserialize(**w_data)
         elif w_data["type"] == KeyringWalletType.MultiKeyWallet.value:
             ## This can import account but not export secret or remove account
             wallet = MultiKeyWallet()
-            wallet.deserialize(w_data)
+            wallet.deserialize(**w_data)
         else:
             raise ValueError("KeyringManager :: Unknown Wallet type - " + w_data.type + ", support types are [" + KeyringWalletType.MultiChainWallet.value + "," + KeyringWalletType.SingleAccountWallet.value + "]")
 

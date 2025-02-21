@@ -92,3 +92,8 @@ async def test_create_wallet_ids(key_manager):
     await key_manager.create_single_account_wallet(label="New SAW", private_key=pk)
     await key_manager.create_multi_chain_hd_wallet(seed=mnemo)
     assert [wallet.id for wallet in key_manager.wallets] == ['SAW1', 'MCW2']
+
+@pytest.mark.asyncio
+async def test_manager_login(key_manager):
+    await key_manager.login("super_S3cretP_Asswo0rd")
+    print(key_manager.wallets)
