@@ -89,7 +89,7 @@ class KeyringManager(AsyncIOEventEmitter):
         return wallet
 
     # creates a single wallet with one chain, creates first account by default, one per chain.
-    async def create_single_account_wallet(self, label: str, private_key: str, network: Optional[Union[NetworkId.Constellation.value, NetworkId.Ethereum.value]] = None):
+    async def create_single_account_wallet(self, label: str, private_key: str, network: Optional[Union[NetworkId.Constellation.value, NetworkId.Ethereum.value]] = None) -> SingleAccountWallet:
 
         wallet = SingleAccountWallet()
         label = label or "Wallet #" + f"{len(self.wallets) + 1}"
