@@ -139,7 +139,6 @@ async def test_create_multi_key_wallet(key_manager):
     wallet.create(network="Constellation", label="New MKW")
     wallet.import_account(secret=pk, label="Keyring 1")
     wallet.import_account(secret=pk, label="Keyring 2")
-    print(wallet.model_dump())
     assert wallet.model_dump() == {
         'type': 'MKW',
         'label': 'New MKW',
