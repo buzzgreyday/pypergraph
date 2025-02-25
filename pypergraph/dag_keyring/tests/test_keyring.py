@@ -1,6 +1,6 @@
 import pytest
 
-from pypergraph.dag_keyring import KeyringManager, MultiKeyWallet
+from pypergraph.dag_keyring import KeyringManager, MultiKeyWallet, MultiAccountWallet
 from pypergraph.dag_keyring.tests.secrets import mnemo, from_address
 from pypergraph.dag_keystore import KeyStore
 
@@ -164,3 +164,59 @@ async def test_create_multi_key_wallet(key_manager):
             }
         ]
     }
+
+
+@pytest.mark.asyncio
+async def test_create_multi_account_wallet(key_manager):
+
+    key_manager.set_password("super_S3cretP_Asswo0rd")
+    wallet = MultiAccountWallet()
+    wallet.create(network="Constellation", label="New MAW", mnemonic=mnemo, num_of_accounts=2)
+    model = wallet.model_dump()
+    for i, account in enumerate(model["rings"][0][1]):
+        model["rings"][0][1][i]["wallet"] = f"TEST_SIGNING_KEY_PLACEHOLDER_{i}"
+    model["rings"][1] = ('hd_path', 'TEST_HD_PATH_PLACEHOLDER')
+    model["rings"][4] = ('root_key', 'TEST_BIP32_KEY_PLACEHOLDER')
+    assert model == {
+        'type': 'MAW',
+        'label': 'New MAW',
+        'secret': 'multiply angle perfect verify behind sibling skirt attract first lift remove fortune',
+        'rings': [
+            (
+                'accounts', [
+                    {
+                        'tokens': [],
+                        'wallet': 'TEST_SIGNING_KEY_PLACEHOLDER_0',
+                        'assets': [],
+                        'bip44_index': 0,
+                        'provider': None,
+                        'label': None
+                    },
+                    {
+                        'tokens': [],
+                        'wallet': 'TEST_SIGNING_KEY_PLACEHOLDER_1',
+                        'assets': [],
+                        'bip44_index': 1,
+                        'provider': None,
+                        'label': None
+                    }
+                ]
+            ),
+            ('hd_path', 'TEST_HD_PATH_PLACEHOLDER'),
+            ('mnemonic', 'multiply angle perfect verify behind sibling skirt attract first lift remove fortune'),
+            ('extended_key', None),
+            ('root_key', 'TEST_BIP32_KEY_PLACEHOLDER'),
+            ('network', 'Constellation')
+        ]
+    }
+
+    #assert wallet.model_dump() == {
+    #    'type': 'MAW',
+    #    'label': 'New MAW',
+    #    'secret': 'multiply angle perfect verify behind sibling skirt attract first lift remove fortune',
+    #    'rings': [
+    #        (
+    #            'accounts', [
+    #                {
+    #                    'tokens': [],
+    #                    'wallet': <ecdsa.keys.SigningKey object at 0x7f3737c17240>, 'assets': [], 'bip44_index': 0, 'provider': None, 'label': None}, {'tokens': [], 'wallet': <ecdsa.keys.SigningKey object at 0x7f3737c17680>, 'assets': [], 'bip44_index': 1, 'provider': None, 'label': None}]), ('hd_path', <BIP_44_PATHS.CONSTELLATION_PATH: "m/44'/1137'/0'/0">), ('mnemonic', 'multiply angle perfect verify behind sibling skirt attract first lift remove fortune'), ('extended_key', None), ('root_key', <bip32utils.BIP32Key.BIP32Key object at 0x7f37371456d0>), ('network', 'Constellation')]}

@@ -15,7 +15,7 @@ class MultiAccountWallet(BaseModel):
     id: str = Field(default=None)
     supported_assets: List[str] = Field(default=[])
     label: Optional[str] = Field(default=None, max_length=12)
-    keyrings: List[HdKeyring] = Field(default=[])
+    keyring: List[HdKeyring] = Field(default=[])
     mnemonic: Optional[str] = Field(default=None)
     network: str = Field(default=None)
 
@@ -32,22 +32,13 @@ class MultiAccountWallet(BaseModel):
             "type": self.type,
             "label": self.label,
             "secret": self.mnemonic,
-            "rings": [ring.model_dump() for ring in self.keyrings]
+            "rings": [ring for ring in self.keyring]
         }
 
-    def create(self, network: str, mnemonic: str, label: str, num_of_accounts = 1):
-        #if mnemonic:
-        #{
-        #if (typeof(mnemonic) === 'number')
-        #{
-        #    mnemonic = Bip39Helper.generateMnemonic(mnemonic);
-        #}
-        #}
-        #else {
-        mnemonic = Bip39Helper().generate_mnemonic()
-        #}
-
-        self.deserialize({"secret": mnemonic, "type": self.type, "label": label, "network": network, "num_of_accounts": num_of_accounts})
+    def create(self, network: str, label: str, num_of_accounts = 1, mnemonic: str = None):
+        if not mnemonic:
+            mnemonic = Bip39Helper().generate_mnemonic()
+        self.deserialize(secret=mnemonic, type=self.type, label=label, network=network, num_of_accounts=num_of_accounts)
 
     def set_label(self, val: str):
         self.label = val
@@ -75,12 +66,12 @@ class MultiAccountWallet(BaseModel):
         }
 
     def serialize(self): # Returns KeyringWalletSerialized
-        return { "type": self.type, "label": self.label, "network": self.network, "secret": self.export_secret_key(), "rings": [ring.serialize() for ring in self.keyring] }
+        return { "type": self.type, "label": self.label, "network": self.network, "secret": self.export_secret_key(), "rings": [ring.model_dump() for ring in self.keyring] }
 
-    def deserialize(self, data: dict):
-        self.label = data.get("label")
-        self.network = data.get("network")
-        self.mnemonic = data.get("secret")
+    def deserialize(self, type: str, label: str, network: str, secret: str, num_of_accounts: int, rings: Optional[List] = None):
+        self.label = label
+        self.network = network
+        self.mnemonic = secret
 
         if self.network == NetworkId.Constellation.value:
             self.supported_assets.append(KeyringAssetType.DAG.value)
@@ -91,10 +82,10 @@ class MultiAccountWallet(BaseModel):
             bip44_path = BIP_44_PATHS.ETH_WALLET_PATH.value
 
         self.keyring = HdKeyring().create(mnemonic=self.mnemonic, hd_path=bip44_path,
-                               network=NetworkId.Constellation.value, number_of_accounts=data["num_of_accounts"])
+                               network=NetworkId.Constellation.value, number_of_accounts=num_of_accounts)
 
-        if data.get("rings"):
-            self.keyring.deserialize(data.get("rings")[0])
+        if rings:
+            self.keyring.deserialize(rings[0])
 
     def import_account(self, hd_path: str, label: str):
         ValueError("MultiAccountWallet :: Does not support importAccount")
@@ -110,7 +101,8 @@ class MultiAccountWallet(BaseModel):
         self.keyring.add_account_at()
 
     def set_num_of_accounts(self, num: int):
-        self.keyring = HdKeyring().create(self.mnemonic, self.keyring.get_hd_path(), self.network, num)
+        keyring = HdKeyring()
+        self.keyring = keyring.create(self.mnemonic, self.keyring.get_hd_path(), self.network, num)
 
     def remove_account (self, account):
         self.keyring.remove_account(account)
