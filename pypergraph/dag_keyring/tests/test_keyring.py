@@ -97,16 +97,71 @@ async def test_create_wallet_ids(key_manager):
 async def test_manager_login(key_manager):
     """Retrieves data from encryted json storage"""
     await key_manager.login("super_S3cretP_Asswo0rd")
-    assert [wallet.model_dump() for wallet in key_manager.wallets] == [{'type': 'SAW', 'label': 'New SAW', 'network': 'Constellation', 'secret': '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'}, {'type': 'MCW', 'label': 'Wallet #2', 'secret': 'multiply angle perfect verify behind sibling skirt attract first lift remove fortune', 'rings': [{'network': 'Constellation', 'accounts': [{'bip44_index': 0}]}, {'network': 'Ethereum', 'accounts': [{'tokens': ['0xa393473d64d2F9F026B60b6Df7859A689715d092'], 'bip44_index': 0}]}]}]
+    assert [wallet.model_dump() for wallet in key_manager.wallets] == [
+        {
+            'type': 'SAW',
+            'label': 'New SAW',
+            'network': 'Constellation',
+            'secret': '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'
+        },
+        {
+            'type': 'MCW',
+            'label': 'Wallet #2',
+            'secret': 'multiply angle perfect verify behind sibling skirt attract first lift remove fortune',
+            'rings': [
+                {
+                    'network': 'Constellation',
+                    'accounts': [{'bip44_index': 0}]},
+                {
+                    'network': 'Ethereum',
+                    'accounts': [
+                        {'tokens': [
+                            '0xa393473d64d2F9F026B60b6Df7859A689715d092'
+                        ],
+                            'bip44_index': 0
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 
 
 @pytest.mark.asyncio
 async def test_create_multi_key_wallet(key_manager):
-    """Can import pk"""
+    """
+    Can import pk but not export:
+    Imports an account using the given secret and label, creates a keyring and adds it to the keyrings list.
+    """
     key_manager.set_password("super_S3cretP_Asswo0rd")
     pk = KeyStore.get_private_key_from_mnemonic(mnemo)
     wallet = MultiKeyWallet()
     wallet.create(network="Constellation", label="New MKW")
+    wallet.import_account(secret=pk, label="Keyring 1")
+    wallet.import_account(secret=pk, label="Keyring 2")
     print(wallet.model_dump())
-    wallet.import_account(secret=pk, label="Old MKW")
-    print(wallet)
+    assert wallet.model_dump() == {
+        'type': 'MKW',
+        'label': 'New MKW',
+        'secret': None,
+        'rings': [
+            {
+                'network': 'Constellation',
+                'accounts': [
+                    {
+                        'private_key': '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710',
+                        'label': 'Keyring 1'
+                    }
+                ]
+            },
+            {
+                'network': 'Constellation',
+                'accounts': [
+                    {
+                        'private_key': '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710',
+                        'label': 'Keyring 2'
+                    }
+                ]
+            }
+        ]
+    }
