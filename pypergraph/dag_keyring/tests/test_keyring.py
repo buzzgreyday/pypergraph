@@ -137,8 +137,8 @@ async def test_create_multi_key_wallet(key_manager):
     pk = KeyStore.get_private_key_from_mnemonic(mnemo)
     wallet = MultiKeyWallet()
     wallet.create(network="Constellation", label="New MKW")
-    wallet.import_account(secret=pk, label="Keyring 1")
-    wallet.import_account(secret=pk, label="Keyring 2")
+    wallet.import_account(private_key=pk, label="Keyring 1")
+    wallet.import_account(private_key=pk, label="Keyring 2")
     assert wallet.model_dump() == {
         'type': 'MKW',
         'label': 'New MKW',

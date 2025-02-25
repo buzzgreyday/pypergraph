@@ -9,17 +9,31 @@ from .bip import Bip39Helper
 
 SID = 0  # Module-level counter
 
-class MultiAccountWallet:
+class MultiAccountWallet(BaseModel):
 
-    def __init__(self):
-        self.type = KeyringWalletType.MultiAccountWallet.value
-        self.id = f"{self.type}{self.SID + 1}"
-        self.SID += 1
-        self.supported_assets = []
-        self.label: str = ""
-        self.keyring: Optional[HdKeyring] = None # HdKeyring
-        self.mnemonic: str = ""
-        self.network: str = "" # KeyringNetwork
+    type: str = Field(default=KeyringWalletType.MultiAccountWallet.value)
+    id: str = Field(default=None)
+    supported_assets: List[str] = Field(default=[])
+    label: Optional[str] = Field(default=None, max_length=12)
+    keyrings: List[HdKeyring] = Field(default=[])
+    mnemonic: Optional[str] = Field(default=None)
+    network: str = Field(default=None)
+
+    @model_validator(mode="after")
+    def compute_id(self):
+        global SID
+        SID += 1
+        self.id = f"{self.type}{SID}"
+        return self
+
+    @model_serializer
+    def model_serialize(self) -> Dict[str, Any]:
+        return {
+            "type": self.type,
+            "label": self.label,
+            "secret": self.mnemonic,
+            "rings": [ring.model_dump() for ring in self.keyrings]
+        }
 
     def create(self, network: str, mnemonic: str, label: str, num_of_accounts = 1):
         #if mnemonic:
@@ -113,7 +127,7 @@ class MultiKeyWallet(BaseModel):
     supported_assets: List[str] = Field(default=[])
     label: Optional[str] = Field(default=None, max_length=12)
     keyrings: List[SimpleKeyring] = Field(default=[])
-    secret: Optional[str] = Field(default=None)
+    private_key: Optional[str] = Field(default=None)
     network: Optional[str] = Field(default=None)
 
 
@@ -129,7 +143,7 @@ class MultiKeyWallet(BaseModel):
         return {
             "type": self.type,
             "label": self.label,
-            "secret": self.secret,
+            "secret": self.private_key,
             "rings": [ring.model_dump() for ring in self.keyrings]
         }
 
@@ -192,7 +206,7 @@ class MultiKeyWallet(BaseModel):
         elif self.network == NetworkId.Constellation:
             self.supported_assets.append(KeyringAssetType.DAG.value)
 
-    def import_account(self, secret: str, label: str):
+    def import_account(self, private_key: str, label: str):
         """
         Imports an account using the given secret and label, creates a keyring,
         and adds it to the key_rings list.
@@ -202,7 +216,7 @@ class MultiKeyWallet(BaseModel):
         :return: The first account from the keyring.
         """
         keyring = SimpleKeyring()
-        keyring.deserialize(network=self.network, accounts=[{"private_key": secret, "label": label}])
+        keyring.deserialize(network=self.network, accounts=[{"private_key": private_key, "label": label}])
         self.keyrings.append(keyring)
         return keyring.get_accounts()[0]
 
