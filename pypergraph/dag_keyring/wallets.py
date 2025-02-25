@@ -105,20 +105,34 @@ class MultiAccountWallet:
         return self.mnemonic
 
 
-class MultiKeyWallet:
+class MultiKeyWallet(BaseModel):
     # TODO: Check all these
-    SID = 0
-    def __init__(self):
 
-        self.type = KeyringWalletType.MultiKeyWallet.value
-        self.id = f"{self.type}{self.SID + 1}"
-        self.SID += 1
-        #self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value] Original
-        self.supported_assets =[KeyringAssetType.DAG.value, KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
-        self.label: str = ""
-        self.mnemonic: str = ""
-        self.keyrings: [] = []
-        self.network = ""
+    type: str = Field(default=KeyringWalletType.MultiKeyWallet.value)
+    id: str = Field(default=None)
+    supported_assets: List[str] = Field(default=[])
+    label: Optional[str] = Field(default=None, max_length=12)
+    keyrings: List[SimpleKeyring] = Field(default=[])
+    secret: Optional[str] = Field(default=None)
+    network: Optional[str] = Field(default=None)
+
+
+    @model_validator(mode="after")
+    def compute_id(self):
+        global SID
+        SID += 1
+        self.id = f"{self.type}{SID}"
+        return self
+
+    @model_serializer
+    def model_serialize(self) -> Dict[str, Any]:
+        return {
+            "type": self.type,
+            "label": self.label,
+            "secret": self.secret,
+            "rings": [ring.model_dump() for ring in self.keyrings]
+        }
+
 
     def create(self, network: str, label: str):
         """
@@ -128,7 +142,7 @@ class MultiKeyWallet:
         :param label: Wallet name.
         """
 
-        self.deserialize({ "type": self.type, "lebel": label, "network": network })
+        self.deserialize(**{ "type": self.type, "label": label, "network": network })
 
     def set_label(self, val: str):
         self.label = val
@@ -156,27 +170,27 @@ class MultiKeyWallet:
             ],
         }
 
-    def serialize(self): # Returns KeyringWalletSerialized
-        return { "type": self.type, "label": self.label, "secret": self.mnemonic, "rings": [ring.serialize() for ring in self.keyrings] }
+    #def serialize(self): # Returns KeyringWalletSerialized
+    #    return { "type": self.type, "label": self.label, "secret": self.secret, "rings": [ring.serialize() for ring in self.keyrings] }
 
-    def deserialize(self, data: dict):
+    def deserialize(self, type: str, label: str, network: str, accounts: Optional[list] = None):
         """
         Deserialize the wallet data into the current instance.
 
         :param data: A dictionary containing serialized wallet data.
         """
-        self.label = data.get("label")
-        self.network = data.get("network")
+        self.label = label
+        self.network = network
         self.keyrings = []
 
-        if "accounts" in data and len(data["accounts"]) > 0:
-            for account in data["accounts"]:
-                self.import_account(account.get("privateKey"), account.get("label"))
+        if accounts is not None:
+            for account in accounts:
+                self.import_account(account.get("private_key"), account.get("label"))
 
         if self.network == NetworkId.Ethereum:
-            self.supported_assets.extend([KeyringAssetType.ETH, KeyringAssetType.ERC20])
+            self.supported_assets.extend([KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value])
         elif self.network == NetworkId.Constellation:
-            self.supported_assets.append(KeyringAssetType.DAG)
+            self.supported_assets.append(KeyringAssetType.DAG.value)
 
     def import_account(self, secret: str, label: str):
         """
@@ -188,9 +202,9 @@ class MultiKeyWallet:
         :return: The first account from the keyring.
         """
         keyring = SimpleKeyring()
-        keyring.deserialize({
+        keyring.deserialize(**{
             "network": self.network,
-            "accounts": [{"privateKey": secret, "label": label}]
+            "accounts": [{"private_key": secret, "label": label}]
         })
         self.keyrings.append(keyring)
         return keyring.get_accounts()[0]
@@ -215,11 +229,9 @@ class MultiKeyWallet:
 class MultiChainWallet(BaseModel):
     type: str = Field(default=KeyringWalletType.MultiChainWallet.value)
     id: str = Field(default=None)
-    supported_assets: Tuple = Field(default=(KeyringAssetType.DAG.value,
-                                           KeyringAssetType.ETH.value,
-                                           KeyringAssetType.ERC20.value))
+    supported_assets: List[str] = Field(default=[])
     label: Optional[str] = Field(default=None, max_length=12)
-    keyrings: List[HdKeyring] = Field(default_factory=list)
+    keyrings: List[HdKeyring] = Field(default=[])
     mnemonic: Optional[str] = Field(default=None)
 
     @model_validator(mode="after")
@@ -250,7 +262,7 @@ class MultiChainWallet(BaseModel):
         self.label = label
         self.mnemonic = mnemonic or bip39.generate_mnemonic()
         # Deserialize
-        self.deserialize(secret=mnemonic, label=label)
+        self.deserialize(secret=mnemonic, label=label, rings=rings)
 
 
     def set_label(self, val: str):

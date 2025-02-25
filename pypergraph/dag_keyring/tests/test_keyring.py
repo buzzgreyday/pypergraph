@@ -1,6 +1,6 @@
 import pytest
 
-from pypergraph.dag_keyring import KeyringManager
+from pypergraph.dag_keyring import KeyringManager, MultiKeyWallet
 from pypergraph.dag_keyring.tests.secrets import mnemo, from_address
 from pypergraph.dag_keystore import KeyStore
 
@@ -95,5 +95,18 @@ async def test_create_wallet_ids(key_manager):
 
 @pytest.mark.asyncio
 async def test_manager_login(key_manager):
+    """Retrieves data from encryted json storage"""
     await key_manager.login("super_S3cretP_Asswo0rd")
     assert [wallet.model_dump() for wallet in key_manager.wallets] == [{'type': 'SAW', 'label': 'New SAW', 'network': 'Constellation', 'secret': '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'}, {'type': 'MCW', 'label': 'Wallet #2', 'secret': 'multiply angle perfect verify behind sibling skirt attract first lift remove fortune', 'rings': [{'network': 'Constellation', 'accounts': [{'bip44_index': 0}]}, {'network': 'Ethereum', 'accounts': [{'tokens': ['0xa393473d64d2F9F026B60b6Df7859A689715d092'], 'bip44_index': 0}]}]}]
+
+
+@pytest.mark.asyncio
+async def test_create_multi_key_wallet(key_manager):
+    """Can import pk"""
+    key_manager.set_password("super_S3cretP_Asswo0rd")
+    pk = KeyStore.get_private_key_from_mnemonic(mnemo)
+    wallet = MultiKeyWallet()
+    wallet.create(network="Constellation", label="New MKW")
+    print(wallet.model_dump())
+    wallet.import_account(secret=pk, label="Old MKW")
+    print(wallet)
