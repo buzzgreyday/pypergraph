@@ -202,10 +202,7 @@ class MultiKeyWallet(BaseModel):
         :return: The first account from the keyring.
         """
         keyring = SimpleKeyring()
-        keyring.deserialize(**{
-            "network": self.network,
-            "accounts": [{"private_key": secret, "label": label}]
-        })
+        keyring.deserialize(network=self.network, accounts=[{"private_key": secret, "label": label}])
         self.keyrings.append(keyring)
         return keyring.get_accounts()[0]
 
