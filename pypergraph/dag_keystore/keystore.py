@@ -29,11 +29,11 @@ class KeyStore:
     DATA_SIGN_PREFIX = "\u0019Constellation Signed Data:\n"
 
     @staticmethod
-    def _double_hash(msg: str):
+    def _double_hash(msg: str) -> str:
         return hashlib.sha512(hashlib.sha256(bytes.fromhex(msg)).hexdigest().encode("utf-8")).hexdigest()
 
     @staticmethod
-    def prepare_tx (amount: int, to_address: str, from_address: str, last_ref: LastReference, fee: int = 0) -> Tuple[Transaction, str]:
+    def prepare_tx(amount: int, to_address: str, from_address: str, last_ref: LastReference, fee: int = 0) -> Tuple[Transaction, str]:
         """
         Prepare a new transaction.
 
@@ -54,7 +54,10 @@ class KeyStore:
           raise ValueError('KeyStore :: Send fee must be greater or equal to zero')
 
         # Create transaction
-        tx = Transaction(source=from_address, destination=to_address, amount=amount, fee=fee, parent=last_ref, salt=MIN_SALT + int(random.getrandbits(48)))
+        tx = Transaction(
+            source=from_address, destination=to_address, amount=amount, fee=fee,
+            parent=last_ref, salt=MIN_SALT + int(random.getrandbits(48))
+        )
 
         # Get encoded transaction
         encoded_tx = tx.encoded
@@ -66,11 +69,14 @@ class KeyStore:
         return tx, hash_value
 
 
-    def data_sign(self, private_key, msg):
+    def data_sign(self, private_key, msg) -> str:
         message = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
         # Serialize
         serialized_message = self.serialize(message)
+
         hash_value = hashlib.sha256(bytes.fromhex(serialized_message)).hexdigest()
+        # TODO: Probably needs a double hash:
+        # hash_value = self._double_hash(msg=serialized_message)
         return self.sign(private_key, hash_value)
 
 
@@ -79,8 +85,9 @@ class KeyStore:
         return msg.encode("utf-8").hex()
 
 
-    def personal_sign(self, msg, private_key):
+    def personal_sign(self, msg, private_key) -> str:
         message = f"{self.PERSONAL_SIGN_PREFIX}{len(msg)}\n{msg}"
+        # TODO: Might need hashing?
         return self.sign(private_key, message)
 
 
@@ -168,10 +175,17 @@ class KeyStore:
 
     @staticmethod
     def verify_data():
-        pass
+        # TODO
+        raise NotImplementedError("KeyStore :: This method is not supported.")
 
     @staticmethod
     def validate_address(address: str) -> bool:
+        """
+        Returns True if DAG address is valid, False if invalid.
+
+        :param address: DAG address.
+        :return: Boolean value.
+        """
         if not address:
             return False
 
@@ -188,7 +202,7 @@ class KeyStore:
     @staticmethod
     def validate_mnemonic(mnemonic_phrase: str) -> bool:
         """
-        Validate mnemonic seed phrase.
+        Returns True is phrase is valid, False if invalid.
 
         :param mnemonic_phrase: String of words (default: 12).
         :return: Boolean value.
