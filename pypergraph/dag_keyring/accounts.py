@@ -194,7 +194,8 @@ class EthAccount(EcdsaAccount):
         if address not in self.tokens:
             self.tokens.append(address)
 
-    def validate_address(self, address: str) -> bool:
+    @staticmethod
+    def validate_address(address: str) -> bool:
         """Validate an Ethereum address."""
         return is_checksum_address(address)
 

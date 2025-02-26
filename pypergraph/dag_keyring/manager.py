@@ -40,7 +40,7 @@ class KeyringManager(AsyncIOEventEmitter):
 
     async def create_multi_chain_hd_wallet(self, label: Optional[str] = None, seed: Optional[str] = None) -> MultiChainWallet:
         """
-        After validating password and seed phrase and deleting wallet cache, this is the next step in creating or restoring a wallet, by default.
+        This is the next step in creating or restoring a wallet, by default.
 
         :param label: Wallet name.
         :param seed: Seed phrase.

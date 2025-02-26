@@ -8,7 +8,7 @@ from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletTyp
 from .keyrings import HdKeyring, SimpleKeyring
 from .bip import Bip39Helper
 
-SID = 0  # Module-level counter
+SID = 0
 
 class MultiAccountWallet(BaseModel):
 
@@ -51,9 +51,11 @@ class MultiAccountWallet(BaseModel):
         mnemonic = mnemonic or bip39.generate_mnemonic()
         if not bip39.is_valid(mnemonic):
             raise ValueError("MultiAccountWallet :: Not a valid mnemonic phrase.")
-        self.deserialize(secret=mnemonic, type=self.type, label=label, network=network, num_of_accounts=num_of_accounts)
+        self.deserialize(secret=mnemonic, label=label, network=network, num_of_accounts=num_of_accounts)
 
     def set_label(self, val: str):
+        if not val:
+            raise ValueError("MultiAccountWallet :: No label set.")
         self.label = val
 
     def get_label(self) -> str:
@@ -81,8 +83,19 @@ class MultiAccountWallet(BaseModel):
     #def serialize(self): # Returns KeyringWalletSerialized
     #    return { "type": self.type, "label": self.label, "network": self.network, "secret": self.export_secret_key(), "rings": [ring.model_dump() for ring in self.keyring] }
 
-    def deserialize(self, type: str, label: str, network: str, secret: str, num_of_accounts: int, rings: Optional[List] = None):
-        self.label = label
+    def deserialize(self, label: str, network: str, secret: str, num_of_accounts: int, rings: Optional[List] = None):
+        """
+        Create keyring.
+
+        :param label:
+        :param network:
+        :param secret:
+        :param num_of_accounts:
+        :param rings:
+        :return:
+        """
+        keyring = HdKeyring()
+        self.set_label(label)
         self.network = network
         self.mnemonic = secret
 
@@ -94,7 +107,7 @@ class MultiAccountWallet(BaseModel):
             self.supported_assets.append(KeyringAssetType.ERC20.value)
             bip44_path = BIP_44_PATHS.ETH_WALLET_PATH.value
 
-        self.keyring = HdKeyring().create(mnemonic=self.mnemonic, hd_path=bip44_path,
+        self.keyring = keyring.create(mnemonic=self.mnemonic, hd_path=bip44_path,
                                network=NetworkId.Constellation.value, number_of_accounts=num_of_accounts)
 
         if rings:
@@ -114,6 +127,8 @@ class MultiAccountWallet(BaseModel):
         self.keyring.add_account_at()
 
     def set_num_of_accounts(self, num: int):
+        if not num:
+            raise ValueError("MultiAccountWallet :: No number of account specified.")
         keyring = HdKeyring()
         self.keyring = keyring.create(self.mnemonic, self.keyring.get_hd_path(), self.network, num)
 
@@ -160,9 +175,11 @@ class MultiKeyWallet(BaseModel):
         :param label: Wallet name.
         """
 
-        self.deserialize(**{ "type": self.type, "label": label, "network": network })
+        self.deserialize(label=label, network=network)
 
     def set_label(self, val: str):
+        if not val:
+            raise ValueError("MultiKeyWallet :: No label set.")
         self.label = val
 
     def get_label(self) -> str:
@@ -188,13 +205,17 @@ class MultiKeyWallet(BaseModel):
         }
 
 
-    def deserialize(self, type: str, label: str, network: str, accounts: Optional[list] = None):
+    def deserialize(self, label: str, network: str, accounts: Optional[list] = None):
         """
-        Deserialize the wallet data into the current instance.
+        Create keyrings.
 
-        :param data: A dictionary containing serialized wallet data.
+        :param label:
+        :param network:
+        :param accounts:
+        :return:
         """
-        self.label = label
+
+        self.set_label(label)
         self.network = network
         self.keyrings = []
 
@@ -283,6 +304,8 @@ class MultiChainWallet(BaseModel):
 
 
     def set_label(self, val: str):
+        if not val:
+            raise ValueError("MultiChainWallet :: No label set.")
         self.label = val
 
     def get_label(self) -> str:
@@ -334,19 +357,23 @@ class MultiChainWallet(BaseModel):
     def export_secret_key(self):
         return self.mnemonic
 
-    def deserialize(self, label: str, secret: str, rings: Optional[list] = None, type: Optional[str] = None):
+    def deserialize(self, label: str, secret: str, rings: Optional[list] = None):
         """
-        Main functionality of this MultiChainWallet method is to create hierarchical determinable wallet keyring containing:
-        { "network": network, "accounts": [{ "bipIndex44": integer }] }
+        Create keyrings.
 
-        :param data: { "label": self.label, "secret": self.mnemonic }
+        :param label:
+        :param secret:
+        :param rings:
+        :return:
         """
-        self.label = label
+        keyring = HdKeyring()
+
+        self.set_label(label)
         self.mnemonic = secret
 
         self.keyrings = [
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=NetworkId.Constellation.value, number_of_accounts=1),
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=NetworkId.Ethereum.value, number_of_accounts=1)
+            keyring.create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=NetworkId.Constellation.value, number_of_accounts=1),
+            keyring.create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=NetworkId.Ethereum.value, number_of_accounts=1)
         ]
 
         if rings:
@@ -397,9 +424,11 @@ class SingleAccountWallet(BaseModel):
         valid = re.fullmatch(r"^[a-fA-F0-9]{64}$", private_key)
         if not valid:
             ValueError("SingleAccountWallet :: Private key is invalid.")
-        self.deserialize(type=self.type, label=label, network=network, secret=private_key)
+        self.deserialize(label=label, network=network, secret=private_key)
 
     def set_label(self, val: str):
+        if not val:
+            raise ValueError("SingleAccountWallet :: No label set.")
         self.label = val
 
     def get_label(self) -> str:
@@ -424,14 +453,16 @@ class SingleAccountWallet(BaseModel):
             ],
         }
 
-    def deserialize(self, type, network, label, secret):
+    def deserialize(self, network: str, label: str, secret: str):
         """
-        Deserializes the single account data and creates a new simple keyring.
+        Create keyring.
 
-        :param data: { "type": self.type, "label": label, "network": network, "secret": private_key }
+        :param network:
+        :param label:
+        :param secret:
+        :return:
         """
-
-        self.label = label
+        self.set_label(label)
         self.network = network or NetworkId.Constellation.value
         self.keyring = SimpleKeyring()
 
