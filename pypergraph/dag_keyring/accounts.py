@@ -11,7 +11,6 @@ from pydantic import BaseModel, Field
 from pypergraph.dag_core import NetworkId, KeyringAssetType
 from pypergraph.dag_core.constants import PKCS_PREFIX
 
-# For dependency security reasons accounts for account creation should go here
 
 class EcdsaAccount(BaseModel, ABC):
     tokens: List[str] = Field(default_factory=list)
@@ -83,7 +82,7 @@ class EcdsaAccount(BaseModel, ABC):
     def get_state(self) -> Dict[str, Any]:
         result = {
             "address": self.get_address(),
-            "supportedAssets": self.supported_assets,
+            "supported_assets": self.supported_assets,
         }
         if self.label:
             result["label"] = self.label
@@ -113,14 +112,12 @@ class EcdsaAccount(BaseModel, ABC):
         self.tokens = tokens or self.tokens
 
         if private_key:
-            print(private_key)
             private_key = bytes.fromhex(private_key)
             self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
         else:
             raise NotImplementedError("EcdsaAccount :: Wallet instance from public key isn't supported.")
             # TODO: This doesn't work since the library doens't seem to have any equivalent
             #self.wallet = Wallet.from_public_key(bytes.fromhex(public_key))
-
 
         return self
 
@@ -246,7 +243,6 @@ class DagAccount(EcdsaAccount):
     @property
     def supported_assets(self) -> List[str]:
         return [KeyringAssetType.DAG.value]
-    ### --> KEYRING:DAGACCOUNT
 
     @staticmethod
     def validate_address(address: str) -> bool:

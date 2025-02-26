@@ -11,7 +11,7 @@ class Bip39Helper:
         if self.strength is None:
             raise ValueError(f"Bip39 :: The value or Bip39(words={words} is unsupported. Supported: 12 or 24")
         if language not in Bip39Helper.LANGUAGES:
-            raise ValueError(f"Bip39 :: The language {language} isn't supported. Supported languages: {', '.join(Bip39Helper.LANGUAGES)}")
+            raise ValueError(f"Bip39 :: The language {language} isn't supported. Supported languages: {', '.join(self.LANGUAGES)}")
         else:
             self.language = language
 
@@ -24,8 +24,10 @@ class Bip39Helper:
 
     def is_valid(self, seed: str) -> bool:
         """
-        Validates the mnemonic phrase and returns bool
+        Validates the mnemonic phrase and returns bool.
+
         :param self:
+        :param seed: Mnemonic phrase.
         :return:
         """
 
@@ -33,11 +35,12 @@ class Bip39Helper:
         return mnemo.check(seed)
 
     def get_seed_bytes_from_mnemonic(self, mnemonic: str):
-        return Mnemonic(self.language).to_seed(mnemonic)
+        mnemo = Mnemonic(self.language)
+        return mnemo.to_seed(mnemonic)
 
 class Bip32Helper:
     @staticmethod
-    def get_root_key_from_seed(seed_bytes):
+    def get_root_key_from_seed(seed_bytes) -> BIP32Key:
         """
         Derive the HD root/master key from a seed entropy in bytes format.
 
@@ -47,12 +50,12 @@ class Bip32Helper:
         return BIP32Key.fromEntropy(seed_bytes)
 
 
-    def get_hd_root_key_from_seed(self, seed_bytes: bytes, hd_path: str):
+    def get_hd_root_key_from_seed(self, seed_bytes: bytes, hd_path: str) -> BIP32Key:
         """
         Derive the private key from a seed entropy using derived path.
 
         :param seed_bytes: The seed in bytes format.
-        :param derivation_path: The derivation path.
+        :param hd_path: The derivation path.
         :return: The private key as a hexadecimal string.
         """
         path_parts = [int(part.strip("'")) for part in hd_path.split("/")[1:]]
