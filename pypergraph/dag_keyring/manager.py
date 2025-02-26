@@ -106,10 +106,8 @@ class KeyringManager(AsyncIOEventEmitter):
 
     async def persist_all_wallets(self, password):
         password = password or self.password
-        if not password or type(password) is not str:
-            raise ValueError("KeyringManager :: Password is not a valid string.")
 
-        self.password = password
+        self.set_password(password)
 
         s_wallets = [w.model_dump() for w in self.wallets]
 

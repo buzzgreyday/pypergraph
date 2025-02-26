@@ -80,9 +80,6 @@ class MultiAccountWallet(BaseModel):
             ],
         }
 
-    #def serialize(self): # Returns KeyringWalletSerialized
-    #    return { "type": self.type, "label": self.label, "network": self.network, "secret": self.export_secret_key(), "rings": [ring.model_dump() for ring in self.keyring] }
-
     def deserialize(self, label: str, network: str, secret: str, num_of_accounts: int, rings: Optional[List] = None):
         """
         Create keyring.
@@ -113,9 +110,11 @@ class MultiAccountWallet(BaseModel):
         if rings:
             self.keyring.deserialize(rings[0])
 
-    def import_account(self):
+    @staticmethod
+    def import_account():
         """Importing is not supported."""
-        ValueError("MultiAccountWallet :: Multi account wallets does not support import account.")
+
+        raise ValueError("MultiAccountWallet :: Multi account wallets does not support import account.")
 
     def get_accounts(self):
         return self.keyring.get_accounts()
@@ -185,8 +184,9 @@ class MultiKeyWallet(BaseModel):
     def get_label(self) -> str:
         return self.label
 
-    def get_network(self):
-        NotImplementedError("MultiChainWallet :: Multi key wallets does not support this method.")
+    @staticmethod
+    def get_network():
+        raise NotImplementedError("MultiChainWallet :: Multi key wallets does not support this method.")
 
     def get_state(self):
         return {
@@ -233,7 +233,7 @@ class MultiKeyWallet(BaseModel):
         Imports an account using the given secret and label, creates a keyring,
         and adds it to the key_rings list.
 
-        :param secret: The private key of the account to import.
+        :param private_key: The private key of the account to import.
         :param label: A label for the account.
         :return: The first account from the keyring.
         """
@@ -256,11 +256,13 @@ class MultiKeyWallet(BaseModel):
                 break
         return account
 
-    def remove_account(self): # IKeyAccount {
-        ValueError("MultiKeyWallet :: Does not allow removing accounts.")
+    @staticmethod
+    def remove_account(): # IKeyAccount {
+        raise ValueError("MultiKeyWallet :: Does not allow removing accounts.")
 
-    def export_secret_key(self):
-        ValueError("MultiKeyWallet :: Does not allow exporting secrets.")
+    @staticmethod
+    def export_secret_key():
+        raise ValueError("MultiKeyWallet :: Does not allow exporting secrets.")
 
 
 class MultiChainWallet(BaseModel):
@@ -311,9 +313,9 @@ class MultiChainWallet(BaseModel):
     def get_label(self) -> str:
         return self.label
 
-    def get_network(self):
-        ValueError("MultiChainWallet :: Does not support this method")
-        return None
+    @staticmethod
+    def get_network():
+        raise ValueError("MultiChainWallet :: Does not support this method")
 
     def get_state(self):
         return {
@@ -331,9 +333,10 @@ class MultiChainWallet(BaseModel):
             ],
         }
 
-    def import_account(self):
+    @staticmethod
+    def import_account():
         """Importing account is not supported."""
-        ValueError("MultiChainWallet :: Multi chain wallet does not support importing account.")
+        raise ValueError("MultiChainWallet :: Multi chain wallet does not support importing account.")
 
     # getAssets(): string[]
     #{
@@ -351,8 +354,9 @@ class MultiChainWallet(BaseModel):
                 break
         return account
 
-    def remove_account(self, account): # IKeyAccount {
-        ValueError("MultiChainWallet :: Does not allow removing accounts.")
+    @staticmethod
+    def remove_account(): # IKeyAccount {
+        raise ValueError("MultiChainWallet :: Does not allow removing accounts.")
 
     def export_secret_key(self):
         return self.mnemonic
@@ -475,9 +479,10 @@ class SingleAccountWallet(BaseModel):
         elif self.network == NetworkId.Constellation.value:
           self.supported_assets.append(KeyringAssetType.DAG.value)
 
-    def import_account (self):
+    @staticmethod
+    def import_account ():
         """Not supported for SingleAccountWallet"""
-        ValueError("SingleAccountWallet :: does not support importing of account.")
+        raise ValueError("SingleAccountWallet :: does not support importing of account.")
 
     def get_accounts(self):
         return self.keyring.get_accounts()
@@ -486,7 +491,7 @@ class SingleAccountWallet(BaseModel):
         return self.keyring.get_account_by_address(address)
 
     def remove_account(self, account):
-        ValueError("SingleChainWallet :: Does not allow removing accounts.")
+        raise ValueError("SingleChainWallet :: Does not allow removing accounts.")
 
     def export_secret_key(self) -> str:
         return self.keyring.get_accounts()[0].wallet.to_string().hex()
