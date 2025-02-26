@@ -3,9 +3,6 @@ from typing import Union
 from pypergraph.dag_core import NetworkId
 from .accounts import DagAccount, EthAccount
 
-
-# Polymorphism
-
 class KeyringRegistry:
     def __init__(self):
         # Map network values to their respective account classes

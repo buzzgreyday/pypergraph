@@ -2,6 +2,7 @@ from typing import Optional, List, Dict, Any, Union
 
 from bip32utils import BIP32Key
 from pydantic import BaseModel, Field, model_serializer
+from typing_extensions import Self
 
 from pypergraph.dag_core.constants import NetworkId
 from pypergraph.dag_keyring.accounts import EthAccount, DagAccount
@@ -29,7 +30,7 @@ class HdKeyring(BaseModel):
             "accounts": [acc.serialize(include_private_key=False) for acc in self.accounts]
         }
 
-    def create(self, mnemonic: str, hd_path: str, network: str, number_of_accounts: int = 1):
+    def create(self, mnemonic: str, hd_path: str, network: str, number_of_accounts: int = 1) -> Self:
         """
         Create a hierarchical deterministic keyring.
 
@@ -57,7 +58,7 @@ class HdKeyring(BaseModel):
         )
         return inst
 
-    def create_accounts(self, number_of_accounts: int = 0) -> List[dict]:
+    def create_accounts(self, number_of_accounts: int = 0) -> List[Dict]:
         """
         When adding an account (after accounts have been removed), it will add back the ones removed first.
 
@@ -90,7 +91,7 @@ class HdKeyring(BaseModel):
                 account.set_tokens(d.get("tokens"))
                 self.accounts.append(account)
 
-    def add_account_at(self, index: int = 0):
+    def add_account_at(self, index: int = 0) -> Union[DagAccount, EthAccount]:
         """
         Add account class object with a signing key to the keyring being constructed.
 
@@ -102,19 +103,18 @@ class HdKeyring(BaseModel):
         if self.mnemonic:
             private_key = self.root_key.PrivateKey().hex()
             account = registry.create_account(self.network)
-            account = account.deserialize(**{ "private_key": private_key, "bip44_index": index })
+            account = account.deserialize(private_key=private_key, bip44_index=index)
         else:
             # raise NotImplementedError("HDKeyring :: Wallet from public key isn't supported.")
             public_key = self.root_key.PublicKey()
             account = registry.create_account(self.network)
-            account = account.deserialize(**{ "public_key": public_key, "bip44_index": index })
+            account = account.deserialize(public_key=public_key, bip44_index=index)
 
         # self.accounts.append(account)
         return account
 
     # Read-only wallet
-    @staticmethod
-    def create_from_extended_key(extended_key: str, network: NetworkId, number_of_accounts: int):
+    def create_from_extended_key(self, extended_key: str, network: NetworkId, number_of_accounts: int) -> Self:
         inst = HdKeyring()
         inst.extendedKey = extended_key
         inst._init_from_extended_key(extended_key)
@@ -126,13 +126,13 @@ class HdKeyring(BaseModel):
         )
         return inst
 
-    def get_network(self):
+    def get_network(self) -> str:
         return self.network
 
-    def get_hd_path(self):
+    def get_hd_path(self) -> str:
         return self.hd_path
 
-    def get_extended_public_key(self):
+    def get_extended_public_key(self) -> str:
         if self.mnemonic:
             return self.root_key.ExtendedKey(private=False).hex()
 
@@ -144,10 +144,10 @@ class HdKeyring(BaseModel):
     def export_account (self, account) -> str: # account is IKeyringAccount
         return account.get_private_key()
 
-    def get_accounts(self):
+    def get_accounts(self) -> List:
         return self.accounts
 
-    def get_account_by_address(self, address: str): # account is IKeyringAccount
+    def get_account_by_address(self, address: str) -> Union[DagAccount, EthAccount]: # account is IKeyringAccount
         return next((acc for acc in self.accounts if acc.get_address().lower() == address.lower()), None)
 
     def remove_account(self, account): # account is IKeyringAccount
@@ -170,7 +170,7 @@ class SimpleKeyring(BaseModel):
             "accounts": [self.account.serialize(True)]
         }
 
-    def create_for_network(self, network, private_key: str):
+    def create_for_network(self, network, private_key: str) -> Self:
         inst = SimpleKeyring()
         inst.network = network
         registry = KeyringRegistry()
@@ -186,11 +186,6 @@ class SimpleKeyring(BaseModel):
         }
 
     def deserialize(self, network: str, accounts: list):
-        """
-        Deserialize and add an account class object to the keyring being constructed.
-
-        :param data:
-        """
         self.network = network
         registry = KeyringRegistry()
         account = registry.create_account(network)
@@ -199,7 +194,7 @@ class SimpleKeyring(BaseModel):
     def add_account_at(self, index: int):
         raise NotImplementedError("SimpleKeyring :: Accounts can't be added to SimpleKeyrings.")
 
-    def get_accounts(self):
+    def get_accounts(self) -> List[Union[DagAccount, EthAccount]]:
         return [self.account]
 
     def get_account_by_address(self, address: str):

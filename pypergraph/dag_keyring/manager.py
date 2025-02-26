@@ -10,7 +10,6 @@ from pypergraph.dag_keyring.bip import Bip39Helper
 from pypergraph.dag_keyring.storage import StateStorageDb, ObservableStore
 
 
-# TODO: EVERYTHING NEEDS A CHECK. Manager has more methods than the ones below. This is only enough to create new wallets and store them
 class KeyringManager(AsyncIOEventEmitter):
 
     def __init__(self):
@@ -38,7 +37,9 @@ class KeyringManager(AsyncIOEventEmitter):
         bip39 = Bip39Helper()
         return bip39.generate_mnemonic()
 
-    async def create_multi_chain_hd_wallet(self, label: Optional[str] = None, seed: Optional[str] = None) -> MultiChainWallet:
+    async def create_multi_chain_hd_wallet(
+            self, label: Optional[str] = None, seed: Optional[str] = None
+    ) -> MultiChainWallet:
         """
         This is the next step in creating or restoring a wallet, by default.
 
@@ -57,7 +58,9 @@ class KeyringManager(AsyncIOEventEmitter):
         await self.full_update()
         return wallet
 
-    async def create_or_restore_vault(self, password: str, label: Optional[str] = None, seed: Optional[str] = None) -> MultiChainWallet:
+    async def create_or_restore_vault(
+            self, password: str, label: Optional[str] = None, seed: Optional[str] = None
+    ) -> MultiChainWallet:
         """
         First step, creating or restoring a wallet.
         This is the default wallet type when creating a new wallet.
@@ -85,7 +88,10 @@ class KeyringManager(AsyncIOEventEmitter):
         return wallet
 
     # creates a single wallet with one chain, creates first account by default, one per chain.
-    async def create_single_account_wallet(self, label: str, private_key: str, network: Optional[Union[NetworkId.Constellation.value, NetworkId.Ethereum.value]] = None) -> SingleAccountWallet:
+    async def create_single_account_wallet(
+            self, label: str, private_key: str,
+            network: Optional[Union[NetworkId.Constellation.value, NetworkId.Ethereum.value]] = None
+    ) -> SingleAccountWallet:
 
         wallet = SingleAccountWallet()
         label = label or "Wallet #" + f"{len(self.wallets) + 1}"
@@ -211,27 +217,40 @@ class KeyringManager(AsyncIOEventEmitter):
         self.mem_store.update_state(is_unlocked=True)
         self.emit("unlock")
 
-    async def _restore_wallet(self, w_data): # KeyringSerialized
-        if w_data["type"] == KeyringWalletType.MultiChainWallet.value:
+    async def _restore_wallet(self, data): # KeyringSerialized
+        if data["type"] == KeyringWalletType.MultiChainWallet.value:
             ## Can export secret (mnemonic) but cant remove or import
             wallet = MultiChainWallet()
-            wallet.deserialize(**w_data)
+            # Create keyrings
+            wallet.deserialize(
+                label=data["label"], secret=data["secret"], rings=data["rings"]
+            )
 
-        elif w_data["type"] == KeyringWalletType.SingleAccountWallet.value:
+        elif data["type"] == KeyringWalletType.SingleAccountWallet.value:
             ## Can export secret (private key) but not remove or import account
             wallet = SingleAccountWallet()
-            wallet.deserialize(**w_data)
+            # Create keyrings
+            wallet.deserialize(
+                network=data["network"], label=data["label"], secret=data["secret"])
 
-        elif w_data["type"] == KeyringWalletType.MultiAccountWallet.value:
+        elif data["type"] == KeyringWalletType.MultiAccountWallet.value:
             ## This can export secret key (mnemonic), remove account but not import
             wallet = MultiAccountWallet()
-            wallet.deserialize(**w_data)
-        elif w_data["type"] == KeyringWalletType.MultiKeyWallet.value:
+            # Create keyrings
+            wallet.deserialize(
+                label=data["label"], network=data["network"], secret=data["secret"],
+                num_of_accounts=data["num_of_accounts"], rings=data["rings"]
+            )
+        elif data["type"] == KeyringWalletType.MultiKeyWallet.value:
             ## This can import account but not export secret or remove account
             wallet = MultiKeyWallet()
-            wallet.deserialize(**w_data)
+            # Create keyrings
+            wallet.deserialize(label=data["label"], network=data["network"], accounts=data["accounts"])
         else:
-            raise ValueError("KeyringManager :: Unknown Wallet type - " + w_data.type + ", support types are [" + KeyringWalletType.MultiChainWallet.value + "," + KeyringWalletType.SingleAccountWallet.value + "]")
+            raise ValueError(
+                "KeyringManager :: Unknown Wallet type - " + data["type"] + ", support types are ["
+                + KeyringWalletType.MultiChainWallet.value + "," + KeyringWalletType.SingleAccountWallet.value + "]"
+            )
 
         self.wallets.append(wallet)
 

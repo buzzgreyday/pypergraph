@@ -1,6 +1,3 @@
-
-from base64 import b64encode, b64decode
-
 import os
 import json
 from cryptography.hazmat.primitives import hashes

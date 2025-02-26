@@ -91,7 +91,7 @@ async def test_create_wallet_ids(key_manager):
     pk = KeyStore.get_private_key_from_mnemonic(mnemo)
     await key_manager.create_single_account_wallet(label="New SAW", private_key=pk)
     await key_manager.create_multi_chain_hd_wallet(seed=mnemo)
-    assert [wallet.id for wallet in key_manager.wallets] == ['SAW1', 'MCW2']
+    assert [wallet.id for wallet in key_manager.wallets] == ['SAW4', 'MCW5']
 
 @pytest.mark.asyncio
 async def test_manager_login(key_manager):

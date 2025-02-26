@@ -105,7 +105,10 @@ class EcdsaAccount(BaseModel, ABC):
             result["bip44_index"] = self.bip44_index
         return result
 
-    def deserialize(self, bip44_index: Optional[int] = None, label: Optional[str] = None, private_key: Optional[str] = None, tokens: Optional[List[str]] = None):
+    def deserialize(
+            self, bip44_index: Optional[int] = None, label: Optional[str] = None,
+            private_key: Optional[str] = None, public_key: Optional[str] = None, tokens: Optional[List[str]] = None
+    ):
 
         self.label = label
         self.bip44_index = bip44_index
@@ -121,6 +124,7 @@ class EcdsaAccount(BaseModel, ABC):
 
         return self
 
+    # TODO
     # def sign_message(self, msg: str) -> str:
     #     private_key = self.get_private_key_buffer()
     #     msg_hash = eth_util.hash_personal_message(msg.encode())
