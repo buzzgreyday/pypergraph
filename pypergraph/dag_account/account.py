@@ -10,7 +10,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core import NetworkId
 from pypergraph.dag_core.constants import PKCS_PREFIX
-from pypergraph.dag_network.models.account import KeyTrio
+from pypergraph.dag_account.models.key_trio import KeyTrio
 from pypergraph.dag_network.models.transaction import SignatureProof, SignedTransaction
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork

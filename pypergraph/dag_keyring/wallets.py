@@ -1,7 +1,8 @@
-from typing import Optional, List, Dict, Any, Tuple
+import re
+from typing import Optional, List, Dict, Any
 
 from ecdsa import SigningKey, SECP256k1
-from pydantic import Field, BaseModel, model_serializer, model_validator
+from pydantic import Field, BaseModel, model_serializer, model_validator, constr
 
 from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, NetworkId
 from .keyrings import HdKeyring, SimpleKeyring
@@ -21,6 +22,7 @@ class MultiAccountWallet(BaseModel):
 
     @model_validator(mode="after")
     def compute_id(self):
+        """Automatically computes the id based on global SID value."""
         global SID
         SID += 1
         self.id = f"{self.type}{SID}"
@@ -28,6 +30,7 @@ class MultiAccountWallet(BaseModel):
 
     @model_serializer
     def model_serialize(self) -> Dict[str, Any]:
+        """Returns a serialized version of the object."""
         return {
             "type": self.type,
             "label": self.label,
@@ -35,9 +38,19 @@ class MultiAccountWallet(BaseModel):
             "rings": [ring for ring in self.keyring]
         }
 
-    def create(self, network: str, label: str, num_of_accounts = 1, mnemonic: str = None):
-        if not mnemonic:
-            mnemonic = Bip39Helper().generate_mnemonic()
+    def create(self, network: str, label: str, num_of_accounts: int = 1, mnemonic: str = None):
+        """
+        Creates a wallet with a keyring of hierarchical deterministic accounts based on the number BIP44 indexes (num_of_accounts).
+
+        :param network: e.g. "Constellation".
+        :param label: "New MAW".
+        :param num_of_accounts: Number of BIP44 indexes.
+        :param mnemonic: Mnemonic phrase.
+        """
+        bip39 = Bip39Helper()
+        mnemonic = mnemonic or bip39.generate_mnemonic()
+        if not bip39.is_valid(mnemonic):
+            raise ValueError("MultiAccountWallet :: Not a valid mnemonic phrase.")
         self.deserialize(secret=mnemonic, type=self.type, label=label, network=network, num_of_accounts=num_of_accounts)
 
     def set_label(self, val: str):
@@ -65,8 +78,8 @@ class MultiAccountWallet(BaseModel):
             ],
         }
 
-    def serialize(self): # Returns KeyringWalletSerialized
-        return { "type": self.type, "label": self.label, "network": self.network, "secret": self.export_secret_key(), "rings": [ring.model_dump() for ring in self.keyring] }
+    #def serialize(self): # Returns KeyringWalletSerialized
+    #    return { "type": self.type, "label": self.label, "network": self.network, "secret": self.export_secret_key(), "rings": [ring.model_dump() for ring in self.keyring] }
 
     def deserialize(self, type: str, label: str, network: str, secret: str, num_of_accounts: int, rings: Optional[List] = None):
         self.label = label
@@ -87,9 +100,9 @@ class MultiAccountWallet(BaseModel):
         if rings:
             self.keyring.deserialize(rings[0])
 
-    def import_account(self, hd_path: str, label: str):
-        ValueError("MultiAccountWallet :: Does not support importAccount")
-        return None
+    def import_account(self):
+        """Importing is not supported."""
+        ValueError("MultiAccountWallet :: Multi account wallets does not support import account.")
 
     def get_accounts(self):
         return self.keyring.get_accounts()
@@ -119,7 +132,7 @@ class MultiKeyWallet(BaseModel):
     supported_assets: List[str] = Field(default=[])
     label: Optional[str] = Field(default=None, max_length=12)
     keyrings: List[SimpleKeyring] = Field(default=[])
-    private_key: Optional[str] = Field(default=None)
+    private_key: Optional[constr(pattern=r"^[a-fA-F0-9]{64}$")] = Field(default=None)
     network: Optional[str] = Field(default=None)
 
 
@@ -139,7 +152,6 @@ class MultiKeyWallet(BaseModel):
             "rings": [ring.model_dump() for ring in self.keyrings]
         }
 
-
     def create(self, network: str, label: str):
         """
         Create new multi key wallet. These can also be imported.
@@ -157,8 +169,7 @@ class MultiKeyWallet(BaseModel):
         return self.label
 
     def get_network(self):
-        ValueError("MultiChainWallet :: Does not support this method")
-        return ""
+        NotImplementedError("MultiChainWallet :: Multi key wallets does not support this method.")
 
     def get_state(self):
         return {
@@ -176,8 +187,6 @@ class MultiKeyWallet(BaseModel):
             ],
         }
 
-    #def serialize(self): # Returns KeyringWalletSerialized
-    #    return { "type": self.type, "label": self.label, "secret": self.secret, "rings": [ring.serialize() for ring in self.keyrings] }
 
     def deserialize(self, type: str, label: str, network: str, accounts: Optional[list] = None):
         """
@@ -208,6 +217,9 @@ class MultiKeyWallet(BaseModel):
         :return: The first account from the keyring.
         """
         keyring = SimpleKeyring()
+        valid = re.fullmatch(r"^[a-fA-F0-9]{64}$", private_key)
+        if not valid:
+            ValueError("MultiAccountWallet :: Private key is invalid.")
         keyring.deserialize(network=self.network, accounts=[{"private_key": private_key, "label": label}])
         self.keyrings.append(keyring)
         return keyring.get_accounts()[0]
@@ -223,11 +235,12 @@ class MultiKeyWallet(BaseModel):
                 break
         return account
 
-    def remove_account(self, account): # IKeyAccount {
+    def remove_account(self): # IKeyAccount {
         ValueError("MultiKeyWallet :: Does not allow removing accounts.")
 
     def export_secret_key(self):
         ValueError("MultiKeyWallet :: Does not allow exporting secrets.")
+
 
 class MultiChainWallet(BaseModel):
     type: str = Field(default=KeyringWalletType.MultiChainWallet.value)
@@ -264,7 +277,8 @@ class MultiChainWallet(BaseModel):
         bip39 = Bip39Helper()
         self.label = label
         self.mnemonic = mnemonic or bip39.generate_mnemonic()
-        # Deserialize
+        if not bip39.is_valid(mnemonic):
+            raise ValueError("MultiAccountWallet :: Not a valid mnemonic phrase.")
         self.deserialize(secret=mnemonic, label=label, rings=rings)
 
 
@@ -294,9 +308,9 @@ class MultiChainWallet(BaseModel):
             ],
         }
 
-    def import_account(self, hd_path: str, label: str):
-        ValueError("MultiChainWallet :: Does not support importAccount")
-        return None
+    def import_account(self):
+        """Importing account is not supported."""
+        ValueError("MultiChainWallet :: Multi chain wallet does not support importing account.")
 
     # getAssets(): string[]
     #{
@@ -344,9 +358,7 @@ class MultiChainWallet(BaseModel):
         global SID
         SID = 0
 
-# accounts.single_account_wallet
 
-# SingleKeyWallet
 class SingleAccountWallet(BaseModel):
 
     type: str = Field(default=KeyringWalletType.SingleAccountWallet.value)
@@ -372,19 +384,20 @@ class SingleAccountWallet(BaseModel):
             "secret": self.export_secret_key(),
         }
 
-    def create(self, network_id: str, private_key: str, label: str):
+    def create(self, network: str, label: str, private_key: str = None):
         """
         Initiates the creation of a new single key wallet.
 
-        :param network_id:
+        :param network:
         :param private_key:
         :param label:
         :return:
         """
-        if not private_key:
-            private_key = SigningKey.generate(SECP256k1).to_string().hex()
-
-        self.deserialize(**{ "type": self.type, "label": label, "network": network_id, "secret": private_key })
+        private_key = private_key or SigningKey.generate(SECP256k1).to_string().hex()
+        valid = re.fullmatch(r"^[a-fA-F0-9]{64}$", private_key)
+        if not valid:
+            ValueError("SingleAccountWallet :: Private key is invalid.")
+        self.deserialize(type=self.type, label=label, network=network, secret=private_key)
 
     def set_label(self, val: str):
         self.label = val
@@ -422,7 +435,7 @@ class SingleAccountWallet(BaseModel):
         self.network = network or NetworkId.Constellation.value
         self.keyring = SimpleKeyring()
 
-        self.keyring.deserialize(**{"network": self.network, "accounts": [{ "private_key": secret }]})
+        self.keyring.deserialize(network=self.network, accounts=[{ "private_key": secret }])
 
         if self.network == NetworkId.Ethereum.value:
           self.supported_assets.append(KeyringAssetType.ETH.value)
@@ -431,9 +444,9 @@ class SingleAccountWallet(BaseModel):
         elif self.network == NetworkId.Constellation.value:
           self.supported_assets.append(KeyringAssetType.DAG.value)
 
-    def import_account (self, hdPath: str, label: str):
-        ValueError("SingleAccountWallet :: does not support import_account")
-        return None
+    def import_account (self):
+        """Not supported for SingleAccountWallet"""
+        ValueError("SingleAccountWallet :: does not support importing of account.")
 
     def get_accounts(self):
         return self.keyring.get_accounts()

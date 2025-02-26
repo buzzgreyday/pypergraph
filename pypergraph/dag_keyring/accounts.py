@@ -113,6 +113,7 @@ class EcdsaAccount(BaseModel, ABC):
         self.tokens = tokens or self.tokens
 
         if private_key:
+            print(private_key)
             private_key = bytes.fromhex(private_key)
             self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
         else:

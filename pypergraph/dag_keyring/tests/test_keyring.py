@@ -133,7 +133,6 @@ async def test_create_multi_key_wallet(key_manager):
     Can import pk but not export:
     Imports an account using the given secret and label, creates a keyring and adds it to the keyrings list.
     """
-    key_manager.set_password("super_S3cretP_Asswo0rd")
     pk = KeyStore.get_private_key_from_mnemonic(mnemo)
     wallet = MultiKeyWallet()
     wallet.create(network="Constellation", label="New MKW")
@@ -209,14 +208,3 @@ async def test_create_multi_account_wallet(key_manager):
             ('network', 'Constellation')
         ]
     }
-
-    #assert wallet.model_dump() == {
-    #    'type': 'MAW',
-    #    'label': 'New MAW',
-    #    'secret': 'multiply angle perfect verify behind sibling skirt attract first lift remove fortune',
-    #    'rings': [
-    #        (
-    #            'accounts', [
-    #                {
-    #                    'tokens': [],
-    #                    'wallet': <ecdsa.keys.SigningKey object at 0x7f3737c17240>, 'assets': [], 'bip44_index': 0, 'provider': None, 'label': None}, {'tokens': [], 'wallet': <ecdsa.keys.SigningKey object at 0x7f3737c17680>, 'assets': [], 'bip44_index': 1, 'provider': None, 'label': None}]), ('hd_path', <BIP_44_PATHS.CONSTELLATION_PATH: "m/44'/1137'/0'/0">), ('mnemonic', 'multiply angle perfect verify behind sibling skirt attract first lift remove fortune'), ('extended_key', None), ('root_key', <bip32utils.BIP32Key.BIP32Key object at 0x7f37371456d0>), ('network', 'Constellation')]}

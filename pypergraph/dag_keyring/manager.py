@@ -1,4 +1,5 @@
-from typing import Optional, Union
+import re
+from typing import Optional, Union, List
 
 from pyee.asyncio import AsyncIOEventEmitter
 
@@ -14,11 +15,11 @@ class KeyringManager(AsyncIOEventEmitter):
 
     def __init__(self):
         super().__init__()
-        self.encryptor = Encryptor()
-        self.storage = StateStorageDb()
-        self.wallets = []
-        self.password: Optional[str] = None  # Use None instead of an empty string
-        self.mem_store = ObservableStore() # Memory storage
+        self.encryptor: Encryptor = Encryptor()
+        self.storage: StateStorageDb = StateStorageDb()
+        self.wallets: List[Union[MultiChainWallet, MultiKeyWallet, MultiAccountWallet, SingleAccountWallet]] = []
+        self.password: Optional[str] = None
+        self.mem_store: ObservableStore = ObservableStore()
         # KeyringManager is also an event emitter
         self.on("new_account", self.create_multi_chain_hd_wallet)
         self.on("remove_account", self.remove_account)
@@ -27,14 +28,15 @@ class KeyringManager(AsyncIOEventEmitter):
         return bool(self.password)
 
     async def clear_wallets(self):
-        """Clear wallet cahce."""
+        """Clear wallet cache."""
 
         self.wallets = []
         self.mem_store.update_state(wallets=[])
 
     @staticmethod
     def generate_mnemonic():
-        return Bip39Helper().generate_mnemonic()
+        bip39 = Bip39Helper()
+        return bip39.generate_mnemonic()
 
     async def create_multi_chain_hd_wallet(self, label: Optional[str] = None, seed: Optional[str] = None) -> MultiChainWallet:
         """
@@ -66,13 +68,7 @@ class KeyringManager(AsyncIOEventEmitter):
         :return:
         """
         bip39 = Bip39Helper()
-        if not password:
-            raise ValueError("KeyringManager :: A password is required to create or restore a Vault.")
-        elif type(password) is not str:
-            raise ValueError("KeyringManager :: Password has invalid format.")
-        else:
-            # Set the password to be associated with the wallet.
-            self.password = password
+        self.set_password(password)
 
         if type(seed) not in (str, None):
             raise ValueError(f"KeyringManager :: A seed phrase must be a string, got {type(seed)}.")
@@ -94,7 +90,7 @@ class KeyringManager(AsyncIOEventEmitter):
         wallet = SingleAccountWallet()
         label = label or "Wallet #" + f"{len(self.wallets) + 1}"
 
-        wallet.create(network, private_key, label)
+        wallet.create(network=network, private_key=private_key, label=label)
         self.wallets.append(wallet)
 
         await self.full_update()
@@ -125,7 +121,18 @@ class KeyringManager(AsyncIOEventEmitter):
         wallets = [w.get_state() for w in self.wallets]
         self.mem_store.update_state(wallets=wallets)
 
-    def set_password(self, password):
+    def set_password(self, password: str):
+        """Will enforce basic restrictions on password creation"""
+
+        if len(password) < 8:
+            raise ValueError("KeyringManager :: Password must be at least 8 characters long.")
+        if re.search(r'\d', password) is None:
+            raise ValueError("KeyringManager :: Password must contain at least one number.")
+        if re.search(r'[a-z]', password) is None:
+            raise ValueError("KeyringManager :: Password must contain at least one lowercase letter.")
+        if re.search(r'[A-Z]', password) is None:
+            raise ValueError("KeyringManager :: Password must contain at least one uppercase letter.")
+
         self.password = password
 
     def set_wallet_label(self, wallet_id: str, label: str):

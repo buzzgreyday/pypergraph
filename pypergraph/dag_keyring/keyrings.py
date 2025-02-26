@@ -21,6 +21,14 @@ class HdKeyring(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
+    # Serialize all accounts
+    @model_serializer
+    def model_serialize(self) -> Dict[str, Any]:
+        return {
+            "network": self.network,
+            "accounts": [acc.serialize(include_private_key=False) for acc in self.accounts]
+        }
+
     def create(self, mnemonic: str, hd_path: str, network: str, number_of_accounts: int = 1):
         """
         Create a hierarchical deterministic keyring.
@@ -127,7 +135,6 @@ class HdKeyring(BaseModel):
     def get_extended_public_key(self):
         if self.mnemonic:
             return self.root_key.ExtendedKey(private=False).hex()
-            # return self.root_key.publicExtendedKey().toString('hex')
 
         return self.extended_key
 
@@ -148,31 +155,20 @@ class HdKeyring(BaseModel):
 
     def _init_from_extended_key (self, extended_key: str):
         self.root_key = BIP32Key.fromExtendedKey(extended_key)
-        # self.root_key = hdkey.fromExtendedKey(extended_key)
 
-    # Serialize all accounts
-    @model_serializer
-    def model_serialize(self) -> Dict[str, Any]:
-        return {
-            "network": self.network,
-            "accounts": [acc.serialize(include_private_key=False) for acc in self.accounts]
-        } # this.accounts.map(a => a.serialize(false))
-
-
-# rings.simple_keyring
 
 class SimpleKeyring(BaseModel):
 
     account: Union[DagAccount, EthAccount] = Field(default=None) #IKeyringAccount;
     network: str = Field(default=NetworkId.Constellation.value)#KeyringNetwork
 
-        # Serialize all accounts
+    # Serialize all accounts
     @model_serializer
     def model_serialize(self) -> Dict[str, Any]:
         return {
             "network": self.network,
             "accounts": [self.account.serialize(True)]
-        } # this.accounts.map(a => a.serialize(false))
+        }
 
     def create_for_network(self, network, private_key: str):
         inst = SimpleKeyring()
@@ -201,8 +197,7 @@ class SimpleKeyring(BaseModel):
         self.account = account.deserialize(**accounts[0])
 
     def add_account_at(self, index: int):
-        pass
-        #throw error
+        raise NotImplementedError("SimpleKeyring :: Accounts can't be added to SimpleKeyrings.")
 
     def get_accounts(self):
         return [self.account]
@@ -211,5 +206,4 @@ class SimpleKeyring(BaseModel):
         return self.account if address == self.account.get_address() else None
 
     def remove_account(self, account):
-        pass
-     #throw error
+        raise NotImplementedError("SimpleKeyring :: Removal of SimpleKeyring accounts isn't supported.")
