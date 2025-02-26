@@ -289,4 +289,5 @@ async def test_post_transaction(network):
 # #     proof = Proof(id=account_metagraph_client.account.public_key[2:], signature=signature)
 # #     tx = Transaction(value=tx, proofs=[proof])
 #     tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=0, last_ref=last_ref)
+# TODO: handle model_dump
 #     await account_metagraph_client.network.post_transaction(tx=tx.model_dump())

@@ -1,41 +1,67 @@
 Basics
 ======
 
-Pypergraph Wallets
-------------------
+Account/Wallet
+______________
 
-.. dropdown:: The Constellation Key Trio
-    :animate: fade-in
+In Pypergraph wallets are referred to as accounts.
 
-    In the Constellation Network, accounts are composed of a key trio consisting of the private key, public key, and a DAG address.
-
-    .. tab-set::
-
-        .. tab-item:: Private key
-
-            The private key is a highly confidential piece of information that plays a crucial role in authenticating an address to the network. With the private key, you can execute sensitive actions like signing messages or sending transactions.
-
-
-        .. tab-item:: Public key
-
-            The public key serves as a unique identifier for nodes on the network and is derived from the private key. It is crucial for establishing trust relationships between nodes, enabling secure communication, and verifying digital signatures.
-
-
-        .. tab-item:: Address
-
-            The address is the public-facing component of the Key Trio and represents a public wallet address for receiving payments or other digital transactions. It can be derived from either the private or public key and is widely used for peer-to-peer transactions. Sharing your address with others enables them to send you payments while keeping your private key confidential.
-
-    Source: `Accounts and Keys <https://docs.constellationnetwork.io/metagraphs/accounts/>`_
-
-------
-
-* **CREATE NEW ACCOUNT/WALLET**
+* **CREATE DAG ACCOUNT FROM EXISTING SECRET**
 
 .. code-block:: python
 
+    seed_phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon"
     account = pypergraph.dag-account.DagAccount()
+    account.login_with_seed_phrase(words=seed_phrase)
 
-.. dropdown:: Object variables
+.. code-block:: python
+
+    private_key = "this01is02A03Fake04PRIVATE05key06"
+    account = pypergraph.dag-account.DagAccount()
+    account.login_with_private_key(private_key=private_key)
+
+* **SEND TRANSACTION**
+
+    First create an account and login using a seed or private key. Then generate a new signed transaction specifying the receiving DAG address, the amount to send, the fee (both with 8 decimals) and optionally the account's last transaction hash reference. In the example below `1` $DAG is sent with a fee of `0.002` $DAG to `DAG2this01is02A03FAKE04DAG05Address06`.
+
+.. code-block:: python
+
+    # Create an account and login
+    seed_phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon"
+    account = pypergraph.dag-account.DagAccount()
+    account.login_with_seed_phrase(words=seed_phrase)
+    # Generate signed transaction
+    tx, hash_ = await account.generate_signed_transaction(to_address="DAG2this01is02A03FAKE04DAG05Address06", amount=100000000, fee=200000)
+    # Send transaction
+    await account.network.post_transaction(tx)
+
+.. code-block:: python
+
+    # Create an account and login
+    seed_phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon"
+    account = pypergraph.dag-account.DagAccount()
+    account.login_with_seed_phrase(words=seed_phrase)
+    # Change network to "testnet", "integrationnet" or "mainnet"
+    account.connect(network_id="testnet")
+    # Generate signed transaction
+    tx, hash_ = await account.generate_signed_transaction(to_address="DAG2this01is02A03FAKE04DAG05Address06", amount=100000000, fee=200000)
+    # Send transaction
+    await account.network.post_transaction(tx)
+
+.. code-block:: python
+
+    # Create account and login
+    seed_phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon"
+    account = pypergraph.dag_account.DagAccount()
+    account.login_with_seed_phrase(words=seed_phrase)
+    # Create a Metagraph client to interact with Metagraphs
+    account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(account=account, metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43", l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100", cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200")
+    last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(address=from_address)
+    tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=0, last_ref=last_ref)
+    # Send transaction
+    await account_metagraph_client.network.post_transaction(tx=tx.model_dump()) # This model dump situation should be handled
+
+.. dropdown:: Variations
     :animate: fade-in
 
     .. code-block:: python
