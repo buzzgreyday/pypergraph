@@ -1,3 +1,3 @@
-from .network import DagTokenNetwork
+from .network import DagTokenNetwork, MetagraphTokenNetwork
 
-__all__ = ["DagTokenNetwork"]
+__all__ = ["DagTokenNetwork", "MetagraphTokenNetwork"]
