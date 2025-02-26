@@ -169,7 +169,7 @@ class KeyringManager(AsyncIOEventEmitter):
         )
         if winner:
             return winner
-        ValueError('KeyringManager :: No keyring found for the requested account.')
+        raise ValueError('KeyringManager :: No keyring found for the requested account.')
 
 
     def check_password(self, password):
@@ -197,7 +197,7 @@ class KeyringManager(AsyncIOEventEmitter):
         encrypted_vault = await self.storage.get("vault")
         if not encrypted_vault:
             # Support recovering wallets from migration
-            self.password = password
+            self.set_password(password)
             return []
 
         await self.clear_wallets()

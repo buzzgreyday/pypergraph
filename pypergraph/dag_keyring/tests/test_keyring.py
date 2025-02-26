@@ -135,7 +135,7 @@ async def test_create_multi_key_wallet(key_manager):
     """
     pk = KeyStore.get_private_key_from_mnemonic(mnemo)
     wallet = MultiKeyWallet()
-    wallet.create(network="Constellation")
+    wallet.create(network="Constellation", label="New MKW")
     wallet.import_account(private_key=pk, label="Keyring 1")
     wallet.import_account(private_key=pk, label="Keyring 2")
     assert wallet.model_dump() == {
@@ -168,7 +168,6 @@ async def test_create_multi_key_wallet(key_manager):
 @pytest.mark.asyncio
 async def test_create_multi_account_wallet(key_manager):
 
-    key_manager.set_password("super_S3cretP_Asswo0rd")
     wallet = MultiAccountWallet()
     wallet.create(network="Constellation", label="New MAW", mnemonic=mnemo, num_of_accounts=2)
     model = wallet.model_dump()
