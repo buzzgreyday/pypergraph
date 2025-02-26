@@ -3,8 +3,10 @@ from typing import Optional, Union, List
 
 from pyee.asyncio import AsyncIOEventEmitter
 
+from pypergraph.dag_account import DagAccount
 from pypergraph.dag_core import KeyringWalletType, NetworkId
 from pypergraph.dag_keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
+from pypergraph.dag_keyring.accounts import EthAccount
 from pypergraph.dag_keyring.bip import Bip39Helper
 
 from pypergraph.dag_keyring.storage import StateStorageDb, ObservableStore
@@ -23,7 +25,7 @@ class KeyringManager(AsyncIOEventEmitter):
         self.on("new_account", self.create_multi_chain_hd_wallet)
         self.on("remove_account", self.remove_account)
 
-    def is_unlocked(self):
+    def is_unlocked(self) -> bool:
         return bool(self.password)
 
     async def clear_wallets(self):
@@ -33,7 +35,7 @@ class KeyringManager(AsyncIOEventEmitter):
         self.mem_store.update_state(wallets=[])
 
     @staticmethod
-    def generate_mnemonic():
+    def generate_mnemonic() -> str:
         bip39 = Bip39Helper()
         return bip39.generate_mnemonic()
 
@@ -142,13 +144,15 @@ class KeyringManager(AsyncIOEventEmitter):
     def set_wallet_label(self, wallet_id: str, label: str):
         self.get_wallet_by_id(wallet_id).set_label(label)
 
-    def get_wallet_by_id(self, id: str):
+    def get_wallet_by_id(
+            self, id: str
+    ) -> Union[MultiChainWallet, SingleAccountWallet, MultiAccountWallet, MultiKeyWallet]:
         for w in self.wallets:
             if w.id == id:
                 return w
         raise ValueError("KeyringManager :: No wallet found with the id: " + id)
 
-    def get_accounts(self):
+    def get_accounts(self) -> List[Union[DagAccount, EthAccount]]:
         return [account for wallet in self.wallets for account in wallet.get_accounts()]
 
     async def remove_account(self, address):
@@ -168,7 +172,9 @@ class KeyringManager(AsyncIOEventEmitter):
     def remove_empty_wallets(self):
         self.wallets = [keyring for keyring in self.wallets if len(keyring.get_accounts()) > 0]
 
-    def get_wallet_for_account(self, address: str):
+    def get_wallet_for_account(
+            self, address: str
+    ) -> Union[MultiChainWallet, SingleAccountWallet, MultiAccountWallet, MultiKeyWallet]:
         winner = next(
             (keyring for keyring in self.wallets if any(a.get_address() == address for a in keyring.get_accounts())),
             None
@@ -178,7 +184,7 @@ class KeyringManager(AsyncIOEventEmitter):
         raise ValueError('KeyringManager :: No keyring found for the requested account.')
 
 
-    def check_password(self, password):
+    def check_password(self, password) -> bool:
         return bool(self.password == password)
 
     def notify_update(self):
@@ -199,7 +205,9 @@ class KeyringManager(AsyncIOEventEmitter):
         self.update_unlocked()
         self.notify_update()
 
-    async def unlock_wallets(self, password: str):
+    async def unlock_wallets(
+            self, password: str
+    ) -> List[Union[MultiChainWallet, SingleAccountWallet, MultiAccountWallet, MultiKeyWallet]]:
         encrypted_vault = await self.storage.get("vault")
         if not encrypted_vault:
             # Support recovering wallets from migration
@@ -217,7 +225,9 @@ class KeyringManager(AsyncIOEventEmitter):
         self.mem_store.update_state(is_unlocked=True)
         self.emit("unlock")
 
-    async def _restore_wallet(self, data): # KeyringSerialized
+    async def _restore_wallet(
+            self, data
+    ) -> Union[MultiChainWallet, SingleAccountWallet, MultiAccountWallet, MultiKeyWallet]: # KeyringSerialized
         if data["type"] == KeyringWalletType.MultiChainWallet.value:
             ## Can export secret (mnemonic) but cant remove or import
             wallet = MultiChainWallet()
