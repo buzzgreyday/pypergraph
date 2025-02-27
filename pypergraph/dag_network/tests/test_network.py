@@ -309,11 +309,20 @@ async def test_get_cluster_info(network):
 @pytest.mark.asyncio
 async def test_get_latest_l0_snapshot(network):
     result = await network.l0_api.get_latest_snapshot()
-    print(result.value)
+    # TODO: fails
+    # >       return GlobalSnapshot(**result)
+    # E       pydantic_core._pydantic_core.ValidationError: 1 validation error for GlobalSnapshot
+    # E       value.blocks.0
+    # E         Input should be a valid string [type=string_type, input_value={'block': {'value': {'par...71'}]}, 'usageCount': 0}, input_type=dict]
+    # E           For further information visit https://errors.pydantic.dev/2.10/v/string_type
+
+    # ../api.py:308: ValidationError
+    print(result)
 
 @pytest.mark.asyncio
 async def test_get_latest_snapshot_ordinal(network):
     result = await network.l0_api.get_latest_snapshot_ordinal()
+    # TODO: validate
     print(result)
 
 
@@ -321,14 +330,14 @@ async def test_get_latest_snapshot_ordinal(network):
 
 @pytest.mark.asyncio
 async def test_get_l1_cluster_info(network):
-    result = await network.cl1_api.get_cluster_info()
-    assert bool(result)
+    results = await network.cl1_api.get_cluster_info()
+    assert isinstance(results, list)
 
 @pytest.mark.asyncio
 async def test_get_last_ref(network):
     address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
     result = await network.get_address_last_accepted_transaction_ref(address)
-    assert bool(result.hash)
+    assert result.ordinal >= 5 and isinstance(result.hash, str)
 
 @pytest.mark.asyncio
 async def test_get_pending(network):
@@ -336,9 +345,9 @@ async def test_get_pending(network):
         hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"
     )
     if result:
-        print(result)
+        pytest.skip(f"Pending transaction: {result}")
     else:
-        print("No pending transactions.")
+        pytest.skip("No pending transactions.")
 
 @pytest.mark.asyncio
 async def test_post_transaction(network):

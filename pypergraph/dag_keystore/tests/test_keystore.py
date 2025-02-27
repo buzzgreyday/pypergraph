@@ -1,6 +1,5 @@
 import pytest
 from pypergraph.dag_keystore import KeyStore
-from pypergraph.dag_network import DagTokenNetwork
 from secrets import mnemo
 
 @pytest.mark.asyncio

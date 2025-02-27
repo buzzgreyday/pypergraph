@@ -305,6 +305,7 @@ class L0Api:
         result = await self.service.get(
             "/global-snapshots/latest"
         )
+        # TODO: Blocks
         return GlobalSnapshot(**result)
 
     async def get_latest_snapshot_ordinal(self):

@@ -22,8 +22,8 @@ class GlobalSnapshotValue(BaseModel):
     height: int = Field(ge=0)
     sub_height: int = Field(..., alias="subHeight", ge=0)
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
-    blocks: List[str] = Field(max_length=BLOCK_MAX_LEN)
-    state_channel_snapshots: Dict[str, List[Dict]] = Field(..., alias="stateChannelSnapshots") # TODO: Validate
+    blocks: List[Dict] = Field(max_length=BLOCK_MAX_LEN) # TODO: Validate blocks
+    state_channel_snapshots: Dict[str, List[Dict]] = Field(..., alias="stateChannelSnapshots") # TODO: Validate, Dict[Metagraph ID, List[Dict]]
     rewards: List[Dict[str, Any]] # TODO: Validate
     epoch_progress: int = Field(..., alias="epochProgress", ge=0, le=EPOCH_MAX)
     next_facilitators: List[constr(pattern=r"^[a-fA-F0-9]{128}$")] = Field(..., alias="nextFacilitators")
@@ -50,7 +50,7 @@ class Snapshot(BaseModel):
     height: int = Field(ge=0)
     sub_height: int = Field(..., alias="subHeight", ge=0)
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
-    blocks: List[str] = Field(max_length=BLOCK_MAX_LEN)
+    blocks: List[str] = Field(max_length=BLOCK_MAX_LEN) # TODO: Validate blocks
     timestamp: datetime
 
     @field_validator("timestamp", mode="before")
