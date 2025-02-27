@@ -1,7 +1,10 @@
+from typing import List
+
 import pytest
 import random
 
 import pypergraph.dag_account
+from pypergraph.dag_network.models import Reward
 from pypergraph.dag_network.models.network import NetworkInfo
 from pypergraph.dag_network.network import DagTokenNetwork
 
@@ -97,58 +100,138 @@ def test_config_network(network):
 @pytest.mark.asyncio
 async def test_get_latest_snapshot(network):
     result = await network.get_latest_snapshot()
-    assert result.hash and result.timestamp and result.ordinal, "Snapshot data should not be empty"
+    assert isinstance(result.hash, str)
+    assert result.ordinal >= 3921360
+    assert isinstance(result.last_snapshot_hash, str)
+
 
 @pytest.mark.asyncio
 async def test_get_snapshot_by_id(network):
     result = await network.be_api.get_snapshot(
         "2404170"
     )
+
+    model = result.model_dump()
+    del model["timestamp"]
+    assert model == {
+        'hash': '3e34c85769f1dbd886dbb6b17c042ce55a4e715ccd867098b3bb57d580ab3708',
+        'ordinal': 2404170,
+        'height': 29108,
+        'sub_height': 11,
+        'last_snapshot_hash': '9ec173e487b16958f276d1bb7a84f7aede3d0b8cbb01925b2f1ae76b92a4f662',
+        'blocks': [
+            '0703e08fc288e4847a18bc755452ed372297da150802d70ef753b2f434d8019a',
+            'b058dbf4f5f1994db57b60d24ea06204dae754cad95df5d4a0fe0bb02c815aa9',
+            '6846023a1a4fb6a88953fc5ae31e3d9eee2034d27e78efe690f3e19ff88d0063',
+            '8983a66675c4787e56f3e5356211ed0e8b9405d3a783dd48a1ffcd24beec2fe3'
+        ]#,
+        #'timestamp': datetime.datetime(2024, 7, 16, 22, 37, 37, 697000, tzinfo=datetime.timezone.utc)
+    }
     assert result.hash and result.timestamp and result.ordinal, "Snapshot data should not be empty"
 
 @pytest.mark.asyncio
 async def test_get_transactions_by_snapshot(network):
     results = await network.be_api.get_transactions_by_snapshot("2404170")
-    assert results[0].source and results[0].destination and results[0].amount, "Transaction data should not be empty"
+    assert (results[0].source == "DAG5KmHp9gFS723uN6uukwRqCTwvrddaW5QuKKKz" and
+            results[0].destination == "DAG29HwuP2PKU8SBj38x5qq2Z4JcgvKkXA7QS71F" and
+            results[0].amount == 100000000), "Transaction data should not be empty"
 
 @pytest.mark.asyncio
 async def test_get_rewards_by_snapshot(network):
     results = await network.be_api.get_rewards_by_snapshot(2404170)
-    print(results[0].destination, results[0].amount)
+    assert (results[0].destination == "DAG8nfZEeGaQAZfVsr3BFYMq8THb3XCTr36g3fGs" and
+            results[0].amount == 24020206), "Snapshot data should not be empty"
 
 @pytest.mark.asyncio
 async def test_get_latest_snapshot_transactions(network):
     results = await network.be_api.get_latest_snapshot_transactions()
-    print(results)
+    assert isinstance(results, list), "Snapshot data should be a list"
 
 @pytest.mark.asyncio
 async def test_get_latest_snapshot_rewards(network):
     results = await network.be_api.get_latest_snapshot_rewards()
-    print(results)
+    assert isinstance(results, list), "Snapshot data should be a list"
 
 @pytest.mark.asyncio
 async def test_get_transactions(network):
-    results = await network.be_api.get_transactions(limit=10)
-    print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
+    num_of_snapshots = 12
+    results = await network.be_api.get_transactions(limit=num_of_snapshots)
+    assert len(results) == num_of_snapshots, "Snapshot data should be a list"
 
 @pytest.mark.asyncio
 async def test_get_transaction(network):
     result = await network.be_api.get_transaction(
         "dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e"
     )
-    print(result.source, result.destination, result.amount, result.timestamp, result.hash)
+    model = result.model_dump()
+    del model['timestamp']
+    assert model == {
+        'source': 'DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb',
+        'destination': 'DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA',
+        'amount': 25000110000000,
+        'fee': 0,
+        'hash': 'dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e',
+        'parent': {
+            'ordinal': 77,
+            'hash': 'ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555'
+        },
+        'salt': None,
+        'block_hash': '85f034cf2df202ced872da05ef3eaf00cd1117e0f8deef9d56022505457072e9',
+        'snapshot_hash': 'baa81574222c46c9ac37baa9eeea97b83f4f02aa46e187b19064a64188f5132f',
+        'snapshot_ordinal': 2829094,
+        'transaction_original': {
+            'value': {
+                'source': 'DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb',
+                'destination': 'DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA',
+                'amount': 25000110000000,
+                'fee': 0,
+                'parent': {
+                    'ordinal': 77,
+                    'hash': 'ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555'
+                },
+                'salt': 8940539553876237,
+                'encoded': '240DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb40DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA1216bccaad078064ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d706255527710141fc35f9435890d'
+            },
+            'proofs': [
+                {
+                    'id': '0c56484b24a71a08f505493ede440aead8bd85f94402693d963dd5161c2c42ee638c7c89a500f8cb86c05fb69c8650e297b101851951108b1b77e3ee8b6df5ab',
+                    'signature': '30440220537019100fce3f7dd150beb52f7de2e887e44712e08073e5808debc5871a4394022026a96f644f378fb74a96f6aed520a3e606d0fbd5af89ecb402dac8087006ea1b'
+                }
+            ]
+        },
+        # 'timestamp': datetime.datetime(2024, 9, 15, 18, 47, 33, 82000, tzinfo=TzInfo(UTC)), Removed for testing purposes
+        'proofs': [],
+        'meta': None
+    }
 
 @pytest.mark.asyncio
 async def test_get_latest_currency_snapshot(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     result = await network.be_api.get_latest_currency_snapshot(el_paca_metagraph_id)
-    print(result)
+    assert isinstance(result.hash, str)
+    assert result.ordinal >= 1032801
+    assert result.fee >= 0
 
 @pytest.mark.asyncio
 async def test_get_currency_snapshot(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     result = await network.be_api.get_currency_snapshot(el_paca_metagraph_id, 950075)
-    print(result)
+    model = result.model_dump()
+    del model["timestamp"]
+    assert model == {
+        'hash': 'd412e81203f6a3dfaf5c9c442ccdc8e80524ba3ffb7e0a2f832920d39d590e12',
+        'ordinal': 950075,
+        'height': 754,
+        'sub_height': 2250,
+        'last_snapshot_hash': '05d473f31887b1e556ac7742b397becbdf5e717abd9ce0aa7f1133ebb48c27c0',
+        'blocks': [],
+        #'timestamp': datetime.datetime(2025, 2, 12, 13, 52, 37, 633000, tzinfo=datetime.timezone.utc),
+        'fee': 500000,
+        'owner_address': 'DAG5VxUBiDx24wZgBwjJ1FeuVP1HHVjz6EzXa3z6',
+        'staking_address': None,
+        'size_in_kb': 5,
+        'meta': None
+    }
 
 @pytest.mark.asyncio
 async def test_get_latest_currency_snapshot_rewards(network):
@@ -262,32 +345,37 @@ async def test_get_pending(network):
 
 @pytest.mark.asyncio
 async def test_post_transaction(network):
-   from .secrets import mnemo, to_address
-   account = pypergraph.dag_account.DagAccount()
-   account.connect(network_id="testnet")
-   if account.network.connected_network.network_id == "testnet":
+    from .secrets import mnemo, to_address
+    account = pypergraph.dag_account.DagAccount()
+    account.connect(network_id="testnet")
+    if account.network.connected_network.network_id == "testnet":
        account.login_with_seed_phrase(mnemo)
        tx, hash_ = await account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=200000000)
+       try:
+            await account.network.post_transaction(tx)
+       except ValueError as e:
+           if "InsufficientBalance" in str(e):
+               pytest.skip(f"Insufficient balance: {e}")
+           elif "TransactionLimited" in str(e):
+               pytest.skip(f"Transaction limited: {e}")
+           else:
+               pytest.fail(f"Failed to post transaction: {e}")
 
-       await account.network.post_transaction(tx)
-
-# @pytest.mark.asyncio
-# async def test_post_metagraph_transaction(network):
-#     from .secrets import mnemo, to_address, from_address
-#     from pypergraph.dag_keystore import KeyStore
-#     from pypergraph.dag_core.models.transaction import Proof, Transaction
-#     account = pypergraph.dag_account.DagAccount()
-#     account.login_with_seed_phrase(mnemo)
-#     account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(account=account, metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43", l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100", cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200")
-# #     # Generate signed tx
-#     last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(address=from_address)
-# #     tx, hash_ = KeyStore.prepare_tx(amount=100000000, to_address=to_address, from_address=from_address, last_ref=last_ref, fee=0)
-# #     signature = KeyStore.sign(account_metagraph_client.account.private_key, hash_)
-# #     valid = KeyStore.verify(account_metagraph_client.account.public_key, hash_, signature)
-# #     if not valid:
-# #         raise ValueError("Wallet :: Invalid signature.")
-# #     proof = Proof(id=account_metagraph_client.account.public_key[2:], signature=signature)
-# #     tx = Transaction(value=tx, proofs=[proof])
-#     tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=0, last_ref=last_ref)
-# TODO: handle model_dump
-#     await account_metagraph_client.network.post_transaction(tx=tx.model_dump())
+@pytest.mark.asyncio
+async def test_post_metagraph_transaction(network):
+    from .secrets import mnemo, to_address, from_address
+    account = pypergraph.dag_account.DagAccount()
+    account.login_with_seed_phrase(mnemo)
+    account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(account=account, metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43", l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100", cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200")
+    # Generate signed tx
+    last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(address=from_address)
+    tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=0, last_ref=last_ref)
+    try:
+        await account_metagraph_client.network.post_transaction(tx=tx)
+    except ValueError as e:
+        if "InsufficientBalance" in str(e):
+            pytest.skip(f"Insufficient balance: {e}")
+        elif "TransactionLimited" in str(e):
+            pytest.skip(f"Transaction limited: {e}")
+        else:
+            pytest.fail(f"Failed to post transaction: {e}")

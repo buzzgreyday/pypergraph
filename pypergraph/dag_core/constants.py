@@ -13,6 +13,21 @@ PORT_MAX = 65535
 BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 PKCS_PREFIX = "3056301006072a8648ce3d020106052b8104000a034200"  # Removed last 2 digits. 04 is part of Public Key.
 
+POST_TRANSACTION_ERRORS = (
+        "TransactionLimited", "ParentOrdinalLowerThenLastTxOrdinal", "HasNoMatchingParent", "InsufficientBalance",
+        "AddressLocked", "Conflict", "SameSourceAndDestinationAddress", "NotSignedBySourceAddressOwner"
+)
+
+#            $DAG transaction has been rejected. Returned one of rejection reasons:
+#               - TransactionLimited - the limit for fee-less transactions per address depends on the address balance and time passed since last accepted transaction.
+#               - ParentOrdinalLowerThenLastTxOrdinal - The transaction's ordinal number must be +1 relative to the last accepted transaction.
+#               - HasNoMatchingParent - the parent's hash of the transaction must point to the existing accepted transaction.
+#               - InsufficientBalance - the amount value of the transaction is higher than the balance of the source address.
+#               - AddressLocked - the address is locked by the network, and transactions can't be made.
+#               - Conflict - such transaction has been already accepted by the network.
+#               - SameSourceAndDestinationAddress - the source and destination addresses should be different.
+#               - NotSignedBySourceAddressOwner - the transaction should be signed exclusively by the key of the source address.
+
 class DERIVATION_PATH(str, Enum):
     DAG = "DAG"
     ETH = "ETH"
