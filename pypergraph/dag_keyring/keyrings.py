@@ -1,7 +1,7 @@
 from typing import Optional, List, Dict, Any, Union
 
 from bip32utils import BIP32Key
-from pydantic import BaseModel, Field, model_serializer
+from pydantic import BaseModel, Field, model_serializer, ConfigDict
 from typing_extensions import Self
 
 from pypergraph.dag_core.constants import NetworkId
@@ -19,8 +19,7 @@ class HdKeyring(BaseModel):
     root_key: Optional[BIP32Key] = Field(default=None)
     network: Optional[str] = Field(default=None)
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     # Serialize all accounts
     @model_serializer

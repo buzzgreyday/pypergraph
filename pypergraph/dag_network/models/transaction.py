@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import List, Dict, Optional
 
 import base58
-from pydantic import BaseModel, Field, model_validator, constr, conint, computed_field
+from pydantic import BaseModel, Field, model_validator, constr, conint, computed_field, ConfigDict
 
 from pypergraph.dag_core.constants import DAG_MAX
 from pypergraph.dag_network.models.account import LastReference
@@ -162,5 +162,4 @@ class BlockExplorerTransaction(BaseTransaction):
         return [cls.model_validate({**tx, "meta": meta}) for tx in data]
 
 
-    class ConfigDict:
-        population_by_name = True
+    model_config = ConfigDict(population_by_name=True)

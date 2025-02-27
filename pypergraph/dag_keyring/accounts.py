@@ -6,7 +6,7 @@ import base58
 from ecdsa import SigningKey, SECP256k1
 from eth_utils import keccak, to_checksum_address, is_checksum_address
 from eth_keys import keys
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from pypergraph.dag_core import NetworkId, KeyringAssetType
 from pypergraph.dag_core.constants import PKCS_PREFIX
@@ -20,8 +20,7 @@ class EcdsaAccount(BaseModel, ABC):
     provider: Any = None
     label: Optional[str] = None
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @property
     @abstractmethod
