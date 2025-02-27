@@ -22,6 +22,5 @@ async def test_sign_data():
     }
 
     signature, hash_ = keystore.data_sign(pk, signature_request)
-    print(signature, hash_)
     pub_k = keystore.get_public_key_from_private(pk)
-    assert keystore.verify(pub_k, hash_, signature) is True, "Data sign failed, couldn't verify signature"
+    assert keystore.verify(pub_k, hash_, signature) is True, "Data sign failed, couldn't verify data signature"
