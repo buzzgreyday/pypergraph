@@ -71,15 +71,16 @@ class KeyStore:
         return tx, hash_value
 
 
-    def data_sign(self, private_key, msg) -> str:
+    def data_sign(self, private_key, msg) -> Tuple[str, str]:
         message = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
         # Serialize
         serialized_message = self.serialize_data(message)
 
-        hash_value = hashlib.sha256(bytes.fromhex(serialized_message)).hexdigest()
+        # Original:
+        # hash_value = hashlib.sha256(bytes.fromhex(serialized_message)).hexdigest()
         # TODO: Probably needs a double hash:
-        # hash_value = self._double_hash(msg=serialized_message)
-        return self.sign(private_key, hash_value)
+        hash_value = self._double_hash(msg=serialized_message)
+        return self.sign(private_key, hash_value), hash_value
 
     def serialize(self, msg: str):
         raise NotImplementedError("This has been deprecated: use serialize_data")

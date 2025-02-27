@@ -1,10 +1,7 @@
-from typing import List
-
 import pytest
 import random
 
 import pypergraph.dag_account
-from pypergraph.dag_network.models import Reward
 from pypergraph.dag_network.models.network import NetworkInfo
 from pypergraph.dag_network.network import DagTokenNetwork
 
