@@ -1,3 +1,5 @@
+from base64 import b64encode
+
 import pytest
 import random
 
@@ -413,33 +415,43 @@ async def test_post_metagraph_data_transaction(network):
     account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(
         account=account, metagraph_id=METAGRAPH_ID, l0_host=L0, cl1_host=CL1, dl1_host=DL1
     )
-    print(account_metagraph_client.network.get_network())
     keystore = KeyStore()
     pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
     # Build the signature request
     signature_request = {
         "CreatePoll": {
-            "name": ':poll_name',
-            "owner": ':your_address',
-            "pollOptions": [ ':option_1', ':option_2' ],
+            "name": 'poll_name',
+            "owner": f'{from_address}',
+            "pollOptions": [ 'option_1', 'option_2' ],
             "startSnapshotOrdinal": 1,
             "endSnapshotOrdinal": 100
         }
     }
-    signature, hash_ = keystore.data_sign(pk, signature_request)
-    public_key = account_metagraph_client.account.public_key
-    print(public_key)
-    proof = {
-        "id": public_key,
-        "signature": signature
-    }
-    tx = {
-    "value": signature_request,
-    "proofs": [
-        proof
-    ]
-    }
-    print(tx)
-    r = keystore.data_sign(pk, tx)
-    print(r)
+
+    # Generate proof
+    import base64
+    import json
+    # Encode message to base64
+    message_json = json.dumps(signature_request).encode('utf-8')
+    encoded_message = b64encode(message_json).decode('utf-8')
+    print(encoded_message)
+    signature, hash_ = keystore.data_sign(pk, encoded_message)
+
+    public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
+    if keystore.verify(public_key, hash_, signature):
+        print(public_key)
+        proof = {
+            "id": public_key,
+            "signature": signature
+        }
+        tx = {
+        "value": signature_request,
+        "proofs": [
+            proof
+        ]
+        }
+        print(tx)
+        r = await account_metagraph_client.network.post_data(tx)
+        print(r)
+
 

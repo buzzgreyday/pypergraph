@@ -2,6 +2,7 @@ import base64
 import json
 from decimal import Decimal
 import random
+from inspect import signature
 from typing import Tuple, Any
 
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
@@ -71,45 +72,16 @@ class KeyStore:
         return tx, hash_value
 
 
-    def data_sign(self, private_key, msg) -> Tuple[str, str]:
+    def data_sign(self, private_key, msg: str) -> Tuple[str, str]:
         message = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
-        # Serialize
-        serialized_message = self.serialize_data(message)
-
-        # Original:
-        # hash_value = hashlib.sha256(bytes.fromhex(serialized_message)).hexdigest()
-        # TODO: Probably needs a double hash:
-        hash_value = self._double_hash(msg=serialized_message)
-        return self.sign(private_key, hash_value), hash_value
+        serialized_message = self.serialize(message)
+        hash_value = hashlib.sha256(bytes.fromhex(serialized_message)).hexdigest()
+        # hash_value = KeyStore._double_hash(serialized_message)
+        signature = self.sign(private_key, hash_value)
+        return signature, hash_value
 
     def serialize(self, msg: str):
-        raise NotImplementedError("This has been deprecated: use serialize_data")
-
-    def serialize_data(self, msg: str) -> str:
-        """Serialize data to JSON bytes with no nulls and minimal whitespace."""
-
-        def _remove_nones(obj: Any) -> Any:
-            """Recursively remove all None values from dictionaries and lists."""
-            if isinstance(obj, dict):
-                return {k: _remove_nones(v) for k, v in obj.items() if v is not None}
-            elif isinstance(obj, list):
-                return [_remove_nones(elem) for elem in obj if elem is not None]
-            else:
-                return obj
-
-        # Generate cleaned JSON bytes
-        cleaned_update = _remove_nones(msg)
-        json_str = json.dumps(cleaned_update, separators=(',', ':'), ensure_ascii=False)
-        update_bytes = json_str.encode('utf-8')
-
-        # Base64 encode
-        encoded_bytes = base64.b64encode(update_bytes)
-        encoded_str = encoded_bytes.decode('utf-8')
-
-        # Create formatted string
-        complete_str = f"{self.DATA_SIGN_PREFIX}{len(encoded_str)}\n{encoded_str}"
-        return complete_str.encode('utf-8').hex() # Originally bytes
-
+        return msg.encode("utf-8").hex()
 
     def personal_sign(self, msg, private_key) -> str:
         message = f"{self.PERSONAL_SIGN_PREFIX}{len(msg)}\n{msg}"
