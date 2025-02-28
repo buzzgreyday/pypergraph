@@ -1,7 +1,10 @@
 import pytest
 import random
 
+import requests
+
 import pypergraph.dag_account
+from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.models.network import NetworkInfo
 from pypergraph.dag_network.network import DagTokenNetwork
 
@@ -278,13 +281,17 @@ async def test_get_currency_transactions(network):
 @pytest.mark.asyncio
 async def test_get_currency_transactions_by_address(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    results = await network.be_api.get_currency_transactions_by_address(metagraph_id=el_paca_metagraph_id, address="DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY", limit=10)
+    results = await network.be_api.get_currency_transactions_by_address(
+        metagraph_id=el_paca_metagraph_id, address="DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY", limit=10
+    )
     print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
 
 @pytest.mark.asyncio
 async def test_get_currency_transactions_by_snapshot(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    results = await network.be_api.get_currency_transactions_by_snapshot(metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394, limit=10)
+    results = await network.be_api.get_currency_transactions_by_snapshot(
+        metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394, limit=10
+    )
     print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
 
 
@@ -368,14 +375,21 @@ async def test_post_transaction(network):
                pytest.fail(f"Failed to post transaction: {e}")
 
 @pytest.mark.asyncio
-async def test_post_metagraph_transaction(network):
+async def test_post_metagraph_currency_transaction(network):
     from .secrets import mnemo, to_address, from_address
     account = pypergraph.dag_account.DagAccount()
     account.login_with_seed_phrase(mnemo)
-    account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(account=account, metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43", l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100", cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200")
+    account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(
+        account=account,
+        metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
+        l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
+        cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+    )
     # Generate signed tx
     last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(address=from_address)
-    tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=0, last_ref=last_ref)
+    tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(
+        to_address=to_address, amount=100000000, fee=0, last_ref=last_ref
+    )
     try:
         await account_metagraph_client.network.post_transaction(tx=tx)
     except ValueError as e:
@@ -385,3 +399,47 @@ async def test_post_metagraph_transaction(network):
             pytest.skip(f"Transaction limited: {e}")
         else:
             pytest.fail(f"Failed to post transaction: {e}")
+
+@pytest.mark.asyncio
+async def test_post_metagraph_data_transaction(network):
+    from .secrets import mnemo, to_address, from_address
+    METAGRAPH_ID = "DAG4eQxh5jm2qeUJ7ddRugSbZa7xrmpQbY1dUQHa"
+    L0 = "http://localhost:9200"
+    CL1 = "http://localhost:9300"
+    DL1 = "http://localhost:9400"
+    # print(requests.get(f"https://faucet.constellationnetwork.io/testnet/faucet/{from_address}").text)
+    account = pypergraph.dag_account.DagAccount()
+    account.login_with_seed_phrase(mnemo)
+    account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(
+        account=account, metagraph_id=METAGRAPH_ID, l0_host=L0, cl1_host=CL1, dl1_host=DL1
+    )
+    print(account_metagraph_client.network.get_network())
+    keystore = KeyStore()
+    pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
+    # Build the signature request
+    signature_request = {
+        "CreatePoll": {
+            "name": ':poll_name',
+            "owner": ':your_address',
+            "pollOptions": [ ':option_1', ':option_2' ],
+            "startSnapshotOrdinal": 1,
+            "endSnapshotOrdinal": 100
+        }
+    }
+    signature, hash_ = keystore.data_sign(pk, signature_request)
+    public_key = account_metagraph_client.account.public_key
+    print(public_key)
+    proof = {
+        "id": public_key,
+        "signature": signature
+    }
+    tx = {
+    "value": signature_request,
+    "proofs": [
+        proof
+    ]
+    }
+    print(tx)
+    r = keystore.data_sign(pk, tx)
+    print(r)
+

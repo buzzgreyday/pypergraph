@@ -432,5 +432,5 @@ class MDL1Api:
           ]
         }
         """
-        return await self.service.post("/data", payload=tx.model_dump())
+        return await self.service.post("/data", payload=tx)
 
