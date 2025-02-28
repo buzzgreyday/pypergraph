@@ -3,7 +3,7 @@ from typing import Optional, Dict, List
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_network.models.account import LastReference, Balance
-from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api
+from pypergraph.dag_network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api, MDL1Api
 from pypergraph.dag_network.models.transaction import PendingTransaction, BlockExplorerTransaction, \
     SignedTransaction
 from pypergraph.dag_network.models.snapshot import Snapshot
@@ -121,16 +121,17 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
 class MetagraphTokenNetwork(AsyncIOEventEmitter):
 
-    def __init__(self, metagraph_id: str, l0_host: str, cl1_host: str, network_id: str = "mainnet", block_explorer: Optional[str] = None):
+    def __init__(self, metagraph_id: str, l0_host: str, cl1_host: str, dl1_host: str, network_id: str = "mainnet", block_explorer: Optional[str] = None):
         super().__init__()
         """Validate connected network"""
         # TODO: Do not hardcode urls
         if not metagraph_id or not l0_host or not cl1_host:
             raise ValueError("MetagraphTokenNetwork :: Parameters 'metagraph_id', 'l0_host' and 'cl1_host' must be set.")
-        self.connected_network = NetworkInfo(network_id=network_id, metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, be_url=block_explorer)
+        self.connected_network = NetworkInfo(network_id=network_id, metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, dl1_host=dl1_host, be_url=block_explorer)
         self.be_api = BlockExplorerApi(host=block_explorer) if block_explorer else BlockExplorerApi(host=self.connected_network.be_url)
         self.l0_api = ML0Api(host=l0_host)
         self.cl1_api = ML1Api(host=cl1_host)
+        self.dl1_api = MDL1Api(host=dl1_host)
 
 
     def get_network(self) -> Dict:
@@ -177,8 +178,22 @@ class MetagraphTokenNetwork(AsyncIOEventEmitter):
             logger.debug("No transaction found.")
         return response.get("data", None)
 
+    async def get_data(self):
+        response = None
+        try:
+            response = await self.dl1_api.get_data()
+        except Exception:
+            # NOOP 404
+            logger.debug("No transaction found.")
+        return response.get("data", None)
+
     async def post_transaction(self, tx: SignedTransaction) -> str:
         response = await self.cl1_api.post_transaction(tx)
+        # Support data/meta format and object return format
+        return response["data"]["hash"] if "data" in response else response["hash"]
+
+    async def post_data(self, tx: SignedTransaction) -> str:
+        response = await self.dl1_api.post_data(tx)
         # Support data/meta format and object return format
         return response["data"]["hash"] if "data" in response else response["hash"]
 

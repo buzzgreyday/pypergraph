@@ -393,3 +393,44 @@ class ML1Api(L1Api):
     def __init__(self, host):
         super().__init__(host)
 
+class MDL1Api:
+
+    def __init__(self, host):
+        if not host.startswith("http"):
+            warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
+            host = f"http://{host}"
+        if not host or type(host) is not str:
+            raise ValueError(f"L0Api :: Invalid host: {host}")
+        self.service = RestAPIClient(host)
+
+    def config(self, host: str):
+        """Reconfigure the RestAPIClient's base URL dynamically."""
+        self.service = RestAPIClient(host)
+
+    # Metrics
+    async def get_metrics(self):
+        # TODO: Handle text response
+        return await self.service.get("/metrics")
+
+    async def get_cluster_info(self) -> List["PeerInfo"]:
+        result = await self.service.get("/cluster/info")
+        return PeerInfo.process_cluster_peers(data=result)
+
+    async def get_data(self) -> List[SignedTransaction]:
+        """Get enqueued data update objects."""
+
+    async def post_data(self, tx: SignedTransaction):
+        """
+        Offer data update object for processing.
+        {
+          "value": {},
+          "proofs": [
+            {
+              "id": "c7f9a08bdea7ff5f51c8af16e223a1d751bac9c541125d9aef5658e9b7597aee8cba374119ebe83fb9edd8c0b4654af273f2d052e2d7dd5c6160b6d6c284a17c",
+              "signature": "3045022017607e6f32295b0ba73b372e31780bd373322b6342c3d234b77bea46adc78dde022100e6ffe2bca011f4850b7c76d549f6768b88d0f4c09745c6567bbbe45983a28bf1"
+            }
+          ]
+        }
+        """
+        return await self.service.post("/data", payload=tx.model_dump())
+
