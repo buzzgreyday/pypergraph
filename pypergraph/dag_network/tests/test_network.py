@@ -407,7 +407,7 @@ async def test_post_metagraph_currency_transaction(network):
 @pytest.mark.asyncio
 async def test_post_metagraph_data_transaction(network):
     from .secrets import mnemo, to_address, from_address
-    METAGRAPH_ID = "DAG2aELQatnuuAD5gaet6A9qjjBBpJgeMvkge4J5"
+    METAGRAPH_ID = "DAG6NiFUFe6XJprPiojKxnJJEs5e5uM5zJyut39t"
     L0 = "http://localhost:9200"
     CL1 = "http://localhost:9300"
     DL1 = "http://localhost:9400"
@@ -422,24 +422,27 @@ async def test_post_metagraph_data_transaction(network):
 
     """ TODO TEMPLATE """
 
-    ## Build the signature request
-    #from datetime import datetime
-    #now = datetime.now()
-    #one_day_in_millis = 24 * 60 * 60 * 1000
-    #from datetime import timedelta
-    #tx_value = {
-    #    "CreateTask": {
-    #        "description": "This is a task description",
-    #        "dueDate": str(int((now + timedelta(milliseconds=one_day_in_millis)).timestamp() * 1000)),
-    #        "optStatus": {
-    #            "type": "InProgress"
-    #        }
-    #    }
-    #}
+    # Build the signature request
+    from datetime import datetime
+    now = datetime.now()
+    one_day_in_millis = 24 * 60 * 60 * 1000
+    from datetime import timedelta
+    tx_value = {
+        "CreateTask": {
+            "description": "This is a task description",
+            "dueDate": str(int((now + timedelta(milliseconds=one_day_in_millis)).timestamp() * 1000)),
+            "optStatus": {
+                "type": "InProgress"
+            }
+        }
+    }
 
     """  """
 
-    signature, hash_ = keystore.data_sign(pk, tx_value)
+    """ Encode """
+    encoded = keystore._stringify_json(tx_value)
+
+    signature, hash_ = keystore.data_sign(pk, encoded)
 
     public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
     if keystore.verify(public_key, hash_, signature):
@@ -448,7 +451,7 @@ async def test_post_metagraph_data_transaction(network):
             "signature": signature
         }
         tx = {
-        "value": signature_request,
+        "value": tx_value,
         "proofs": [
             proof
         ]

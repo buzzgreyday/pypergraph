@@ -71,8 +71,8 @@ class KeyStore:
 
         return tx, hash_value
 
-    def data_sign(self, private_key, msg: dict) -> Tuple[str, str]:
 
+    def _stringify_json(self, value):
         import json
         # Encode message
         def sort_object_by_key(source_object):
@@ -94,20 +94,21 @@ class KeyStore:
             else:
                 return obj
 
-        def get_encoded(value):
+        def get_encoded(value) -> str:
             non_null_value = remove_nulls(value)
             sorted_value = sort_object_by_key(non_null_value)
             return json.dumps(sorted_value, separators=(',', ':'), ensure_ascii=False)
 
-        """ Encode """
-        encoded = get_encoded(msg)
+        return get_encoded(value)
+
+    def data_sign(self, private_key, msg: dict) -> Tuple[str, str]:
 
         """Uncomment below if prefix isn't included"""
         ## So, other type of Metagraphs might need different serialization
-        # encoded = f"{self.DATA_SIGN_PREFIX}{len(encoded)}\n{encoded}"
+        # msg = f"{self.DATA_SIGN_PREFIX}{len(encoded)}\n{encoded}"
 
         """ Serialize """
-        serialized = encoded.encode('utf-8')
+        serialized = msg.encode('utf-8')
 
 
         """Comment below if prefix is included"""
