@@ -87,7 +87,8 @@ class RestAPIClient:
         :param base_url: The base URL for the API.
         :param client: An optional injected HTTPX AsyncClient. If not provided, a new one is created.
         """
-        self.base_url = base_url.rstrip("/")
+        if base_url:
+            self.base_url = base_url.rstrip("/")
         self.client = client or httpx.AsyncClient(timeout=timeout)
 
     @property
