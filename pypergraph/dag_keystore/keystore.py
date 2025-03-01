@@ -105,8 +105,11 @@ class KeyStore:
                 # Used in the VOTING POLL metagraph example
                 encoded = json.dumps(msg, separators=(',', ':'))
                 msg = base64.b64encode(encoded.encode()).decode()
+            elif encoding == "hex":
+                # Used in the WATER AND ENERGY and TO-DO metagraph example
+                msg = json.dumps(msg, separators=(',', ':'))
         else:
-            # Default: used in the TO-DO metagraph example
+            # Default: used in the TO-DO and WATER AND ENERGY metagraph examples
             msg = json.dumps(msg, separators=(',', ':'))
 
         if prefix:

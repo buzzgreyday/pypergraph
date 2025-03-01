@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import json
+import time
 from base64 import b64encode
 
 import pytest
@@ -457,8 +458,20 @@ async def test_post_metagraph_data_transaction(network):
            }
         }
 
-    TODO_METAGRAPH_ID = "DAG6NiFUFe6XJprPiojKxnJJEs5e5uM5zJyut39t"
-    VOTING_METAGRAPH_ID = "DAG5sAhjgC2W8xmRtNCjvbsGX11ieVUYvMg3J8TM"
+    def build_water_and_energy_usage_tx():
+        return {
+            "address": f"{from_address}",
+            "energyUsage": {
+                "usage": 7,
+                "timestamp": int(time.time() * 1000),
+            },
+            "waterUsage": {
+                "usage": 7,
+                "timestamp": int(time.time() * 1000),
+            },
+        }
+
+    METAGRAPH_ID = "DAG6DOES00NOT00MATTER00HERE"
     L0 = "http://localhost:9200"
     CL1 = "http://localhost:9300"
     DL1 = "http://localhost:9400"
@@ -466,23 +479,28 @@ async def test_post_metagraph_data_transaction(network):
     account = pypergraph.dag_account.DagAccount()
     account.login_with_seed_phrase(mnemo)
     account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(
-        account=account, metagraph_id=TODO_METAGRAPH_ID, l0_host=L0, cl1_host=CL1, dl1_host=DL1
+        account=account, metagraph_id=METAGRAPH_ID, l0_host=L0, cl1_host=CL1, dl1_host=DL1
     )
     keystore = KeyStore()
     pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
 
     todo_tx_value = build_todo_tx()
     poll_tx_value = build_voting_poll_tx()
+    water_and_energy_tx_value = build_water_and_energy_usage_tx()
 
-    msg = todo_tx_value
+    msg = water_and_energy_tx_value
 
+    """ TO-DO """
+    # signature, hash_ = keystore.data_sign(pk, msg, prefix=False) # Default encoding = json.dumps(msg, separators=(',', ':'))
     """ VOTING POLL """
-    # signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64") # Default prefix is True
-    """ TO-DO "CUSTOMIZED" """
-    def encode(data: dict):
-        return json.dumps(msg, separators=(',', ':'))
+    # signature, hash_ = keystore.data_sign(pk, tx_value, encoding="base64") # Default prefix is True
+    """ WATER AND ENERGY """
+    signature, hash_ = keystore.data_sign(pk, msg, prefix=False, encoding="hex")
+    """ TO-DO "CUSTOM" """
+    # def encode(data: dict):
+    #     return json.dumps(msg, separators=(',', ':'))
+    # signature, hash_ = keystore.data_sign(pk, msg, prefix=False, encoding=encode)
 
-    signature, hash_ = keystore.data_sign(pk, msg, prefix=False, encoding=encode)
     public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
     if keystore.verify(public_key, hash_, signature):
         proof = {
