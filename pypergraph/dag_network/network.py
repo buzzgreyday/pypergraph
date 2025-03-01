@@ -195,7 +195,7 @@ class MetagraphTokenNetwork(AsyncIOEventEmitter):
     async def post_data(self, tx: SignedTransaction) -> str:
         response = await self.dl1_api.post_data(tx)
         # Support data/meta format and object return format
-        return response
+        return response["hash"]
 
     async def get_latest_snapshot(self):
         response = await self.be_api.get_latest_currency_snapshot(self.connected_network.metagraph_id)

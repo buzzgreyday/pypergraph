@@ -408,6 +408,7 @@ async def test_post_metagraph_currency_transaction(network):
 
 @pytest.mark.asyncio
 async def test_post_metagraph_data_transaction(network):
+    # TODO: error handling and documentation
     """
     Encode message according to serializeUpdate on your template module l1.
 
@@ -515,7 +516,6 @@ async def test_post_metagraph_data_transaction(network):
             proof
         ]
         }
-        print(tx)
         r = await account_metagraph_client.network.post_data(tx)
         print(r) # Returns r["hash"]
 
