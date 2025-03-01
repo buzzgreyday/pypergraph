@@ -76,11 +76,14 @@ class KeyStore:
 
         if encoding:
             if callable(encoding):
+                # Use custom encoding function
                 msg = encoding()
             elif encoding == "base64":
-                    encoded = json.dumps(msg, separators=(',', ':'))
-                    msg = base64.b64encode(encoded.encode()).decode()
+                # Used in the VOTING POLL metagraph example
+                encoded = json.dumps(msg, separators=(',', ':'))
+                msg = base64.b64encode(encoded.encode()).decode()
         else:
+            # Default: used in the TO-DO metagraph example
             msg = json.dumps(msg, separators=(',', ':'))
 
         if prefix:
