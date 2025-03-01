@@ -71,15 +71,51 @@ class KeyStore:
 
         return tx, hash_value
 
-    def data_sign(self, private_key, msg: str) -> Tuple[str, str]:
-        msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
+    def data_sign(self, private_key, msg: dict) -> Tuple[str, str]:
+        #msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
         # serialized_message = self.serialize(message)
         # Serialize
-        msg = msg.encode('utf-8')
-        hash_value = hashlib.sha256(msg).hexdigest()
+        #msg = msg.encode('utf-8')
+        #hash_value = hashlib.sha256(msg).hexdigest()
         # hash_value = KeyStore._double_hash(serialized_message)
-        signature = self.sign(private_key, hash_value)
-        return signature, hash_value
+        #signature = self.sign(private_key, hash_value)
+        #return signature, hash_value
+        # Generate proof
+        import json
+        # Encode message
+        def sort_object_by_key(source_object):
+            if isinstance(source_object, list):
+                return [sort_object_by_key(item) for item in source_object]
+            elif isinstance(source_object, dict):
+                sorted_dict = {}
+                for key in sorted(source_object.keys()):
+                    sorted_dict[key] = sort_object_by_key(source_object[key])
+                return sorted_dict
+            else:
+                return source_object
+
+        def remove_nulls(obj):
+            if isinstance(obj, list):
+                return [remove_nulls(v) for v in obj if v is not None]
+            elif isinstance(obj, dict):
+                return {k: remove_nulls(v) for k, v in obj.items() if v is not None}
+            else:
+                return obj
+
+        def get_encoded(value):
+            non_null_value = remove_nulls(value)
+            sorted_value = sort_object_by_key(non_null_value)
+            return json.dumps(sorted_value, separators=(',', ':'), ensure_ascii=False)
+
+        # Encode
+        encoded = get_encoded(msg)
+        # serialize
+        serialized = encoded.encode('utf-8')
+        hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
+        # hash_ = self._double_hash(serialized.hex())
+        # sign
+        signature = self.sign(private_key, hash_)
+        return signature, hash_
 
     #def serialize(self, msg: str):
     #    return msg.encode("utf-8").hex()

@@ -434,39 +434,39 @@ async def test_post_metagraph_data_transaction(network):
         }
     }
 
-    # Generate proof
-    import json
-    # Encode message
-    def sort_object_by_key(source_object):
-        if isinstance(source_object, list):
-            return [sort_object_by_key(item) for item in source_object]
-        elif isinstance(source_object, dict):
-            sorted_dict = {}
-            for key in sorted(source_object.keys()):
-                sorted_dict[key] = sort_object_by_key(source_object[key])
-            return sorted_dict
-        else:
-            return source_object
-
-    def remove_nulls(obj):
-        if isinstance(obj, list):
-            return [remove_nulls(v) for v in obj if v is not None]
-        elif isinstance(obj, dict):
-            return {k: remove_nulls(v) for k, v in obj.items() if v is not None}
-        else:
-            return obj
-
-    def get_encoded(value):
-        non_null_value = remove_nulls(value)
-        sorted_value = sort_object_by_key(non_null_value)
-        return json.dumps(sorted_value, separators=(',', ':'), ensure_ascii=False)
-    # Encode
-    encoded = get_encoded(signature_request)
-    # serialize
-    serialized = encoded.encode('utf-8')
-    hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
-    # sign
-    signature = keystore.sign(pk, hash_)
+    # # Generate proof
+    # import json
+    # # Encode message
+    # def sort_object_by_key(source_object):
+    #     if isinstance(source_object, list):
+    #         return [sort_object_by_key(item) for item in source_object]
+    #     elif isinstance(source_object, dict):
+    #         sorted_dict = {}
+    #         for key in sorted(source_object.keys()):
+    #             sorted_dict[key] = sort_object_by_key(source_object[key])
+    #         return sorted_dict
+    #     else:
+    #         return source_object
+    #
+    # def remove_nulls(obj):
+    #     if isinstance(obj, list):
+    #         return [remove_nulls(v) for v in obj if v is not None]
+    #     elif isinstance(obj, dict):
+    #         return {k: remove_nulls(v) for k, v in obj.items() if v is not None}
+    #     else:
+    #         return obj
+    #
+    # def get_encoded(value):
+    #     non_null_value = remove_nulls(value)
+    #     sorted_value = sort_object_by_key(non_null_value)
+    #     return json.dumps(sorted_value, separators=(',', ':'), ensure_ascii=False)
+    # # Encode
+    # encoded = get_encoded(signature_request)
+    # # serialize
+    # serialized = encoded.encode('utf-8')
+    # hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
+    # # sign
+    signature, hash_ = keystore.data_sign(pk, signature_request)
 
     public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
     if keystore.verify(public_key, hash_, signature):
@@ -482,7 +482,7 @@ async def test_post_metagraph_data_transaction(network):
         }
         print(tx)
         r = await account_metagraph_client.network.post_data(tx)
-        print(r)
+        print(r) # Returns r["hash"]
 
 
 
