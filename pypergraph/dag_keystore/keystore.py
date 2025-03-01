@@ -3,7 +3,7 @@ import json
 from decimal import Decimal
 import random
 from inspect import signature
-from typing import Tuple, Any
+from typing import Tuple, Any, Callable, Optional, Union
 
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
@@ -72,44 +72,22 @@ class KeyStore:
         return tx, hash_value
 
 
-    def _stringify_json(self, value):
-        import json
-        # Encode message
-        def sort_object_by_key(source_object):
-            if isinstance(source_object, list):
-                return [sort_object_by_key(item) for item in source_object]
-            elif isinstance(source_object, dict):
-                sorted_dict = {}
-                for key in sorted(source_object.keys()):
-                    sorted_dict[key] = sort_object_by_key(source_object[key])
-                return sorted_dict
-            else:
-                return source_object
+    def data_sign(self, private_key, msg: dict, prefix: bool = True, encoding: Union[str, Callable[[], None], None] = None) -> Tuple[str, str]:
 
-        def remove_nulls(obj):
-            if isinstance(obj, list):
-                return [remove_nulls(v) for v in obj if v is not None]
-            elif isinstance(obj, dict):
-                return {k: remove_nulls(v) for k, v in obj.items() if v is not None}
-            else:
-                return obj
+        if encoding:
+            if callable(encoding):
+                msg = encoding()
+            elif encoding == "base64":
+                    encoded = json.dumps(msg, separators=(',', ':'))
+                    msg = base64.b64encode(encoded.encode()).decode()
+        else:
+            msg = json.dumps(msg, separators=(',', ':'))
 
-        def get_encoded(value) -> str:
-            non_null_value = remove_nulls(value)
-            sorted_value = sort_object_by_key(non_null_value)
-            return json.dumps(sorted_value, separators=(',', ':'), ensure_ascii=False)
-
-        return get_encoded(value)
-
-    def data_sign(self, private_key, msg: str, prefix: bool = True) -> Tuple[str, str]:
-
-        """Uncomment below if prefix isn't included"""
         if prefix:
             msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
 
         """ Serialize """
         serialized = msg.encode('utf-8')
-
 
         """Comment below if prefix is included"""
         hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
