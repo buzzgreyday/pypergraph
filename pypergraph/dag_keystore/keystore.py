@@ -3,7 +3,7 @@ import json
 from decimal import Decimal
 import random
 from inspect import signature
-from typing import Tuple, Any, Callable, Optional, Union
+from typing import Tuple, Any, Callable, Optional, Union, Literal
 
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
@@ -72,18 +72,18 @@ class KeyStore:
         return tx, hash_value
 
 
-    def data_sign(self, private_key, msg: dict, prefix: bool = True, encoding: Union[str, Callable[[dict], str], None] = None) -> Tuple[str, str]:
+    def data_sign(self, private_key, msg: dict, prefix: bool = True, encoding: Union[Literal["hex", "base64"], Callable[[dict], str], None] = None) -> Tuple[str, str]:
         """
         Encode message according to serializeUpdate on your template module l1.
 
-        1. The TO-DO template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
+        1. The TO-DO, SOCIAL and WATER AND ENERGY template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
             # encoded = json.dumps(tx_value, separators=(',', ':'))
             signature, hash_ = keystore.data_sign(pk, encoded, prefix=False) # Default encoding = "hex"
-        2. The VOTING template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
+        2. The VOTING and NFT template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
             # encoded = json.dumps(tx_value, separators=(',', ':'))
             # encoded = base64.b64encode(encoded.encode()).decode()
             signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64") # Default prefix is True
-        3. The WATER AND ENERGY template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
+        3. The TO-DO, SOCIAL and WATER AND ENERGY template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
             # encoded = json.dumps(tx_value, separators=(',', ':'))
             signature, hash_ = keystore.data_sign(pk, encoded, prefix=False) # Default encoding = "hex"
         X. Inject a custom encoding function:
@@ -91,6 +91,7 @@ class KeyStore:
                 return json.dumps(tx_value, separators=(',', ':'))
 
             signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
+
         :param private_key:
         :param msg:
         :param prefix:
@@ -119,7 +120,6 @@ class KeyStore:
         """ Serialize """
         serialized = msg.encode('utf-8')
 
-        """Comment below if prefix is included"""
         hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
         """ Sign """
         signature = self.sign(private_key, hash_)
