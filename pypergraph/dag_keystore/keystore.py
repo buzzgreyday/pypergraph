@@ -104,7 +104,7 @@ class KeyStore:
 
         """Uncomment below if prefix isn't included"""
         ## So, other type of Metagraphs might need different serialization
-        # serialized = f"{self.DATA_SIGN_PREFIX}{len(encoded)}\n{encoded}"
+        # encoded = f"{self.DATA_SIGN_PREFIX}{len(encoded)}\n{encoded}"
 
         """ Serialize """
         serialized = encoded.encode('utf-8')
