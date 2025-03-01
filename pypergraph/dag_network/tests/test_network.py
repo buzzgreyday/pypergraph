@@ -407,7 +407,8 @@ async def test_post_metagraph_currency_transaction(network):
 @pytest.mark.asyncio
 async def test_post_metagraph_data_transaction(network):
     from .secrets import mnemo, to_address, from_address
-    METAGRAPH_ID = "DAG6NiFUFe6XJprPiojKxnJJEs5e5uM5zJyut39t"
+    TODO_METAGRAPH_ID = "DAG6NiFUFe6XJprPiojKxnJJEs5e5uM5zJyut39t"
+    VOTING_METAGRAPH_ID = "DAG5sAhjgC2W8xmRtNCjvbsGX11ieVUYvMg3J8TM"
     L0 = "http://localhost:9200"
     CL1 = "http://localhost:9300"
     DL1 = "http://localhost:9400"
@@ -415,25 +416,36 @@ async def test_post_metagraph_data_transaction(network):
     account = pypergraph.dag_account.DagAccount()
     account.login_with_seed_phrase(mnemo)
     account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(
-        account=account, metagraph_id=METAGRAPH_ID, l0_host=L0, cl1_host=CL1, dl1_host=DL1
+        account=account, metagraph_id=VOTING_METAGRAPH_ID, l0_host=L0, cl1_host=CL1, dl1_host=DL1
     )
     keystore = KeyStore()
     pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
 
     """ TODO TEMPLATE """
+    ## Build the signature request
+    #from datetime import datetime
+    #now = datetime.now()
+    #one_day_in_millis = 24 * 60 * 60 * 1000
+    #from datetime import timedelta
+    #tx_value = {
+    #    "CreateTask": {
+    #        "description": "This is a task description",
+    #        "dueDate": str(int((now + timedelta(milliseconds=one_day_in_millis)).timestamp() * 1000)),
+    #        "optStatus": {
+    #            "type": "InProgress"
+    #        }
+    #    }
+    #}
 
-    # Build the signature request
-    from datetime import datetime
-    now = datetime.now()
-    one_day_in_millis = 24 * 60 * 60 * 1000
-    from datetime import timedelta
+    """ VOTING TEMPLATE """
+
     tx_value = {
-        "CreateTask": {
-            "description": "This is a task description",
-            "dueDate": str(int((now + timedelta(milliseconds=one_day_in_millis)).timestamp() * 1000)),
-            "optStatus": {
-                "type": "InProgress"
-            }
+        "CreatePoll": {
+            "name": 'test_poll',
+            "owner": f'{from_address}',
+            "pollOptions": [ 'true', 'false' ],
+            "startSnapshotOrdinal": 1000, #start_snapshot, you should replace
+            "endSnapshotOrdinal": 100000 #end_snapshot, you should replace
         }
     }
 
@@ -444,12 +456,19 @@ async def test_post_metagraph_data_transaction(network):
         encoded = keystore._stringify_json(tx_value)
         signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
         
-    2. 
+    2. The VOTING template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
+        encoded = keystore._stringify_json(tx_value)
+        encoded = json.dumps(tx_value, separators=(',', ':'))
+        signature, hash_ = keystore.data_sign(pk, encoded, prefix=True)
     """
-    encoded = keystore._stringify_json(tx_value)
-
-    signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
-
+    #encoded = keystore._stringify_json(tx_value)
+    #signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
+    #encoded = keystore._stringify_json(tx_value)
+    import json
+    encoded = json.dumps(tx_value, separators=(',', ':'))
+    encoded = base64.b64encode(encoded.encode()).decode()
+    print(encoded)
+    signature, hash_ = keystore.data_sign(pk, encoded, prefix=True)
     public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
     if keystore.verify(public_key, hash_, signature):
         proof = {
