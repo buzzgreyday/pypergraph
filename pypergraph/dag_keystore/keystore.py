@@ -109,14 +109,15 @@ class KeyStore:
 
         """ Encode """
         encoded = get_encoded(msg)
-        """ Serialize """
-        serialized = encoded.encode('utf-8')
+
         """Uncomment below if prefix isn't included"""
         ## So, other type of Metagraphs might need different serialization
-        # serialized = b"{self.DATA_SIGN_PREFIX}{len(serialized)}\n{serialized}"
-        # serialized = hashlib.sha256(serialized).hexdigest().encode("utf-8")
-        # hash_ = hashlib.sha512(serialized).hexdigest()
-        ## Or something like that.
+        # serialized = f"{self.DATA_SIGN_PREFIX}{len(encoded)}\n{encoded}"
+
+        """ Serialize """
+        serialized = encoded.encode('utf-8')
+
+
         """Comment below if prefix is included"""
         hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
         """ Sign """
