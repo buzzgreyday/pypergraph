@@ -1,3 +1,5 @@
+import base64
+import hashlib
 from base64 import b64encode
 
 import pytest
@@ -405,7 +407,7 @@ async def test_post_metagraph_currency_transaction(network):
 @pytest.mark.asyncio
 async def test_post_metagraph_data_transaction(network):
     from .secrets import mnemo, to_address, from_address
-    METAGRAPH_ID = "DAG4eQxh5jm2qeUJ7ddRugSbZa7xrmpQbY1dUQHa"
+    METAGRAPH_ID = "DAG2aELQatnuuAD5gaet6A9qjjBBpJgeMvkge4J5"
     L0 = "http://localhost:9200"
     CL1 = "http://localhost:9300"
     DL1 = "http://localhost:9400"
@@ -418,28 +420,56 @@ async def test_post_metagraph_data_transaction(network):
     keystore = KeyStore()
     pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
     # Build the signature request
+    from datetime import datetime
+    now = datetime.now()
+    one_day_in_millis = 24 * 60 * 60 * 1000
+    from datetime import timedelta
     signature_request = {
-        "CreatePoll": {
-            "name": 'poll_name',
-            "owner": f'{from_address}',
-            "pollOptions": [ 'option_1', 'option_2' ],
-            "startSnapshotOrdinal": 1,
-            "endSnapshotOrdinal": 100
+        "CreateTask": {
+            "description": "This is a task description",
+            "dueDate": str(int((now + timedelta(milliseconds=one_day_in_millis)).timestamp() * 1000)),
+            "optStatus": {
+                "type": "InProgress"
+            }
         }
     }
 
     # Generate proof
-    import base64
     import json
-    # Encode message to base64
-    message_json = json.dumps(signature_request).encode('utf-8')
-    encoded_message = b64encode(message_json).decode('utf-8')
-    print(encoded_message)
-    signature, hash_ = keystore.data_sign(pk, encoded_message)
+    # Encode message
+    def sort_object_by_key(source_object):
+        if isinstance(source_object, list):
+            return [sort_object_by_key(item) for item in source_object]
+        elif isinstance(source_object, dict):
+            sorted_dict = {}
+            for key in sorted(source_object.keys()):
+                sorted_dict[key] = sort_object_by_key(source_object[key])
+            return sorted_dict
+        else:
+            return source_object
+
+    def remove_nulls(obj):
+        if isinstance(obj, list):
+            return [remove_nulls(v) for v in obj if v is not None]
+        elif isinstance(obj, dict):
+            return {k: remove_nulls(v) for k, v in obj.items() if v is not None}
+        else:
+            return obj
+
+    def get_encoded(value):
+        non_null_value = remove_nulls(value)
+        sorted_value = sort_object_by_key(non_null_value)
+        return json.dumps(sorted_value, separators=(',', ':'), ensure_ascii=False)
+    # Encode
+    encoded = get_encoded(signature_request)
+    # serialize
+    serialized = encoded.encode('utf-8')
+    hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
+    # sign
+    signature = keystore.sign(pk, hash_)
 
     public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
     if keystore.verify(public_key, hash_, signature):
-        print(public_key)
         proof = {
             "id": public_key,
             "signature": signature
@@ -453,5 +483,6 @@ async def test_post_metagraph_data_transaction(network):
         print(tx)
         r = await account_metagraph_client.network.post_data(tx)
         print(r)
+
 
 

@@ -71,17 +71,18 @@ class KeyStore:
 
         return tx, hash_value
 
-
     def data_sign(self, private_key, msg: str) -> Tuple[str, str]:
-        message = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
-        serialized_message = self.serialize(message)
-        hash_value = hashlib.sha256(bytes.fromhex(serialized_message)).hexdigest()
+        msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
+        # serialized_message = self.serialize(message)
+        # Serialize
+        msg = msg.encode('utf-8')
+        hash_value = hashlib.sha256(msg).hexdigest()
         # hash_value = KeyStore._double_hash(serialized_message)
         signature = self.sign(private_key, hash_value)
         return signature, hash_value
 
-    def serialize(self, msg: str):
-        return msg.encode("utf-8").hex()
+    #def serialize(self, msg: str):
+    #    return msg.encode("utf-8").hex()
 
     def personal_sign(self, msg, private_key) -> str:
         message = f"{self.PERSONAL_SIGN_PREFIX}{len(msg)}\n{msg}"
