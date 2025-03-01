@@ -414,7 +414,6 @@ async def test_post_metagraph_data_transaction(network):
     1. The TO-DO template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
         # encoded = json.dumps(tx_value, separators=(',', ':'))
         signature, hash_ = keystore.data_sign(pk, encoded, prefix=False) # Default encoding = "hex"
-
     2. The VOTING template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
         # encoded = json.dumps(tx_value, separators=(',', ':'))
         # encoded = base64.b64encode(encoded.encode()).decode()
