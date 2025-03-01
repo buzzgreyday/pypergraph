@@ -101,11 +101,11 @@ class KeyStore:
 
         return get_encoded(value)
 
-    def data_sign(self, private_key, msg: str) -> Tuple[str, str]:
+    def data_sign(self, private_key, msg: str, prefix: bool = True) -> Tuple[str, str]:
 
         """Uncomment below if prefix isn't included"""
-        ## So, other type of Metagraphs might need different serialization
-        # msg = f"{self.DATA_SIGN_PREFIX}{len(encoded)}\n{encoded}"
+        if prefix:
+            msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
 
         """ Serialize """
         serialized = msg.encode('utf-8')

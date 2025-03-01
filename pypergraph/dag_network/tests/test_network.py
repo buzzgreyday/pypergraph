@@ -443,11 +443,11 @@ async def test_post_metagraph_data_transaction(network):
     """
     The TODO template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
         encoded = keystore._stringify_json(tx_value)
-        
+        signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
     """
     encoded = keystore._stringify_json(tx_value)
 
-    signature, hash_ = keystore.data_sign(pk, encoded)
+    signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
 
     public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
     if keystore.verify(public_key, hash_, signature):
