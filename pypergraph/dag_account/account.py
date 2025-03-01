@@ -276,7 +276,7 @@ class MetagraphTokenClient:
             token_decimals: int = 8
     ):
         self.account = account
-        if not l0_host or not cl1_host or not dl1_host or not metagraph_id:
+        if not metagraph_id:
             raise ValueError(
                 f"MetagraphTokenClient :: Parameters."
             )
