@@ -407,7 +407,56 @@ async def test_post_metagraph_currency_transaction(network):
 
 @pytest.mark.asyncio
 async def test_post_metagraph_data_transaction(network):
+    """
+    Encode message according to serializeUpdate on your template module l1.
+
+    1. The TO-DO template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
+        # encoded = json.dumps(tx_value, separators=(',', ':'))
+        signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
+
+    2. The VOTING template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
+        # encoded = json.dumps(tx_value, separators=(',', ':'))
+        # encoded = base64.b64encode(encoded.encode()).decode()
+        signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64") # Default prefix is True
+    X. Inject a custom encoding function:
+        def encode(msg: dict):
+            return json.dumps(tx_value, separators=(',', ':'))
+
+        signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
+
+    """
+
     from .secrets import mnemo, to_address, from_address
+
+    def build_todo_tx():
+        """TO-DO TEMPLATE"""
+        # Build the signature request
+        from datetime import datetime
+        now = datetime.now()
+        one_day_in_millis = 24 * 60 * 60 * 1000
+        from datetime import timedelta
+        return {
+            "CreateTask": {
+                "description": "This is a task description",
+                "dueDate": str(int((now + timedelta(milliseconds=one_day_in_millis)).timestamp() * 1000)),
+                "optStatus": {
+                    "type": "InProgress"
+                }
+            }
+        }
+
+    def build_voting_poll_tx():
+        """ VOTING TEMPLATE """
+        return {
+           "CreatePoll": {
+               "name": 'test_poll',
+               "owner": f'{from_address}',
+               "pollOptions": [ 'true', 'false' ],
+               "startSnapshotOrdinal": 1000, #start_snapshot, you should replace
+               "endSnapshotOrdinal": 100000 #end_snapshot, you should replace
+           }
+        }
+
     TODO_METAGRAPH_ID = "DAG6NiFUFe6XJprPiojKxnJJEs5e5uM5zJyut39t"
     VOTING_METAGRAPH_ID = "DAG5sAhjgC2W8xmRtNCjvbsGX11ieVUYvMg3J8TM"
     L0 = "http://localhost:9200"
@@ -422,64 +471,18 @@ async def test_post_metagraph_data_transaction(network):
     keystore = KeyStore()
     pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
 
-    """ TODO TEMPLATE """
-    # Build the signature request
-    from datetime import datetime
-    now = datetime.now()
-    one_day_in_millis = 24 * 60 * 60 * 1000
-    from datetime import timedelta
-    tx_value = {
-        "CreateTask": {
-            "description": "This is a task description",
-            "dueDate": str(int((now + timedelta(milliseconds=one_day_in_millis)).timestamp() * 1000)),
-            "optStatus": {
-                "type": "InProgress"
-            }
-        }
-    }
+    todo_tx_value = build_todo_tx()
+    poll_tx_value = build_voting_poll_tx()
 
-    """ VOTING TEMPLATE """
-
-    #tx_value = {
-    #    "CreatePoll": {
-    #        "name": 'test_poll',
-    #        "owner": f'{from_address}',
-    #        "pollOptions": [ 'true', 'false' ],
-    #        "startSnapshotOrdinal": 1000, #start_snapshot, you should replace
-    #        "endSnapshotOrdinal": 100000 #end_snapshot, you should replace
-    #    }
-    #}
-
-    """ Encode """
-    # Encode message according to serializeUpdate on your template module l1
-    """
-    1. The TODO template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
-        # encoded = json.dumps(tx_value, separators=(',', ':'))
-        signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
-        
-    2. The VOTING template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
-        # encoded = json.dumps(tx_value, separators=(',', ':'))
-        # encoded = base64.b64encode(encoded.encode()).decode()
-        signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64") # Default prefix is True
-    X. Inject a custom encoding function: 
-        def encode(msg: dict):
-            return json.dumps(tx_value, separators=(',', ':'))
-            
-        signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode) 
-    """
-    """
-    I could create a number of standardized encoding/serialization parameters and allow injection of custom encoding func:
-        signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64" | custom_encoding_func)
-    """
+    msg = todo_tx_value
 
     """ VOTING POLL """
     # signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64") # Default prefix is True
-    """ TODO """
-
-    def encode(msg: dict):
+    """ TO-DO "CUSTOMIZED" """
+    def encode(data: dict):
         return json.dumps(msg, separators=(',', ':'))
 
-    signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
+    signature, hash_ = keystore.data_sign(pk, msg, prefix=False, encoding=encode)
     public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
     if keystore.verify(public_key, hash_, signature):
         proof = {
@@ -487,7 +490,7 @@ async def test_post_metagraph_data_transaction(network):
             "signature": signature
         }
         tx = {
-        "value": tx_value,
+        "value": msg,
         "proofs": [
             proof
         ]
