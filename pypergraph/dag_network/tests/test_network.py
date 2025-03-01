@@ -459,14 +459,11 @@ async def test_post_metagraph_data_transaction(network):
         
     2. The VOTING template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
         encoded = json.dumps(tx_value, separators=(',', ':'))
+        encoded = base64.b64encode(encoded.encode()).decode()
         signature, hash_ = keystore.data_sign(pk, encoded, prefix=True)
     """
-    #encoded = keystore._stringify_json(tx_value)
-    #signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
-    #encoded = keystore._stringify_json(tx_value)
     import json
     encoded = json.dumps(tx_value, separators=(',', ':'))
-    #print(encoded)
     #encoded = base64.b64encode(encoded.encode()).decode()
     print(encoded)
     signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
