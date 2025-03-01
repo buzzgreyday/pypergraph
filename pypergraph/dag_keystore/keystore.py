@@ -72,12 +72,12 @@ class KeyStore:
         return tx, hash_value
 
 
-    def data_sign(self, private_key, msg: dict, prefix: bool = True, encoding: Union[str, Callable[[], None], None] = None) -> Tuple[str, str]:
+    def data_sign(self, private_key, msg: dict, prefix: bool = True, encoding: Union[str, Callable[[dict], str], None] = None) -> Tuple[str, str]:
 
         if encoding:
             if callable(encoding):
                 # Use custom encoding function
-                msg = encoding()
+                msg = encoding(msg)
             elif encoding == "base64":
                 # Used in the VOTING POLL metagraph example
                 encoded = json.dumps(msg, separators=(',', ':'))

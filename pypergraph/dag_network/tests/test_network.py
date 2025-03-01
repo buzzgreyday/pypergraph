@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import json
 from base64 import b64encode
 
 import pytest
@@ -459,7 +460,12 @@ async def test_post_metagraph_data_transaction(network):
     2. The VOTING template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
         # encoded = json.dumps(tx_value, separators=(',', ':'))
         # encoded = base64.b64encode(encoded.encode()).decode()
-        signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64")
+        signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64") # Default prefix is True
+    X. Inject a custom encoding function: 
+        def encode(msg: dict):
+            return json.dumps(tx_value, separators=(',', ':'))
+            
+        signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode) 
     """
     """
     I could create a number of standardized encoding/serialization parameters and allow injection of custom encoding func:
@@ -469,7 +475,11 @@ async def test_post_metagraph_data_transaction(network):
     """ VOTING POLL """
     # signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64") # Default prefix is True
     """ TODO """
-    signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False)
+
+    def encode(msg: dict):
+        return json.dumps(msg, separators=(',', ':'))
+
+    signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
     public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
     if keystore.verify(public_key, hash_, signature):
         proof = {
