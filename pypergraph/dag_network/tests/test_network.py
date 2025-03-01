@@ -4,6 +4,7 @@ import json
 import time
 from base64 import b64encode
 
+import httpx
 import pytest
 import random
 
@@ -516,8 +517,12 @@ async def test_post_metagraph_data_transaction(network):
             proof
         ]
         }
-        r = await account_metagraph_client.network.post_data(tx)
-        # Returns the full response from the metagraph
+        try:
+            r = await account_metagraph_client.network.post_data(tx)
+            # Returns the full response from the metagraph
+        except httpx.ConnectError:
+            pytest.skip("No locally running Metagraph")
+
 
 
 
