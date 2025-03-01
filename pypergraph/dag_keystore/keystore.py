@@ -107,13 +107,19 @@ class KeyStore:
             sorted_value = sort_object_by_key(non_null_value)
             return json.dumps(sorted_value, separators=(',', ':'), ensure_ascii=False)
 
-        # Encode
+        """ Encode """
         encoded = get_encoded(msg)
-        # serialize
+        """ Serialize """
         serialized = encoded.encode('utf-8')
+        """Uncomment below if prefix isn't included"""
+        ## So, other type of Metagraphs might need different serialization
+        # serialized = b"{self.DATA_SIGN_PREFIX}{len(serialized)}\n{serialized}"
+        # serialized = hashlib.sha256(serialized).hexdigest().encode("utf-8")
+        # hash_ = hashlib.sha512(serialized).hexdigest()
+        ## Or something like that.
+        """Comment below if prefix is included"""
         hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
-        # hash_ = self._double_hash(serialized.hex())
-        # sign
+        """ Sign """
         signature = self.sign(private_key, hash_)
         return signature, hash_
 
