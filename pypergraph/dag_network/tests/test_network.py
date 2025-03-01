@@ -437,13 +437,14 @@ async def test_post_metagraph_data_transaction(network):
         }
     }
 
-    """  """
-
     """ Encode """
+    # Encode message according to serializeUpdate on your template module l1
     """
-    The TODO template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
+    1. The TODO template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
         encoded = keystore._stringify_json(tx_value)
         signature, hash_ = keystore.data_sign(pk, encoded, prefix=False)
+        
+    2. 
     """
     encoded = keystore._stringify_json(tx_value)
 
