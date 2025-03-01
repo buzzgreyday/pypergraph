@@ -517,7 +517,7 @@ async def test_post_metagraph_data_transaction(network):
         ]
         }
         r = await account_metagraph_client.network.post_data(tx)
-        print(r) # Returns r["hash"]
+        # Returns the full response from the metagraph
 
 
 
