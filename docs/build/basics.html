@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="pypergraph.dag_network package" href="pypergraph.dag_network.html" /> 
+    <link rel="prev" title="pypergraph.dag_network.tests package" href="pypergraph.dag_network.tests.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,12 +48,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Basics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pypergraph-wallets">Pypergraph Wallets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pypergraph-transactions">Pypergraph Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#account-wallet">Account/Wallet</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pypergraph</a></li>
 </ul>
 
         </div>
@@ -82,249 +81,200 @@
              
   <section id="basics">
 <h1>Basics<a class="headerlink" href="#basics" title="Link to this heading"></a></h1>
-<section id="pypergraph-wallets">
-<h2>Pypergraph Wallets<a class="headerlink" href="#pypergraph-wallets" title="Link to this heading"></a></h2>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">The Constellation Key Trio</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">In the Constellation Network, accounts are composed of a key trio consisting of the private key, public key, and a DAG address.</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-0">
-Private key</label><div class="sd-tab-content docutils">
-<p class="sd-card-text">The private key is a highly confidential piece of information that plays a crucial role in authenticating an address to the network. With the private key, you can execute sensitive actions like signing messages or sending transactions.</p>
-</div>
-<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
-Public key</label><div class="sd-tab-content docutils">
-<p class="sd-card-text">The public key serves as a unique identifier for nodes on the network and is derived from the private key. It is crucial for establishing trust relationships between nodes, enabling secure communication, and verifying digital signatures.</p>
-</div>
-<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-2">
-Address</label><div class="sd-tab-content docutils">
-<p class="sd-card-text">The address is the public-facing component of the Key Trio and represents a public wallet address for receiving payments or other digital transactions. It can be derived from either the private or public key and is widely used for peer-to-peer transactions. Sharing your address with others enables them to send you payments while keeping your private key confidential.</p>
-</div>
-</div>
-<p class="sd-card-text">Source: <a class="reference external" href="https://docs.constellationnetwork.io/metagraphs/accounts/">Accounts and Keys</a></p>
-</div>
-</details><hr class="docutils" />
+<section id="account-wallet">
+<h2>Account/Wallet<a class="headerlink" href="#account-wallet" title="Link to this heading"></a></h2>
+<p>In Pypergraph wallets are referred to as accounts.</p>
 <ul class="simple">
-<li><p><strong>CREATE NEW ACCOUNT/WALLET</strong></p></li>
+<li><p><strong>CREATE NEW DAG ACCOUNT</strong></p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag</span><span class="o">-</span><span class="n">account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mnemonic</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_keystore</span><span class="o">.</span><span class="n">get_mnemonic</span><span class="p">()</span>
+<span class="n">seed_phrase</span> <span class="o">=</span> <span class="n">mnemonic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;words&quot;</span><span class="p">)</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
 </pre></div>
 </div>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Object variables</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Placeholder</span>
-</pre></div>
-</div>
-</div>
-</details><hr class="docutils" />
-<ul>
-<li><p><strong>LOGIN OPTIONS</strong></p>
+<span class="sd-summary-text">Login variations</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <blockquote>
-<div><p>After creating the account object you can login and start interacting with the Constellation APIs.</p>
+<div><p class="sd-card-text">After creating the account object you can login and start interacting with the Constellation APIs.</p>
 </div></blockquote>
-</li>
-</ul>
 <ol class="arabic simple">
-<li><p>Login with seed phrase:</p></li>
+<li><p class="sd-card-text">Login with seed phrase:</p></li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span>
+    <span class="s2">&quot;abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li><p>Login with private key:</p></li>
+<li><p class="sd-card-text">Login with private key:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_private_key</span><span class="p">(</span><span class="s2">&quot;your_private_key_here&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><p>Login with public key (private key is needed to send transactions, etc.):</p></li>
+<li><p class="sd-card-text">Login with public key (private key is needed to send transactions, etc.):</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_public_key</span><span class="p">(</span><span class="s2">&quot;your_public_key_here&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">How is the private key, public key and DAG address derived from mnemonic phrase?</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">The private key, public key and DAG address is generated from a 12 word seed.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span><span class="p">,</span> <span class="n">Bip39</span>
-
-<span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_mnemonic</span><span class="p">(</span><span class="n">mnemonic_phrase</span><span class="o">=</span><span class="n">words</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid mnemonic.&quot;</span><span class="p">)</span>
-<span class="n">mnemonic</span> <span class="o">=</span> <span class="n">Bip39</span><span class="p">()</span>
-<span class="n">seed_bytes</span> <span class="o">=</span> <span class="n">mnemonic</span><span class="o">.</span><span class="n">get_seed_from_mnemonic</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-<span class="n">private_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_private_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="p">)</span>
-<span class="n">public_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_public_key_from_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
-<span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
-<span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_dag_address</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid DAG address.&quot;</span><span class="p">)</span>
-</pre></div>
 </div>
-</div>
-</details><hr class="docutils" />
-<ul class="simple">
-<li><p><strong>IMPORT WALLET FROM PRIVATE KEY</strong></p></li>
+</details><ul class="simple">
+<li><p><strong>CREATE DAG ACCOUNT FROM EXISTING SECRET</strong></p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wallet</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">from_private_key</span><span class="p">(</span><span class="s2">&quot;SOME_VALID_PRIVATE_KEY&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon&quot;</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
 </pre></div>
 </div>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">How is the public key and DAG address derived from a private key?</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span>
-
-<span class="n">public_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_public_key_from_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
-<span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
-<span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">validate_dag_address</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Not a valid DAG address.&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">private_key</span> <span class="o">=</span> <span class="s2">&quot;this01is02A03Fake04PRIVATE05key06&quot;</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="o">=</span><span class="n">private_key</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</details><hr class="docutils" />
 <ul class="simple">
-<li><p><strong>GET DAG WALLET MNEMONIC PHRASE</strong></p></li>
+<li><p><strong>SEND CURRENCY TRANSACTION</strong></p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">words</span> <span class="o">=</span> <span class="n">wallet</span><span class="o">.</span><span class="n">words</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create an account and login</span>
+<span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon&quot;</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
+<span class="c1"># Generate signed transaction</span>
+<span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
+    <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG2this01is02A03FAKE04DAG05Address06&quot;</span><span class="p">,</span>
+    <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>
+    <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span>
+<span class="p">)</span>
+<span class="c1"># Send transaction</span>
+<span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
 </pre></div>
 </div>
-<hr class="docutils" />
-<ul class="simple">
-<li><p><strong>GET DAG WALLET PRIVATE KEY</strong></p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">private_key</span> <span class="o">=</span> <span class="n">wallet</span><span class="o">.</span><span class="n">private_key</span>
-</pre></div>
-</div>
-<hr class="docutils" />
-<ul class="simple">
-<li><p><strong>GET DAG WALLET PUBLIC KEY</strong></p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dag_address</span> <span class="o">=</span> <span class="n">wallet</span><span class="o">.</span><span class="n">public_key</span>
-</pre></div>
-</div>
-<hr class="docutils" />
-<ul class="simple">
-<li><p><strong>GET DAG WALLET ADDRESS</strong></p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dag_address</span> <span class="o">=</span> <span class="n">wallet</span><span class="o">.</span><span class="n">address</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create an account and login</span>
+<span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon&quot;</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
+<span class="c1"># Change network to &quot;testnet&quot;, &quot;integrationnet&quot; or &quot;mainnet&quot;</span>
+<span class="n">account</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">network_id</span><span class="o">=</span><span class="s2">&quot;testnet&quot;</span><span class="p">)</span>
+<span class="c1"># Generate signed transaction</span>
+<span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
+    <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG2this01is02A03FAKE04DAG05Address06&quot;</span><span class="p">,</span>
+    <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>
+    <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span>
+<span class="p">)</span>
+<span class="c1"># Send transaction</span>
+<span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
 </pre></div>
 </div>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">How is a DAG address generated from a public key?</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">The DAG address is derived from the public key and stored in the <code class="docutils literal notranslate"><span class="pre">wallet.address</span></code> object variable.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">base58</span>
-<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha256</span>
-
-<span class="n">PKCS_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;3056301006072a8648ce3d020106052b8104000a034200&quot;</span>
-
-<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">public_key_hex</span><span class="p">)</span> <span class="o">==</span> <span class="mi">128</span><span class="p">:</span>
-    <span class="n">public_key</span> <span class="o">=</span> <span class="n">PKCS_PREFIX</span> <span class="o">+</span> <span class="s2">&quot;04&quot;</span> <span class="o">+</span> <span class="n">public_key_hex</span>
-<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">public_key_hex</span><span class="p">)</span> <span class="o">==</span> <span class="mi">130</span> <span class="ow">and</span> <span class="n">public_key_hex</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;04&quot;</span><span class="p">:</span>
-    <span class="n">public_key</span> <span class="o">=</span> <span class="n">PKCS_PREFIX</span> <span class="o">+</span> <span class="n">public_key_hex</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not a valid public key&quot;</span><span class="p">)</span>
-
-<span class="n">public_key</span> <span class="o">=</span> <span class="n">sha256</span><span class="p">(</span><span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">public_key</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
-<span class="n">public_key</span> <span class="o">=</span> <span class="n">base58</span><span class="o">.</span><span class="n">b58encode</span><span class="p">(</span><span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">public_key</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-<span class="n">public_key</span> <span class="o">=</span> <span class="n">public_key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span> <span class="o">-</span> <span class="mi">36</span><span class="p">:]</span>
-
-<span class="n">check_digits</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">public_key</span> <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()])</span>
-<span class="n">check_digit</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">check_digits</span><span class="p">:</span>
-    <span class="n">check_digit</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">check_digit</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">:</span>
-        <span class="n">check_digit</span> <span class="o">=</span> <span class="n">check_digit</span> <span class="o">%</span> <span class="mi">9</span>
-
-<span class="n">address</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;DAG</span><span class="si">{</span><span class="n">check_digit</span><span class="si">}{</span><span class="n">public_key</span><span class="si">}</span><span class="s2">&quot;</span>
-</pre></div>
+<span class="sd-summary-text">Connect parameters</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Placeholder</p>
 </div>
-</div>
-</details><hr class="docutils" />
-<ul>
-<li><p><strong>GET DAG WALLET BALANCE</strong></p>
-<blockquote>
-<div><p><strong>Default:</strong> <cite>dag_address=wallet.address, metagraph_id=None</cite></p>
-</div></blockquote>
-</li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">balance</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wallet</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">()</span>
-</pre></div>
-</div>
-<hr class="docutils" />
-<ul>
-<li><p><strong>SET NON-DEFAULT DAG WALLET NETWORK</strong></p>
-<p>Reconfigures the <code class="docutils literal notranslate"><span class="pre">wallet.network</span></code> object variable used to handle interaction with Constellation APIs. The parameters <code class="docutils literal notranslate"><span class="pre">l0_host</span></code> and <code class="docutils literal notranslate"><span class="pre">l1_host</span></code> with “http//” or “<a class="reference external" href="https://">https://</a>” prefix is required if <code class="docutils literal notranslate"><span class="pre">metagraph_id</span></code> is set.</p>
-<blockquote>
-<div><p><strong>Default:</strong> <cite>network=”mainnet”, l0_host=None, l1_host=None, metagraph_id=None</cite></p>
-</div></blockquote>
-</li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wallet</span> <span class="o">=</span> <span class="n">wallet</span><span class="o">.</span><span class="n">set_network</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s2">&quot;testnet&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<hr class="docutils" />
-<section id="pypergraph-transactions">
-<h2>Pypergraph Transactions<a class="headerlink" href="#pypergraph-transactions" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><strong>NEW TRANSACTION</strong></p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tx</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wallet</span><span class="o">.</span><span class="n">transaction</span><span class="p">(</span><span class="n">to_address</span><span class="o">=</span><span class="s1">&#39;SOME_VALID_DAG_ADDRESS&#39;</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="mf">0.0002</span><span class="p">)</span>
+</details><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create account and login</span>
+<span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon&quot;</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
+<span class="c1"># Create a Metagraph client to interact with Metagraphs</span>
+<span class="n">account_metagraph_client</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">MetagraphTokenClient</span><span class="p">(</span>
+    <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
+    <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span><span class="p">,</span>
+    <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100&quot;</span><span class="p">,</span>
+    <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200&quot;</span>
+<span class="p">)</span>
+<span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span>
+    <span class="n">address</span><span class="o">=</span><span class="n">from_address</span>
+<span class="p">)</span>
+<span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
+    <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span>
+    <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>
+    <span class="n">fee</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span>
+<span class="p">)</span>
+<span class="c1"># Send transaction</span>
+<span class="k">await</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span>
+    <span class="n">tx</span><span class="o">=</span><span class="n">tx</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">How is a transaction created?</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_last_reference</span><span class="p">(</span><span class="n">address_hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
-<span class="n">tx</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">,</span> <span class="n">encoded_tx</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">prepare_tx</span><span class="p">(</span><span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span> <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">from_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
-                                              <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">fee</span><span class="o">=</span><span class="n">fee</span><span class="p">)</span>
-<span class="n">signature</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">private_key_hex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">private_key</span><span class="p">,</span> <span class="n">tx_hash</span><span class="o">=</span><span class="n">tx_hash</span><span class="p">)</span>
-<span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">public_key_hex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span> <span class="n">tx_hash</span><span class="o">=</span><span class="n">tx_hash</span><span class="p">,</span> <span class="n">signature_hex</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Invalid signature.&quot;</span><span class="p">)</span>
-<span class="n">proof</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="s2">&quot;signature&quot;</span><span class="p">:</span> <span class="n">signature</span><span class="p">}</span>
-<span class="n">tx</span><span class="o">.</span><span class="n">add_proof</span><span class="p">(</span><span class="n">proof</span><span class="o">=</span><span class="n">proof</span><span class="p">)</span>
-</pre></div>
+<span class="sd-summary-text">Metagraph client parameters</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Placeholder</p>
 </div>
-</div>
-</details><hr class="docutils" />
-<ul class="simple">
-<li><p><strong>SEND TRANSACTION</strong></p></li>
+</details><ul class="simple">
+<li><p><strong>POST DATA TO METAGRAPH</strong></p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wallet</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
-</pre></div>
-</div>
-<hr class="docutils" />
-<ul>
-<li><p><strong>GET PENDING TRANSACTION</strong></p>
-<blockquote>
-<div><p><strong>Default:</strong> returns an object if transaction is pending, None if transaction has been processed.</p>
-</div></blockquote>
-</li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pending</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wallet</span><span class="o">.</span><span class="n">get_pending_transaction</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tx</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;CreatePoll&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;test_poll&#39;</span><span class="p">,</span>
+        <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">from_address</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="s2">&quot;pollOptions&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="s1">&#39;false&#39;</span> <span class="p">],</span>
+        <span class="s2">&quot;startSnapshotOrdinal&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="c1">#start_snapshot, you should replace</span>
+        <span class="s2">&quot;endSnapshotOrdinal&quot;</span><span class="p">:</span> <span class="mi">100000</span> <span class="c1">#end_snapshot, you should replace</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon&quot;</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">seed_phrase</span><span class="p">)</span>
+<span class="n">account_metagraph_client</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">MetagraphTokenClient</span><span class="p">(</span>
+    <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
+    <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG6DOES00NOT00MATTER00HERE&quot;</span><span class="p">,</span>
+    <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://localhost:9200&quot;</span><span class="p">,</span>
+    <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://localhost:9300&quot;</span><span class="p">,</span>
+    <span class="n">dl1_host</span><span class="o">=</span><span class="s2">&quot;http://localhost:9300&quot;</span>
+<span class="p">)</span>
+
+<span class="n">keystore</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="p">()</span>
+<span class="n">private_key</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">get_private_key_from_mnemonic</span><span class="p">(</span><span class="n">phrase</span><span class="o">=</span><span class="n">mnemo</span><span class="p">)</span>
+<span class="n">public_key</span> <span class="o">=</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">public_key</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>  <span class="c1"># Remove &#39;04&#39; prefix</span>
+<span class="n">signature</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">data_sign</span><span class="p">(</span>
+        <span class="n">private_key</span><span class="o">=</span><span class="n">private_key</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span>
+    <span class="p">)</span>
+
+<span class="n">proof</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">public_key</span><span class="p">,</span>
+    <span class="s2">&quot;signature&quot;</span><span class="p">:</span> <span class="n">signature</span>
+<span class="p">}</span>
+<span class="n">tx</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">tx</span><span class="p">,</span>
+    <span class="s2">&quot;proofs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">proof</span><span class="p">]</span>
+<span class="p">}</span>
+<span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_data</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
 </pre></div>
 </div>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">How can I check if a transaction has been sent?</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">The following code is an example of how to check if the transaction is processed or not.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="sd-summary-text">Data signing parameters</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Encode message according to serializeUpdate on your template module l1.</p>
+<ul class="simple">
+<li><p class="sd-card-text"><strong>Prefix</strong>: <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">True</span> or <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">False</span></p></li>
+</ul>
+<p class="sd-card-text">If parameter is unset, <strong>default</strong> is <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">True</span>. If <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">True</span> <cite>“u0019Constellation Signed Data:n”</cite> is added to the encoded transaction before signing.</p>
+<ul class="simple">
+<li><p class="sd-card-text"><strong>Encoding</strong>: <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">hex</span> or <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">base64</span> or a custom <cite>callable</cite> <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">function</span>.</p></li>
+</ul>
+<p class="sd-card-text">If parameter is unset, <strong>default</strong> is <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">hex</span>. <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">base64</span> will encode the transaction using <span class="sd-sphinx-override sd-badge sd-bg-primary sd-bg-text-primary">base64</span> before signing. If a custom encoding method is wanted, this can be injected, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tx</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;CreatePoll&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;test_poll&#39;</span><span class="p">,</span>
+        <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">from_address</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="s2">&quot;pollOptions&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="s1">&#39;false&#39;</span> <span class="p">],</span>
+        <span class="s2">&quot;startSnapshotOrdinal&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="c1">#start_snapshot, you should replace</span>
+        <span class="s2">&quot;endSnapshotOrdinal&quot;</span><span class="p">:</span> <span class="mi">100000</span> <span class="c1">#end_snapshot, you should replace</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">check_pending_transaction</span><span class="p">(</span><span class="n">wallet</span><span class="p">):</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">pending</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wallet</span><span class="o">.</span><span class="n">get_pending_transaction</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">pending</span><span class="p">:</span>
-            <span class="k">break</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Transaction sent.&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="n">tx</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">encoded_tx</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">encoded</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+<span class="n">signature</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">data_sign</span><span class="p">(</span>
+    <span class="n">private_key</span><span class="o">=</span><span class="n">private_key</span><span class="p">,</span>
+    <span class="n">msg</span><span class="o">=</span><span class="n">tx</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">encoding</span><span class="o">=</span><span class="n">encode</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -335,7 +285,7 @@ Address</label><div class="sd-tab-content docutils">
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="pypergraph.dag_network.html" class="btn btn-neutral float-left" title="pypergraph.dag_network package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pypergraph.dag_network.tests.html" class="btn btn-neutral float-left" title="pypergraph.dag_network.tests package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

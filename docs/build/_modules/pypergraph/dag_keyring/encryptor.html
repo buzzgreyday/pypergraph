@@ -46,7 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pypergraph</a></li>
 </ul>
 
         </div>
@@ -75,10 +75,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pypergraph.dag_keyring.encryptor</h1><div class="highlight"><pre>
-<span></span>
-<span class="kn">from</span> <span class="nn">base64</span> <span class="kn">import</span> <span class="n">b64encode</span><span class="p">,</span> <span class="n">b64decode</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives</span> <span class="kn">import</span> <span class="n">hashes</span>
 <span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives.kdf.pbkdf2</span> <span class="kn">import</span> <span class="n">PBKDF2HMAC</span>
@@ -168,112 +165,6 @@
         <span class="n">unpadder</span> <span class="o">=</span> <span class="n">padding</span><span class="o">.</span><span class="n">PKCS7</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="o">.</span><span class="n">unpadder</span><span class="p">()</span>
         <span class="n">plaintext</span> <span class="o">=</span> <span class="n">unpadder</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">padded_plaintext</span><span class="p">)</span> <span class="o">+</span> <span class="n">unpadder</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">plaintext</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="OldEncryptor">
-<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.encryptor.OldEncryptor">[docs]</a>
-<span class="k">class</span> <span class="nc">OldEncryptor</span><span class="p">:</span>
-
-<div class="viewcode-block" id="OldEncryptor.encrypt">
-<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.encryptor.OldEncryptor.encrypt">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">salt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_salt</span><span class="p">()</span>
-
-        <span class="n">password_derived_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_from_password</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">salt</span><span class="p">)</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encrypt_with_key</span><span class="p">(</span><span class="n">password_derived_key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;salt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salt</span>
-
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="OldEncryptor.decrypt">
-<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.encryptor.OldEncryptor.decrypt">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">decrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="n">json</span><span class="p">):</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">text</span>
-        <span class="n">salt</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;salt&quot;</span><span class="p">]</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_from_password</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">salt</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decrypt_with_key</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="OldEncryptor.encrypt_with_key">
-<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.encryptor.OldEncryptor.encrypt_with_key">[docs]</a>
-    <span class="k">def</span> <span class="nf">encrypt_with_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">data_bytes</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="n">iv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
-
-        <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="p">(</span><span class="n">algorithms</span><span class="o">.</span><span class="n">AES</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">modes</span><span class="o">.</span><span class="n">GCM</span><span class="p">(</span><span class="n">iv</span><span class="p">),</span> <span class="n">backend</span><span class="o">=</span><span class="n">default_backend</span><span class="p">())</span>
-        <span class="n">encryptor</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="n">encryptor</span><span class="p">()</span>
-        <span class="n">ciphertext</span> <span class="o">=</span> <span class="n">encryptor</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">encryptor</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;iv&quot;</span><span class="p">:</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">iv</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">encryptor</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="p">}</span></div>
-
-
-<div class="viewcode-block" id="OldEncryptor.decrypt_with_key">
-<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.encryptor.OldEncryptor.decrypt_with_key">[docs]</a>
-    <span class="k">def</span> <span class="nf">decrypt_with_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">encrypted_data</span> <span class="o">=</span> <span class="n">b64decode</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
-            <span class="n">iv</span> <span class="o">=</span> <span class="n">b64decode</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;iv&quot;</span><span class="p">])</span>
-            <span class="n">tag</span> <span class="o">=</span> <span class="n">b64decode</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing field in payload: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid payload: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="p">(</span><span class="n">algorithms</span><span class="o">.</span><span class="n">AES</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">modes</span><span class="o">.</span><span class="n">GCM</span><span class="p">(</span><span class="n">iv</span><span class="p">,</span> <span class="n">tag</span><span class="p">),</span> <span class="n">backend</span><span class="o">=</span><span class="n">default_backend</span><span class="p">())</span>
-        <span class="n">decryptor</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="n">decryptor</span><span class="p">()</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">decrypted_data</span> <span class="o">=</span> <span class="n">decryptor</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">encrypted_data</span><span class="p">)</span> <span class="o">+</span> <span class="n">decryptor</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Decryption failed: Invalid tag or corrupted data.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">decrypted_data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="OldEncryptor.key_from_password">
-<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.encryptor.OldEncryptor.key_from_password">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">key_from_password</span><span class="p">(</span><span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">salt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100_000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Derives a secure key from a password and a hexadecimal salt using PBKDF2.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            password (str): The password to derive the key from.</span>
-<span class="sd">            salt (str): A hexadecimal string representing the salt.</span>
-<span class="sd">            iterations (int): The number of iterations for the PBKDF2 function.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            bytes: The derived cryptographic key.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Convert hex salt to bytes</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">salt_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">salt</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid hexadecimal salt provided.&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Use PBKDF2 to derive the key</span>
-        <span class="n">kdf</span> <span class="o">=</span> <span class="n">PBKDF2HMAC</span><span class="p">(</span>
-            <span class="n">algorithm</span><span class="o">=</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">(),</span>
-            <span class="n">length</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>  <span class="c1"># AES-256 requires a 32-byte key</span>
-            <span class="n">salt</span><span class="o">=</span><span class="n">salt_bytes</span><span class="p">,</span>
-            <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">,</span>
-            <span class="n">backend</span><span class="o">=</span><span class="n">default_backend</span><span class="p">()</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">kdf</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span><span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="OldEncryptor.generate_salt">
-<a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.encryptor.OldEncryptor.generate_salt">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_salt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="n">byte_count</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span></div>
-</div>
 
 </pre></div>
 

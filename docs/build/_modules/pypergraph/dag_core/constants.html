@@ -90,9 +90,24 @@
 <span class="n">BASE58_ALPHABET</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
 <span class="n">PKCS_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;3056301006072a8648ce3d020106052b8104000a034200&quot;</span>  <span class="c1"># Removed last 2 digits. 04 is part of Public Key.</span>
 
+<span class="n">POST_TRANSACTION_ERRORS</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;TransactionLimited&quot;</span><span class="p">,</span> <span class="s2">&quot;ParentOrdinalLowerThenLastTxOrdinal&quot;</span><span class="p">,</span> <span class="s2">&quot;HasNoMatchingParent&quot;</span><span class="p">,</span> <span class="s2">&quot;InsufficientBalance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AddressLocked&quot;</span><span class="p">,</span> <span class="s2">&quot;Conflict&quot;</span><span class="p">,</span> <span class="s2">&quot;SameSourceAndDestinationAddress&quot;</span><span class="p">,</span> <span class="s2">&quot;NotSignedBySourceAddressOwner&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">#            $DAG transaction has been rejected. Returned one of rejection reasons:</span>
+<span class="c1">#               - TransactionLimited - the limit for fee-less transactions per address depends on the address balance and time passed since last accepted transaction.</span>
+<span class="c1">#               - ParentOrdinalLowerThenLastTxOrdinal - The transaction&#39;s ordinal number must be +1 relative to the last accepted transaction.</span>
+<span class="c1">#               - HasNoMatchingParent - the parent&#39;s hash of the transaction must point to the existing accepted transaction.</span>
+<span class="c1">#               - InsufficientBalance - the amount value of the transaction is higher than the balance of the source address.</span>
+<span class="c1">#               - AddressLocked - the address is locked by the network, and transactions can&#39;t be made.</span>
+<span class="c1">#               - Conflict - such transaction has been already accepted by the network.</span>
+<span class="c1">#               - SameSourceAndDestinationAddress - the source and destination addresses should be different.</span>
+<span class="c1">#               - NotSignedBySourceAddressOwner - the transaction should be signed exclusively by the key of the source address.</span>
+
 <div class="viewcode-block" id="DERIVATION_PATH">
 <a class="viewcode-back" href="../../../pypergraph.dag_core.html#pypergraph.dag_core.constants.DERIVATION_PATH">[docs]</a>
-<span class="k">class</span> <span class="nc">DERIVATION_PATH</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">DERIVATION_PATH</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="n">DAG</span> <span class="o">=</span> <span class="s2">&quot;DAG&quot;</span>
     <span class="n">ETH</span> <span class="o">=</span> <span class="s2">&quot;ETH&quot;</span>
     <span class="n">ETH_LEDGER</span> <span class="o">=</span> <span class="s2">&quot;ETH_LEDGER&quot;</span></div>
@@ -100,7 +115,7 @@
 
 <div class="viewcode-block" id="KeyringWalletType">
 <a class="viewcode-back" href="../../../pypergraph.dag_core.html#pypergraph.dag_core.constants.KeyringWalletType">[docs]</a>
-<span class="k">class</span> <span class="nc">KeyringWalletType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">KeyringWalletType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
   <span class="n">MultiChainWallet</span> <span class="o">=</span> <span class="s1">&#39;MCW&#39;</span>
   <span class="n">CrossChainWallet</span> <span class="o">=</span> <span class="s1">&#39;CCW&#39;</span>
   <span class="n">MultiAccountWallet</span> <span class="o">=</span> <span class="s1">&#39;MAW&#39;</span>  <span class="c1">#Single Chain, Multiple seed accounts, MSW</span>
@@ -112,7 +127,7 @@
 
 <div class="viewcode-block" id="KeyringAssetType">
 <a class="viewcode-back" href="../../../pypergraph.dag_core.html#pypergraph.dag_core.constants.KeyringAssetType">[docs]</a>
-<span class="k">class</span> <span class="nc">KeyringAssetType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">KeyringAssetType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
   <span class="n">DAG</span> <span class="o">=</span> <span class="s1">&#39;DAG&#39;</span>
   <span class="n">ETH</span> <span class="o">=</span> <span class="s1">&#39;ETH&#39;</span>
   <span class="n">ERC20</span> <span class="o">=</span> <span class="s1">&#39;ERC20&#39;</span></div>
@@ -120,7 +135,7 @@
 
 <div class="viewcode-block" id="NetworkId">
 <a class="viewcode-back" href="../../../pypergraph.dag_core.html#pypergraph.dag_core.constants.NetworkId">[docs]</a>
-<span class="k">class</span> <span class="nc">NetworkId</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">NetworkId</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
   <span class="n">Constellation</span> <span class="o">=</span> <span class="s1">&#39;Constellation&#39;</span>
   <span class="n">Ethereum</span> <span class="o">=</span> <span class="s1">&#39;Ethereum&#39;</span></div>
 
@@ -136,7 +151,7 @@
 <span class="c1"># E.g. &quot;m/44&#39;/{COIN.DAG}&#39;/0&#39;/0&quot; (account 0, index 0); &quot;m/44&#39;/{COIN.DAG}&#39;/0&#39;/1&quot; (account 0, index 1)</span>
 <div class="viewcode-block" id="BIP_44_PATHS">
 <a class="viewcode-back" href="../../../pypergraph.dag_core.html#pypergraph.dag_core.constants.BIP_44_PATHS">[docs]</a>
-<span class="k">class</span> <span class="nc">BIP_44_PATHS</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">BIP_44_PATHS</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="n">CONSTELLATION_PATH</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;m/44&#39;/</span><span class="si">{</span><span class="n">COIN</span><span class="o">.</span><span class="n">DAG</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;/0&#39;/0&quot;</span>
     <span class="n">ETH_WALLET_PATH</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;m/44&#39;/</span><span class="si">{</span><span class="n">COIN</span><span class="o">.</span><span class="n">ETH</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;/0&#39;/0&quot;</span>
     <span class="n">ETH_LEDGER_PATH</span> <span class="o">=</span> <span class="s2">&quot;m/44&#39;/60&#39;&quot;</span></div>

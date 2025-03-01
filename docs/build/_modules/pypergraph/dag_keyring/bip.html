@@ -46,7 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pypergraph</a></li>
 </ul>
 
         </div>
@@ -90,7 +90,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strength</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bip39 :: The value or Bip39(words=</span><span class="si">{</span><span class="n">words</span><span class="si">}</span><span class="s2"> is unsupported. Supported: 12 or 24&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">language</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Bip39Helper</span><span class="o">.</span><span class="n">LANGUAGES</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bip39 :: The language </span><span class="si">{</span><span class="n">language</span><span class="si">}</span><span class="s2"> isn&#39;t supported. Supported languages: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Bip39Helper</span><span class="o">.</span><span class="n">LANGUAGES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bip39 :: The language </span><span class="si">{</span><span class="n">language</span><span class="si">}</span><span class="s2"> isn&#39;t supported. Supported languages: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LANGUAGES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">language</span> <span class="o">=</span> <span class="n">language</span>
 
@@ -108,8 +108,10 @@
 <a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.bip.Bip39Helper.is_valid">[docs]</a>
     <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validates the mnemonic phrase and returns bool</span>
+<span class="sd">        Validates the mnemonic phrase and returns bool.</span>
+
 <span class="sd">        :param self:</span>
+<span class="sd">        :param seed: Mnemonic phrase.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -120,7 +122,8 @@
 <div class="viewcode-block" id="Bip39Helper.get_seed_bytes_from_mnemonic">
 <a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.bip.Bip39Helper.get_seed_bytes_from_mnemonic">[docs]</a>
     <span class="k">def</span> <span class="nf">get_seed_bytes_from_mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span><span class="o">.</span><span class="n">to_seed</span><span class="p">(</span><span class="n">mnemonic</span><span class="p">)</span></div>
+        <span class="n">mnemo</span> <span class="o">=</span> <span class="n">Mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">to_seed</span><span class="p">(</span><span class="n">mnemonic</span><span class="p">)</span></div>
 </div>
 
 
@@ -130,7 +133,7 @@
 <div class="viewcode-block" id="Bip32Helper.get_root_key_from_seed">
 <a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.bip.Bip32Helper.get_root_key_from_seed">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_root_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_root_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BIP32Key</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive the HD root/master key from a seed entropy in bytes format.</span>
 
@@ -143,12 +146,12 @@
 
 <div class="viewcode-block" id="Bip32Helper.get_hd_root_key_from_seed">
 <a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.bip.Bip32Helper.get_hd_root_key_from_seed">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_hd_root_key_from_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">hd_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_hd_root_key_from_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">hd_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BIP32Key</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive the private key from a seed entropy using derived path.</span>
 
 <span class="sd">        :param seed_bytes: The seed in bytes format.</span>
-<span class="sd">        :param derivation_path: The derivation path.</span>
+<span class="sd">        :param hd_path: The derivation path.</span>
 <span class="sd">        :return: The private key as a hexadecimal string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">path_parts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">hd_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]]</span>

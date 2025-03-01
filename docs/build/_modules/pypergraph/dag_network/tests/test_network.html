@@ -46,7 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">pypergraph</a></li>
 </ul>
 
         </div>
@@ -75,11 +75,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pypergraph.dag_network.tests.test_network</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pytest</span>
+<span></span><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">httpx</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
 <span class="kn">import</span> <span class="nn">random</span>
 
 <span class="kn">import</span> <span class="nn">pypergraph.dag_account</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_core.models.network</span> <span class="kn">import</span> <span class="n">NetworkInfo</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.network</span> <span class="kn">import</span> <span class="n">NetworkInfo</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.network</span> <span class="kn">import</span> <span class="n">DagTokenNetwork</span>
 
 
@@ -188,7 +192,10 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">get_latest_snapshot</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">hash</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">timestamp</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">ordinal</span><span class="p">,</span> <span class="s2">&quot;Snapshot data should not be empty&quot;</span></div>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">ordinal</span> <span class="o">&gt;=</span> <span class="mi">3921360</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">last_snapshot_hash</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="test_get_snapshot_by_id">
@@ -198,6 +205,23 @@
     <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_snapshot</span><span class="p">(</span>
         <span class="s2">&quot;2404170&quot;</span>
     <span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">model</span> <span class="o">==</span> <span class="p">{</span>
+        <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="s1">&#39;3e34c85769f1dbd886dbb6b17c042ce55a4e715ccd867098b3bb57d580ab3708&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ordinal&#39;</span><span class="p">:</span> <span class="mi">2404170</span><span class="p">,</span>
+        <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="mi">29108</span><span class="p">,</span>
+        <span class="s1">&#39;sub_height&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+        <span class="s1">&#39;last_snapshot_hash&#39;</span><span class="p">:</span> <span class="s1">&#39;9ec173e487b16958f276d1bb7a84f7aede3d0b8cbb01925b2f1ae76b92a4f662&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;blocks&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s1">&#39;0703e08fc288e4847a18bc755452ed372297da150802d70ef753b2f434d8019a&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;b058dbf4f5f1994db57b60d24ea06204dae754cad95df5d4a0fe0bb02c815aa9&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;6846023a1a4fb6a88953fc5ae31e3d9eee2034d27e78efe690f3e19ff88d0063&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;8983a66675c4787e56f3e5356211ed0e8b9405d3a783dd48a1ffcd24beec2fe3&#39;</span>
+        <span class="p">]</span><span class="c1">#,</span>
+        <span class="c1">#&#39;timestamp&#39;: datetime.datetime(2024, 7, 16, 22, 37, 37, 697000, tzinfo=datetime.timezone.utc)</span>
+    <span class="p">}</span>
     <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">hash</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">timestamp</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">ordinal</span><span class="p">,</span> <span class="s2">&quot;Snapshot data should not be empty&quot;</span></div>
 
 
@@ -206,7 +230,9 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_transactions_by_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_transactions_by_snapshot</span><span class="p">(</span><span class="s2">&quot;2404170&quot;</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span> <span class="ow">and</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span> <span class="ow">and</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="s2">&quot;Transaction data should not be empty&quot;</span></div>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;DAG5KmHp9gFS723uN6uukwRqCTwvrddaW5QuKKKz&quot;</span> <span class="ow">and</span>
+            <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span> <span class="o">==</span> <span class="s2">&quot;DAG29HwuP2PKU8SBj38x5qq2Z4JcgvKkXA7QS71F&quot;</span> <span class="ow">and</span>
+            <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span> <span class="o">==</span> <span class="mi">100000000</span><span class="p">),</span> <span class="s2">&quot;Transaction data should not be empty&quot;</span></div>
 
 
 <div class="viewcode-block" id="test_get_rewards_by_snapshot">
@@ -214,7 +240,8 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_rewards_by_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_rewards_by_snapshot</span><span class="p">(</span><span class="mi">2404170</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span></div>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span> <span class="o">==</span> <span class="s2">&quot;DAG8nfZEeGaQAZfVsr3BFYMq8THb3XCTr36g3fGs&quot;</span> <span class="ow">and</span>
+            <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span> <span class="o">==</span> <span class="mi">24020206</span><span class="p">),</span> <span class="s2">&quot;Snapshot data should not be empty&quot;</span></div>
 
 
 <div class="viewcode-block" id="test_get_latest_snapshot_transactions">
@@ -222,7 +249,7 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_snapshot_transactions</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_latest_snapshot_transactions</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;Snapshot data should be a list&quot;</span></div>
 
 
 <div class="viewcode-block" id="test_get_latest_snapshot_rewards">
@@ -230,15 +257,16 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_snapshot_rewards</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_latest_snapshot_rewards</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;Snapshot data should be a list&quot;</span></div>
 
 
 <div class="viewcode-block" id="test_get_transactions">
 <a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_transactions">[docs]</a>
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_transactions</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
+    <span class="n">num_of_snapshots</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">num_of_snapshots</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_of_snapshots</span><span class="p">,</span> <span class="s2">&quot;Snapshot data should be a list&quot;</span></div>
 
 
 <div class="viewcode-block" id="test_get_transaction">
@@ -248,7 +276,46 @@
     <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_transaction</span><span class="p">(</span>
         <span class="s2">&quot;dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e&quot;</span>
     <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">model</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">model</span> <span class="o">==</span> <span class="p">{</span>
+        <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;destination&#39;</span><span class="p">:</span> <span class="s1">&#39;DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">25000110000000</span><span class="p">,</span>
+        <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="s1">&#39;dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;ordinal&#39;</span><span class="p">:</span> <span class="mi">77</span><span class="p">,</span>
+            <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="s1">&#39;ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555&#39;</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;salt&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;block_hash&#39;</span><span class="p">:</span> <span class="s1">&#39;85f034cf2df202ced872da05ef3eaf00cd1117e0f8deef9d56022505457072e9&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;snapshot_hash&#39;</span><span class="p">:</span> <span class="s1">&#39;baa81574222c46c9ac37baa9eeea97b83f4f02aa46e187b19064a64188f5132f&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;snapshot_ordinal&#39;</span><span class="p">:</span> <span class="mi">2829094</span><span class="p">,</span>
+        <span class="s1">&#39;transaction_original&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;destination&#39;</span><span class="p">:</span> <span class="s1">&#39;DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">25000110000000</span><span class="p">,</span>
+                <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;ordinal&#39;</span><span class="p">:</span> <span class="mi">77</span><span class="p">,</span>
+                    <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="s1">&#39;ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555&#39;</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;salt&#39;</span><span class="p">:</span> <span class="mi">8940539553876237</span><span class="p">,</span>
+                <span class="s1">&#39;encoded&#39;</span><span class="p">:</span> <span class="s1">&#39;240DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb40DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA1216bccaad078064ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d706255527710141fc35f9435890d&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;proofs&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;0c56484b24a71a08f505493ede440aead8bd85f94402693d963dd5161c2c42ee638c7c89a500f8cb86c05fb69c8650e297b101851951108b1b77e3ee8b6df5ab&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;signature&#39;</span><span class="p">:</span> <span class="s1">&#39;30440220537019100fce3f7dd150beb52f7de2e887e44712e08073e5808debc5871a4394022026a96f644f378fb74a96f6aed520a3e606d0fbd5af89ecb402dac8087006ea1b&#39;</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="c1"># &#39;timestamp&#39;: datetime.datetime(2024, 9, 15, 18, 47, 33, 82000, tzinfo=TzInfo(UTC)), Removed for testing purposes</span>
+        <span class="s1">&#39;proofs&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s1">&#39;meta&#39;</span><span class="p">:</span> <span class="kc">None</span>
+    <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="test_get_latest_currency_snapshot">
@@ -257,7 +324,9 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_currency_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_latest_currency_snapshot</span><span class="p">(</span><span class="n">el_paca_metagraph_id</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">ordinal</span> <span class="o">&gt;=</span> <span class="mi">1032801</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">fee</span> <span class="o">&gt;=</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="test_get_currency_snapshot">
@@ -266,7 +335,22 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_snapshot</span><span class="p">(</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="mi">950075</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">model</span> <span class="o">==</span> <span class="p">{</span>
+        <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="s1">&#39;d412e81203f6a3dfaf5c9c442ccdc8e80524ba3ffb7e0a2f832920d39d590e12&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ordinal&#39;</span><span class="p">:</span> <span class="mi">950075</span><span class="p">,</span>
+        <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="mi">754</span><span class="p">,</span>
+        <span class="s1">&#39;sub_height&#39;</span><span class="p">:</span> <span class="mi">2250</span><span class="p">,</span>
+        <span class="s1">&#39;last_snapshot_hash&#39;</span><span class="p">:</span> <span class="s1">&#39;05d473f31887b1e556ac7742b397becbdf5e717abd9ce0aa7f1133ebb48c27c0&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;blocks&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="c1">#&#39;timestamp&#39;: datetime.datetime(2025, 2, 12, 13, 52, 37, 633000, tzinfo=datetime.timezone.utc),</span>
+        <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">500000</span><span class="p">,</span>
+        <span class="s1">&#39;owner_address&#39;</span><span class="p">:</span> <span class="s1">&#39;DAG5VxUBiDx24wZgBwjJ1FeuVP1HHVjz6EzXa3z6&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;staking_address&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;size_in_kb&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s1">&#39;meta&#39;</span><span class="p">:</span> <span class="kc">None</span>
+    <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="test_get_latest_currency_snapshot_rewards">
@@ -334,7 +418,9 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_transactions_by_address</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_transactions_by_address</span><span class="p">(</span><span class="n">metagraph_id</span><span class="o">=</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s2">&quot;DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_transactions_by_address</span><span class="p">(</span>
+        <span class="n">metagraph_id</span><span class="o">=</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s2">&quot;DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span>
+    <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
 
 
@@ -343,7 +429,9 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_currency_transactions_by_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">el_paca_metagraph_id</span> <span class="o">=</span> <span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_transactions_by_snapshot</span><span class="p">(</span><span class="n">metagraph_id</span><span class="o">=</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="n">hash_or_ordinal</span><span class="o">=</span><span class="mi">952394</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">get_currency_transactions_by_snapshot</span><span class="p">(</span>
+        <span class="n">metagraph_id</span><span class="o">=</span><span class="n">el_paca_metagraph_id</span><span class="p">,</span> <span class="n">hash_or_ordinal</span><span class="o">=</span><span class="mi">952394</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span>
+    <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
 
 
@@ -380,7 +468,15 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_l0_snapshot</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">l0_api</span><span class="o">.</span><span class="n">get_latest_snapshot</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+    <span class="c1"># TODO: fails</span>
+    <span class="c1"># &gt;       return GlobalSnapshot(**result)</span>
+    <span class="c1"># E       pydantic_core._pydantic_core.ValidationError: 1 validation error for GlobalSnapshot</span>
+    <span class="c1"># E       value.blocks.0</span>
+    <span class="c1"># E         Input should be a valid string [type=string_type, input_value={&#39;block&#39;: {&#39;value&#39;: {&#39;par...71&#39;}]}, &#39;usageCount&#39;: 0}, input_type=dict]</span>
+    <span class="c1"># E           For further information visit https://errors.pydantic.dev/2.10/v/string_type</span>
+
+    <span class="c1"># ../api.py:308: ValidationError</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="test_get_latest_snapshot_ordinal">
@@ -388,6 +484,7 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_latest_snapshot_ordinal</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">l0_api</span><span class="o">.</span><span class="n">get_latest_snapshot_ordinal</span><span class="p">()</span>
+    <span class="c1"># TODO: validate</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
 
 
@@ -398,8 +495,8 @@
 <a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_get_l1_cluster_info">[docs]</a>
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_l1_cluster_info</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">cl1_api</span><span class="o">.</span><span class="n">get_cluster_info</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">cl1_api</span><span class="o">.</span><span class="n">get_cluster_info</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="test_get_last_ref">
@@ -408,7 +505,7 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">test_get_last_ref</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
     <span class="n">address</span> <span class="o">=</span> <span class="s2">&quot;DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span></div>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">ordinal</span> <span class="o">&gt;=</span> <span class="mi">5</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="test_get_pending">
@@ -419,20 +516,180 @@
         <span class="nb">hash</span><span class="o">=</span><span class="s2">&quot;fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429&quot;</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pending transaction: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No pending transactions.&quot;</span><span class="p">)</span></div>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s2">&quot;No pending transactions.&quot;</span><span class="p">)</span></div>
 
 
-<span class="c1">#@pytest.mark.asyncio</span>
-<span class="c1">#async def test_post_transaction(network):</span>
-<span class="c1">#    from .secrets import mnemo, address</span>
-<span class="c1">#    account = pypergraph.dag_account.DagAccount()</span>
-<span class="c1">#    account.connect(network_id=&quot;testnet&quot;)</span>
-<span class="c1">#    if account.network.connected_network.network_id == &quot;testnet&quot;:</span>
-<span class="c1">#        account.login_with_seed_phrase(mnemo)</span>
-<span class="c1">#        tx, hash_ = await account.generate_signed_transaction(to_address=address, amount=100000000, fee=200000000)</span>
-<span class="c1">#        await account.network.post_transaction(tx.model_dump())</span>
+<div class="viewcode-block" id="test_post_transaction">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_post_transaction">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_post_transaction</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.secrets</span> <span class="kn">import</span> <span class="n">mnemo</span><span class="p">,</span> <span class="n">to_address</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">network_id</span><span class="o">=</span><span class="s2">&quot;testnet&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">account</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">connected_network</span><span class="o">.</span><span class="n">network_id</span> <span class="o">==</span> <span class="s2">&quot;testnet&quot;</span><span class="p">:</span>
+       <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">mnemo</span><span class="p">)</span>
+       <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span><span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="mi">200000000</span><span class="p">)</span>
+       <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
+       <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+           <span class="k">if</span> <span class="s2">&quot;InsufficientBalance&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+               <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Insufficient balance: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+           <span class="k">elif</span> <span class="s2">&quot;TransactionLimited&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+               <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transaction limited: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+           <span class="k">else</span><span class="p">:</span>
+               <span class="n">pytest</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to post transaction: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_post_metagraph_currency_transaction">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_post_metagraph_currency_transaction">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_post_metagraph_currency_transaction</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.secrets</span> <span class="kn">import</span> <span class="n">mnemo</span><span class="p">,</span> <span class="n">to_address</span><span class="p">,</span> <span class="n">from_address</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">mnemo</span><span class="p">)</span>
+    <span class="n">account_metagraph_client</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">MetagraphTokenClient</span><span class="p">(</span>
+        <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
+        <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100&quot;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># Generate signed tx</span>
+    <span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">from_address</span><span class="p">)</span>
+    <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
+        <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">tx</span><span class="o">=</span><span class="n">tx</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;InsufficientBalance&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Insufficient balance: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;TransactionLimited&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transaction limited: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pytest</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to post transaction: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_post_metagraph_data_transaction">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.tests.html#pypergraph.dag_network.tests.test_network.test_post_metagraph_data_transaction">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_post_metagraph_data_transaction</span><span class="p">(</span><span class="n">network</span><span class="p">):</span>
+    <span class="c1"># TODO: error handling and documentation</span>
+    <span class="c1"># Encode message according to serializeUpdate on your template module l1.</span>
+    <span class="c1">#</span>
+    <span class="c1"># 1. The TO-DO, SOCIAL and WATER AND ENERGY template doesn&#39;t add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:</span>
+    <span class="c1">#     # encoded = json.dumps(tx_value, separators=(&#39;,&#39;, &#39;:&#39;))</span>
+    <span class="c1">#     signature, hash_ = keystore.data_sign(pk, encoded, prefix=False) # Default encoding = &quot;hex&quot;</span>
+    <span class="c1"># 2. The VOTING and NFT template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:</span>
+    <span class="c1">#     # encoded = json.dumps(tx_value, separators=(&#39;,&#39;, &#39;:&#39;))</span>
+    <span class="c1">#     # encoded = base64.b64encode(encoded.encode()).decode()</span>
+    <span class="c1">#     signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding=&quot;base64&quot;) # Default prefix is True</span>
+    <span class="c1"># 3. The TO-DO, SOCIAL and WATER AND ENERGY template doesn&#39;t add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:</span>
+    <span class="c1">#     # encoded = json.dumps(tx_value, separators=(&#39;,&#39;, &#39;:&#39;))</span>
+    <span class="c1">#     signature, hash_ = keystore.data_sign(pk, encoded, prefix=False) # Default encoding = &quot;hex&quot;</span>
+    <span class="c1"># X. Inject a custom encoding function:</span>
+    <span class="c1">#     def encode(msg: dict):</span>
+    <span class="c1">#         return json.dumps(tx_value, separators=(&#39;,&#39;, &#39;:&#39;))</span>
+    <span class="c1">#</span>
+    <span class="c1">#     signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)</span>
+
+    <span class="kn">from</span> <span class="nn">.secrets</span> <span class="kn">import</span> <span class="n">mnemo</span><span class="p">,</span> <span class="n">to_address</span><span class="p">,</span> <span class="n">from_address</span>
+
+    <span class="k">def</span> <span class="nf">build_todo_tx</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;TO-DO TEMPLATE&quot;&quot;&quot;</span>
+        <span class="c1"># Build the signature request</span>
+        <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">one_day_in_millis</span> <span class="o">=</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">1000</span>
+        <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;CreateTask&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This is a task description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dueDate&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">now</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">milliseconds</span><span class="o">=</span><span class="n">one_day_in_millis</span><span class="p">))</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)),</span>
+                <span class="s2">&quot;optStatus&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;InProgress&quot;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">build_voting_poll_tx</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; VOTING TEMPLATE &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+           <span class="s2">&quot;CreatePoll&quot;</span><span class="p">:</span> <span class="p">{</span>
+               <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;test_poll&#39;</span><span class="p">,</span>
+               <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">from_address</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+               <span class="s2">&quot;pollOptions&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="s1">&#39;false&#39;</span> <span class="p">],</span>
+               <span class="s2">&quot;startSnapshotOrdinal&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="c1">#start_snapshot, you should replace</span>
+               <span class="s2">&quot;endSnapshotOrdinal&quot;</span><span class="p">:</span> <span class="mi">100000</span> <span class="c1">#end_snapshot, you should replace</span>
+           <span class="p">}</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">build_water_and_energy_usage_tx</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">from_address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;energyUsage&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;usage&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;waterUsage&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;usage&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+    <span class="n">METAGRAPH_ID</span> <span class="o">=</span> <span class="s2">&quot;DAG6DOES00NOT00MATTER00HERE&quot;</span>
+    <span class="n">L0</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:9200&quot;</span>
+    <span class="n">CL1</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:9300&quot;</span>
+    <span class="n">DL1</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:9400&quot;</span>
+    <span class="c1"># print(requests.get(f&quot;https://faucet.constellationnetwork.io/testnet/faucet/{from_address}&quot;).text)</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">DagAccount</span><span class="p">()</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">mnemo</span><span class="p">)</span>
+    <span class="n">account_metagraph_client</span> <span class="o">=</span> <span class="n">pypergraph</span><span class="o">.</span><span class="n">dag_account</span><span class="o">.</span><span class="n">MetagraphTokenClient</span><span class="p">(</span>
+        <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="o">=</span><span class="n">METAGRAPH_ID</span><span class="p">,</span> <span class="n">l0_host</span><span class="o">=</span><span class="n">L0</span><span class="p">,</span> <span class="n">cl1_host</span><span class="o">=</span><span class="n">CL1</span><span class="p">,</span> <span class="n">dl1_host</span><span class="o">=</span><span class="n">DL1</span>
+    <span class="p">)</span>
+    <span class="n">keystore</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="p">()</span>
+    <span class="n">pk</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">get_private_key_from_mnemonic</span><span class="p">(</span><span class="n">phrase</span><span class="o">=</span><span class="n">mnemo</span><span class="p">)</span>
+
+    <span class="n">todo_tx_value</span> <span class="o">=</span> <span class="n">build_todo_tx</span><span class="p">()</span>
+    <span class="n">poll_tx_value</span> <span class="o">=</span> <span class="n">build_voting_poll_tx</span><span class="p">()</span>
+    <span class="n">water_and_energy_tx_value</span> <span class="o">=</span> <span class="n">build_water_and_energy_usage_tx</span><span class="p">()</span>
+
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">water_and_energy_tx_value</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; TO-DO &quot;&quot;&quot;</span>
+    <span class="c1"># signature, hash_ = keystore.data_sign(pk, msg, prefix=False) # Default encoding = json.dumps(msg, separators=(&#39;,&#39;, &#39;:&#39;))</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; VOTING POLL &quot;&quot;&quot;</span>
+    <span class="c1"># signature, hash_ = keystore.data_sign(pk, tx_value, encoding=&quot;base64&quot;) # Default prefix is True</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; WATER AND ENERGY &quot;&quot;&quot;</span>
+    <span class="n">signature</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">data_sign</span><span class="p">(</span><span class="n">pk</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; TO-DO &quot;CUSTOM&quot; &quot;&quot;&quot;</span>
+    <span class="c1"># def encode(data: dict):</span>
+    <span class="c1">#     return json.dumps(msg, separators=(&#39;,&#39;, &#39;:&#39;))</span>
+    <span class="c1"># signature, hash_ = keystore.data_sign(pk, msg, prefix=False, encoding=encode)</span>
+
+    <span class="n">public_key</span> <span class="o">=</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">public_key</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>  <span class="c1"># Remove &#39;04&#39; prefix</span>
+    <span class="k">if</span> <span class="n">keystore</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">public_key</span><span class="p">,</span> <span class="n">hash_</span><span class="p">,</span> <span class="n">signature</span><span class="p">):</span>
+        <span class="n">proof</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">public_key</span><span class="p">,</span>
+            <span class="s2">&quot;signature&quot;</span><span class="p">:</span> <span class="n">signature</span>
+        <span class="p">}</span>
+        <span class="n">tx</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">msg</span><span class="p">,</span>
+        <span class="s2">&quot;proofs&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">proof</span>
+        <span class="p">]</span>
+        <span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account_metagraph_client</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_data</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
+            <span class="c1"># Returns the full response from the metagraph</span>
+        <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">ConnectError</span><span class="p">:</span>
+            <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s2">&quot;No locally running Metagraph&quot;</span><span class="p">)</span></div>
+
+
+
+
+
 </pre></div>
 
            </div>

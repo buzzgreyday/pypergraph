@@ -46,7 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pypergraph</a></li>
 </ul>
 
         </div>
@@ -75,11 +75,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pypergraph.dag_keyring.registry</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_core</span> <span class="kn">import</span> <span class="n">NetworkId</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">pypergraph.dag_core</span> <span class="kn">import</span> <span class="n">NetworkId</span>
 <span class="kn">from</span> <span class="nn">.accounts</span> <span class="kn">import</span> <span class="n">DagAccount</span><span class="p">,</span> <span class="n">EthAccount</span>
-
-
-<span class="c1"># Polymorphism</span>
 
 <div class="viewcode-block" id="KeyringRegistry">
 <a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.registry.KeyringRegistry">[docs]</a>
@@ -98,14 +97,14 @@
 <span class="sd">        :param data: { KeyringNetwork.Network.value: AccountClass, ... }</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;KeyringRegistry :: Unsupported type of data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">registry</span> <span class="o">=</span> <span class="n">data</span></div>
 
 
 <div class="viewcode-block" id="KeyringRegistry.create_account">
 <a class="viewcode-back" href="../../../pypergraph.dag_keyring.html#pypergraph.dag_keyring.registry.KeyringRegistry.create_account">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_account</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">create_account</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">DagAccount</span><span class="p">,</span> <span class="n">EthAccount</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the account class dependent on network.</span>
 
@@ -113,7 +112,7 @@
 <span class="sd">        :return: Account class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">network</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">network</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">network</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;KeyringRegistry :: Unsupported network: </span><span class="si">{</span><span class="n">network</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">class_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">network</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">class_</span><span class="p">()</span></div>

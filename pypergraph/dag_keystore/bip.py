@@ -63,6 +63,7 @@ class Bip39:
         """
         :return: Dictionary with Mnemonic object, mnemonic phrase, mnemonic seed, mnemonic entropy.
         """
+        # TODO: model
         mnemo = Mnemonic(self.language)
         words = mnemo.generate(strength=self.strength)
         seed = mnemo.to_seed(words)

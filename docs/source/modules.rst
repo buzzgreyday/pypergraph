@@ -2,7 +2,7 @@ pypergraph
 ==========
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    pypergraph.dag_account
    pypergraph.dag_core
