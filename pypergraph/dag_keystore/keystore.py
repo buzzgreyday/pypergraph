@@ -72,15 +72,7 @@ class KeyStore:
         return tx, hash_value
 
     def data_sign(self, private_key, msg: dict) -> Tuple[str, str]:
-        #msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
-        # serialized_message = self.serialize(message)
-        # Serialize
-        #msg = msg.encode('utf-8')
-        #hash_value = hashlib.sha256(msg).hexdigest()
-        # hash_value = KeyStore._double_hash(serialized_message)
-        #signature = self.sign(private_key, hash_value)
-        #return signature, hash_value
-        # Generate proof
+
         import json
         # Encode message
         def sort_object_by_key(source_object):
