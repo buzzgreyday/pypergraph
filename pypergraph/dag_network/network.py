@@ -125,8 +125,8 @@ class MetagraphTokenNetwork(AsyncIOEventEmitter):
         super().__init__()
         """Validate connected network"""
         # TODO: Do not hardcode urls
-        if not metagraph_id or not l0_host or not cl1_host:
-            raise ValueError("MetagraphTokenNetwork :: Parameters 'metagraph_id', 'l0_host' and 'cl1_host' must be set.")
+        if not metagraph_id or not l0_host or not cl1_host or not dl1_host:
+            raise ValueError("MetagraphTokenNetwork :: Parameters.")
         self.connected_network = NetworkInfo(network_id=network_id, metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, dl1_host=dl1_host, be_url=block_explorer)
         self.be_api = BlockExplorerApi(host=block_explorer) if block_explorer else BlockExplorerApi(host=self.connected_network.be_url)
         self.l0_api = ML0Api(host=l0_host)

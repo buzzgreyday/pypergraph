@@ -276,9 +276,9 @@ class MetagraphTokenClient:
             token_decimals: int = 8
     ):
         self.account = account
-        if not l0_host or not cl1_host or not metagraph_id:
+        if not l0_host or not cl1_host or not dl1_host or not metagraph_id:
             raise ValueError(
-                f"MetagraphTokenClient :: Parameters 'l0_host', 'l1_host' and 'metagraph_id' must be set."
+                f"MetagraphTokenClient :: Parameters."
             )
         self.network = MetagraphTokenNetwork(
             metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, dl1_host=dl1_host,
