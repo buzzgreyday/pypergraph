@@ -71,6 +71,25 @@ class KeyStore:
 
         return tx, hash_value
 
+    def _encode_data(self, encoding, prefix, msg):
+        if encoding:
+            if callable(encoding):
+                # Use custom encoding function
+                msg = encoding(msg)
+            elif encoding == "base64":
+                # Used in the VOTING and NFT metagraph example
+                encoded = json.dumps(msg, separators=(',', ':'))
+                msg = base64.b64encode(encoded.encode()).decode()
+            elif encoding == "hex":
+                # Used in the TO-DO, SOCIAL and WATER AND ENERGY metagraph example
+                msg = json.dumps(msg, separators=(',', ':'))
+        else:
+            # Default: used in the TO-DO, SOCIAL and WATER AND ENERGY metagraph examples
+            msg = json.dumps(msg, separators=(',', ':'))
+
+        if prefix:
+            msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
+        return msg
 
     def data_sign(self, private_key, msg: dict, prefix: bool = True, encoding: Union[Literal["hex", "base64"], Callable[[dict], str], None] = None) -> Tuple[str, str]:
         """
@@ -99,23 +118,7 @@ class KeyStore:
         :return:
         """
 
-        if encoding:
-            if callable(encoding):
-                # Use custom encoding function
-                msg = encoding(msg)
-            elif encoding == "base64":
-                # Used in the VOTING POLL metagraph example
-                encoded = json.dumps(msg, separators=(',', ':'))
-                msg = base64.b64encode(encoded.encode()).decode()
-            elif encoding == "hex":
-                # Used in the WATER AND ENERGY and TO-DO metagraph example
-                msg = json.dumps(msg, separators=(',', ':'))
-        else:
-            # Default: used in the TO-DO and WATER AND ENERGY metagraph examples
-            msg = json.dumps(msg, separators=(',', ':'))
-
-        if prefix:
-            msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
+        msg = self._encode_data(encoding=encoding, prefix=prefix, msg=msg)
 
         """ Serialize """
         serialized = msg.encode('utf-8')
