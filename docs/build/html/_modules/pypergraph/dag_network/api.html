@@ -1,0 +1,728 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypergraph.dag_network.api &mdash; pypergraph 2025.0.0a3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=d273756d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pypergraph
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pypergraph</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pypergraph</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pypergraph.html">pypergraph</a></li>
+      <li class="breadcrumb-item active">pypergraph.dag_network.api</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pypergraph.dag_network.api</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.reward</span> <span class="kn">import</span> <span class="n">Reward</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_core.rest_api_client</span> <span class="kn">import</span> <span class="n">RestAPIClient</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.account</span> <span class="kn">import</span> <span class="n">Balance</span><span class="p">,</span> <span class="n">LastReference</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.transaction</span> <span class="kn">import</span> <span class="n">PendingTransaction</span><span class="p">,</span> <span class="n">BlockExplorerTransaction</span><span class="p">,</span> <span class="n">SignedTransaction</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.network</span> <span class="kn">import</span> <span class="n">TotalSupply</span><span class="p">,</span> <span class="n">PeerInfo</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.snapshot</span> <span class="kn">import</span> <span class="n">Snapshot</span><span class="p">,</span> <span class="n">GlobalSnapshot</span><span class="p">,</span> <span class="n">CurrencySnapshot</span>
+
+
+<div class="viewcode-block" id="LoadBalancerApi">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi">[docs]</a>
+<span class="k">class</span> <span class="nc">LoadBalancerApi</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LoadBalancerApi :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LoadBalancerApi.config">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi.config">[docs]</a>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LoadBalancerApi.get_metrics">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi.get_metrics">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: Handle text response</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/metrics&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="LoadBalancerApi.get_address_balance">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi.get_address_balance">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Balance</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/dag/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/balance&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LoadBalancerApi.get_last_reference">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi.get_last_reference">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_last_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LastReference</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/transactions/last-reference/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LastReference</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LoadBalancerApi.get_total_supply">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi.get_total_supply">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_total_supply</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TotalSupply</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/total-supply&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TotalSupply</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LoadBalancerApi.post_transaction">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi.post_transaction">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">post_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/transactions&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">tx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="LoadBalancerApi.get_pending_transaction">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi.get_pending_transaction">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_pending_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/transactions/</span><span class="si">{</span><span class="n">tx_hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PendingTransaction</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LoadBalancerApi.get_cluster_info">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi.get_cluster_info">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_cluster_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;PeerInfo&quot;</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/cluster/info&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PeerInfo</span><span class="o">.</span><span class="n">process_cluster_peers</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">result</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BlockExplorerApi">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi">[docs]</a>
+<span class="k">class</span> <span class="nc">BlockExplorerApi</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;BlockExplorerApi :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BlockExplorerApi.config">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.config">[docs]</a>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_snapshot">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_snapshot">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Snapshot</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param id: Hash or ordinal can be used as identifier.</span>
+<span class="sd">        :return: Snapshot object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/global-snapshots/</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Snapshot</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_transactions_by_snapshot">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_transactions_by_snapshot">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_transactions_by_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;BlockExplorerTransaction&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param id:  Hash or ordinal can be used as identifier.</span>
+<span class="sd">        :return: List of Block Explorer type transactions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Add parameters limit, search_after, search_before, next</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/global-snapshots/</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">/transactions&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockExplorerTransaction</span><span class="o">.</span><span class="n">process_transactions</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_rewards_by_snapshot">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_rewards_by_snapshot">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_rewards_by_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Reward</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param id: Hash or ordinal.</span>
+<span class="sd">        :return: List of reward type objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/global-snapshots/</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">/rewards&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Reward</span><span class="o">.</span><span class="n">process_snapshot_rewards</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_latest_snapshot">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_latest_snapshot">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_latest_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Snapshot</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the latest snapshot from block explorer.</span>
+
+<span class="sd">        :return: Snapshot object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/global-snapshots/latest&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Snapshot</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_latest_snapshot_transactions">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_latest_snapshot_transactions">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_latest_snapshot_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BlockExplorerTransaction</span><span class="p">]:</span>
+        <span class="c1"># TODO: Add parameters limit, search_after, search_before, next (according to Swagger)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/global-snapshots/latest/transactions&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockExplorerTransaction</span><span class="o">.</span><span class="n">process_transactions</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span>
+            <span class="n">meta</span><span class="o">=</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_latest_snapshot_rewards">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_latest_snapshot_rewards">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_latest_snapshot_rewards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Reward</span><span class="p">]:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/global-snapshots/latest/rewards&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Reward</span><span class="o">.</span><span class="n">process_snapshot_rewards</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_transaction_search_path_and_params</span><span class="p">(</span>
+            <span class="n">base_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">search_after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+            <span class="n">sent_only</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">received_only</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">search_before</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">base_path</span>
+
+        <span class="k">if</span> <span class="n">limit</span> <span class="ow">or</span> <span class="n">search_after</span> <span class="ow">or</span> <span class="n">search_before</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">limit</span> <span class="ow">and</span> <span class="n">limit</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">limit</span>
+            <span class="k">if</span> <span class="n">search_after</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;search_after&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">search_after</span>
+            <span class="k">elif</span> <span class="n">search_before</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;search_before&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">search_before</span>
+
+        <span class="k">if</span> <span class="n">sent_only</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">+=</span> <span class="s1">&#39;/sent&#39;</span>
+        <span class="k">elif</span> <span class="n">received_only</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">+=</span> <span class="s1">&#39;/received&#39;</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">params</span><span class="p">}</span>
+
+<div class="viewcode-block" id="BlockExplorerApi.get_transactions">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_transactions">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_transactions</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">search_after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">search_before</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;BlockExplorerTransaction&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get transactions from block explorer. Supports pagination.</span>
+
+<span class="sd">        :param limit: Maximum transaction pagination.</span>
+<span class="sd">        :param search_after:</span>
+<span class="sd">        :param search_before:</span>
+<span class="sd">        :return: List of block explorer type transaction objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base_path</span> <span class="o">=</span> <span class="s2">&quot;/transactions&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_transaction_search_path_and_params</span><span class="p">(</span>
+            <span class="n">base_path</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">search_after</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">search_before</span>
+        <span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">BlockExplorerTransaction</span><span class="o">.</span><span class="n">process_transactions</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_transactions_by_address">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_transactions_by_address">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_transactions_by_address</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">search_after</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">sent_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">received_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">search_before</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BlockExplorerTransaction</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get transactions from block explorer per DAG address. Supports pagination.</span>
+
+<span class="sd">        :param address: DAG address.</span>
+<span class="sd">        :param limit: Maximum transaction pagination.</span>
+<span class="sd">        :param search_after:</span>
+<span class="sd">        :param sent_only:</span>
+<span class="sd">        :param received_only:</span>
+<span class="sd">        :param search_before:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/addresses/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/transactions&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_transaction_search_path_and_params</span><span class="p">(</span>
+            <span class="n">base_path</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">search_after</span><span class="p">,</span> <span class="n">sent_only</span><span class="p">,</span> <span class="n">received_only</span><span class="p">,</span> <span class="n">search_before</span>
+        <span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">BlockExplorerTransaction</span><span class="o">.</span><span class="n">process_transactions</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_transaction">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_transaction">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockExplorerTransaction</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the transaction associated with the transaction hash.</span>
+
+<span class="sd">        :param hash: Transaction hash.</span>
+<span class="sd">        :return: Block Explorer type transaction object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/transactions/</span><span class="si">{</span><span class="nb">hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockExplorerTransaction</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_address_balance">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_address_balance">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Balance</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get address balance from block explorer.</span>
+
+<span class="sd">        :param hash: Transactions hash.</span>
+<span class="sd">        :return: Balance object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/addresses/</span><span class="si">{</span><span class="nb">hash</span><span class="si">}</span><span class="s2">/balance&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_checkpoint_block">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_checkpoint_block">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_checkpoint_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="c1"># TODO: Block object</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/blocks/</span><span class="si">{</span><span class="nb">hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_latest_currency_snapshot">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_latest_currency_snapshot">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_latest_currency_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurrencySnapshot</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/snapshots/latest&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CurrencySnapshot</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_currency_snapshot">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_currency_snapshot">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_currency_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hash_or_ordinal</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurrencySnapshot</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/snapshots/</span><span class="si">{</span><span class="n">hash_or_ordinal</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CurrencySnapshot</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_latest_currency_snapshot_rewards">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_latest_currency_snapshot_rewards">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_latest_currency_snapshot_rewards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Reward</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/snapshots/latest/rewards&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Reward</span><span class="o">.</span><span class="n">process_snapshot_rewards</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_currency_snapshot_rewards">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_currency_snapshot_rewards">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_currency_snapshot_rewards</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hash_or_ordinal</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Reward</span><span class="p">]:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/snapshots/</span><span class="si">{</span><span class="n">hash_or_ordinal</span><span class="si">}</span><span class="s2">/rewards&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Reward</span><span class="o">.</span><span class="n">process_snapshot_rewards</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_currency_block">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_currency_block">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_currency_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="c1"># TODO: Block object</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/blocks/</span><span class="si">{</span><span class="nb">hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_currency_address_balance">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_currency_address_balance">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_currency_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Balance</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/addresses/</span><span class="si">{</span><span class="nb">hash</span><span class="si">}</span><span class="s2">/balance&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_currency_transaction">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_currency_transaction">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_currency_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockExplorerTransaction</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/transactions/</span><span class="si">{</span><span class="nb">hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockExplorerTransaction</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_currency_transactions">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_currency_transactions">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_currency_transactions</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">search_after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">search_before</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BlockExplorerTransaction</span><span class="p">]:</span>
+        <span class="n">base_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/transactions&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_transaction_search_path_and_params</span><span class="p">(</span>
+            <span class="n">base_path</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">search_after</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">search_before</span>
+        <span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">BlockExplorerTransaction</span><span class="o">.</span><span class="n">process_transactions</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_currency_transactions_by_address">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_currency_transactions_by_address">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_currency_transactions_by_address</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">search_after</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">sent_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">received_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">search_before</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BlockExplorerTransaction</span><span class="p">]:</span>
+        <span class="n">base_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/addresses/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/transactions&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_transaction_search_path_and_params</span><span class="p">(</span>
+            <span class="n">base_path</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">search_after</span><span class="p">,</span> <span class="n">sent_only</span><span class="p">,</span> <span class="n">received_only</span><span class="p">,</span> <span class="n">search_before</span>
+        <span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">BlockExplorerTransaction</span><span class="o">.</span><span class="n">process_transactions</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BlockExplorerApi.get_currency_transactions_by_snapshot">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_currency_transactions_by_snapshot">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_currency_transactions_by_snapshot</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hash_or_ordinal</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">search_after</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">search_before</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BlockExplorerTransaction</span><span class="p">]:</span>
+        <span class="n">base_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/snapshots/</span><span class="si">{</span><span class="n">hash_or_ordinal</span><span class="si">}</span><span class="s2">/transactions&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_transaction_search_path_and_params</span><span class="p">(</span>
+            <span class="n">base_path</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">search_after</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">search_before</span>
+        <span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="n">request</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">BlockExplorerTransaction</span><span class="o">.</span><span class="n">process_transactions</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="L0Api">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api">[docs]</a>
+<span class="k">class</span> <span class="nc">L0Api</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L0Api :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+<div class="viewcode-block" id="L0Api.config">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.config">[docs]</a>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="L0Api.get_cluster_info">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.get_cluster_info">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_cluster_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/cluster/info&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PeerInfo</span><span class="o">.</span><span class="n">process_cluster_peers</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">result</span><span class="p">)</span></div>
+
+
+    <span class="c1"># Metrics</span>
+<div class="viewcode-block" id="L0Api.get_metrics">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.get_metrics">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: Handle text response</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/metrics&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># DAG</span>
+<div class="viewcode-block" id="L0Api.get_total_supply">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.get_total_supply">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_total_supply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/dag/total-supply&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TotalSupply</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="L0Api.get_address_balance">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.get_address_balance">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Balance</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/dag/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/balance&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+    <span class="c1"># Global Snapshot</span>
+<div class="viewcode-block" id="L0Api.get_latest_snapshot">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.get_latest_snapshot">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_latest_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GlobalSnapshot</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;/global-snapshots/latest&quot;</span>
+        <span class="p">)</span>
+        <span class="c1"># TODO: Blocks</span>
+        <span class="k">return</span> <span class="n">GlobalSnapshot</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="L0Api.get_latest_snapshot_ordinal">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.get_latest_snapshot_ordinal">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_latest_snapshot_ordinal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/global-snapshots/latest/ordinal&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+    <span class="c1">#async def get_snapshot(self, id: Union[str, int]) -&gt; Snapshot:</span>
+    <span class="c1">#    result = await self.service.get(</span>
+    <span class="c1">#                 f&quot;/global-snapshots/{id}&quot;</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#    return result</span>
+
+    <span class="c1"># State Channels</span>
+<div class="viewcode-block" id="L0Api.post_state_channel_snapshot">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.post_state_channel_snapshot">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">post_state_channel_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="c1"># TODO: Validation</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;/state-channel/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/snapshot&quot;</span><span class="p">,</span>
+            <span class="n">payload</span><span class="o">=</span><span class="n">snapshot</span>
+        <span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="L1Api">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L1Api">[docs]</a>
+<span class="k">class</span> <span class="nc">L1Api</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">host</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
+                <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L0Api :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+<div class="viewcode-block" id="L1Api.config">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L1Api.config">[docs]</a>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="L1Api.get_cluster_info">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L1Api.get_cluster_info">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_cluster_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;PeerInfo&quot;</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/cluster/info&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PeerInfo</span><span class="o">.</span><span class="n">process_cluster_peers</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">result</span><span class="p">)</span></div>
+
+
+    <span class="c1"># Metrics</span>
+<div class="viewcode-block" id="L1Api.get_metrics">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L1Api.get_metrics">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: Handle text response</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/metrics&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># Transactions</span>
+<div class="viewcode-block" id="L1Api.get_last_reference">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L1Api.get_last_reference">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_last_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LastReference</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/transactions/last-reference/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LastReference</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="L1Api.get_pending_transaction">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L1Api.get_pending_transaction">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_pending_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PendingTransaction</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/transactions/</span><span class="si">{</span><span class="nb">hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PendingTransaction</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="L1Api.post_transaction">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L1Api.post_transaction">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">post_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="p">:</span> <span class="n">SignedTransaction</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/transactions&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">tx</span><span class="o">.</span><span class="n">model_dump</span><span class="p">())</span></div>
+</div>
+
+
+<div class="viewcode-block" id="ML0Api">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api">[docs]</a>
+<span class="k">class</span> <span class="nc">ML0Api</span><span class="p">(</span><span class="n">L0Api</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ML0Api.config">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api.config">[docs]</a>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+
+
+
+    <span class="c1"># State Channel Token</span>
+<div class="viewcode-block" id="ML0Api.get_total_supply">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api.get_total_supply">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_total_supply</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TotalSupply</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/currency/total-supply&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TotalSupply</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ML0Api.get_total_supply_at_ordinal">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api.get_total_supply_at_ordinal">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_total_supply_at_ordinal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TotalSupply</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">ordinal</span><span class="si">}</span><span class="s2">/total-supply&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TotalSupply</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ML0Api.get_address_balance">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api.get_address_balance">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Balance</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/balance&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ML0Api.get_address_balance_at_ordinal">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api.get_address_balance_at_ordinal">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_address_balance_at_ordinal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Balance</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">ordinal</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/balance&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ML1Api">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML1Api">[docs]</a>
+<span class="k">class</span> <span class="nc">ML1Api</span><span class="p">(</span><span class="n">L1Api</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDL1Api">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.MDL1Api">[docs]</a>
+<span class="k">class</span> <span class="nc">MDL1Api</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">host</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
+                <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L0Api :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MDL1Api.config">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.MDL1Api.config">[docs]</a>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+
+
+    <span class="c1"># Metrics</span>
+<div class="viewcode-block" id="MDL1Api.get_metrics">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.MDL1Api.get_metrics">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: Handle text response</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/metrics&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDL1Api.get_cluster_info">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.MDL1Api.get_cluster_info">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_cluster_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;PeerInfo&quot;</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/cluster/info&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PeerInfo</span><span class="o">.</span><span class="n">process_cluster_peers</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDL1Api.get_data">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.MDL1Api.get_data">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get enqueued data update objects.&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="MDL1Api.post_data">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.MDL1Api.post_data">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">post_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="p">:</span> <span class="n">SignedTransaction</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Offer data update object for processing.</span>
+<span class="sd">        {</span>
+<span class="sd">          &quot;value&quot;: {},</span>
+<span class="sd">          &quot;proofs&quot;: [</span>
+<span class="sd">            {</span>
+<span class="sd">              &quot;id&quot;: &quot;c7f9a08bdea7ff5f51c8af16e223a1d751bac9c541125d9aef5658e9b7597aee8cba374119ebe83fb9edd8c0b4654af273f2d052e2d7dd5c6160b6d6c284a17c&quot;,</span>
+<span class="sd">              &quot;signature&quot;: &quot;3045022017607e6f32295b0ba73b372e31780bd373322b6342c3d234b77bea46adc78dde022100e6ffe2bca011f4850b7c76d549f6768b88d0f4c09745c6567bbbe45983a28bf1&quot;</span>
+<span class="sd">            }</span>
+<span class="sd">          ]</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/data&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">tx</span><span class="p">)</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Michael Brummer Ringdal.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

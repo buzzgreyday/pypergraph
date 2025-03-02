@@ -46,7 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pypergraph</a></li>
 </ul>
 
         </div>
@@ -64,6 +64,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pypergraph.html">pypergraph</a></li>
       <li class="breadcrumb-item active">pypergraph.dag_keystore.bip</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -77,16 +78,14 @@
 <span></span><span class="kn">from</span> <span class="nn">bip32utils</span> <span class="kn">import</span> <span class="n">BIP32Key</span>
 <span class="kn">from</span> <span class="nn">ecdsa</span> <span class="kn">import</span> <span class="n">SigningKey</span><span class="p">,</span> <span class="n">SECP256k1</span>
 <span class="kn">from</span> <span class="nn">mnemonic</span> <span class="kn">import</span> <span class="n">Mnemonic</span>
-
-<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">DERIVATION_PATH</span><span class="p">,</span> <span class="n">DERIVATION_PATH_MAP</span>
-
+<span class="kn">from</span> <span class="nn">pypergraph.dag_core.constants</span> <span class="kn">import</span> <span class="n">BIP_44_PATHS</span>
 
 
 <div class="viewcode-block" id="Bip32">
-<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip32">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip32">[docs]</a>
 <span class="k">class</span> <span class="nc">Bip32</span><span class="p">:</span>
 <div class="viewcode-block" id="Bip32.get_root_key_from_seed">
-<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip32.get_root_key_from_seed">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip32.get_root_key_from_seed">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_root_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -99,17 +98,17 @@
 
 
 <div class="viewcode-block" id="Bip32.get_private_key_from_seed">
-<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip32.get_private_key_from_seed">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip32.get_private_key_from_seed">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_private_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="p">,</span> <span class="n">derivation_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DERIVATION_PATH</span><span class="o">.</span><span class="n">DAG</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_private_key_from_seed</span><span class="p">(</span><span class="n">seed_bytes</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">BIP_44_PATHS</span><span class="o">.</span><span class="n">CONSTELLATION_PATH</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive the private key from a seed entropy using derived path.</span>
 
 <span class="sd">        :param seed_bytes: The seed in bytes format.</span>
-<span class="sd">        :param derivation_path: The derivation path.</span>
+<span class="sd">        :param path: The derivation path.</span>
 <span class="sd">        :return: The private key as a hexadecimal string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">DERIVATION_PATH_MAP</span><span class="p">[</span><span class="n">derivation_path</span><span class="p">]</span>
+
         <span class="n">path_parts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]]</span>
         <span class="n">purpose</span> <span class="o">=</span> <span class="n">path_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span>
         <span class="n">coin_type</span> <span class="o">=</span> <span class="n">path_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span>
@@ -121,16 +120,15 @@
 
 
 <div class="viewcode-block" id="Bip32.get_public_key_from_private_hex">
-<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip32.get_public_key_from_private_hex">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip32.get_public_key_from_private_hex">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_public_key_from_private_hex</span><span class="p">(</span><span class="n">private_key_hex</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_public_key_from_private_hex</span><span class="p">(</span><span class="n">private_key_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive the public key from a private key using secp256k1.</span>
 
 <span class="sd">        :param private_key_hex: The private key in hexadecimal format.</span>
 <span class="sd">        :return: The public key as a hexadecimal string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">private_key_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">private_key_hex</span><span class="p">)</span>
         <span class="n">private_key</span> <span class="o">=</span> <span class="n">SigningKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">private_key_bytes</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="n">SECP256k1</span><span class="p">)</span>
         <span class="n">public_key</span> <span class="o">=</span>  <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x04</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">private_key</span><span class="o">.</span><span class="n">get_verifying_key</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">public_key</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span></div>
@@ -138,7 +136,7 @@
 
 
 <div class="viewcode-block" id="Bip39">
-<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip39">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39">[docs]</a>
 <span class="k">class</span> <span class="nc">Bip39</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate 12 or 24 words and derive entropy&quot;&quot;&quot;</span>
     <span class="n">LANGUAGES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;english&quot;</span><span class="p">,</span> <span class="s2">&quot;chinese_simplified&quot;</span><span class="p">,</span> <span class="s2">&quot;chinese_traditional&quot;</span><span class="p">,</span> <span class="s2">&quot;french&quot;</span><span class="p">,</span> <span class="s2">&quot;italian&quot;</span><span class="p">,</span>
@@ -153,27 +151,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">language</span> <span class="o">=</span> <span class="n">language</span>
 
 <div class="viewcode-block" id="Bip39.mnemonic">
-<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip39.mnemonic">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39.mnemonic">[docs]</a>
     <span class="k">def</span> <span class="nf">mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :return: Dictionary with Mnemonic object, mnemonic phrase, mnemonic seed, mnemonic entropy.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: model</span>
         <span class="n">mnemo</span> <span class="o">=</span> <span class="n">Mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
         <span class="n">words</span> <span class="o">=</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">strength</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strength</span><span class="p">)</span>
-        <span class="n">seed</span> <span class="o">=</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">to_seed</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">passphrase</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">to_seed</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
         <span class="n">entropy</span> <span class="o">=</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">to_entropy</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mnemo&quot;</span><span class="p">:</span> <span class="n">mnemo</span><span class="p">,</span> <span class="s2">&quot;words&quot;</span><span class="p">:</span> <span class="n">words</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="n">seed</span><span class="p">,</span> <span class="s2">&quot;entropy&quot;</span><span class="p">:</span> <span class="n">entropy</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="Bip39.get_seed_from_mnemonic">
-<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip39.get_seed_from_mnemonic">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39.get_seed_from_mnemonic">[docs]</a>
     <span class="k">def</span> <span class="nf">get_seed_from_mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">mnemo</span> <span class="o">=</span> <span class="n">Mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">to_seed</span><span class="p">(</span><span class="n">words</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Bip39.validate_mnemonic">
-<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.Bip39.validate_mnemonic">[docs]</a>
+<a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39.validate_mnemonic">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">validate_mnemonic</span><span class="p">(</span><span class="n">mnemonic_phrase</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;english&quot;</span><span class="p">):</span>
         <span class="n">mnemo</span> <span class="o">=</span> <span class="n">Mnemonic</span><span class="p">(</span><span class="n">language</span><span class="p">)</span>
