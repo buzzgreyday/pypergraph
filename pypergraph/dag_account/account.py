@@ -113,22 +113,8 @@ class DagAccount:
         :param auto_estimate_fee:
         :return:
         """
-        # TODO: Rate limiting
-        normalized_amount = int(amount * DAG_DECIMALS)
+        # TODO: API fee estimate endpoint
         last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
-
-        # TODO: There's a new endpoint for estimating fees
-        if fee == Decimal(0) and auto_estimate_fee:
-            pending_tx = await self.network.get_pending_transaction(last_ref.get("prev_hash", last_ref.get("hash")))
-
-            if pending_tx:
-                balance_obj = await self.network.get_address_balance(self.address)
-
-                if balance_obj and Decimal(balance_obj["balance"]) == normalized_amount:
-                    amount -= Decimal(1) / DAG_DECIMALS
-                    normalized_amount -= 1
-
-                fee = Decimal(1) / DAG_DECIMALS
 
         signed_tx, hash_ = await self.generate_signed_transaction(to_address, amount, fee)
         tx_hash = await self.network.post_transaction(signed_tx)
@@ -141,7 +127,7 @@ class DagAccount:
                 "receiver": to_address,
                 "fee": fee,
                 "sender": self.address,
-                "ordinal": last_ref.get("ordinal"),
+                "ordinal": last_ref.ordinal,
                 "pending": True,
                 "status": "POSTED",
             }
@@ -308,6 +294,7 @@ class MetagraphTokenClient:
         return 0
 
     async def get_fee_recommendation(self):
+        # TODO: Fee api
         last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
         if not last_ref.get("hash"):
             return 0
@@ -319,17 +306,8 @@ class MetagraphTokenClient:
         return 1 / self.token_decimals
 
     async def transfer(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee: bool = False):
-        normalized_amount = int(Decimal(amount) * Decimal(self.token_decimals))
+        # TODO: Fee api endpoint
         last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
-
-        if fee == 0 and auto_estimate_fee:
-            tx = await self.network.get_pending_transaction(last_ref.get("prevHash") or last_ref.get("hash"))
-            if tx:
-                address_obj = await self.network.get_address_balance(self.address)
-                if address_obj["balance"] == normalized_amount:
-                    amount -= self.token_decimals
-                    normalized_amount -= 1
-                fee = self.token_decimals
 
         tx, hash_ = await self.account.generate_signed_transaction(to_address, amount, fee, last_ref)
 

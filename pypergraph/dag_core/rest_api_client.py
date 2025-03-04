@@ -118,7 +118,7 @@ class RestAPIClient:
                     # TODO: Custom exceptions
                     if isinstance(error, dict):
                         errors = error.get("message")
-                        raise ValueError(f"RestAPIClient :: {method} {self.base_url + endpoint} returned error(s): {errors}")
+                        raise NetworkError(f"RestAPIClient :: {method} {self.base_url + endpoint} returned error(s): {errors}", status=420)
                     else:
                         # Handle unstructured errors (e.g., strings)
                         raise ValueError(f"RestAPIClient :: {method} {self.base_url + endpoint} returned error(s): {error}")
