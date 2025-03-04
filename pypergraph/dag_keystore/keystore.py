@@ -221,6 +221,7 @@ class KeyStore:
 
     @staticmethod
     def verify_data(public_key: str, msg: str, signature: str):
+        # TODO
         pass
 
 
@@ -258,7 +259,7 @@ class KeyStore:
 
 
     @staticmethod
-    def get_mnemonic() -> dict:
+    def get_mnemonic() -> str:
         """
         :return: Mnemonic values in a dictionary with keys: mnemo, words, seed, entropy
         """

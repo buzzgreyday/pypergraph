@@ -86,9 +86,9 @@ class DagAccount:
         return await self.get_balance_for(self.address)
 
     async def get_balance_for(self, address: str):
-        address_obj = await self.network.get_address_balance(address)
-        if address_obj:
-            return address_obj.balance
+        response = await self.network.get_address_balance(address)
+        if response and isinstance(response.balance, (int, float)):
+            return int(Decimal(response.balance))
         return 0
 
     async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None) -> Tuple[SignedTransaction, str]:
@@ -103,7 +103,7 @@ class DagAccount:
         return tx, hash_
 
 
-    async def send(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False) -> dict:
+    async def transfer(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False) -> dict:
         """
         Build transaction, sign and send.
 
@@ -302,9 +302,9 @@ class MetagraphTokenClient:
         return await self.get_balance_for(self.address)
 
     async def get_balance_for(self, address: str):
-        address_obj = await self.network.get_address_balance(address)
-        if address_obj and isinstance(address_obj.get("balance"), (int, float)):
-            return int(Decimal(address_obj["balance"]) * Decimal(self.token_decimals))
+        response = await self.network.get_address_balance(address)
+        if response and isinstance(response.balance, (int, float)):
+            return int(Decimal(response.balance))
         return 0
 
     async def get_fee_recommendation(self):

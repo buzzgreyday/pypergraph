@@ -378,11 +378,11 @@ class ML0Api(L0Api):
 
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/currency/{address}/balance")
-        return Balance(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
 
     async def get_address_balance_at_ordinal(self, ordinal: int, address: str) -> Balance:
         result = await self.service.get(f"/currency/{ordinal}/{address}/balance")
-        return Balance(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
 
 
 class ML1Api(L1Api):
