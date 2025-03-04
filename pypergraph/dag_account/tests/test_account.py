@@ -80,7 +80,6 @@ async def test_metagraph_account_connect(network):
         'cl1_host': 'http://123.123.123.123:9010',
         'metagraph_id': 'DAG6DOES00NOT00MATTER00HERE'
     }
-    print(metagraph_account.network.get_network())
 
 @pytest.mark.asyncio
 async def test_get_balance(network):
