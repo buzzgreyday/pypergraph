@@ -8,7 +8,7 @@ from pypergraph.dag_core import BIP_44_PATHS, KeyringAssetType, KeyringWalletTyp
 from .accounts import EthAccount
 from .keyrings import HdKeyring, SimpleKeyring
 from .bip import Bip39Helper
-from ..dag_account import DagAccount
+from .accounts import DagAccount
 
 SID = 0
 

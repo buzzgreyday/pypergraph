@@ -1,5 +1,7 @@
 import logging
 import asyncio
+from datetime import tzinfo, datetime
+
 import base58
 import hashlib
 import time
@@ -11,6 +13,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 from pypergraph.dag_core import NetworkId
 from pypergraph.dag_core.constants import PKCS_PREFIX
 from pypergraph.dag_account.models.key_trio import KeyTrio
+from pypergraph.dag_keyring.accounts import DagAccount
 from pypergraph.dag_network.models.transaction import SignatureProof, SignedTransaction
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
@@ -20,7 +23,6 @@ DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
 
 
 class DagAccount:
-
 
     network: Optional[DagTokenNetwork] = DagTokenNetwork()
     key_trio: Optional[KeyTrio] = None
@@ -121,7 +123,7 @@ class DagAccount:
 
         if tx_hash:
             return {
-                #"timestamp": self.network.get_current_time(),
+                "timestamp": datetime.now(),
                 "hash": tx_hash,
                 "amount": amount,
                 "receiver": to_address,
@@ -247,8 +249,23 @@ class DagAccount:
         return address
 
 
-    # def create_metagraph_token_client(self, network_info: dict):
-    #     return MetagraphTokenClient(self, network_info)
+    def create_metagraph_token_client(
+            self, account: DagAccount = None, metagraph_id: Optional[str] = None, block_explorer_url: Optional[str] = None,
+            l0_host: Optional[str] = None, cl1_host: Optional[str] = None, dl1_host: Optional[str] = None,
+            token_decimals: int = 8):
+        if not (metagraph_id or self.network.connected_network.metagraph_id):
+            raise ValueError("DagAccount :: 'metagraph_id' must be set.")
+        if not (cl1_host or dl1_host or not l0_host):
+            raise ValueError("DagAccount :: 'cl1_host', 'dl1_host' or 'l0_host' must be set.")
+        return MetagraphTokenClient(
+            account=account or self,
+            metagraph_id=metagraph_id or self.network.connected_network.metagraph_id,
+            block_explorer_url=block_explorer_url or self.network.connected_network.be_url,
+            l0_host=l0_host,
+            cl1_host=cl1_host,
+            dl1_host=dl1_host,
+            token_decimals=token_decimals
+        )
 
     async def wait(self, time: float = 5.0):
         from asyncio import sleep
@@ -266,6 +283,7 @@ class MetagraphTokenClient:
             raise ValueError(
                 f"MetagraphTokenClient :: Parameters."
             )
+
         self.network = MetagraphTokenNetwork(
             metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, dl1_host=dl1_host,
             network_id=account.network_id, block_explorer=block_explorer_url or account.network.be_api.service.base_url

@@ -262,11 +262,12 @@ class BlockExplorerApi:
 class L0Api:
 
     def __init__(self, host):
-        if not host.startswith("http"):
-            warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
-            host = f"http://{host}"
-        if not host or type(host) is not str:
-            raise ValueError(f"L0Api :: Invalid host: {host}")
+        if host:
+            if not host.startswith("http"):
+                warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
+                host = f"http://{host}"
+            if not host or type(host) is not str:
+                raise ValueError(f"L0Api :: Invalid host: {host}")
         self.service = RestAPIClient(host)
 
     def config(self, host: str):

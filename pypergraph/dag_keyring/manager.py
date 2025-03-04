@@ -3,10 +3,9 @@ from typing import Optional, Union, List
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from pypergraph.dag_account import DagAccount
 from pypergraph.dag_core import KeyringWalletType, NetworkId
 from pypergraph.dag_keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
-from pypergraph.dag_keyring.accounts import EthAccount
+from pypergraph.dag_keyring.accounts import DagAccount, EthAccount
 from pypergraph.dag_keyring.bip import Bip39Helper
 
 from pypergraph.dag_keyring.storage import StateStorageDb, ObservableStore

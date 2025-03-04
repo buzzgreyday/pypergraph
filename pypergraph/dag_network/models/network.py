@@ -27,7 +27,7 @@ class NetworkInfo:
 
     def __repr__(self):
         return (f"NetworkInfo(network_id={self.network_id}, be_url={self.be_url}, "
-                f"l0_host={self.l0_host}, cl1_host={self.cl1_host}, dl1_host={self.dl1_host}"
+                f"l0_host={self.l0_host}, cl1_host={self.cl1_host}, dl1_host={self.dl1_host}, "
                 f"l0_lb_url={self.l0_lb_url}, l1_lb_url={self.l1_lb_url}, metagraph_id={self.metagraph_id})")
 
 
