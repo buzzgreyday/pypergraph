@@ -106,7 +106,7 @@ async def test_metagraph_account_connect(network):
     }
     try:
         r = await metagraph_account.get_balance()
-    except AttributeError:
+    except AttributeError as e:
         assert True
         #pytest.skip("Partial network config.")
 
