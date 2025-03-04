@@ -192,7 +192,7 @@ class MetagraphTokenNetwork(AsyncIOEventEmitter):
         # Support data/meta format and object return format
         return response["data"]["hash"] if "data" in response else response["hash"]
 
-    async def post_data(self, tx: SignedTransaction) -> str:
+    async def post_data(self, tx: SignedTransaction) -> dict:
         response = await self.dl1_api.post_data(tx)
         # Support data/meta format and object return format
         return response

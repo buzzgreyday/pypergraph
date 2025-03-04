@@ -6,7 +6,7 @@ from pypergraph.dag_core.rest_api_client import RestAPIClient
 from pypergraph.dag_network.models.account import Balance, LastReference
 from pypergraph.dag_network.models.transaction import PendingTransaction, BlockExplorerTransaction, SignedTransaction
 from pypergraph.dag_network.models.network import TotalSupply, PeerInfo
-from pypergraph.dag_network.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot
+from pypergraph.dag_network.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot, Ordinal, SignedBlock
 
 
 class LoadBalancerApi:
@@ -199,10 +199,6 @@ class BlockExplorerApi:
         result = await self.service.get(f"/addresses/{hash}/balance")
         return Balance(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
 
-    async def get_checkpoint_block(self, hash: str) -> Dict:
-        # TODO: Block object
-        return await self.service.get(f"/blocks/{hash}")
-
     async def get_latest_currency_snapshot(self, metagraph_id: str) -> CurrencySnapshot:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest")
         return CurrencySnapshot(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
@@ -220,10 +216,6 @@ class BlockExplorerApi:
     ) -> List[Reward]:
         results = await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards")
         return Reward.process_snapshot_rewards(data=results["data"])
-
-    async def get_currency_block(self, metagraph_id: str, hash: str) -> Dict:
-        # TODO: Block object
-        return await self.service.get(f"/currency/{metagraph_id}/blocks/{hash}")
 
     async def get_currency_address_balance(self, metagraph_id: str, hash: str) -> Balance:
         result = await self.service.get(f"/currency/{metagraph_id}/addresses/{hash}/balance")
@@ -305,12 +297,11 @@ class L0Api:
         result = await self.service.get(
             "/global-snapshots/latest"
         )
-        # TODO: Blocks
         return GlobalSnapshot(**result)
 
     async def get_latest_snapshot_ordinal(self):
         result = await self.service.get("/global-snapshots/latest/ordinal")
-        return result
+        return Ordinal(**result)
 
     #async def get_snapshot(self, id: Union[str, int]) -> Snapshot:
     #    result = await self.service.get(
@@ -325,6 +316,8 @@ class L0Api:
             f"/state-channel/{address}/snapshot",
             payload=snapshot
         )
+
+    # TODO: Estimate fee endpoint
 
 class L1Api:
 
@@ -362,6 +355,8 @@ class L1Api:
 
     async def post_transaction(self, tx: SignedTransaction):
         return await self.service.post("/transactions", payload=tx.model_dump())
+
+    # TODO: Estimate fee endpoint
 
 class ML0Api(L0Api):
     def __init__(self, host):
@@ -421,7 +416,7 @@ class MDL1Api:
     async def get_data(self) -> List[SignedTransaction]:
         """Get enqueued data update objects."""
 
-    async def post_data(self, tx: SignedTransaction):
+    async def post_data(self, tx: Dict):
         """
         Offer data update object for processing.
         {
@@ -435,4 +430,6 @@ class MDL1Api:
         }
         """
         return await self.service.post("/data", payload=tx)
+
+    # TODO: Estimate fee endpoint
 

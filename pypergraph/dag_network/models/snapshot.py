@@ -5,7 +5,8 @@ import base58
 from pydantic import BaseModel, field_validator, Field, model_validator, constr
 
 from pypergraph.dag_core.constants import DAG_MAX, SNAPSHOT_MAX_KB, BLOCK_MAX_LEN,EPOCH_MAX
-from pypergraph.dag_network.models.transaction import SignatureProof
+from pypergraph.dag_network.models.transaction import SignatureProof, Transaction
+
 
 class LastCurrencySnapshotProof(BaseModel):
     leaf_count: int = Field(..., alias="leafCount", ge=0)
@@ -17,12 +18,24 @@ class StateProof(BaseModel):
     balancesProof: constr(pattern=r"^[a-fA-F0-9]{64}$")
     lastCurrencySnapshotsProof: LastCurrencySnapshotProof
 
+class BlockReference(BaseModel):
+    height: int = Field(ge=0)
+    hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
+
+class Block(BaseModel):
+    parent: List[BlockReference]
+    transactions: List[Transaction]
+
+class SignedBlock(BaseModel):
+    value: Block
+    proofs: List[SignatureProof]
+
 class GlobalSnapshotValue(BaseModel):
     ordinal: int = Field(ge=0)
     height: int = Field(ge=0)
     sub_height: int = Field(..., alias="subHeight", ge=0)
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
-    blocks: List[Dict] = Field(max_length=BLOCK_MAX_LEN) # TODO: Validate blocks
+    blocks: List[Optional[SignedBlock]]
     state_channel_snapshots: Dict[str, List[Dict]] = Field(..., alias="stateChannelSnapshots") # TODO: Validate, Dict[Metagraph ID, List[Dict]]
     rewards: List[Dict[str, Any]] # TODO: Validate
     epoch_progress: int = Field(..., alias="epochProgress", ge=0, le=EPOCH_MAX)
@@ -30,7 +43,6 @@ class GlobalSnapshotValue(BaseModel):
     tips: Dict[str, Any] # TODO: Validate
     state_proof: StateProof = Field(..., alias="stateProof")
     version: str
-
 
 class GlobalSnapshot(BaseModel):
     value: GlobalSnapshotValue
@@ -42,6 +54,9 @@ class GlobalSnapshot(BaseModel):
             value=GlobalSnapshotValue(**response["value"]),
             proofs=SignatureProof.process_snapshot_proofs(response["proofs"]),
         )
+
+class Ordinal(BaseModel):
+    ordinal: int = Field(ge=0, alias="value")
 
 """BE MODELS: DTO"""
 class Snapshot(BaseModel):

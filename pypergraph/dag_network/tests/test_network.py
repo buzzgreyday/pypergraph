@@ -238,46 +238,39 @@ async def test_get_currency_snapshot(network):
 async def test_get_latest_currency_snapshot_rewards(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     results = await network.be_api.get_latest_currency_snapshot_rewards(el_paca_metagraph_id)
-    print(results)
+    assert isinstance(results, list)
+
 
 @pytest.mark.asyncio
 async def test_get_currency_snapshot_rewards(network):
+    from pypergraph.dag_network.models import Reward
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     results = await network.be_api.get_currency_snapshot_rewards(el_paca_metagraph_id, 950075)
-    print(results)
-
-#@pytest.mark.asyncio
-#async def test_get_currency_block(network):
-#    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-#    results = await network.be_api.get_currency_block(
-#        el_paca_metagraph_id,
-#        "b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
-#    )
-#    print(results)
+    assert results == [Reward(destination='DAG2ACig4MuEPit149J1mEjhYqwn8SBvXgVuy2aX', amount=300000000), Reward(destination='DAG2YaNbtUv35YVjJ5U6PR9r8obVunEky2RDdGJb', amount=100000000), Reward(destination='DAG3dQwyG69DmcXxqAQzfPEp39FEfepc3iaGGQVg', amount=200000000), Reward(destination='DAG4eVyr7kUzr7r2oPoxnUfLDgugdXYXLDh6gxZS', amount=200000000)]
 
 @pytest.mark.asyncio
 async def test_get_currency_address_balance(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     result = await network.be_api.get_currency_address_balance(
-        el_paca_metagraph_id,
-        "b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
+        metagraph_id=el_paca_metagraph_id,
+        hash="b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
     )
-    print(result)
+    assert hasattr(result, "balance")
 
 @pytest.mark.asyncio
 async def test_get_currency_transaction(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     result = await network.be_api.get_currency_transaction(
-        el_paca_metagraph_id,
-        "121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7",
+        metagraph_id=el_paca_metagraph_id,
+        hash="121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7",
     )
-    print(result)
+    assert hasattr(result, "destination")
 
 @pytest.mark.asyncio
 async def test_get_currency_transactions(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     results = await network.be_api.get_currency_transactions(metagraph_id=el_paca_metagraph_id, limit=10)
-    print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
+    assert len(results) == 10
 
 @pytest.mark.asyncio
 async def test_get_currency_transactions_by_address(network):
@@ -285,7 +278,7 @@ async def test_get_currency_transactions_by_address(network):
     results = await network.be_api.get_currency_transactions_by_address(
         metagraph_id=el_paca_metagraph_id, address="DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY", limit=10
     )
-    print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
+    assert len(results) == 10
 
 @pytest.mark.asyncio
 async def test_get_currency_transactions_by_snapshot(network):
@@ -293,7 +286,7 @@ async def test_get_currency_transactions_by_snapshot(network):
     results = await network.be_api.get_currency_transactions_by_snapshot(
         metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394, limit=10
     )
-    print(results[0].source, results[0].destination, results[0].amount, results[0].timestamp, results[0].hash)
+    assert len(results) == 1
 
 
 """ L0 API """
@@ -325,13 +318,12 @@ async def test_get_latest_l0_snapshot(network):
     # E           For further information visit https://errors.pydantic.dev/2.10/v/string_type
 
     # ../api.py:308: ValidationError
-    print(result)
+    print(result.value.blocks)
 
 @pytest.mark.asyncio
 async def test_get_latest_snapshot_ordinal(network):
     result = await network.l0_api.get_latest_snapshot_ordinal()
-    # TODO: validate
-    print(result)
+    assert result.ordinal >= 3953150
 
 
 """ L1 API """
@@ -422,7 +414,7 @@ async def test_post_metagraph_data_transaction(network):
     #
     #     signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
 
-    from .secrets import mnemo, to_address, from_address
+    from .secrets import mnemo, from_address
 
     def build_todo_tx():
         """TO-DO TEMPLATE"""
@@ -497,22 +489,24 @@ async def test_post_metagraph_data_transaction(network):
     # signature, hash_ = keystore.data_sign(pk, msg, prefix=False, encoding=encode)
 
     public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
-    if keystore.verify(public_key, hash_, signature):
-        proof = {
-            "id": public_key,
-            "signature": signature
-        }
-        tx = {
-        "value": msg,
-        "proofs": [
-            proof
-        ]
-        }
-        try:
-            r = await account_metagraph_client.network.post_data(tx)
-            # Returns the full response from the metagraph
-        except httpx.ConnectError:
-            pytest.skip("No locally running Metagraph")
+    proof = {
+        "id": public_key,
+        "signature": signature
+    }
+    tx = {
+    "value": msg,
+    "proofs": [
+        proof
+    ]
+    }
+    try:
+        r = await account_metagraph_client.network.post_data(tx)
+        assert 'hash' in r
+        # Returns the full response from the metagraph
+    except httpx.ConnectError:
+        pytest.skip("No locally running Metagraph")
+    except KeyError:
+        pytest.fail(f"Post data didn't return a hash, returned value: {r}")
 
 
 

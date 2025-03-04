@@ -220,9 +220,9 @@ class KeyStore:
             return False
 
     @staticmethod
-    def verify_data():
-        # TODO
-        raise NotImplementedError("KeyStore :: This method is not supported.")
+    def verify_data(public_key: str, msg: str, signature: str):
+        pass
+
 
     @staticmethod
     def validate_address(address: str) -> bool:

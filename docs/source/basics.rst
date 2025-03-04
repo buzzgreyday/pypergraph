@@ -18,7 +18,7 @@ Create New Account/Wallet
 
     # Generate a new mnemonic seed phrase
     mnemonic = keystore.get_mnemonic()
-    seed_phrase = mnemonic.words  # or mnemonic["words"] if it's a dictionary
+    seed_phrase = mnemonic
 
     # Store the seed phrase securely before proceeding
     account = DagAccount()
