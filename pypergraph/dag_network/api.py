@@ -1,4 +1,3 @@
-import warnings
 from typing import Optional, Any, Dict, List, Union
 
 from pypergraph.dag_network.models.reward import Reward
@@ -11,16 +10,19 @@ from pypergraph.dag_network.models.snapshot import Snapshot, GlobalSnapshot, Cur
 
 class LoadBalancerApi:
     def __init__(self, host):
-        if not host.startswith("http"):
-            warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
-            host = f"http://{host}"
-        if not host or type(host) is not str:
-            raise ValueError(f"LoadBalancerApi :: Invalid host: {host}")
-        self.service = RestAPIClient(host)
+
+        self._service = RestAPIClient(host) if host else None
+
+    @property
+    def service(self):
+        if not self._service:
+            raise ValueError(f"LoadBalancerApi :: Load balancer host is not configured.")
+        return self._service
+
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL."""
-        self.service = RestAPIClient(host)
+        self._service = RestAPIClient(host)
 
     async def get_metrics(self):
         # TODO: Handle text response
@@ -55,16 +57,18 @@ class LoadBalancerApi:
 class BlockExplorerApi:
 
     def __init__(self, host):
-        if not host.startswith("http"):
-            warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
-            host = f"http://{host}"
-        if not host or type(host) is not str:
-            raise ValueError(f"BlockExplorerApi :: Invalid host: {host}")
-        self.service = RestAPIClient(host)
+
+        self._service = RestAPIClient(host) if host else None
+
+    @property
+    def service(self):
+        if not self._service:
+            raise ValueError(f"BlockExplorerApi :: Block explorer host is not configured.")
+        return self._service
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL dynamically."""
-        self.service = RestAPIClient(host)
+        self._service = RestAPIClient(host)
 
     async def get_snapshot(self, id: Union[str, int]) -> Snapshot:
         """
@@ -262,17 +266,18 @@ class BlockExplorerApi:
 class L0Api:
 
     def __init__(self, host):
-        if host:
-            if not host.startswith("http"):
-                warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
-                host = f"http://{host}"
-            if not host or type(host) is not str:
-                raise ValueError(f"L0Api :: Invalid host: {host}")
-        self.service = RestAPIClient(host)
+        self._service = RestAPIClient(host) if host else None
+
+    @property
+    def service(self):
+        if not self._service:
+            raise ValueError(f"L0Api :: Layer 0 host is not configured.")
+        return self._service
+
 
     def config(self, host: str):
-        """Reconfigure the RestAPIClient's base URL dynamically."""
-        self.service = RestAPIClient(host)
+        """Reconfigure the RestAPIClient's base URL."""
+        self._service = RestAPIClient(host)
 
 
     async def get_cluster_info(self):
@@ -323,18 +328,17 @@ class L0Api:
 class L1Api:
 
     def __init__(self, host):
-        if host:
-            if not host.startswith("http"):
-                warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
-                host = f"http://{host}"
-            if not host or type(host) is not str:
-                raise ValueError(f"L0Api :: Invalid host: {host}")
-        self.service = RestAPIClient(host)
+        self._service = RestAPIClient(host) if host else None
+
+    @property
+    def service(self):
+        if not self._service:
+            raise ValueError(f"L1Api :: Currency layer 1 host is not configured.")
+        return self._service
 
     def config(self, host: str):
-        """Reconfigure the RestAPIClient's base URL dynamically."""
-        self.service = RestAPIClient(host)
-
+        """Reconfigure the RestAPIClient's base URL."""
+        self._service = RestAPIClient(host)
 
     async def get_cluster_info(self) -> List["PeerInfo"]:
         result = await self.service.get("/cluster/info")
@@ -363,10 +367,15 @@ class ML0Api(L0Api):
     def __init__(self, host):
         super().__init__(host)
 
-    def config(self, host: str):
-        """Reconfigure the RestAPIClient's base URL dynamically."""
-        self.service = RestAPIClient(host)
+    @property
+    def service(self):
+        if not self._service:
+            raise ValueError(f"MDL0Api :: Metagraph layer 0 host is not configured.")
+        return self._service
 
+    def config(self, host: str):
+        """Reconfigure the RestAPIClient's base URL."""
+        self._service = RestAPIClient(host)
 
     # State Channel Token
     async def get_total_supply(self) -> TotalSupply:
@@ -390,20 +399,31 @@ class ML1Api(L1Api):
     def __init__(self, host):
         super().__init__(host)
 
+    @property
+    def service(self):
+        if not self._service:
+            raise ValueError(f"MDL1Api :: Metagraph currency layer 1 host is not configured.")
+        return self._service
+
+    def config(self, host: str):
+        """Reconfigure the RestAPIClient's base URL."""
+        self._service = RestAPIClient(host)
+
+
 class MDL1Api:
 
     def __init__(self, host):
-        if host:
-            if not host.startswith("http"):
-                warnings.warn("Adding default prefix 'http://' since 'host' param is missing 'http://' or 'https:// prefix.")
-                host = f"http://{host}"
-            if not host or type(host) is not str:
-                raise ValueError(f"L0Api :: Invalid host: {host}")
-        self.service = RestAPIClient(host)
+        self._service = RestAPIClient(host) if host else None
+
+    @property
+    def service(self):
+        if not self._service:
+            raise ValueError(f"MDL1Api :: Metagraph data layer 1 host is not configured.")
+        return self._service
 
     def config(self, host: str):
-        """Reconfigure the RestAPIClient's base URL dynamically."""
-        self.service = RestAPIClient(host)
+        """Reconfigure the RestAPIClient's base URL."""
+        self._service = RestAPIClient(host)
 
     # Metrics
     async def get_metrics(self):

@@ -87,17 +87,13 @@ class RestAPIClient:
         :param base_url: The base URL for the API.
         :param client: An optional injected HTTPX AsyncClient. If not provided, a new one is created.
         """
-        if base_url:
-            self.base_url = base_url.rstrip("/")
+        self.base_url = base_url.rstrip("/")
         self.client = client or httpx.AsyncClient(timeout=timeout)
 
     @property
     def base_url(self) -> str:
         """Returns the current base URL."""
-        try:
-            return self._base_url
-        except AttributeError as e:
-            raise AttributeError("RestAPIClient :: Partial network config. Please check that the relevant network parameters are set.")
+        return self._base_url
 
     @base_url.setter
     def base_url(self, value: str):

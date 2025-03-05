@@ -121,7 +121,10 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 
 class MetagraphTokenNetwork(AsyncIOEventEmitter):
 
-    def __init__(self, metagraph_id: str, l0_host: str, cl1_host: str, dl1_host: str, network_id: str = "mainnet", block_explorer: Optional[str] = None):
+    def __init__(
+            self, metagraph_id: str, l0_host: Optional[str], cl1_host: Optional[str],
+            dl1_host: Optional[str], network_id: Optional[str] = "mainnet", block_explorer: Optional[str] = None
+    ):
         super().__init__()
         """Validate connected network"""
         # TODO: Do not hardcode urls
