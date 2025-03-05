@@ -36,7 +36,13 @@ class KeyStore:
         return hashlib.sha512(hashlib.sha256(bytes.fromhex(msg)).hexdigest().encode("utf-8")).hexdigest()
 
     @staticmethod
-    def prepare_tx(amount: int, to_address: str, from_address: str, last_ref: LastReference, fee: int = 0) -> Tuple[Transaction, str]:
+    def prepare_tx(
+            amount: int,
+            to_address: str,
+            from_address: str,
+            last_ref: LastReference,
+            fee: int = 0
+    ) -> Tuple[Transaction, str]:
         """
         Prepare a new transaction.
 
@@ -91,7 +97,13 @@ class KeyStore:
             msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
         return msg
 
-    def data_sign(self, private_key, msg: dict, prefix: bool = True, encoding: Union[Literal["hex", "base64"], Callable[[dict], str], None] = None) -> Tuple[str, str]:
+    def data_sign(
+            self,
+            private_key,
+            msg: dict,
+            prefix: bool = True,
+            encoding: Optional[Union[Literal["hex", "base64"], Callable[[dict], str], None]] = None
+    ) -> Tuple[str, str]:
         """
         Encode message according to serializeUpdate on your template module l1.
 

@@ -1,6 +1,5 @@
 import pytest
 
-from pypergraph.dag_account.tests.secrets import from_address
 from pypergraph.dag_core.exceptions import NetworkError
 from pypergraph.dag_network import DagTokenNetwork
 from pypergraph.dag_account import DagAccount, MetagraphTokenClient
@@ -77,18 +76,18 @@ async def test_metagraph_account_connect(network):
         l0_host='http://123.123.123.123:9000',
         dl1_host='http://123.123.123.123:9020',
         cl1_host='http://123.123.123.123:9010',
-        metagraph_id='DAG6DOES00NOT00MATTER00HERE'
+        metagraph_id='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'
     )
     metagraph_account.network.get_network()
     assert metagraph_account.network.get_network() == {
         'dl1_host': 'http://123.123.123.123:9020',
-        'network_id': 'constellation',
+        'network_id': 'testnet',
         'be_url': 'https://be-testnet.constellationnetwork.io',
-        'l0_lb_url': None,
-        'l1_lb_url': None,
+        'l0_lb_url': 'https://l0-lb-testnet.constellationnetwork.io',
+        'l1_lb_url': 'https://l1-lb-testnet.constellationnetwork.io',
         'l0_host': 'http://123.123.123.123:9000',
         'cl1_host': 'http://123.123.123.123:9010',
-        'metagraph_id': 'DAG6DOES00NOT00MATTER00HERE'
+        'metagraph_id': 'DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'
     }
     metagraph_account = account.create_metagraph_token_client(
         metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
@@ -96,11 +95,11 @@ async def test_metagraph_account_connect(network):
     )
     assert metagraph_account.network.get_network() == {
         'dl1_host': None,
-        'network_id': 'constellation',
+        'network_id': 'testnet',
         'be_url': 'https://be-testnet.constellationnetwork.io',
-        'l0_lb_url': None,
-        'l1_lb_url': None,
-        'l0_host': None,
+        'l0_lb_url': 'https://l0-lb-testnet.constellationnetwork.io',
+        'l1_lb_url': 'https://l1-lb-testnet.constellationnetwork.io',
+        'l0_host': 'https://l0-lb-testnet.constellationnetwork.io',
         'cl1_host': 'http://123.123.123.123:9010',
         'metagraph_id': 'DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'
     }
@@ -129,7 +128,7 @@ async def test_get_balance(network):
     assert r in (0, 100000000)
 
 @pytest.mark.asyncio
-async def test_get_transactions(network):
+async def test_get_currency_transactions(network):
     from secrets import mnemo
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
@@ -158,7 +157,7 @@ async def test_currency_transfer(network):
     metagraph_account = MetagraphTokenClient(
         account=account,
         metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
-        l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
+        # l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
         cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
     )
 

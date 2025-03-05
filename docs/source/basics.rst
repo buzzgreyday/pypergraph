@@ -35,7 +35,7 @@ Create Account from Existing Secret
     from pypergraph.dag_account import DagAccount
 
     # Use your existing seed phrase or private key
-    seed_phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon"
+    seed_phrase = "abandon abandon ..." # 12 words seed phrase
     account = DagAccount()
     account.login_with_seed_phrase(words=seed_phrase)
 
@@ -46,7 +46,7 @@ Create Account from Existing Secret
 
     .. code-block:: python
 
-        account.login_with_seed_phrase("your_seed_phrase_here")
+        account.login_with_seed_phrase("abandon abandon ..." )
 
     * **Login with Private Key**
 
@@ -105,10 +105,72 @@ Send $DAG Currency Transaction
 
     asyncio.run(send_dag())
 
-.. dropdown:: Transaction Signing
+.. dropdown:: Transaction Building and Signing
     :animate: fade-in
 
-    Placeholder
+    .. code-block:: python
+
+        def prepare_tx(
+                amount: int,
+                to_address: str,
+                from_address: str,
+                last_ref: LastReference,
+                fee: int = 0
+                ) -> Tuple[Transaction, str]:
+
+            if to_address == from_address:
+              raise ValueError('KeyStore :: An address cannot send a transaction to itself')
+
+            if int(amount) < 1e-8:
+              raise ValueError('KeyStore :: Send amount must be greater than 1e-8')
+
+            if fee < 0:
+              raise ValueError('KeyStore :: Send fee must be greater or equal to zero')
+
+            # Create transaction
+            tx = Transaction(
+                source=from_address, destination=to_address, amount=amount, fee=fee,
+                parent=last_ref, salt=MIN_SALT + int(random.getrandbits(48))
+            )
+
+            # Get encoded transaction
+            encoded_tx = tx.encoded
+
+            kryo = Kryo()
+            serialized_tx = kryo.serialize(msg=encoded_tx, set_references=False)
+            hash_value = KeyStore._double_hash(serialized_tx)
+
+            return tx, hash_value
+
+        async def generate_signed_transaction(
+                self,
+                to_address: str,
+                amount: int,
+                fee: int = 0,
+                last_ref=None
+        ) -> Tuple[SignedTransaction, str]:
+            last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
+            tx, hash_ = KeyStore.prepare_tx(
+                amount=amount,
+                to_address=to_address,
+                from_address=self.key_trio.address,
+                last_ref=last_ref,
+                fee=fee
+            )
+            signature = KeyStore.sign(self.key_trio.private_key, hash_)
+            valid = KeyStore.verify(self.public_key, hash_, signature)
+            if not valid:
+                raise ValueError("Wallet :: Invalid signature.")
+            proof = SignatureProof(id=self.public_key[2:], signature=signature)
+            tx = SignedTransaction(value=tx, proofs=[proof])
+            return tx, hash_
+
+        # Generate and send transaction
+        tx, tx_hash = await account.generate_signed_transaction(
+            to_address="DAG2this01is02A03FAKE04DAG05Address06",
+            amount=100000000,  # 1 DAG = 100,000,000 units
+            fee=200000
+        )
 
 .. dropdown:: DagAccount Network Parameters
     :animate: fade-in
@@ -173,7 +235,7 @@ Send Metagraph Data Transaction
 
     async def send_data_transaction():
         keystore = KeyStore()
-        seed_phrase = "your_seed_phrase_here"
+        seed_phrase = "abandon abandon ... " # 12 word seed phrase
         private_key = keystore.get_private_key_from_mnemonic(phrase=seed_phrase)
 
         account = DagAccount()

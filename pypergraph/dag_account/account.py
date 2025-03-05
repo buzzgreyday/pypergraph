@@ -1,6 +1,6 @@
 import logging
 import asyncio
-from datetime import tzinfo, datetime
+from datetime import datetime
 
 import base58
 import hashlib
@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from pypergraph.dag_core import NetworkId
 from pypergraph.dag_core.constants import PKCS_PREFIX
 from pypergraph.dag_account.models.key_trio import KeyTrio
 from pypergraph.dag_keyring.accounts import DagAccount
@@ -27,13 +26,16 @@ class DagAccount:
     network: Optional[DagTokenNetwork] = DagTokenNetwork()
     key_trio: Optional[KeyTrio] = None
     emitter = AsyncIOEventEmitter()
-    decimals = 8
-    network_id = NetworkId.Constellation.value
-    has_token_support = False
-    supported_assets = ["DAG"]
 
-    # def connect(self, network_info: Dict[str, Any]) -> "DagAccount":
-    def connect(self, network_id: Optional[str] = "mainnet", be_url: Optional[str] = None, l0_host: Optional[str] = None, cl1_host: Optional[str] = None, l0_lb_url: Optional[str] = None, l1_lb_url: Optional[str] = None) -> "DagAccount":
+    def connect(
+            self,
+            network_id: Optional[str] = "mainnet",
+            be_url: Optional[str] = None,
+            l0_host: Optional[str] = None,
+            cl1_host: Optional[str] = None,
+            l0_lb_url: Optional[str] = None,
+            l1_lb_url: Optional[str] = None
+    ) -> "DagAccount":
         """Configure the network connection."""
 
         self.network = DagTokenNetwork()
@@ -93,7 +95,13 @@ class DagAccount:
             return int(Decimal(response.balance))
         return 0
 
-    async def generate_signed_transaction(self, to_address: str, amount: int, fee: int = 0, last_ref=None) -> Tuple[SignedTransaction, str]:
+    async def generate_signed_transaction(
+            self,
+            to_address: str,
+            amount: int,
+            fee: int = 0,
+            last_ref=None
+    ) -> Tuple[SignedTransaction, str]:
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
         tx, hash_ = KeyStore.prepare_tx(amount=amount, to_address=to_address, from_address=self.key_trio.address, last_ref=last_ref, fee=fee)
         signature = KeyStore.sign(self.key_trio.private_key, hash_)
@@ -203,8 +211,6 @@ class DagAccount:
         txns = await self.generate_batch_transactions(transfers, last_ref)
         return await self.send_batch_transactions(txns)
 
-    ### --> KEYRING:DAGACCOUNT
-
     @staticmethod
     def validate_address(address: str) -> bool:
         if not address:
@@ -250,13 +256,13 @@ class DagAccount:
 
 
     def create_metagraph_token_client(
-            self, account: DagAccount = None, metagraph_id: Optional[str] = None, block_explorer_url: Optional[str] = None,
-            l0_host: Optional[str] = None, cl1_host: Optional[str] = None, dl1_host: Optional[str] = None,
+            self, account: DagAccount = None,
+            metagraph_id: Optional[str] = None,
+            block_explorer_url: Optional[str] = None,
+            l0_host: Optional[str] = None,
+            cl1_host: Optional[str] = None,
+            dl1_host: Optional[str] = None,
             token_decimals: int = 8):
-        if not (metagraph_id or self.network.connected_network.metagraph_id):
-            raise ValueError("DagAccount :: 'metagraph_id' must be set.")
-        if not (cl1_host or dl1_host or not l0_host):
-            raise ValueError("DagAccount :: 'cl1_host', 'dl1_host' or 'l0_host' must be set.")
         return MetagraphTokenClient(
             account=account or self,
             metagraph_id=metagraph_id or self.network.connected_network.metagraph_id,
@@ -279,14 +285,15 @@ class MetagraphTokenClient:
             token_decimals: int = 8
     ):
         self.account = account
-        if not metagraph_id:
+        valid_address = self.account.validate_address(metagraph_id)
+        if not metagraph_id or not valid_address:
             raise ValueError(
-                f"MetagraphTokenClient :: Parameters."
+                f"MetagraphTokenClient :: Parameter 'metagraph_id' must be a DAG address."
             )
 
         self.network = MetagraphTokenNetwork(
             metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, dl1_host=dl1_host,
-            network_id=account.network_id, block_explorer=block_explorer_url or account.network.be_api.service.base_url
+            network_id=account.network.connected_network.network_id, block_explorer=block_explorer_url or account.network.be_api.service.base_url
         )
         self.token_decimals = token_decimals
 

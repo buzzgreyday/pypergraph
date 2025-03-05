@@ -122,14 +122,13 @@ class DagTokenNetwork(AsyncIOEventEmitter):
 class MetagraphTokenNetwork(AsyncIOEventEmitter):
 
     def __init__(
-            self, metagraph_id: str, l0_host: Optional[str], cl1_host: Optional[str],
-            dl1_host: Optional[str], network_id: Optional[str] = "mainnet", block_explorer: Optional[str] = None
+            self, metagraph_id: str, l0_host: Optional[str] = None, cl1_host: Optional[str] = None,
+            dl1_host: Optional[str] = None, network_id: Optional[str] = "mainnet", block_explorer: Optional[str] = None
     ):
         super().__init__()
         """Validate connected network"""
-        # TODO: Do not hardcode urls
         if not metagraph_id:
-            raise ValueError("MetagraphTokenNetwork :: Parameters.")
+            raise ValueError("MetagraphTokenNetwork :: Parameter 'metagraph_id' must be a valid DAG address.")
         self.connected_network = NetworkInfo(network_id=network_id, metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, dl1_host=dl1_host, be_url=block_explorer)
         self.be_api = BlockExplorerApi(host=block_explorer) if block_explorer else BlockExplorerApi(host=self.connected_network.be_url)
         self.l0_api = ML0Api(host=l0_host)

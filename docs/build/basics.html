@@ -190,8 +190,64 @@
 </div>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Transaction Signing</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">Placeholder</p>
+<span class="sd-summary-text">Transaction Building and Signing</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">prepare_tx</span><span class="p">(</span>
+        <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">from_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">last_ref</span><span class="p">:</span> <span class="n">LastReference</span><span class="p">,</span>
+        <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Transaction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+
+    <span class="k">if</span> <span class="n">to_address</span> <span class="o">==</span> <span class="n">from_address</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;KeyStore :: An address cannot send a transaction to itself&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;KeyStore :: Send amount must be greater than 1e-8&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fee</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;KeyStore :: Send fee must be greater or equal to zero&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Create transaction</span>
+    <span class="n">tx</span> <span class="o">=</span> <span class="n">Transaction</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="n">from_address</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="n">fee</span><span class="p">,</span>
+        <span class="n">parent</span><span class="o">=</span><span class="n">last_ref</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="n">MIN_SALT</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">getrandbits</span><span class="p">(</span><span class="mi">48</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Get encoded transaction</span>
+    <span class="n">encoded_tx</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">encoded</span>
+
+    <span class="n">kryo</span> <span class="o">=</span> <span class="n">Kryo</span><span class="p">()</span>
+    <span class="n">serialized_tx</span> <span class="o">=</span> <span class="n">kryo</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="n">encoded_tx</span><span class="p">,</span> <span class="n">set_references</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">hash_value</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">_double_hash</span><span class="p">(</span><span class="n">serialized_tx</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">tx</span><span class="p">,</span> <span class="n">hash_value</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">generate_signed_transaction</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">last_ref</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">last_ref</span> <span class="o">=</span> <span class="n">last_ref</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">prepare_tx</span><span class="p">(</span><span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span> <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">from_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="n">fee</span><span class="p">)</span>
+    <span class="n">signature</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">private_key</span><span class="p">,</span> <span class="n">hash_</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span> <span class="n">hash_</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Invalid signature.&quot;</span><span class="p">)</span>
+    <span class="n">proof</span> <span class="o">=</span> <span class="n">SignatureProof</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
+    <span class="n">tx</span> <span class="o">=</span> <span class="n">SignedTransaction</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">tx</span><span class="p">,</span> <span class="n">proofs</span><span class="o">=</span><span class="p">[</span><span class="n">proof</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span>
+
+<span class="c1"># Generate and send transaction</span>
+<span class="n">tx</span><span class="p">,</span> <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
+    <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG2this01is02A03FAKE04DAG05Address06&quot;</span><span class="p">,</span>
+    <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>  <span class="c1"># 1 DAG = 100,000,000 units</span>
+    <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">

@@ -370,7 +370,7 @@ class ML0Api(L0Api):
     @property
     def service(self):
         if not self._service:
-            raise ValueError(f"MDL0Api :: Metagraph layer 0 host is not configured.")
+            raise ValueError(f"ML0Api :: Metagraph layer 0 host is not configured.")
         return self._service
 
     def config(self, host: str):
@@ -402,7 +402,7 @@ class ML1Api(L1Api):
     @property
     def service(self):
         if not self._service:
-            raise ValueError(f"MDL1Api :: Metagraph currency layer 1 host is not configured.")
+            raise ValueError(f"ML1Api :: Metagraph currency layer 1 host is not configured.")
         return self._service
 
     def config(self, host: str):
