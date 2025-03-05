@@ -76,7 +76,11 @@ Send $DAG Currency Transaction
     seed_phrase = "abandon abandon ..." # 12 words seed phrase
     account = DagAccount()
     account.login_with_seed_phrase(seed_phrase)
-    hash = await account.transfer(to_address=to_address, amount=100000000, fee=200000)
+    hash = await account.transfer(
+        to_address=to_address,
+        amount=100000000,
+        fee=200000
+    )
 
 **Or...**
 
@@ -149,7 +153,9 @@ Send $DAG Currency Transaction
                 fee: int = 0,
                 last_ref=None
         ) -> Tuple[SignedTransaction, str]:
-            last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
+            last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(
+                self.address
+            )
             tx, hash_ = KeyStore.prepare_tx(
                 amount=amount,
                 to_address=to_address,
@@ -204,7 +210,7 @@ Send Metagraph Currency Transaction
             account=account,
             metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
             l0_host="http://custom-l0-host:9100",  # Replace with actual endpoints
-            cl1_host="http://custom-cl1-host:9200"
+            cl1_host="http://custom-cl1-host:9200" # Currency layer host
         )
 
         # Get last transaction reference for the sender
@@ -244,9 +250,9 @@ Send Metagraph Data Transaction
         # Initialize Metagraph client
         metagraph_client = MetagraphTokenClient(
             account=account,
-            metagraph_id="DAG6DOES00NOT00MATTER00HERE",
-            l0_host="http://localhost:9200",
-            cl1_host="http://localhost:9300"
+            metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
+            l0_host="http://custom-l0-host:9200",
+            dl1_host="http://custom-dl1-host:9300" # Data layer host
         )
 
         # Prepare data payload

@@ -35,7 +35,7 @@ Create Account from Existing Secret
     from pypergraph.dag_account import DagAccount
 
     # Use your existing seed phrase or private key
-    seed_phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon"
+    seed_phrase = "abandon abandon ..." # 12 words seed phrase
     account = DagAccount()
     account.login_with_seed_phrase(words=seed_phrase)
 
@@ -46,7 +46,7 @@ Create Account from Existing Secret
 
     .. code-block:: python
 
-        account.login_with_seed_phrase("your_seed_phrase_here")
+        account.login_with_seed_phrase("abandon abandon ..." )
 
     * **Login with Private Key**
 
@@ -150,7 +150,13 @@ Send $DAG Currency Transaction
                 last_ref=None
         ) -> Tuple[SignedTransaction, str]:
             last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
-            tx, hash_ = KeyStore.prepare_tx(amount=amount, to_address=to_address, from_address=self.key_trio.address, last_ref=last_ref, fee=fee)
+            tx, hash_ = KeyStore.prepare_tx(
+                amount=amount,
+                to_address=to_address,
+                from_address=self.key_trio.address,
+                last_ref=last_ref,
+                fee=fee
+            )
             signature = KeyStore.sign(self.key_trio.private_key, hash_)
             valid = KeyStore.verify(self.public_key, hash_, signature)
             if not valid:
@@ -229,7 +235,7 @@ Send Metagraph Data Transaction
 
     async def send_data_transaction():
         keystore = KeyStore()
-        seed_phrase = "your_seed_phrase_here"
+        seed_phrase = "abandon abandon ... " # 12 word seed phrase
         private_key = keystore.get_private_key_from_mnemonic(phrase=seed_phrase)
 
         account = DagAccount()

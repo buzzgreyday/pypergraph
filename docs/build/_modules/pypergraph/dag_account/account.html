@@ -341,8 +341,6 @@
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_batch_transactions</span><span class="p">(</span><span class="n">txns</span><span class="p">)</span></div>
 
 
-    <span class="c1">### --&gt; KEYRING:DAGACCOUNT</span>
-
 <div class="viewcode-block" id="DagAccount.validate_address">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.validate_address">[docs]</a>
     <span class="nd">@staticmethod</span>
@@ -432,9 +430,10 @@
             <span class="n">token_decimals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="n">account</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">metagraph_id</span><span class="p">:</span>
+        <span class="n">valid_address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">validate_address</span><span class="p">(</span><span class="n">metagraph_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">metagraph_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">valid_address</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;MetagraphTokenClient :: Parameters.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;MetagraphTokenClient :: Parameter &#39;metagraph_id&#39; must be a DAG address.&quot;</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">MetagraphTokenNetwork</span><span class="p">(</span>

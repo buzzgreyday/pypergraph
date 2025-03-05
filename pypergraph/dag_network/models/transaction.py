@@ -135,6 +135,18 @@ class SignedTransaction(BaseModel):
         self.proofs.append(proof)
 
 
+class SignedData(BaseModel):
+    value: dict
+    proofs: List[SignatureProof] = Field(default_factory=list)
+
+    def __repr__(self):
+        return f"Transaction(value={self.value}, proofs={self.proofs})"
+
+    def add_value(self, value: dict) -> None:
+        self.value = value
+
+    def add_proof(self, proof: SignatureProof) -> None:
+        self.proofs.append(proof)
 
 
 class BlockExplorerTransaction(BaseTransaction):

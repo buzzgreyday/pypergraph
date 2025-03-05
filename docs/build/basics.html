@@ -119,7 +119,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">DagAccount</span>
 
 <span class="c1"># Use your existing seed phrase or private key</span>
-<span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon&quot;</span>
+<span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ...&quot;</span> <span class="c1"># 12 words seed phrase</span>
 <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
 <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
 </pre></div>
@@ -130,7 +130,7 @@
 <ul class="simple">
 <li><p class="sd-card-text"><strong>Login with Seed Phrase</strong></p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;your_seed_phrase_here&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon abandon ...&quot;</span> <span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -231,7 +231,13 @@
         <span class="n">last_ref</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
     <span class="n">last_ref</span> <span class="o">=</span> <span class="n">last_ref</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
-    <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">prepare_tx</span><span class="p">(</span><span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span> <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">from_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="n">fee</span><span class="p">)</span>
+    <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">prepare_tx</span><span class="p">(</span>
+        <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span>
+        <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span>
+        <span class="n">from_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
+        <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span><span class="p">,</span>
+        <span class="n">fee</span><span class="o">=</span><span class="n">fee</span>
+    <span class="p">)</span>
     <span class="n">signature</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">private_key</span><span class="p">,</span> <span class="n">hash_</span><span class="p">)</span>
     <span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span> <span class="n">hash_</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
@@ -312,7 +318,7 @@
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_data_transaction</span><span class="p">():</span>
     <span class="n">keystore</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="p">()</span>
-    <span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;your_seed_phrase_here&quot;</span>
+    <span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ... &quot;</span> <span class="c1"># 12 word seed phrase</span>
     <span class="n">private_key</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">get_private_key_from_mnemonic</span><span class="p">(</span><span class="n">phrase</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
 
     <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
