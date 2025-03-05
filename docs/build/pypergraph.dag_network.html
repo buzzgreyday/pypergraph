@@ -143,6 +143,18 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_network.models.html#module-pypergraph.dag_network.models.snapshot">pypergraph.dag_network.models.snapshot module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.Block"><code class="docutils literal notranslate"><span class="pre">Block</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.Block.model_config"><code class="docutils literal notranslate"><span class="pre">Block.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.Block.parent"><code class="docutils literal notranslate"><span class="pre">Block.parent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.Block.transactions"><code class="docutils literal notranslate"><span class="pre">Block.transactions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.BlockReference"><code class="docutils literal notranslate"><span class="pre">BlockReference</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.BlockReference.hash"><code class="docutils literal notranslate"><span class="pre">BlockReference.hash</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.BlockReference.height"><code class="docutils literal notranslate"><span class="pre">BlockReference.height</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.BlockReference.model_config"><code class="docutils literal notranslate"><span class="pre">BlockReference.model_config</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.CurrencySnapshot"><code class="docutils literal notranslate"><span class="pre">CurrencySnapshot</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.CurrencySnapshot.fee"><code class="docutils literal notranslate"><span class="pre">CurrencySnapshot.fee</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.CurrencySnapshot.meta"><code class="docutils literal notranslate"><span class="pre">CurrencySnapshot.meta</span></code></a></li>
@@ -180,6 +192,17 @@
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.LastCurrencySnapshotProof.hash"><code class="docutils literal notranslate"><span class="pre">LastCurrencySnapshotProof.hash</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.LastCurrencySnapshotProof.leaf_count"><code class="docutils literal notranslate"><span class="pre">LastCurrencySnapshotProof.leaf_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.LastCurrencySnapshotProof.model_config"><code class="docutils literal notranslate"><span class="pre">LastCurrencySnapshotProof.model_config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.Ordinal"><code class="docutils literal notranslate"><span class="pre">Ordinal</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.Ordinal.model_config"><code class="docutils literal notranslate"><span class="pre">Ordinal.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.Ordinal.ordinal"><code class="docutils literal notranslate"><span class="pre">Ordinal.ordinal</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.SignedBlock"><code class="docutils literal notranslate"><span class="pre">SignedBlock</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.SignedBlock.model_config"><code class="docutils literal notranslate"><span class="pre">SignedBlock.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.SignedBlock.proofs"><code class="docutils literal notranslate"><span class="pre">SignedBlock.proofs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.SignedBlock.value"><code class="docutils literal notranslate"><span class="pre">SignedBlock.value</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.snapshot.Snapshot"><code class="docutils literal notranslate"><span class="pre">Snapshot</span></code></a><ul>
@@ -519,18 +542,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pypergraph.dag_network.api.BlockExplorerApi.get_checkpoint_block">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_checkpoint_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#BlockExplorerApi.get_checkpoint_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.BlockExplorerApi.get_checkpoint_block" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.BlockExplorerApi.get_currency_address_balance">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_currency_address_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.account.Balance" title="pypergraph.dag_network.models.account.Balance"><span class="pre">Balance</span></a></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#BlockExplorerApi.get_currency_address_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.BlockExplorerApi.get_currency_address_balance" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pypergraph.dag_network.api.BlockExplorerApi.get_currency_block">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_currency_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#BlockExplorerApi.get_currency_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.BlockExplorerApi.get_currency_block" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -686,6 +699,11 @@
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="pypergraph.dag_network.api.BlockExplorerApi.service">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">service</span></span><a class="headerlink" href="#pypergraph.dag_network.api.BlockExplorerApi.service" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -695,7 +713,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.L0Api.config">
 <span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#L0Api.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.L0Api.config" title="Link to this definition"></a></dt>
-<dd><p>Reconfigure the RestAPIClient’s base URL dynamically.</p>
+<dd><p>Reconfigure the RestAPIClient’s base URL.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -733,6 +751,11 @@
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_state_channel_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#L0Api.post_state_channel_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.L0Api.post_state_channel_snapshot" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="pypergraph.dag_network.api.L0Api.service">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">service</span></span><a class="headerlink" href="#pypergraph.dag_network.api.L0Api.service" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -742,7 +765,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.L1Api.config">
 <span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#L1Api.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.L1Api.config" title="Link to this definition"></a></dt>
-<dd><p>Reconfigure the RestAPIClient’s base URL dynamically.</p>
+<dd><p>Reconfigure the RestAPIClient’s base URL.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -768,6 +791,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.L1Api.post_transaction">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.transaction.SignedTransaction" title="pypergraph.dag_network.models.transaction.SignedTransaction"><span class="pre">SignedTransaction</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#L1Api.post_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.L1Api.post_transaction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pypergraph.dag_network.api.L1Api.service">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">service</span></span><a class="headerlink" href="#pypergraph.dag_network.api.L1Api.service" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -817,6 +845,11 @@
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#LoadBalancerApi.post_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.LoadBalancerApi.post_transaction" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="pypergraph.dag_network.api.LoadBalancerApi.service">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">service</span></span><a class="headerlink" href="#pypergraph.dag_network.api.LoadBalancerApi.service" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -826,7 +859,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.MDL1Api.config">
 <span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#MDL1Api.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.MDL1Api.config" title="Link to this definition"></a></dt>
-<dd><p>Reconfigure the RestAPIClient’s base URL dynamically.</p>
+<dd><p>Reconfigure the RestAPIClient’s base URL.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -847,7 +880,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.MDL1Api.post_data">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.transaction.SignedTransaction" title="pypergraph.dag_network.models.transaction.SignedTransaction"><span class="pre">SignedTransaction</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#MDL1Api.post_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.MDL1Api.post_data" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#MDL1Api.post_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.MDL1Api.post_data" title="Link to this definition"></a></dt>
 <dd><p>Offer data update object for processing.
 {</p>
 <blockquote>
@@ -866,6 +899,11 @@
 <p>}</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="pypergraph.dag_network.api.MDL1Api.service">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">service</span></span><a class="headerlink" href="#pypergraph.dag_network.api.MDL1Api.service" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -875,7 +913,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.ML0Api.config">
 <span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#ML0Api.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.ML0Api.config" title="Link to this definition"></a></dt>
-<dd><p>Reconfigure the RestAPIClient’s base URL dynamically.</p>
+<dd><p>Reconfigure the RestAPIClient’s base URL.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -898,12 +936,28 @@
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_total_supply_at_ordinal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ordinal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.network.TotalSupply" title="pypergraph.dag_network.models.network.TotalSupply"><span class="pre">TotalSupply</span></a></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#ML0Api.get_total_supply_at_ordinal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.ML0Api.get_total_supply_at_ordinal" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="pypergraph.dag_network.api.ML0Api.service">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">service</span></span><a class="headerlink" href="#pypergraph.dag_network.api.ML0Api.service" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pypergraph.dag_network.api.ML1Api">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.api.</span></span><span class="sig-name descname"><span class="pre">ML1Api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#ML1Api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.ML1Api" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pypergraph.dag_network.api.L1Api" title="pypergraph.dag_network.api.L1Api"><code class="xref py py-class docutils literal notranslate"><span class="pre">L1Api</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.dag_network.api.ML1Api.config">
+<span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/api.html#ML1Api.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.api.ML1Api.config" title="Link to this definition"></a></dt>
+<dd><p>Reconfigure the RestAPIClient’s base URL.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pypergraph.dag_network.api.ML1Api.service">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">service</span></span><a class="headerlink" href="#pypergraph.dag_network.api.ML1Api.service" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1000,7 +1054,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pypergraph.dag_network.network.MetagraphTokenNetwork">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.network.</span></span><span class="sig-name descname"><span class="pre">MetagraphTokenNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mainnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#MetagraphTokenNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.network.MetagraphTokenNetwork" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.network.</span></span><span class="sig-name descname"><span class="pre">MetagraphTokenNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mainnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#MetagraphTokenNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.network.MetagraphTokenNetwork" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncIOEventEmitter</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.network.MetagraphTokenNetwork.get_address_balance">
@@ -1050,7 +1104,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.network.MetagraphTokenNetwork.post_data">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.transaction.SignedTransaction" title="pypergraph.dag_network.models.transaction.SignedTransaction"><span class="pre">SignedTransaction</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#MetagraphTokenNetwork.post_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.network.MetagraphTokenNetwork.post_data" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#MetagraphTokenNetwork.post_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.network.MetagraphTokenNetwork.post_data" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1154,7 +1208,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pypergraph.dag_network.MetagraphTokenNetwork">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.</span></span><span class="sig-name descname"><span class="pre">MetagraphTokenNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mainnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#MetagraphTokenNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.MetagraphTokenNetwork" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_network.</span></span><span class="sig-name descname"><span class="pre">MetagraphTokenNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mainnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#MetagraphTokenNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.MetagraphTokenNetwork" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncIOEventEmitter</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.MetagraphTokenNetwork.get_address_balance">
@@ -1204,7 +1258,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_network.MetagraphTokenNetwork.post_data">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.transaction.SignedTransaction" title="pypergraph.dag_network.models.transaction.SignedTransaction"><span class="pre">SignedTransaction</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#MetagraphTokenNetwork.post_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.MetagraphTokenNetwork.post_data" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_network/network.html#MetagraphTokenNetwork.post_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_network.MetagraphTokenNetwork.post_data" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

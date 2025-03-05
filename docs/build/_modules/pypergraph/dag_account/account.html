@@ -77,6 +77,8 @@
   <h1>Source code for pypergraph.dag_account.account</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">tzinfo</span><span class="p">,</span> <span class="n">datetime</span>
+
 <span class="kn">import</span> <span class="nn">base58</span>
 <span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">import</span> <span class="nn">time</span>
@@ -88,6 +90,7 @@
 <span class="kn">from</span> <span class="nn">pypergraph.dag_core</span> <span class="kn">import</span> <span class="n">NetworkId</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_core.constants</span> <span class="kn">import</span> <span class="n">PKCS_PREFIX</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_account.models.key_trio</span> <span class="kn">import</span> <span class="n">KeyTrio</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_keyring.accounts</span> <span class="kn">import</span> <span class="n">DagAccount</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.transaction</span> <span class="kn">import</span> <span class="n">SignatureProof</span><span class="p">,</span> <span class="n">SignedTransaction</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.network</span> <span class="kn">import</span> <span class="n">DagTokenNetwork</span><span class="p">,</span> <span class="n">MetagraphTokenNetwork</span>
@@ -99,7 +102,6 @@
 <div class="viewcode-block" id="DagAccount">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount">[docs]</a>
 <span class="k">class</span> <span class="nc">DagAccount</span><span class="p">:</span>
-
 
     <span class="n">network</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DagTokenNetwork</span><span class="p">]</span> <span class="o">=</span> <span class="n">DagTokenNetwork</span><span class="p">()</span>
     <span class="n">key_trio</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">KeyTrio</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -194,9 +196,9 @@
 <div class="viewcode-block" id="DagAccount.get_balance_for">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.get_balance_for">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_balance_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">address_obj</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">address_obj</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">address_obj</span><span class="o">.</span><span class="n">balance</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">balance</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">balance</span><span class="p">))</span>
         <span class="k">return</span> <span class="mi">0</span></div>
 
 
@@ -215,9 +217,9 @@
 
 
 
-<div class="viewcode-block" id="DagAccount.send">
-<a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.send">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">auto_estimate_fee</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="DagAccount.transfer">
+<a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.transfer">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">auto_estimate_fee</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build transaction, sign and send.</span>
 
@@ -227,35 +229,21 @@
 <span class="sd">        :param auto_estimate_fee:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: Rate limiting</span>
-        <span class="n">normalized_amount</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">amount</span> <span class="o">*</span> <span class="n">DAG_DECIMALS</span><span class="p">)</span>
+        <span class="c1"># TODO: API fee estimate endpoint</span>
         <span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
-
-        <span class="c1"># TODO: There&#39;s a new endpoint for estimating fees</span>
-        <span class="k">if</span> <span class="n">fee</span> <span class="o">==</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">auto_estimate_fee</span><span class="p">:</span>
-            <span class="n">pending_tx</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_pending_transaction</span><span class="p">(</span><span class="n">last_ref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prev_hash&quot;</span><span class="p">,</span> <span class="n">last_ref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hash&quot;</span><span class="p">)))</span>
-
-            <span class="k">if</span> <span class="n">pending_tx</span><span class="p">:</span>
-                <span class="n">balance_obj</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="n">balance_obj</span> <span class="ow">and</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">balance_obj</span><span class="p">[</span><span class="s2">&quot;balance&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">normalized_amount</span><span class="p">:</span>
-                    <span class="n">amount</span> <span class="o">-=</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">DAG_DECIMALS</span>
-                    <span class="n">normalized_amount</span> <span class="o">-=</span> <span class="mi">1</span>
-
-                <span class="n">fee</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">DAG_DECIMALS</span>
 
         <span class="n">signed_tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span><span class="n">to_address</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">fee</span><span class="p">)</span>
         <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">signed_tx</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">tx_hash</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span>
-                <span class="c1">#&quot;timestamp&quot;: self.network.get_current_time(),</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
                 <span class="s2">&quot;hash&quot;</span><span class="p">:</span> <span class="n">tx_hash</span><span class="p">,</span>
                 <span class="s2">&quot;amount&quot;</span><span class="p">:</span> <span class="n">amount</span><span class="p">,</span>
                 <span class="s2">&quot;receiver&quot;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span>
                 <span class="s2">&quot;fee&quot;</span><span class="p">:</span> <span class="n">fee</span><span class="p">,</span>
                 <span class="s2">&quot;sender&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
-                <span class="s2">&quot;ordinal&quot;</span><span class="p">:</span> <span class="n">last_ref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ordinal&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;ordinal&quot;</span><span class="p">:</span> <span class="n">last_ref</span><span class="o">.</span><span class="n">ordinal</span><span class="p">,</span>
                 <span class="s2">&quot;pending&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;POSTED&quot;</span><span class="p">,</span>
             <span class="p">}</span></div>
@@ -397,8 +385,26 @@
 
 
 
-    <span class="c1"># def create_metagraph_token_client(self, network_info: dict):</span>
-    <span class="c1">#     return MetagraphTokenClient(self, network_info)</span>
+<div class="viewcode-block" id="DagAccount.create_metagraph_token_client">
+<a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.create_metagraph_token_client">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_metagraph_token_client</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">account</span><span class="p">:</span> <span class="n">DagAccount</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">block_explorer_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">l0_host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cl1_host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dl1_host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">token_decimals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">metagraph_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">connected_network</span><span class="o">.</span><span class="n">metagraph_id</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DagAccount :: &#39;metagraph_id&#39; must be set.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">cl1_host</span> <span class="ow">or</span> <span class="n">dl1_host</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">l0_host</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DagAccount :: &#39;cl1_host&#39;, &#39;dl1_host&#39; or &#39;l0_host&#39; must be set.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span>
+            <span class="n">account</span><span class="o">=</span><span class="n">account</span> <span class="ow">or</span> <span class="bp">self</span><span class="p">,</span>
+            <span class="n">metagraph_id</span><span class="o">=</span><span class="n">metagraph_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">connected_network</span><span class="o">.</span><span class="n">metagraph_id</span><span class="p">,</span>
+            <span class="n">block_explorer_url</span><span class="o">=</span><span class="n">block_explorer_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">connected_network</span><span class="o">.</span><span class="n">be_url</span><span class="p">,</span>
+            <span class="n">l0_host</span><span class="o">=</span><span class="n">l0_host</span><span class="p">,</span>
+            <span class="n">cl1_host</span><span class="o">=</span><span class="n">cl1_host</span><span class="p">,</span>
+            <span class="n">dl1_host</span><span class="o">=</span><span class="n">dl1_host</span><span class="p">,</span>
+            <span class="n">token_decimals</span><span class="o">=</span><span class="n">token_decimals</span>
+        <span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="DagAccount.wait">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.wait">[docs]</a>
@@ -422,6 +428,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;MetagraphTokenClient :: Parameters.&quot;</span>
             <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">MetagraphTokenNetwork</span><span class="p">(</span>
             <span class="n">metagraph_id</span><span class="o">=</span><span class="n">metagraph_id</span><span class="p">,</span> <span class="n">l0_host</span><span class="o">=</span><span class="n">l0_host</span><span class="p">,</span> <span class="n">cl1_host</span><span class="o">=</span><span class="n">cl1_host</span><span class="p">,</span> <span class="n">dl1_host</span><span class="o">=</span><span class="n">dl1_host</span><span class="p">,</span>
             <span class="n">network_id</span><span class="o">=</span><span class="n">account</span><span class="o">.</span><span class="n">network_id</span><span class="p">,</span> <span class="n">block_explorer</span><span class="o">=</span><span class="n">block_explorer_url</span> <span class="ow">or</span> <span class="n">account</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">be_api</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">base_url</span>
@@ -452,15 +459,16 @@
 <div class="viewcode-block" id="MetagraphTokenClient.get_balance_for">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.MetagraphTokenClient.get_balance_for">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_balance_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">address_obj</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">address_obj</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">address_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;balance&quot;</span><span class="p">),</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="n">address_obj</span><span class="p">[</span><span class="s2">&quot;balance&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">Decimal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token_decimals</span><span class="p">))</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">balance</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">balance</span><span class="p">))</span>
         <span class="k">return</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="MetagraphTokenClient.get_fee_recommendation">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.MetagraphTokenClient.get_fee_recommendation">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_fee_recommendation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: Fee api</span>
         <span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">last_ref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hash&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="mi">0</span>
@@ -475,17 +483,8 @@
 <div class="viewcode-block" id="MetagraphTokenClient.transfer">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.MetagraphTokenClient.transfer">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">auto_estimate_fee</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="n">normalized_amount</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="o">*</span> <span class="n">Decimal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token_decimals</span><span class="p">))</span>
+        <span class="c1"># TODO: Fee api endpoint</span>
         <span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">fee</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">auto_estimate_fee</span><span class="p">:</span>
-            <span class="n">tx</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_pending_transaction</span><span class="p">(</span><span class="n">last_ref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prevHash&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">last_ref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hash&quot;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">tx</span><span class="p">:</span>
-                <span class="n">address_obj</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">address_obj</span><span class="p">[</span><span class="s2">&quot;balance&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">normalized_amount</span><span class="p">:</span>
-                    <span class="n">amount</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_decimals</span>
-                    <span class="n">normalized_amount</span> <span class="o">-=</span> <span class="mi">1</span>
-                <span class="n">fee</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_decimals</span>
 
         <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span><span class="n">to_address</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">fee</span><span class="p">,</span> <span class="n">last_ref</span><span class="p">)</span>
 

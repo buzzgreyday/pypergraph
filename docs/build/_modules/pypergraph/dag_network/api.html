@@ -75,33 +75,35 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pypergraph.dag_network.api</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.reward</span> <span class="kn">import</span> <span class="n">Reward</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_core.rest_api_client</span> <span class="kn">import</span> <span class="n">RestAPIClient</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.account</span> <span class="kn">import</span> <span class="n">Balance</span><span class="p">,</span> <span class="n">LastReference</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.transaction</span> <span class="kn">import</span> <span class="n">PendingTransaction</span><span class="p">,</span> <span class="n">BlockExplorerTransaction</span><span class="p">,</span> <span class="n">SignedTransaction</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.network</span> <span class="kn">import</span> <span class="n">TotalSupply</span><span class="p">,</span> <span class="n">PeerInfo</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.snapshot</span> <span class="kn">import</span> <span class="n">Snapshot</span><span class="p">,</span> <span class="n">GlobalSnapshot</span><span class="p">,</span> <span class="n">CurrencySnapshot</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.snapshot</span> <span class="kn">import</span> <span class="n">Snapshot</span><span class="p">,</span> <span class="n">GlobalSnapshot</span><span class="p">,</span> <span class="n">CurrencySnapshot</span><span class="p">,</span> <span class="n">Ordinal</span><span class="p">,</span> <span class="n">SignedBlock</span>
 
 
 <div class="viewcode-block" id="LoadBalancerApi">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi">[docs]</a>
 <span class="k">class</span> <span class="nc">LoadBalancerApi</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
-            <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LoadBalancerApi :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="k">if</span> <span class="n">host</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LoadBalancerApi :: Load balancer host is not configured.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
+
 
 <div class="viewcode-block" id="LoadBalancerApi.config">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.LoadBalancerApi.config">[docs]</a>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LoadBalancerApi.get_metrics">
@@ -161,18 +163,20 @@
 <span class="k">class</span> <span class="nc">BlockExplorerApi</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
-            <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;BlockExplorerApi :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="k">if</span> <span class="n">host</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;BlockExplorerApi :: Block explorer host is not configured.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 <div class="viewcode-block" id="BlockExplorerApi.config">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.config">[docs]</a>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BlockExplorerApi.get_snapshot">
@@ -338,13 +342,6 @@
         <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BlockExplorerApi.get_checkpoint_block">
-<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_checkpoint_block">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_checkpoint_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-        <span class="c1"># TODO: Block object</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/blocks/</span><span class="si">{</span><span class="nb">hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="BlockExplorerApi.get_latest_currency_snapshot">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_latest_currency_snapshot">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_latest_currency_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurrencySnapshot</span><span class="p">:</span>
@@ -373,13 +370,6 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Reward</span><span class="p">]:</span>
         <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/snapshots/</span><span class="si">{</span><span class="n">hash_or_ordinal</span><span class="si">}</span><span class="s2">/rewards&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Reward</span><span class="o">.</span><span class="n">process_snapshot_rewards</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span></div>
-
-
-<div class="viewcode-block" id="BlockExplorerApi.get_currency_block">
-<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.BlockExplorerApi.get_currency_block">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_currency_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-        <span class="c1"># TODO: Block object</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">metagraph_id</span><span class="si">}</span><span class="s2">/blocks/</span><span class="si">{</span><span class="nb">hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BlockExplorerApi.get_currency_address_balance">
@@ -445,18 +435,20 @@
 <span class="k">class</span> <span class="nc">L0Api</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
-            <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L0Api :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="k">if</span> <span class="n">host</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L0Api :: Layer 0 host is not configured.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
+
 
 <div class="viewcode-block" id="L0Api.config">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.config">[docs]</a>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
 
 
 
@@ -497,7 +489,6 @@
         <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="s2">&quot;/global-snapshots/latest&quot;</span>
         <span class="p">)</span>
-        <span class="c1"># TODO: Blocks</span>
         <span class="k">return</span> <span class="n">GlobalSnapshot</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
 
 
@@ -505,7 +496,7 @@
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L0Api.get_latest_snapshot_ordinal">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_latest_snapshot_ordinal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/global-snapshots/latest/ordinal&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span></div>
+        <span class="k">return</span> <span class="n">Ordinal</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">)</span></div>
 
 
     <span class="c1">#async def get_snapshot(self, id: Union[str, int]) -&gt; Snapshot:</span>
@@ -526,25 +517,26 @@
 </div>
 
 
+    <span class="c1"># TODO: Estimate fee endpoint</span>
+
 <div class="viewcode-block" id="L1Api">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L1Api">[docs]</a>
 <span class="k">class</span> <span class="nc">L1Api</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">host</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
-                <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L0Api :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="k">if</span> <span class="n">host</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L1Api :: Currency layer 1 host is not configured.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 <div class="viewcode-block" id="L1Api.config">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.L1Api.config">[docs]</a>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="L1Api.get_cluster_info">
@@ -584,18 +576,25 @@
 </div>
 
 
+    <span class="c1"># TODO: Estimate fee endpoint</span>
+
 <div class="viewcode-block" id="ML0Api">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api">[docs]</a>
 <span class="k">class</span> <span class="nc">ML0Api</span><span class="p">(</span><span class="n">L0Api</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MDL0Api :: Metagraph layer 0 host is not configured.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
+
 <div class="viewcode-block" id="ML0Api.config">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api.config">[docs]</a>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
 
 
     <span class="c1"># State Channel Token</span>
@@ -617,14 +616,14 @@
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api.get_address_balance">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_address_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Balance</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/balance&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ML0Api.get_address_balance_at_ordinal">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML0Api.get_address_balance_at_ordinal">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_address_balance_at_ordinal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Balance</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/currency/</span><span class="si">{</span><span class="n">ordinal</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/balance&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Balance</span><span class="p">(</span><span class="o">**</span><span class="n">result</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
 </div>
 
 
@@ -633,7 +632,21 @@
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML1Api">[docs]</a>
 <span class="k">class</span> <span class="nc">ML1Api</span><span class="p">(</span><span class="n">L1Api</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MDL1Api :: Metagraph currency layer 1 host is not configured.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
+
+<div class="viewcode-block" id="ML1Api.config">
+<a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.ML1Api.config">[docs]</a>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="MDL1Api">
@@ -641,19 +654,19 @@
 <span class="k">class</span> <span class="nc">MDL1Api</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">host</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Adding default prefix &#39;http://&#39; since &#39;host&#39; param is missing &#39;http://&#39; or &#39;https:// prefix.&quot;</span><span class="p">)</span>
-                <span class="n">host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L0Api :: Invalid host: </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="k">if</span> <span class="n">host</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MDL1Api :: Metagraph data layer 1 host is not configured.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 <div class="viewcode-block" id="MDL1Api.config">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.MDL1Api.config">[docs]</a>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL dynamically.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconfigure the RestAPIClient&#39;s base URL.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">RestAPIClient</span><span class="p">(</span><span class="n">host</span><span class="p">)</span></div>
 
 
     <span class="c1"># Metrics</span>
@@ -679,7 +692,7 @@
 
 <div class="viewcode-block" id="MDL1Api.post_data">
 <a class="viewcode-back" href="../../../pypergraph.dag_network.html#pypergraph.dag_network.api.MDL1Api.post_data">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">post_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="p">:</span> <span class="n">SignedTransaction</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">post_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Offer data update object for processing.</span>
 <span class="sd">        {</span>
@@ -695,6 +708,8 @@
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/data&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">tx</span><span class="p">)</span></div>
 </div>
 
+
+    <span class="c1"># TODO: Estimate fee endpoint</span>
 
 </pre></div>
 

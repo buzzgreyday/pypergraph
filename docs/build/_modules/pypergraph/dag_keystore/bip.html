@@ -152,16 +152,16 @@
 
 <div class="viewcode-block" id="Bip39.mnemonic">
 <a class="viewcode-back" href="../../../pypergraph.dag_keystore.html#pypergraph.dag_keystore.bip.Bip39.mnemonic">[docs]</a>
-    <span class="k">def</span> <span class="nf">mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :return: Dictionary with Mnemonic object, mnemonic phrase, mnemonic seed, mnemonic entropy.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: model</span>
         <span class="n">mnemo</span> <span class="o">=</span> <span class="n">Mnemonic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
         <span class="n">words</span> <span class="o">=</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">strength</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strength</span><span class="p">)</span>
-        <span class="n">seed</span> <span class="o">=</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">to_seed</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-        <span class="n">entropy</span> <span class="o">=</span> <span class="n">mnemo</span><span class="o">.</span><span class="n">to_entropy</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mnemo&quot;</span><span class="p">:</span> <span class="n">mnemo</span><span class="p">,</span> <span class="s2">&quot;words&quot;</span><span class="p">:</span> <span class="n">words</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="n">seed</span><span class="p">,</span> <span class="s2">&quot;entropy&quot;</span><span class="p">:</span> <span class="n">entropy</span><span class="p">}</span></div>
+        <span class="c1">#seed = mnemo.to_seed(words)</span>
+        <span class="c1">#entropy = mnemo.to_entropy(words)</span>
+        <span class="k">return</span> <span class="n">words</span></div>
 
 
 <div class="viewcode-block" id="Bip39.get_seed_from_mnemonic">

@@ -72,12 +72,22 @@ Send $DAG Currency Transaction
 
 .. code-block:: python
 
+    # Create and login to account
+    seed_phrase = "abandon abandon ..." # 12 words seed phrase
+    account = DagAccount()
+    account.login_with_seed_phrase(seed_phrase)
+    hash = await account.transfer(to_address=to_address, amount=100000000, fee=200000)
+
+***Or...***
+
+.. code-block:: python
+
     import asyncio
     from pypergraph.dag_account import DagAccount
 
     async def send_dag():
         # Create and login to account
-        seed_phrase = "abandon abandon ..."
+        seed_phrase = "abandon abandon ..." # 12 words seed phrase
         account = DagAccount()
         account.login_with_seed_phrase(words=seed_phrase)
 
@@ -94,6 +104,11 @@ Send $DAG Currency Transaction
         print("Transaction Hash:", tx_hash)
 
     asyncio.run(send_dag())
+
+.. dropdown:: Transaction Signing
+    :animate: fade-in
+
+    Placeholder
 
 .. dropdown:: DagAccount Network Parameters
     :animate: fade-in

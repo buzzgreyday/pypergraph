@@ -103,7 +103,7 @@
 
 <span class="c1"># Generate a new mnemonic seed phrase</span>
 <span class="n">mnemonic</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">get_mnemonic</span><span class="p">()</span>
-<span class="n">seed_phrase</span> <span class="o">=</span> <span class="n">mnemonic</span><span class="o">.</span><span class="n">words</span>  <span class="c1"># or mnemonic[&quot;words&quot;] if it&#39;s a dictionary</span>
+<span class="n">seed_phrase</span> <span class="o">=</span> <span class="n">mnemonic</span>
 
 <span class="c1"># Store the seed phrase securely before proceeding</span>
 <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
@@ -156,12 +156,20 @@
 <h2>Send Transactions<a class="headerlink" href="#send-transactions" title="Link to this heading"></a></h2>
 <section id="send-dag-currency-transaction">
 <h3>Send $DAG Currency Transaction<a class="headerlink" href="#send-dag-currency-transaction" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create and login to account</span>
+<span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ...&quot;</span> <span class="c1"># 12 words seed phrase</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">seed_phrase</span><span class="p">)</span>
+<span class="nb">hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">transfer</span><span class="p">(</span><span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>*Or…*</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">DagAccount</span>
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_dag</span><span class="p">():</span>
     <span class="c1"># Create and login to account</span>
-    <span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ...&quot;</span>
+    <span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ...&quot;</span> <span class="c1"># 12 words seed phrase</span>
     <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
     <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
 
@@ -181,6 +189,11 @@
 </pre></div>
 </div>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Transaction Signing</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Placeholder</p>
+</div>
+</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">DagAccount Network Parameters</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <p class="sd-card-text">Configure network endpoints when calling <code class="docutils literal notranslate"><span class="pre">account.connect()</span></code>:</p>
