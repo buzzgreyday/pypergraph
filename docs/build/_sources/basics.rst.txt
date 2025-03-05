@@ -78,7 +78,7 @@ Send $DAG Currency Transaction
     account.login_with_seed_phrase(seed_phrase)
     hash = await account.transfer(to_address=to_address, amount=100000000, fee=200000)
 
-***Or...***
+**`Or...`**
 
 .. code-block:: python
 
