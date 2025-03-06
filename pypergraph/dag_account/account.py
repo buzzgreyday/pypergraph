@@ -4,7 +4,6 @@ from datetime import datetime
 
 import base58
 import hashlib
-import time
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -19,12 +18,9 @@ from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
 
 
-DAG_DECIMALS = Decimal('100000000')  # Assuming DAG uses 8 decimals
-
-
 class DagAccount:
 
-    network: Optional[DagTokenNetwork] = DagTokenNetwork()
+    network: DagTokenNetwork = DagTokenNetwork()
     key_trio: Optional[KeyTrio] = None
     emitter = AsyncIOEventEmitter()
 
@@ -37,7 +33,18 @@ class DagAccount:
             l0_lb_url: Optional[str] = None,
             l1_lb_url: Optional[str] = None
     ) -> "DagAccount":
-        """Configure the network connection."""
+        """
+        Configure the DagAccount network instance. Parameter 'network_id' can be used to change between 'testnet',
+        'integrationnet' or 'mainnet', without further parameter settings. Default: 'mainnet'.
+
+        :param network_id: 'mainnet', 'integrationnet', 'testnet' or any string value.
+        :param be_url: Block Explorer host URL.
+        :param l0_host: Layer 0 host URL.
+        :param cl1_host: Currency Layer 1 host URL.
+        :param l0_lb_url: Layer 0 Load Balancer (if available).
+        :param l1_lb_url: Layer 1 Load Balancer (if available).
+        :return: Configured DagAccount object.
+        """
 
         self.network = DagTokenNetwork()
         self.network.config(network_id, be_url, l0_host, cl1_host, l0_lb_url, l1_lb_url)
@@ -45,35 +52,90 @@ class DagAccount:
 
     @property
     def address(self):
+        """
+        Requires login. Get the DagAccount DAG address.
+        See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and login_with_public_key(public_key=)
+
+        :return: DAG address.
+        """
         if not self.key_trio or not self.key_trio.address:
             raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
         return self.key_trio.address
 
     @property
     def public_key(self):
+        """
+        Requires login. Get the DagAccount public key.
+        See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and login_with_public_key(public_key=)
+
+        This method does not support transfer of data or currency, due to missing private key.
+
+        :return: Public key.
+        """
+        if not self.key_trio or not self.key_trio.public_key:
+            raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
         return self.key_trio.public_key
 
     @property
     def private_key(self):
+        """
+        Requires login. Get the DagAccount private key.
+        See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and login_with_public_key(public_key=)
+
+        :return: Private key.
+        """
+        if not self.key_trio or not self.key_trio.private_key:
+            raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
         return self.key_trio.private_key
 
     def login_with_seed_phrase(self, words: str):
+        """
+        Login with a 12 word seed phrase. Before transferring data or currency you need to login using a seed phrase
+        or private key.
+
+        :param words: 12 word seed phrase.
+        :return:
+        """
         private_key = KeyStore.get_private_key_from_mnemonic(words)
         self.login_with_private_key(private_key)
 
     def login_with_private_key(self, private_key: str):
+        """
+        Login with a private key. Before transferring data or currency you need to login using a seed phrase
+        or private key.
+
+        :param private_key: Private key.
+        :return:
+        """
         public_key = KeyStore.get_public_key_from_private(private_key)
         address = KeyStore.get_dag_address_from_public_key(public_key)
         self._set_keys_and_address(private_key, public_key, address)
 
     def login_with_public_key(self, public_key: str):
+        """
+        Login with public key. This method does not enable the account to transfer data or currency.
+        See: login_with_seed_phrase(words=) or login_with_private_key(private_key=)
+
+        :param public_key:
+        :return:
+        """
         address = KeyStore.get_dag_address_from_public_key(public_key)
         self._set_keys_and_address(None, public_key, address)
 
     def is_active(self):
+        """
+        Check if any account is logged in.
+
+        :return:
+        """
         return self.key_trio is not None
 
     def logout(self):
+        """
+        Logout the active account (delete key trio) .
+
+        :return:
+        """
         self.key_trio = None
         self.emitter.emit("session_change", True)
 
@@ -88,12 +150,23 @@ class DagAccount:
         self.emitter.emit("session_change", True)
 
     async def get_balance(self):
+        """
+        Get the balance for the active account.
+
+        :return:
+        """
         return await self.get_balance_for(self.address)
 
     async def get_balance_for(self, address: str):
+        """
+        Get balance for a given DAG address. Returned as integer with 8 decimals.
+
+        :param address: DAG address.
+        :return: 0 or 8 decimal integer.
+        """
         response = await self.network.get_address_balance(address)
-        if response and isinstance(response.balance, (int, float)):
-            return int(Decimal(response.balance))
+        if response:
+            return int(response.balance)
         return 0
 
     async def generate_signed_transaction(
@@ -101,8 +174,19 @@ class DagAccount:
             to_address: str,
             amount: int,
             fee: int = 0,
-            last_ref=None
+            last_ref: Optional[Union[dict, LastReference]] = None
     ) -> Tuple[SignedTransaction, str]:
+        """
+        Generate a signed currency transaction from the currently active account.
+
+        :param to_address: Recipient DAG address.
+        :param amount: Integer with 8 decimals constituting the amount to transfer from the active account.
+        :param fee: (Optional) a minimum fee might be required if the active account is transaction limited.
+        :param last_ref: (Optional) The ordinal and hash of the last transaction from the active account.
+        :return: Signed transaction and the transaction hash.
+        """
+        if isinstance(last_ref, dict):
+            last_ref = LastReference(**last_ref)
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
         tx, hash_ = KeyStore.prepare_tx(amount=amount, to_address=to_address, from_address=self.key_trio.address, last_ref=last_ref, fee=fee)
         signature = KeyStore.sign(self.key_trio.private_key, hash_)
@@ -116,11 +200,11 @@ class DagAccount:
 
     async def transfer(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False) -> dict:
         """
-        Build transaction, sign and send.
+        Build currency transaction, sign and transfer from the active account.
 
         :param to_address: DAG address
-        :param amount: Amount with 8 decimals (e.g. 100000000 = 1 DAG)
-        :param fee: Fee with 8 deciamls (e.g. 20000 = 0.0002 DAG)
+        :param amount: Integer with 8 decimals (e.g. 100000000 = 1 DAG)
+        :param fee: Integer with 8 decimals (e.g. 20000 = 0.0002 DAG)
         :param auto_estimate_fee:
         :return:
         """
@@ -176,11 +260,23 @@ class DagAccount:
 
         return False
 
-    async def generate_batch_transactions(self, transfers: List[dict], last_ref: Optional[dict] = None):
+    async def generate_batch_transactions(self, transfers: List[dict], last_ref: Optional[Union[dict, LastReference]] = None):
+        """
+        Generate a batch of transactions to be transferred from the active account.
 
+        :param transfers: List of dictionaries, e.g. txn_data = [
+        {'to_address': to_address, 'amount': 10000000, 'fee': 200000},
+        {'to_address': to_address, 'amount': 5000000, 'fee': 200000},
+        {'to_address': to_address, 'amount': 2500000, 'fee': 200000},
+        {'to_address': to_address, 'amount': 1, 'fee': 200000}
+        ]
+        :param last_ref: (Optional) Dictionary or with the account's last transaction hash and ordinal.
+        :return: List of transactions to be transferred (see: transfer_batch_transactions(transactions=))
+        """
+        if isinstance(last_ref, dict):
+            last_ref = LastReference(**last_ref)
         if not last_ref:
             last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
-            last_ref = last_ref.model_dump()
 
         txns = []
         for transfer in transfers:
@@ -190,16 +286,16 @@ class DagAccount:
                 fee=transfer["fee"],
                 last_ref=last_ref
             )
-            last_ref = {
-                "hash": hash_,
-                "ordinal": last_ref["ordinal"] + 1,
-            }
+            last_ref = LastReference(
+                ordinal=last_ref.ordinal + 1,
+                hash=hash_
+            )
 
             txns.append(transaction)
 
         return txns
 
-    async def send_batch_transactions(self, transactions: List[SignedTransaction]):
+    async def transfer_batch_transactions(self, transactions: List[SignedTransaction]):
 
         hashes = []
         for txn in transactions:
@@ -209,10 +305,8 @@ class DagAccount:
         return hashes
 
     async def transfer_dag_batch(self, transfers: List[dict], last_ref: Optional[Union[dict, LastReference]] = None):
-        if isinstance(last_ref, LastReference):
-            last_ref = last_ref.model_dump()
         txns = await self.generate_batch_transactions(transfers, last_ref)
-        return await self.send_batch_transactions(txns)
+        return await self.transfer_batch_transactions(txns)
 
     @staticmethod
     def validate_address(address: str) -> bool:
@@ -339,13 +433,10 @@ class MetagraphTokenClient:
 
         tx, hash_ = await self.account.generate_signed_transaction(to_address, amount, fee, last_ref)
 
-        if "edge" in tx:
-            raise ValueError("Unable to post v1 transaction")
-
         tx_hash = await self.network.post_transaction(tx)
         if tx_hash:
             return {
-                "timestamp": int(time.time() * 1000),
+                "timestamp": datetime.now(),
                 "hash": tx_hash,
                 "amount": amount,
                 "receiver": to_address,
@@ -369,33 +460,40 @@ class MetagraphTokenClient:
 
         return False
 
-    async def generate_batch_transactions(self, transfers: List[Dict[str, Any]], last_ref: Optional[Dict[str, Any]] = None):
+    async def generate_batch_transactions(self, transfers: List[Dict[str, Any]], last_ref: Optional[Union[Dict[str, Any], LastReference]] = None):
+        if isinstance(last_ref, LastReference):
+            last_ref = last_ref.model_dump()
         if not last_ref:
             last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+            last_ref = last_ref.model_dump()
 
         txns = []
         for transfer in transfers:
             transaction, hash_ = await self.account.generate_signed_transaction(
-                transfer["address"],
+                transfer["to_address"],
                 transfer["amount"],
                 transfer.get("fee", 0),
                 last_ref
             )
-            last_ref = {"hash": hash_, "ordinal": last_ref["ordinal"] + 1}
+            last_ref = {
+                "hash": hash_,
+                "ordinal": last_ref["ordinal"] + 1
+            }
             txns.append(transaction)
 
         return txns
 
-    async def send_batch_transactions(self, transactions: List[SignedTransaction]):
+    async def transfer_batch_transactions(self, transactions: List[SignedTransaction]):
         hashes = []
         for txn in transactions:
             tx_hash = await self.network.post_transaction(txn)
             hashes.append(tx_hash)
         return hashes
 
-    async def transfer_batch(self, transfers: List[Dict[str, Any]], last_ref: Optional[Dict[str, Any]] = None):
+    async def transfer_batch(self, transfers: List[Dict[str, Any]], last_ref: Optional[Union[Dict[str, Any], LastReference]] = None):
+        # Metagraph like PACA doesn't seem to support this, needs to wait for the transaction to appear
         txns = await self.generate_batch_transactions(transfers, last_ref)
-        return await self.send_batch_transactions(txns)
+        return await self.transfer_batch_transactions(txns)
 
     async def wait(self, time_in_seconds: int = 5):
         await asyncio.sleep(time_in_seconds)

@@ -3,7 +3,6 @@ import pytest
 from pypergraph.dag_core.exceptions import NetworkError
 from pypergraph.dag_network import DagTokenNetwork
 from pypergraph.dag_account import DagAccount, MetagraphTokenClient
-from pypergraph.dag_network.models import LastReference
 
 
 @pytest.fixture
@@ -178,22 +177,31 @@ async def test_currency_batch_transfer(network):
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
     account.connect(network_id='testnet')
-    last_ref = await account.network.get_address_last_accepted_transaction_ref(account.address)
-    failed = []
+    # last_ref = await account.network.get_address_last_accepted_transaction_ref(account.address)
 
     txn_data = [
-        {'to_address': to_address, 'amount': 100000000, 'fee': 2000000},
-        {'to_address': to_address, 'amount': 50000000, 'fee': 2000000},
-        {'to_address': to_address, 'amount': 25000000, 'fee': 2000000},
-        {'to_address': to_address, 'amount': 10, 'fee': 2000000}
+        {'to_address': to_address, 'amount': 10000000, 'fee': 200000},
+        {'to_address': to_address, 'amount': 5000000, 'fee': 200000},
+        {'to_address': to_address, 'amount': 2500000, 'fee': 200000},
+        {'to_address': to_address, 'amount': 1, 'fee': 200000}
     ]
     try:
-        r = await account.transfer_dag_batch(transfers=txn_data, last_ref=last_ref)
-        print(r)
+        r = await account.transfer_dag_batch(transfers=txn_data)
         assert len(r) == 4
     except NetworkError as e:
-        failed.append(e)
-        print(failed)
+        pytest.skip(e)
+    """PACA Metagraph doesn't function well with bulk transfers, it seems"""
+    # metagraph_account = MetagraphTokenClient(
+    #     account=account,
+    #     metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
+    #     l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
+    #     cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+    # )
+    # last_ref = await metagraph_account.network.get_address_last_accepted_transaction_ref(account.address)
+    # r = await metagraph_account.transfer_batch(transfers=txn_data)
+    # assert len(r) == 4
+
+
 
 
 

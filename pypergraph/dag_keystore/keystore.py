@@ -31,10 +31,6 @@ class KeyStore:
     DATA_SIGN_PREFIX = "\u0019Constellation Signed Data:\n"
 
     @staticmethod
-    def _double_hash(msg: str) -> str:
-        return hashlib.sha512(hashlib.sha256(bytes.fromhex(msg)).hexdigest().encode("utf-8")).hexdigest()
-
-    @staticmethod
     def prepare_tx(
             amount: int,
             to_address: str,
@@ -72,10 +68,7 @@ class KeyStore:
 
         kryo = Kryo()
         serialized_tx = kryo.serialize(msg=encoded_tx, set_references=False)
-        #hash_value = KeyStore._double_hash(serialized_tx)
         hash_value = hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest()
-        print(hash_value)
-
 
         return tx, hash_value
 
@@ -137,7 +130,6 @@ class KeyStore:
         """ Serialize """
         serialized = msg.encode('utf-8')
 
-        # hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
         hash_ = hashlib.sha256(serialized).hexdigest()
         """ Sign """
         signature = self.sign(private_key, hash_)
@@ -147,8 +139,8 @@ class KeyStore:
     #    return msg.encode("utf-8").hex()
 
     def personal_sign(self, msg, private_key) -> str:
+        # TODO: How is this used?
         message = f"{self.PERSONAL_SIGN_PREFIX}{len(msg)}\n{msg}"
-        # TODO: Might need hashing?
         return self.sign(private_key, message)
 
 
