@@ -6,13 +6,14 @@ import base58
 import hashlib
 import time
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from pyee.asyncio import AsyncIOEventEmitter
 
 from pypergraph.dag_core.constants import PKCS_PREFIX
 from pypergraph.dag_account.models.key_trio import KeyTrio
 from pypergraph.dag_keyring.accounts import DagAccount
+from pypergraph.dag_network.models import LastReference
 from pypergraph.dag_network.models.transaction import SignatureProof, SignedTransaction
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.network import DagTokenNetwork, MetagraphTokenNetwork
@@ -179,16 +180,16 @@ class DagAccount:
 
         if not last_ref:
             last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+            last_ref = last_ref.model_dump()
 
         txns = []
         for transfer in transfers:
             transaction, hash_ = await self.generate_signed_transaction(
-                transfer["address"],
-                transfer["amount"],
-                transfer["fee"],
-                last_ref
+                to_address=transfer["to_address"],
+                amount=transfer["amount"],
+                fee=transfer["fee"],
+                last_ref=last_ref
             )
-
             last_ref = {
                 "hash": hash_,
                 "ordinal": last_ref["ordinal"] + 1,
@@ -207,7 +208,9 @@ class DagAccount:
 
         return hashes
 
-    async def transfer_dag_batch(self, transfers: List[dict], last_ref: Optional[dict] = None):
+    async def transfer_dag_batch(self, transfers: List[dict], last_ref: Optional[Union[dict, LastReference]] = None):
+        if isinstance(last_ref, LastReference):
+            last_ref = last_ref.model_dump()
         txns = await self.generate_batch_transactions(transfers, last_ref)
         return await self.send_batch_transactions(txns)
 
@@ -288,7 +291,7 @@ class MetagraphTokenClient:
         valid_address = self.account.validate_address(metagraph_id)
         if not metagraph_id or not valid_address:
             raise ValueError(
-                f"MetagraphTokenClient :: Parameter 'metagraph_id' must be a DAG address."
+                "MetagraphTokenClient :: Parameter 'metagraph_id' must be a DAG address."
             )
 
         self.network = MetagraphTokenNetwork(
@@ -348,7 +351,7 @@ class MetagraphTokenClient:
                 "receiver": to_address,
                 "fee": fee,
                 "sender": self.address,
-                "ordinal": last_ref["ordinal"],
+                "ordinal": last_ref.ordinal,
                 "pending": True,
                 "status": "POSTED",
             }

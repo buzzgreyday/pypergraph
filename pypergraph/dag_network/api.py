@@ -5,7 +5,7 @@ from pypergraph.dag_core.rest_api_client import RestAPIClient
 from pypergraph.dag_network.models.account import Balance, LastReference
 from pypergraph.dag_network.models.transaction import PendingTransaction, BlockExplorerTransaction, SignedTransaction
 from pypergraph.dag_network.models.network import TotalSupply, PeerInfo
-from pypergraph.dag_network.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot, Ordinal, SignedBlock
+from pypergraph.dag_network.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot, Ordinal
 
 
 class LoadBalancerApi:
@@ -16,7 +16,7 @@ class LoadBalancerApi:
     @property
     def service(self):
         if not self._service:
-            raise ValueError(f"LoadBalancerApi :: Load balancer host is not configured.")
+            raise ValueError("LoadBalancerApi :: Load balancer host is not configured.")
         return self._service
 
 
@@ -63,7 +63,7 @@ class BlockExplorerApi:
     @property
     def service(self):
         if not self._service:
-            raise ValueError(f"BlockExplorerApi :: Block explorer host is not configured.")
+            raise ValueError("BlockExplorerApi :: Block explorer host is not configured.")
         return self._service
 
     def config(self, host: str):
@@ -271,7 +271,7 @@ class L0Api:
     @property
     def service(self):
         if not self._service:
-            raise ValueError(f"L0Api :: Layer 0 host is not configured.")
+            raise ValueError("L0Api :: Layer 0 host is not configured.")
         return self._service
 
 
@@ -333,7 +333,7 @@ class L1Api:
     @property
     def service(self):
         if not self._service:
-            raise ValueError(f"L1Api :: Currency layer 1 host is not configured.")
+            raise ValueError("L1Api :: Currency layer 1 host is not configured.")
         return self._service
 
     def config(self, host: str):
@@ -370,7 +370,7 @@ class ML0Api(L0Api):
     @property
     def service(self):
         if not self._service:
-            raise ValueError(f"ML0Api :: Metagraph layer 0 host is not configured.")
+            raise ValueError("ML0Api :: Metagraph layer 0 host is not configured.")
         return self._service
 
     def config(self, host: str):
@@ -402,7 +402,7 @@ class ML1Api(L1Api):
     @property
     def service(self):
         if not self._service:
-            raise ValueError(f"ML1Api :: Metagraph currency layer 1 host is not configured.")
+            raise ValueError("ML1Api :: Metagraph currency layer 1 host is not configured.")
         return self._service
 
     def config(self, host: str):
@@ -418,7 +418,7 @@ class MDL1Api:
     @property
     def service(self):
         if not self._service:
-            raise ValueError(f"MDL1Api :: Metagraph data layer 1 host is not configured.")
+            raise ValueError("MDL1Api :: Metagraph data layer 1 host is not configured.")
         return self._service
 
     def config(self, host: str):

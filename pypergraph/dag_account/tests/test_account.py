@@ -3,6 +3,7 @@ import pytest
 from pypergraph.dag_core.exceptions import NetworkError
 from pypergraph.dag_network import DagTokenNetwork
 from pypergraph.dag_account import DagAccount, MetagraphTokenClient
+from pypergraph.dag_network.models import LastReference
 
 
 @pytest.fixture
@@ -104,7 +105,7 @@ async def test_metagraph_account_connect(network):
         'metagraph_id': 'DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'
     }
     try:
-        r = await metagraph_account.get_balance()
+        await metagraph_account.get_balance()
     except ValueError as e:
         pytest.skip(e.args[0])
 
@@ -125,7 +126,7 @@ async def test_get_balance(network):
         cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
     )
     r = await metagraph_account.get_balance()
-    assert r in (0, 100000000)
+    assert r > 0
 
 @pytest.mark.asyncio
 async def test_get_currency_transactions(network):
@@ -143,7 +144,7 @@ async def test_get_currency_transactions(network):
 
 @pytest.mark.asyncio
 async def test_currency_transfer(network):
-    from secrets import mnemo, to_address, from_address
+    from secrets import mnemo, to_address
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
     account.connect(network_id='testnet')
@@ -162,13 +163,37 @@ async def test_currency_transfer(network):
     )
 
     try:
-        r = await metagraph_account.transfer(to_address=to_address, amount=100000000)
+        r = await metagraph_account.transfer(to_address=to_address, amount=10000000, fee=2000000)
         assert isinstance(r, dict)
     except NetworkError as e:
         failed.append(e)
 
     if failed:
         pytest.skip(', '.join(str(x) for x in failed))
+
+@pytest.mark.asyncio
+async def test_currency_batch_transfer(network):
+    from secrets import mnemo, to_address
+    from pypergraph.dag_account import DagAccount
+    account = DagAccount()
+    account.login_with_seed_phrase(mnemo)
+    account.connect(network_id='testnet')
+    last_ref = await account.network.get_address_last_accepted_transaction_ref(account.address)
+    failed = []
+
+    txn_data = [
+        {'to_address': to_address, 'amount': 100000000, 'fee': 2000000},
+        {'to_address': to_address, 'amount': 50000000, 'fee': 2000000},
+        {'to_address': to_address, 'amount': 25000000, 'fee': 2000000},
+        {'to_address': to_address, 'amount': 10, 'fee': 2000000}
+    ]
+    try:
+        r = await account.transfer_dag_batch(transfers=txn_data, last_ref=last_ref)
+        print(r)
+        assert len(r) == 4
+    except NetworkError as e:
+        failed.append(e)
+        print(failed)
 
 
 

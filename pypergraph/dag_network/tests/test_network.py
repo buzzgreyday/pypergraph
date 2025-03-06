@@ -471,8 +471,8 @@ async def test_post_metagraph_data_transaction(network):
     keystore = KeyStore()
     pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
 
-    todo_tx_value = build_todo_tx()
-    poll_tx_value = build_voting_poll_tx()
+    # todo_tx_value = build_todo_tx()
+    # poll_tx_value = build_voting_poll_tx()
     water_and_energy_tx_value = build_water_and_energy_usage_tx()
 
     msg = water_and_energy_tx_value

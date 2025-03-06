@@ -1,6 +1,6 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Annotated
 
-from pydantic import BaseModel, Field, constr, model_validator
+from pydantic import BaseModel, Field, model_validator, StringConstraints, constr
 
 from pypergraph.dag_core.constants import DAG_MAX
 

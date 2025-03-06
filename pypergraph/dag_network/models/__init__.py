@@ -7,6 +7,6 @@ from .transaction import BaseTransaction, PostTransactionResponse, PendingTransa
 __all__ = [
     "LastReference", "Balance", "NetworkInfo", "PeerInfo", "TotalSupply",
     "Ordinal", "Reward", "StateProof", "GlobalSnapshotValue", "GlobalSnapshot",
-    "Snapshot", "CurrencySnapshot", "PostTransactionResponse", "PendingTransaction",
+    "Snapshot", "LastCurrencySnapshotProof","CurrencySnapshot", "BaseTransaction", "PostTransactionResponse", "PendingTransaction",
     "Transaction", "SignatureProof", "SignedTransaction", "BlockExplorerTransaction"
 ]

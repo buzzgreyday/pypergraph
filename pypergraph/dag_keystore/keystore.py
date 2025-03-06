@@ -2,8 +2,7 @@ import base64
 import json
 from decimal import Decimal
 import random
-from inspect import signature
-from typing import Tuple, Any, Callable, Optional, Union, Literal
+from typing import Tuple, Callable, Optional, Union, Literal
 
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
@@ -73,7 +72,10 @@ class KeyStore:
 
         kryo = Kryo()
         serialized_tx = kryo.serialize(msg=encoded_tx, set_references=False)
-        hash_value = KeyStore._double_hash(serialized_tx)
+        #hash_value = KeyStore._double_hash(serialized_tx)
+        hash_value = hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest()
+        print(hash_value)
+
 
         return tx, hash_value
 
@@ -135,7 +137,8 @@ class KeyStore:
         """ Serialize """
         serialized = msg.encode('utf-8')
 
-        hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
+        # hash_ = hashlib.sha512(hashlib.sha256(serialized).hexdigest().encode("utf-8")).hexdigest()
+        hash_ = hashlib.sha256(serialized).hexdigest()
         """ Sign """
         signature = self.sign(private_key, hash_)
         return signature, hash_
@@ -206,7 +209,9 @@ class KeyStore:
             canonical_signature_der = _enforce_canonical_signature(signature_der)
             return canonical_signature_der.hex()
 
-        return _sign_deterministic_canonical(private_key_hex=private_key_hex, tx_hash=bytes.fromhex(tx_hash))
+        tx_hash = hashlib.sha512(tx_hash.encode("utf-8")).digest()
+
+        return _sign_deterministic_canonical(private_key_hex=private_key_hex, tx_hash=tx_hash)
 
     @staticmethod
     def verify(public_key_hex, tx_hash, signature_hex) -> bool:
@@ -218,13 +223,13 @@ class KeyStore:
         :param signature_hex:
         :return: True or False
         """
-
+        tx_hash = hashlib.sha512(tx_hash.encode("utf-8")).digest()
         vk = VerifyingKey.from_string(bytes.fromhex(public_key_hex), curve=SECP256k1)
         try:
             # Use verify_digest for prehashed input
             valid = vk.verify_digest(
                 bytes.fromhex(signature_hex),
-                bytes.fromhex(tx_hash)[:32],  # Prehashed hash
+                tx_hash[:32],  # Prehashed hash
                 sigdecode=sigdecode_der
             )
             return valid
