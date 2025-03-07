@@ -228,6 +228,12 @@ class DagAccount:
             }
 
     async def wait_for_checkpoint_accepted(self, hash: str):
+        """
+        Check if transaction has been processed.
+
+        :param hash: Transaction hash.
+        :return: True if processed, False if not processed.
+        """
         txn = None
         try:
             txn = await self.network.get_pending_transaction(hash)
@@ -245,7 +251,13 @@ class DagAccount:
         return True
 
 
-    async def wait_for_balance_change(self, initial_value: Optional[Decimal] = None):
+    async def wait_for_balance_change(self, initial_value: Optional[int] = None):
+        """
+        Check if balance changed since initial value.
+
+        :param initial_value:
+        :return: True if balance changed, False if no change.
+        """
         if initial_value is None:
             initial_value = await self.get_balance()
             await self.wait(5)
@@ -265,11 +277,11 @@ class DagAccount:
         Generate a batch of transactions to be transferred from the active account.
 
         :param transfers: List of dictionaries, e.g. txn_data = [
-        {'to_address': to_address, 'amount': 10000000, 'fee': 200000},
-        {'to_address': to_address, 'amount': 5000000, 'fee': 200000},
-        {'to_address': to_address, 'amount': 2500000, 'fee': 200000},
-        {'to_address': to_address, 'amount': 1, 'fee': 200000}
-        ]
+            {'to_address': to_address, 'amount': 10000000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 5000000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 2500000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 1, 'fee': 200000}
+            ]
         :param last_ref: (Optional) Dictionary or with the account's last transaction hash and ordinal.
         :return: List of transactions to be transferred (see: transfer_batch_transactions(transactions=))
         """
@@ -296,6 +308,12 @@ class DagAccount:
         return txns
 
     async def transfer_batch_transactions(self, transactions: List[SignedTransaction]):
+        """
+        Send a batch (list) of signed currency transactions.
+
+        :param transactions: [SignedTransaction, ... ]
+        :return: List of transaction hashes.
+        """
 
         hashes = []
         for txn in transactions:
@@ -305,11 +323,29 @@ class DagAccount:
         return hashes
 
     async def transfer_dag_batch(self, transfers: List[dict], last_ref: Optional[Union[dict, LastReference]] = None):
+        """
+        Build and send $DAG currency transactions.
+
+        :param transfers: List of dictionaries, e.g. txn_data = [
+            {'to_address': to_address, 'amount': 10000000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 5000000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 2500000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 1, 'fee': 200000}
+            ]
+        :param last_ref: Dictionary with former ordinal and transaction hash, e.g.: {'ordinal': x, 'hash': y}.
+        :return:
+        """
         txns = await self.generate_batch_transactions(transfers, last_ref)
         return await self.transfer_batch_transactions(txns)
 
     @staticmethod
     def validate_address(address: str) -> bool:
+        """
+        Check if $DAG address is valid.
+
+        :param address: $DAG address.
+        :return: True if valid, False if invalid.
+        """
         if not address:
             return False
 
@@ -326,8 +362,10 @@ class DagAccount:
 
     def get_address_from_public_key(self, public_key_hex: str) -> str:
         """
+        Generates the $DAG address associated with the account.
+
         :param public_key_hex: The private key as a hexadecimal string.
-        :return: The DAG address corresponding to the public key (node ID).
+        :return: The DAG address corresponding to the public key.
         """
         if len(public_key_hex) == 128:
             public_key = PKCS_PREFIX + "04" + public_key_hex
@@ -360,6 +398,18 @@ class DagAccount:
             cl1_host: Optional[str] = None,
             dl1_host: Optional[str] = None,
             token_decimals: int = 8):
+        """
+        Derive a Metagraph client from the active account to interact with a Metagraph.
+
+        :param account: active DagAccount.
+        :param metagraph_id: Associated Metagraph $DAG address.
+        :param block_explorer_url: (Optional) Block Explorer URL (default: associated account).
+        :param l0_host: (Optional) Layer 0 host URL (port might be required).
+        :param cl1_host: (Optional) Layer 1 currency host URL (port might be required).
+        :param dl1_host: (Optional) Layer 1 data host URL (port might be required).
+        :param token_decimals: (Optional) 1 $DAG = 100000000 (default: 8)
+        :return: MetagraphTokenClient object.
+        """
         return MetagraphTokenClient(
             account=account or self,
             metagraph_id=metagraph_id or self.network.connected_network.metagraph_id,
@@ -377,7 +427,7 @@ class DagAccount:
 
 class MetagraphTokenClient:
     def __init__(
-            self, account: DagAccount, metagraph_id: Optional[str], block_explorer_url: Optional[str] = None,
+            self, account: DagAccount, metagraph_id: str, block_explorer_url: Optional[str] = None,
             l0_host: Optional[str] = None, cl1_host: Optional[str] = None, dl1_host: Optional[str] = None,
             token_decimals: int = 8
     ):
