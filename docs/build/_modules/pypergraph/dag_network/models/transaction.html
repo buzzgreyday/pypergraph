@@ -248,6 +248,27 @@
 
 
 
+<div class="viewcode-block" id="SignedData">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.models.html#pypergraph.dag_network.models.transaction.SignedData">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedData</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Transaction(value=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">, proofs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proofs</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+<div class="viewcode-block" id="SignedData.add_value">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.models.html#pypergraph.dag_network.models.transaction.SignedData.add_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="SignedData.add_proof">
+<a class="viewcode-back" href="../../../../pypergraph.dag_network.models.html#pypergraph.dag_network.models.transaction.SignedData.add_proof">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_proof</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proof</span><span class="p">:</span> <span class="n">SignatureProof</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proof</span><span class="p">)</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="BlockExplorerTransaction">

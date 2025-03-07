@@ -283,7 +283,7 @@ class DagAccount:
             transaction, hash_ = await self.generate_signed_transaction(
                 to_address=transfer["to_address"],
                 amount=transfer["amount"],
-                fee=transfer["fee"],
+                fee=transfer.get("fee", 0),
                 last_ref=last_ref
             )
             last_ref = LastReference(

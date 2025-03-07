@@ -54,9 +54,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#send-transactions">Send Transactions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#send-dag-currency-transaction">Send $DAG Currency Transaction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#send-metagraph-currency-transaction">Send Metagraph Currency Transaction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#send-metagraph-data-transaction">Send Metagraph Data Transaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#single-dag-currency-transaction">Single $DAG Currency Transaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#single-metagraph-currency-transaction">Single Metagraph Currency Transaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bulk-dag-currency-transactions">Bulk $DAG Currency Transactions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bulk-metagraph-currency-transactions">Bulk Metagraph Currency Transactions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metagraph-data-transaction">Metagraph Data Transaction</a></li>
 </ul>
 </li>
 </ul>
@@ -94,6 +96,7 @@
 <section id="create-account-wallet">
 <h2>Create Account/Wallet<a class="headerlink" href="#create-account-wallet" title="Link to this heading"></a></h2>
 <p>In Pypergraph, wallets are referred to as accounts.</p>
+<hr class="docutils" />
 <section id="create-new-account-wallet">
 <h3>Create New Account/Wallet<a class="headerlink" href="#create-new-account-wallet" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span>
@@ -152,15 +155,20 @@
 </div>
 </details></section>
 </section>
+<hr class="docutils" />
 <section id="send-transactions">
 <h2>Send Transactions<a class="headerlink" href="#send-transactions" title="Link to this heading"></a></h2>
-<section id="send-dag-currency-transaction">
-<h3>Send $DAG Currency Transaction<a class="headerlink" href="#send-dag-currency-transaction" title="Link to this heading"></a></h3>
+<section id="single-dag-currency-transaction">
+<h3>Single $DAG Currency Transaction<a class="headerlink" href="#single-dag-currency-transaction" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create and login to account</span>
 <span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ...&quot;</span> <span class="c1"># 12 words seed phrase</span>
 <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
 <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">seed_phrase</span><span class="p">)</span>
-<span class="nb">hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">transfer</span><span class="p">(</span><span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span><span class="p">)</span>
+<span class="nb">hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">transfer</span><span class="p">(</span>
+    <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span>
+    <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>
+    <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Or…</strong></p>
@@ -178,7 +186,7 @@
 
     <span class="c1"># Generate and send transaction</span>
     <span class="n">tx</span><span class="p">,</span> <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
-        <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG2this01is02A03FAKE04DAG05Address06&quot;</span><span class="p">,</span>
+        <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG1testestestestestestestestestt&quot;</span><span class="p">,</span>
         <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>  <span class="c1"># 1 DAG = 100,000,000 units</span>
         <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span>
     <span class="p">)</span>
@@ -230,7 +238,9 @@
         <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">last_ref</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-    <span class="n">last_ref</span> <span class="o">=</span> <span class="n">last_ref</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">last_ref</span> <span class="o">=</span> <span class="n">last_ref</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">address</span>
+    <span class="p">)</span>
     <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">prepare_tx</span><span class="p">(</span>
         <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span>
         <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span>
@@ -248,7 +258,7 @@
 
 <span class="c1"># Generate and send transaction</span>
 <span class="n">tx</span><span class="p">,</span> <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
-    <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG2this01is02A03FAKE04DAG05Address06&quot;</span><span class="p">,</span>
+    <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG1testestestestestestestestest&quot;</span><span class="p">,</span>
     <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>  <span class="c1"># 1 DAG = 100,000,000 units</span>
     <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span>
 <span class="p">)</span>
@@ -274,21 +284,21 @@
 <p class="sd-card-text">Other parameters (<code class="docutils literal notranslate"><span class="pre">l0_url</span></code>, <code class="docutils literal notranslate"><span class="pre">cl1_url</span></code>, etc.) follow similar patterns.</p>
 </div>
 </details></section>
-<section id="send-metagraph-currency-transaction">
-<h3>Send Metagraph Currency Transaction<a class="headerlink" href="#send-metagraph-currency-transaction" title="Link to this heading"></a></h3>
+<section id="single-metagraph-currency-transaction">
+<h3>Single Metagraph Currency Transaction<a class="headerlink" href="#single-metagraph-currency-transaction" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">MetagraphTokenClient</span>
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_metagraph_token</span><span class="p">():</span>
     <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
-    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;your_seed_phrase&quot;</span><span class="p">)</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon abandon ...&quot;</span><span class="p">)</span>
 
     <span class="c1"># Initialize Metagraph client</span>
     <span class="n">metagraph_client</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span>
         <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
         <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span><span class="p">,</span>
         <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://custom-l0-host:9100&quot;</span><span class="p">,</span>  <span class="c1"># Replace with actual endpoints</span>
-        <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://custom-cl1-host:9200&quot;</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://custom-cl1-host:9200&quot;</span> <span class="c1"># Currency layer host</span>
     <span class="p">)</span>
 
     <span class="c1"># Get last transaction reference for the sender</span>
@@ -310,8 +320,76 @@
 </pre></div>
 </div>
 </section>
-<section id="send-metagraph-data-transaction">
-<h3>Send Metagraph Data Transaction<a class="headerlink" href="#send-metagraph-data-transaction" title="Link to this heading"></a></h3>
+<section id="bulk-dag-currency-transactions">
+<h3>Bulk $DAG Currency Transactions<a class="headerlink" href="#bulk-dag-currency-transactions" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network</span> <span class="kn">import</span> <span class="n">DagNetwork</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">DagAccount</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">send_bulk_dag_transactions</span><span class="p">():</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="s2">&quot;abandon abandon ...&quot;</span><span class="p">)</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">network_id</span><span class="o">=</span><span class="s1">&#39;testnet&#39;</span><span class="p">)</span>
+
+    <span class="n">txn_data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">10000000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">5000000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">2500000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">}</span>
+    <span class="p">]</span>
+
+    <span class="n">list_of_tx_hashes</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">transfer_dag_batch</span><span class="p">(</span><span class="n">transfers</span><span class="o">=</span><span class="n">txn_data</span><span class="p">)</span>
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">send_bulk_dag_transactions</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="bulk-metagraph-currency-transactions">
+<h3>Bulk Metagraph Currency Transactions<a class="headerlink" href="#bulk-metagraph-currency-transactions" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">MetagraphTokenClient</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">send_bulk_metagraph_transactions</span><span class="p">():</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon abandon ... &quot;</span><span class="p">)</span>
+
+    <span class="n">metagraph_account</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span>
+        <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
+        <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100&quot;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">txn_data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">10000000</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">5000000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">2500000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">}</span>
+    <span class="p">]</span>
+
+    <span class="n">list_of_transaction_hashes</span> <span class="o">=</span> <span class="k">await</span> <span class="n">metagraph_account</span><span class="o">.</span><span class="n">transfer_batch</span><span class="p">(</span><span class="n">transfers</span><span class="o">=</span><span class="n">txn_data</span><span class="p">)</span>
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">send_bulk_metagraph_transactions</span><span class="p">())</span>
+</pre></div>
+</div>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Batch Transfer Parameters</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<ul>
+<li><p class="sd-card-text"><strong>Transfers</strong>: Dictionary with recipient address and amount to send, fee is optional but recommended due to possible transaction limiting.</p></li>
+<li><p class="sd-card-text"><strong>Last Reference</strong>: It’s possible to parse the last reference as a parameter.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p class="sd-card-text">Use parameter <code class="docutils literal notranslate"><span class="pre">last_ref</span></code>.</p></li>
+<li><p class="sd-card-text">Get last reference using <code class="docutils literal notranslate"><span class="pre">last_ref</span> <span class="pre">=</span> <span class="pre">await</span> <span class="pre">account.network.get_address_last_accepted_transaction_ref(account.address)</span></code> or <code class="docutils literal notranslate"><span class="pre">last_ref</span> <span class="pre">=</span> <span class="pre">await</span> <span class="pre">metagraph_account.network.get_address_last_accepted_transaction_ref(metagraph_account.account.address)</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+</details></section>
+<section id="metagraph-data-transaction">
+<h3>Metagraph Data Transaction<a class="headerlink" href="#metagraph-data-transaction" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span>
@@ -327,9 +405,9 @@
     <span class="c1"># Initialize Metagraph client</span>
     <span class="n">metagraph_client</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span>
         <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
-        <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG6DOES00NOT00MATTER00HERE&quot;</span><span class="p">,</span>
-        <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://localhost:9200&quot;</span><span class="p">,</span>
-        <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://localhost:9300&quot;</span>
+        <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://custom-l0-host:9200&quot;</span><span class="p">,</span>
+        <span class="n">dl1_host</span><span class="o">=</span><span class="s2">&quot;http://custom-dl1-host:9300&quot;</span> <span class="c1"># Data layer host</span>
     <span class="p">)</span>
 
     <span class="c1"># Prepare data payload</span>

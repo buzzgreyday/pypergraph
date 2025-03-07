@@ -81,28 +81,25 @@
 
 <span class="kn">import</span> <span class="nn">base58</span>
 <span class="kn">import</span> <span class="nn">hashlib</span>
-<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">decimal</span> <span class="kn">import</span> <span class="n">Decimal</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">pyee.asyncio</span> <span class="kn">import</span> <span class="n">AsyncIOEventEmitter</span>
 
 <span class="kn">from</span> <span class="nn">pypergraph.dag_core.constants</span> <span class="kn">import</span> <span class="n">PKCS_PREFIX</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_account.models.key_trio</span> <span class="kn">import</span> <span class="n">KeyTrio</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_keyring.accounts</span> <span class="kn">import</span> <span class="n">DagAccount</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models</span> <span class="kn">import</span> <span class="n">LastReference</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.transaction</span> <span class="kn">import</span> <span class="n">SignatureProof</span><span class="p">,</span> <span class="n">SignedTransaction</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.network</span> <span class="kn">import</span> <span class="n">DagTokenNetwork</span><span class="p">,</span> <span class="n">MetagraphTokenNetwork</span>
-
-
-<span class="n">DAG_DECIMALS</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">&#39;100000000&#39;</span><span class="p">)</span>  <span class="c1"># Assuming DAG uses 8 decimals</span>
 
 
 <div class="viewcode-block" id="DagAccount">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount">[docs]</a>
 <span class="k">class</span> <span class="nc">DagAccount</span><span class="p">:</span>
 
-    <span class="n">network</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DagTokenNetwork</span><span class="p">]</span> <span class="o">=</span> <span class="n">DagTokenNetwork</span><span class="p">()</span>
+    <span class="n">network</span><span class="p">:</span> <span class="n">DagTokenNetwork</span> <span class="o">=</span> <span class="n">DagTokenNetwork</span><span class="p">()</span>
     <span class="n">key_trio</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">KeyTrio</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">emitter</span> <span class="o">=</span> <span class="n">AsyncIOEventEmitter</span><span class="p">()</span>
 
@@ -117,7 +114,18 @@
             <span class="n">l0_lb_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">l1_lb_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DagAccount&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure the network connection.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configure the DagAccount network instance. Parameter &#39;network_id&#39; can be used to change between &#39;testnet&#39;,</span>
+<span class="sd">        &#39;integrationnet&#39; or &#39;mainnet&#39;, without further parameter settings. Default: &#39;mainnet&#39;.</span>
+
+<span class="sd">        :param network_id: &#39;mainnet&#39;, &#39;integrationnet&#39;, &#39;testnet&#39; or any string value.</span>
+<span class="sd">        :param be_url: Block Explorer host URL.</span>
+<span class="sd">        :param l0_host: Layer 0 host URL.</span>
+<span class="sd">        :param cl1_host: Currency Layer 1 host URL.</span>
+<span class="sd">        :param l0_lb_url: Layer 0 Load Balancer (if available).</span>
+<span class="sd">        :param l1_lb_url: Layer 1 Load Balancer (if available).</span>
+<span class="sd">        :return: Configured DagAccount object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">DagTokenNetwork</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">network_id</span><span class="p">,</span> <span class="n">be_url</span><span class="p">,</span> <span class="n">l0_host</span><span class="p">,</span> <span class="n">cl1_host</span><span class="p">,</span> <span class="n">l0_lb_url</span><span class="p">,</span> <span class="n">l1_lb_url</span><span class="p">)</span>
@@ -126,21 +134,52 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Requires login. Get the DagAccount DAG address.</span>
+<span class="sd">        See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and login_with_public_key(public_key=)</span>
+
+<span class="sd">        :return: DAG address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">address</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DagAccount :: Need to login before calling methods on DagAccount.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">address</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Requires login. Get the DagAccount public key.</span>
+<span class="sd">        See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and login_with_public_key(public_key=)</span>
+
+<span class="sd">        This method does not support transfer of data or currency, due to missing private key.</span>
+
+<span class="sd">        :return: Public key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">public_key</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DagAccount :: Need to login before calling methods on DagAccount.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">public_key</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">private_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Requires login. Get the DagAccount private key.</span>
+<span class="sd">        See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and login_with_public_key(public_key=)</span>
+
+<span class="sd">        :return: Private key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">private_key</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DagAccount :: Need to login before calling methods on DagAccount.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">private_key</span>
 
 <div class="viewcode-block" id="DagAccount.login_with_seed_phrase">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.login_with_seed_phrase">[docs]</a>
     <span class="k">def</span> <span class="nf">login_with_seed_phrase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Login with a 12 word seed phrase. Before transferring data or currency you need to login using a seed phrase</span>
+<span class="sd">        or private key.</span>
+
+<span class="sd">        :param words: 12 word seed phrase.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">private_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_private_key_from_mnemonic</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">login_with_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span></div>
 
@@ -148,6 +187,13 @@
 <div class="viewcode-block" id="DagAccount.login_with_private_key">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.login_with_private_key">[docs]</a>
     <span class="k">def</span> <span class="nf">login_with_private_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">private_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Login with a private key. Before transferring data or currency you need to login using a seed phrase</span>
+<span class="sd">        or private key.</span>
+
+<span class="sd">        :param private_key: Private key.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">public_key</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_public_key_from_private</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
         <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_keys_and_address</span><span class="p">(</span><span class="n">private_key</span><span class="p">,</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span></div>
@@ -156,6 +202,13 @@
 <div class="viewcode-block" id="DagAccount.login_with_public_key">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.login_with_public_key">[docs]</a>
     <span class="k">def</span> <span class="nf">login_with_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">public_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Login with public key. This method does not enable the account to transfer data or currency.</span>
+<span class="sd">        See: login_with_seed_phrase(words=) or login_with_private_key(private_key=)</span>
+
+<span class="sd">        :param public_key:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">address</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">get_dag_address_from_public_key</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_keys_and_address</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span></div>
 
@@ -163,12 +216,22 @@
 <div class="viewcode-block" id="DagAccount.is_active">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.is_active">[docs]</a>
     <span class="k">def</span> <span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if any account is logged in.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="DagAccount.logout">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.logout">[docs]</a>
     <span class="k">def</span> <span class="nf">logout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Logout the active account (delete key trio) .</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">emitter</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s2">&quot;session_change&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
 
@@ -192,15 +255,26 @@
 <div class="viewcode-block" id="DagAccount.get_balance">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.get_balance">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the balance for the active account.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_balance_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DagAccount.get_balance_for">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.get_balance_for">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_balance_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get balance for a given DAG address. Returned as integer with 8 decimals.</span>
+
+<span class="sd">        :param address: DAG address.</span>
+<span class="sd">        :return: 0 or 8 decimal integer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_balance</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">response</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">balance</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">balance</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">response</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">balance</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">0</span></div>
 
 
@@ -211,8 +285,19 @@
             <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
             <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="n">last_ref</span><span class="o">=</span><span class="kc">None</span>
+            <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">LastReference</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a signed currency transaction from the currently active account.</span>
+
+<span class="sd">        :param to_address: Recipient DAG address.</span>
+<span class="sd">        :param amount: Integer with 8 decimals constituting the amount to transfer from the active account.</span>
+<span class="sd">        :param fee: (Optional) a minimum fee might be required if the active account is transaction limited.</span>
+<span class="sd">        :param last_ref: (Optional) The ordinal and hash of the last transaction from the active account.</span>
+<span class="sd">        :return: Signed transaction and the transaction hash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">last_ref</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">last_ref</span> <span class="o">=</span> <span class="n">LastReference</span><span class="p">(</span><span class="o">**</span><span class="n">last_ref</span><span class="p">)</span>
         <span class="n">last_ref</span> <span class="o">=</span> <span class="n">last_ref</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
         <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">prepare_tx</span><span class="p">(</span><span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span> <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">from_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="n">fee</span><span class="p">)</span>
         <span class="n">signature</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">private_key</span><span class="p">,</span> <span class="n">hash_</span><span class="p">)</span>
@@ -229,11 +314,11 @@
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.transfer">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">auto_estimate_fee</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build transaction, sign and send.</span>
+<span class="sd">        Build currency transaction, sign and transfer from the active account.</span>
 
 <span class="sd">        :param to_address: DAG address</span>
-<span class="sd">        :param amount: Amount with 8 decimals (e.g. 100000000 = 1 DAG)</span>
-<span class="sd">        :param fee: Fee with 8 deciamls (e.g. 20000 = 0.0002 DAG)</span>
+<span class="sd">        :param amount: Integer with 8 decimals (e.g. 100000000 = 1 DAG)</span>
+<span class="sd">        :param fee: Integer with 8 decimals (e.g. 20000 = 0.0002 DAG)</span>
 <span class="sd">        :param auto_estimate_fee:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -298,33 +383,45 @@
 
 <div class="viewcode-block" id="DagAccount.generate_batch_transactions">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.generate_batch_transactions">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">generate_batch_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">generate_batch_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">LastReference</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a batch of transactions to be transferred from the active account.</span>
 
+<span class="sd">        :param transfers: List of dictionaries, e.g. txn_data = [</span>
+<span class="sd">        {&#39;to_address&#39;: to_address, &#39;amount&#39;: 10000000, &#39;fee&#39;: 200000},</span>
+<span class="sd">        {&#39;to_address&#39;: to_address, &#39;amount&#39;: 5000000, &#39;fee&#39;: 200000},</span>
+<span class="sd">        {&#39;to_address&#39;: to_address, &#39;amount&#39;: 2500000, &#39;fee&#39;: 200000},</span>
+<span class="sd">        {&#39;to_address&#39;: to_address, &#39;amount&#39;: 1, &#39;fee&#39;: 200000}</span>
+<span class="sd">        ]</span>
+<span class="sd">        :param last_ref: (Optional) Dictionary or with the account&#39;s last transaction hash and ordinal.</span>
+<span class="sd">        :return: List of transactions to be transferred (see: transfer_batch_transactions(transactions=))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">last_ref</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">last_ref</span> <span class="o">=</span> <span class="n">LastReference</span><span class="p">(</span><span class="o">**</span><span class="n">last_ref</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">last_ref</span><span class="p">:</span>
             <span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
 
         <span class="n">txns</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">transfer</span> <span class="ow">in</span> <span class="n">transfers</span><span class="p">:</span>
             <span class="n">transaction</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
-                <span class="n">transfer</span><span class="p">[</span><span class="s2">&quot;address&quot;</span><span class="p">],</span>
-                <span class="n">transfer</span><span class="p">[</span><span class="s2">&quot;amount&quot;</span><span class="p">],</span>
-                <span class="n">transfer</span><span class="p">[</span><span class="s2">&quot;fee&quot;</span><span class="p">],</span>
-                <span class="n">last_ref</span>
+                <span class="n">to_address</span><span class="o">=</span><span class="n">transfer</span><span class="p">[</span><span class="s2">&quot;to_address&quot;</span><span class="p">],</span>
+                <span class="n">amount</span><span class="o">=</span><span class="n">transfer</span><span class="p">[</span><span class="s2">&quot;amount&quot;</span><span class="p">],</span>
+                <span class="n">fee</span><span class="o">=</span><span class="n">transfer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fee&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span>
             <span class="p">)</span>
-
-            <span class="n">last_ref</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;hash&quot;</span><span class="p">:</span> <span class="n">hash_</span><span class="p">,</span>
-                <span class="s2">&quot;ordinal&quot;</span><span class="p">:</span> <span class="n">last_ref</span><span class="p">[</span><span class="s2">&quot;ordinal&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="p">}</span>
+            <span class="n">last_ref</span> <span class="o">=</span> <span class="n">LastReference</span><span class="p">(</span>
+                <span class="n">ordinal</span><span class="o">=</span><span class="n">last_ref</span><span class="o">.</span><span class="n">ordinal</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="nb">hash</span><span class="o">=</span><span class="n">hash_</span>
+            <span class="p">)</span>
 
             <span class="n">txns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transaction</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">txns</span></div>
 
 
-<div class="viewcode-block" id="DagAccount.send_batch_transactions">
-<a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.send_batch_transactions">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_batch_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transactions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">]):</span>
+<div class="viewcode-block" id="DagAccount.transfer_batch_transactions">
+<a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.transfer_batch_transactions">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer_batch_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transactions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">]):</span>
 
         <span class="n">hashes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">txn</span> <span class="ow">in</span> <span class="n">transactions</span><span class="p">:</span>
@@ -336,9 +433,9 @@
 
 <div class="viewcode-block" id="DagAccount.transfer_dag_batch">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.transfer_dag_batch">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer_dag_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer_dag_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">LastReference</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">txns</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_batch_transactions</span><span class="p">(</span><span class="n">transfers</span><span class="p">,</span> <span class="n">last_ref</span><span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_batch_transactions</span><span class="p">(</span><span class="n">txns</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_batch_transactions</span><span class="p">(</span><span class="n">txns</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DagAccount.validate_address">
@@ -433,7 +530,7 @@
         <span class="n">valid_address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">validate_address</span><span class="p">(</span><span class="n">metagraph_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">metagraph_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">valid_address</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;MetagraphTokenClient :: Parameter &#39;metagraph_id&#39; must be a DAG address.&quot;</span>
+                <span class="s2">&quot;MetagraphTokenClient :: Parameter &#39;metagraph_id&#39; must be a DAG address.&quot;</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">MetagraphTokenNetwork</span><span class="p">(</span>
@@ -495,19 +592,16 @@
 
         <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span><span class="n">to_address</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">fee</span><span class="p">,</span> <span class="n">last_ref</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;edge&quot;</span> <span class="ow">in</span> <span class="n">tx</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to post v1 transaction&quot;</span><span class="p">)</span>
-
         <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">tx_hash</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
                 <span class="s2">&quot;hash&quot;</span><span class="p">:</span> <span class="n">tx_hash</span><span class="p">,</span>
                 <span class="s2">&quot;amount&quot;</span><span class="p">:</span> <span class="n">amount</span><span class="p">,</span>
                 <span class="s2">&quot;receiver&quot;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span>
                 <span class="s2">&quot;fee&quot;</span><span class="p">:</span> <span class="n">fee</span><span class="p">,</span>
                 <span class="s2">&quot;sender&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
-                <span class="s2">&quot;ordinal&quot;</span><span class="p">:</span> <span class="n">last_ref</span><span class="p">[</span><span class="s2">&quot;ordinal&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;ordinal&quot;</span><span class="p">:</span> <span class="n">last_ref</span><span class="o">.</span><span class="n">ordinal</span><span class="p">,</span>
                 <span class="s2">&quot;pending&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;POSTED&quot;</span><span class="p">,</span>
             <span class="p">}</span></div>
@@ -531,27 +625,33 @@
 
 <div class="viewcode-block" id="MetagraphTokenClient.generate_batch_transactions">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.MetagraphTokenClient.generate_batch_transactions">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">generate_batch_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">generate_batch_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">LastReference</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">last_ref</span><span class="p">,</span> <span class="n">LastReference</span><span class="p">):</span>
+            <span class="n">last_ref</span> <span class="o">=</span> <span class="n">last_ref</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">last_ref</span><span class="p">:</span>
             <span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+            <span class="n">last_ref</span> <span class="o">=</span> <span class="n">last_ref</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
 
         <span class="n">txns</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">transfer</span> <span class="ow">in</span> <span class="n">transfers</span><span class="p">:</span>
             <span class="n">transaction</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
-                <span class="n">transfer</span><span class="p">[</span><span class="s2">&quot;address&quot;</span><span class="p">],</span>
+                <span class="n">transfer</span><span class="p">[</span><span class="s2">&quot;to_address&quot;</span><span class="p">],</span>
                 <span class="n">transfer</span><span class="p">[</span><span class="s2">&quot;amount&quot;</span><span class="p">],</span>
                 <span class="n">transfer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fee&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                 <span class="n">last_ref</span>
             <span class="p">)</span>
-            <span class="n">last_ref</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hash&quot;</span><span class="p">:</span> <span class="n">hash_</span><span class="p">,</span> <span class="s2">&quot;ordinal&quot;</span><span class="p">:</span> <span class="n">last_ref</span><span class="p">[</span><span class="s2">&quot;ordinal&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}</span>
+            <span class="n">last_ref</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;hash&quot;</span><span class="p">:</span> <span class="n">hash_</span><span class="p">,</span>
+                <span class="s2">&quot;ordinal&quot;</span><span class="p">:</span> <span class="n">last_ref</span><span class="p">[</span><span class="s2">&quot;ordinal&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="p">}</span>
             <span class="n">txns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transaction</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">txns</span></div>
 
 
-<div class="viewcode-block" id="MetagraphTokenClient.send_batch_transactions">
-<a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.MetagraphTokenClient.send_batch_transactions">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_batch_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transactions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">]):</span>
+<div class="viewcode-block" id="MetagraphTokenClient.transfer_batch_transactions">
+<a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.MetagraphTokenClient.transfer_batch_transactions">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer_batch_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transactions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">]):</span>
         <span class="n">hashes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">txn</span> <span class="ow">in</span> <span class="n">transactions</span><span class="p">:</span>
             <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">txn</span><span class="p">)</span>
@@ -561,9 +661,10 @@
 
 <div class="viewcode-block" id="MetagraphTokenClient.transfer_batch">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.MetagraphTokenClient.transfer_batch">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">LastReference</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Metagraph like PACA doesn&#39;t seem to support this, needs to wait for the transaction to appear</span>
         <span class="n">txns</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_batch_transactions</span><span class="p">(</span><span class="n">transfers</span><span class="p">,</span> <span class="n">last_ref</span><span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_batch_transactions</span><span class="p">(</span><span class="n">txns</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_batch_transactions</span><span class="p">(</span><span class="n">txns</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MetagraphTokenClient.wait">

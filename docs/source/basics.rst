@@ -6,6 +6,8 @@ _____________________
 
 In Pypergraph, wallets are referred to as accounts.
 
+-----
+
 Create New Account/Wallet
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -64,11 +66,15 @@ Create Account from Existing Secret
 
         account.login_with_public_key("your_public_key_here")
 
+
+-----
+
+
 Send Transactions
 _________________
 
-Send $DAG Currency Transaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Single $DAG Currency Transaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -100,7 +106,7 @@ Send $DAG Currency Transaction
 
         # Generate and send transaction
         tx, tx_hash = await account.generate_signed_transaction(
-            to_address="DAG2this01is02A03FAKE04DAG05Address06",
+            to_address="DAG1testestestestestestestestestt",
             amount=100000000,  # 1 DAG = 100,000,000 units
             fee=200000
         )
@@ -173,7 +179,7 @@ Send $DAG Currency Transaction
 
         # Generate and send transaction
         tx, tx_hash = await account.generate_signed_transaction(
-            to_address="DAG2this01is02A03FAKE04DAG05Address06",
+            to_address="DAG1testestestestestestestestest",
             amount=100000000,  # 1 DAG = 100,000,000 units
             fee=200000
         )
@@ -193,8 +199,8 @@ Send $DAG Currency Transaction
 
     Other parameters (``l0_url``, ``cl1_url``, etc.) follow similar patterns.
 
-Send Metagraph Currency Transaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Single Metagraph Currency Transaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -203,7 +209,7 @@ Send Metagraph Currency Transaction
 
     async def send_metagraph_token():
         account = DagAccount()
-        account.login_with_seed_phrase("your_seed_phrase")
+        account.login_with_seed_phrase("abandon abandon ...")
 
         # Initialize Metagraph client
         metagraph_client = MetagraphTokenClient(
@@ -230,8 +236,75 @@ Send Metagraph Currency Transaction
 
     asyncio.run(send_metagraph_token())
 
-Send Metagraph Data Transaction
+
+Bulk $DAG Currency Transactions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    import asyncio
+    from pypergraph.dag_network import DagNetwork
+    from pypergraph.dag_account import DagAccount
+
+    async def send_bulk_dag_transactions():
+        account = DagAccount()
+        account.login_with_seed_phrase(words="abandon abandon ...")
+        account.connect(network_id='testnet')
+
+        txn_data = [
+            {'to_address': to_address, 'amount': 10000000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 5000000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 2500000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 1, 'fee': 200000}
+        ]
+
+        list_of_tx_hashes = await account.transfer_dag_batch(transfers=txn_data)
+
+    asyncio.run(send_bulk_dag_transactions())
+
+
+Bulk Metagraph Currency Transactions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    import asyncio
+    from pypergraph.dag_account import MetagraphTokenClient
+
+    async def send_bulk_metagraph_transactions():
+        account = DagAccount()
+        account.login_with_seed_phrase("abandon abandon ... ")
+
+        metagraph_account = MetagraphTokenClient(
+            account=account,
+            metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
+            l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
+            cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+        )
+
+        txn_data = [
+            {'to_address': to_address, 'amount': 10000000},
+            {'to_address': to_address, 'amount': 5000000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 2500000, 'fee': 200000},
+            {'to_address': to_address, 'amount': 1, 'fee': 200000}
+        ]
+
+        list_of_transaction_hashes = await metagraph_account.transfer_batch(transfers=txn_data)
+
+    asyncio.run(send_bulk_metagraph_transactions())
+
+.. dropdown:: Batch Transfer Parameters
+    :animate: fade-in
+
+    * **Transfers**: Dictionary with recipient address and amount to send, fee is optional but recommended due to possible transaction limiting.
+
+    * **Last Reference**: It's possible to parse the last reference as a parameter.
+
+        - Use parameter ``last_ref``.
+        - Get last reference using ``last_ref = await account.network.get_address_last_accepted_transaction_ref(account.address)`` or ``last_ref = await metagraph_account.network.get_address_last_accepted_transaction_ref(metagraph_account.account.address)``.
+
+Metagraph Data Transaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 

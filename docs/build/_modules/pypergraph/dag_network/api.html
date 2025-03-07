@@ -82,7 +82,7 @@
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.account</span> <span class="kn">import</span> <span class="n">Balance</span><span class="p">,</span> <span class="n">LastReference</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.transaction</span> <span class="kn">import</span> <span class="n">PendingTransaction</span><span class="p">,</span> <span class="n">BlockExplorerTransaction</span><span class="p">,</span> <span class="n">SignedTransaction</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.network</span> <span class="kn">import</span> <span class="n">TotalSupply</span><span class="p">,</span> <span class="n">PeerInfo</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.snapshot</span> <span class="kn">import</span> <span class="n">Snapshot</span><span class="p">,</span> <span class="n">GlobalSnapshot</span><span class="p">,</span> <span class="n">CurrencySnapshot</span><span class="p">,</span> <span class="n">Ordinal</span><span class="p">,</span> <span class="n">SignedBlock</span>
+<span class="kn">from</span> <span class="nn">pypergraph.dag_network.models.snapshot</span> <span class="kn">import</span> <span class="n">Snapshot</span><span class="p">,</span> <span class="n">GlobalSnapshot</span><span class="p">,</span> <span class="n">CurrencySnapshot</span><span class="p">,</span> <span class="n">Ordinal</span>
 
 
 <div class="viewcode-block" id="LoadBalancerApi">
@@ -95,7 +95,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LoadBalancerApi :: Load balancer host is not configured.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;LoadBalancerApi :: Load balancer host is not configured.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 
@@ -169,7 +169,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;BlockExplorerApi :: Block explorer host is not configured.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;BlockExplorerApi :: Block explorer host is not configured.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 <div class="viewcode-block" id="BlockExplorerApi.config">
@@ -440,7 +440,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L0Api :: Layer 0 host is not configured.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;L0Api :: Layer 0 host is not configured.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 
@@ -529,7 +529,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;L1Api :: Currency layer 1 host is not configured.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;L1Api :: Currency layer 1 host is not configured.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 <div class="viewcode-block" id="L1Api.config">
@@ -587,7 +587,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ML0Api :: Metagraph layer 0 host is not configured.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ML0Api :: Metagraph layer 0 host is not configured.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 <div class="viewcode-block" id="ML0Api.config">
@@ -637,7 +637,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ML1Api :: Metagraph currency layer 1 host is not configured.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ML1Api :: Metagraph currency layer 1 host is not configured.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 <div class="viewcode-block" id="ML1Api.config">
@@ -659,7 +659,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MDL1Api :: Metagraph data layer 1 host is not configured.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;MDL1Api :: Metagraph data layer 1 host is not configured.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
 <div class="viewcode-block" id="MDL1Api.config">

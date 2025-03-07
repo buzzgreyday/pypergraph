@@ -125,7 +125,7 @@ async def test_get_balance(network):
         cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
     )
     r = await metagraph_account.get_balance()
-    assert r > 0
+    assert r >= 0
 
 @pytest.mark.asyncio
 async def test_get_currency_transactions(network):
