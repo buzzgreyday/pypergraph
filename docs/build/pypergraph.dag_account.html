@@ -125,7 +125,24 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.DagAccount.create_metagraph_token_client">
 <span class="sig-name descname"><span class="pre">create_metagraph_token_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.DagAccount" title="pypergraph.dag_keyring.accounts.DagAccount"><span class="pre">DagAccount</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_decimals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.create_metagraph_token_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.DagAccount.create_metagraph_token_client" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Derive a Metagraph client from the active account to interact with a Metagraph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>account</strong> – active DagAccount.</p></li>
+<li><p><strong>metagraph_id</strong> – Associated Metagraph $DAG address.</p></li>
+<li><p><strong>block_explorer_url</strong> – (Optional) Block Explorer URL (default: associated account).</p></li>
+<li><p><strong>l0_host</strong> – (Optional) Layer 0 host URL (port might be required).</p></li>
+<li><p><strong>cl1_host</strong> – (Optional) Layer 1 currency host URL (port might be required).</p></li>
+<li><p><strong>dl1_host</strong> – (Optional) Layer 1 data host URL (port might be required).</p></li>
+<li><p><strong>token_decimals</strong> – (Optional) 1 $DAG = 100000000 (default: 8)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MetagraphTokenClient object.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.DagAccount.emitter">
@@ -138,16 +155,20 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 <dd><p>Generate a batch of transactions to be transferred from the active account.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>transfers</strong> – List of dictionaries, e.g. txn_data = [</p>
-</dd>
-</dl>
-<p>{‘to_address’: to_address, ‘amount’: 10000000, ‘fee’: 200000},
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transfers</strong> – List of dictionaries, e.g. txn_data = [
+{‘to_address’: to_address, ‘amount’: 10000000, ‘fee’: 200000},
 {‘to_address’: to_address, ‘amount’: 5000000, ‘fee’: 200000},
 {‘to_address’: to_address, ‘amount’: 2500000, ‘fee’: 200000},
 {‘to_address’: to_address, ‘amount’: 1, ‘fee’: 200000}
-]
-:param last_ref: (Optional) Dictionary or with the account’s last transaction hash and ordinal.
-:return: List of transactions to be transferred (see: transfer_batch_transactions(transactions=))</p>
+]</p></li>
+<li><p><strong>last_ref</strong> – (Optional) Dictionary or with the account’s last transaction hash and ordinal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of transactions to be transferred (see: transfer_batch_transactions(transactions=))</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -172,12 +193,13 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.DagAccount.get_address_from_public_key">
 <span class="sig-name descname"><span class="pre">get_address_from_public_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key_hex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.get_address_from_public_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.DagAccount.get_address_from_public_key" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Generates the $DAG address associated with the account.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>public_key_hex</strong> – The private key as a hexadecimal string.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The DAG address corresponding to the public key (node ID).</p>
+<dd class="field-even"><p>The DAG address corresponding to the public key.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -341,17 +363,52 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.DagAccount.transfer_batch_transactions">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transfer_batch_transactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transactions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.transaction.SignedTransaction" title="pypergraph.dag_network.models.transaction.SignedTransaction"><span class="pre">SignedTransaction</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.transfer_batch_transactions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.DagAccount.transfer_batch_transactions" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Send a batch (list) of signed currency transactions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>transactions</strong> – [SignedTransaction, … ]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of transaction hashes.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.DagAccount.transfer_dag_batch">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transfer_dag_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transfers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.account.LastReference" title="pypergraph.dag_network.models.account.LastReference"><span class="pre">LastReference</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.transfer_dag_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.DagAccount.transfer_dag_batch" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Build and send $DAG currency transactions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transfers</strong> – List of dictionaries, e.g. txn_data = [
+{‘to_address’: to_address, ‘amount’: 10000000, ‘fee’: 200000},
+{‘to_address’: to_address, ‘amount’: 5000000, ‘fee’: 200000},
+{‘to_address’: to_address, ‘amount’: 2500000, ‘fee’: 200000},
+{‘to_address’: to_address, ‘amount’: 1, ‘fee’: 200000}
+]</p></li>
+<li><p><strong>last_ref</strong> – Dictionary with former ordinal and transaction hash, e.g.: {‘ordinal’: x, ‘hash’: y}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.DagAccount.validate_address">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.validate_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.DagAccount.validate_address" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Check if $DAG address is valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>address</strong> – $DAG address.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if valid, False if invalid.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.DagAccount.wait">
@@ -360,19 +417,37 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.DagAccount.wait_for_balance_change">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_balance_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Decimal</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.wait_for_balance_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.DagAccount.wait_for_balance_change" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_balance_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.wait_for_balance_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.DagAccount.wait_for_balance_change" title="Link to this definition"></a></dt>
+<dd><p>Check if balance changed since initial value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>initial_value</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if balance changed, False if no change.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.DagAccount.wait_for_checkpoint_accepted">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_checkpoint_accepted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.wait_for_checkpoint_accepted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.DagAccount.wait_for_checkpoint_accepted" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Check if transaction has been processed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hash</strong> – Transaction hash.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if processed, False if not processed.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.MetagraphTokenClient">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_account.account.</span></span><span class="sig-name descname"><span class="pre">MetagraphTokenClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pypergraph.dag_account.account.DagAccount" title="pypergraph.dag_account.account.DagAccount"><span class="pre">DagAccount</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_decimals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#MetagraphTokenClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.MetagraphTokenClient" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_account.account.</span></span><span class="sig-name descname"><span class="pre">MetagraphTokenClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pypergraph.dag_account.account.DagAccount" title="pypergraph.dag_account.account.DagAccount"><span class="pre">DagAccount</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_decimals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#MetagraphTokenClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.account.MetagraphTokenClient" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pypergraph.dag_account.account.MetagraphTokenClient.address">
@@ -480,7 +555,24 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.DagAccount.create_metagraph_token_client">
 <span class="sig-name descname"><span class="pre">create_metagraph_token_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pypergraph.dag_keyring.html#pypergraph.dag_keyring.accounts.DagAccount" title="pypergraph.dag_keyring.accounts.DagAccount"><span class="pre">DagAccount</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_decimals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.create_metagraph_token_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.DagAccount.create_metagraph_token_client" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Derive a Metagraph client from the active account to interact with a Metagraph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>account</strong> – active DagAccount.</p></li>
+<li><p><strong>metagraph_id</strong> – Associated Metagraph $DAG address.</p></li>
+<li><p><strong>block_explorer_url</strong> – (Optional) Block Explorer URL (default: associated account).</p></li>
+<li><p><strong>l0_host</strong> – (Optional) Layer 0 host URL (port might be required).</p></li>
+<li><p><strong>cl1_host</strong> – (Optional) Layer 1 currency host URL (port might be required).</p></li>
+<li><p><strong>dl1_host</strong> – (Optional) Layer 1 data host URL (port might be required).</p></li>
+<li><p><strong>token_decimals</strong> – (Optional) 1 $DAG = 100000000 (default: 8)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MetagraphTokenClient object.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pypergraph.dag_account.DagAccount.emitter">
@@ -493,16 +585,20 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 <dd><p>Generate a batch of transactions to be transferred from the active account.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>transfers</strong> – List of dictionaries, e.g. txn_data = [</p>
-</dd>
-</dl>
-<p>{‘to_address’: to_address, ‘amount’: 10000000, ‘fee’: 200000},
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transfers</strong> – List of dictionaries, e.g. txn_data = [
+{‘to_address’: to_address, ‘amount’: 10000000, ‘fee’: 200000},
 {‘to_address’: to_address, ‘amount’: 5000000, ‘fee’: 200000},
 {‘to_address’: to_address, ‘amount’: 2500000, ‘fee’: 200000},
 {‘to_address’: to_address, ‘amount’: 1, ‘fee’: 200000}
-]
-:param last_ref: (Optional) Dictionary or with the account’s last transaction hash and ordinal.
-:return: List of transactions to be transferred (see: transfer_batch_transactions(transactions=))</p>
+]</p></li>
+<li><p><strong>last_ref</strong> – (Optional) Dictionary or with the account’s last transaction hash and ordinal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of transactions to be transferred (see: transfer_batch_transactions(transactions=))</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -527,12 +623,13 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.DagAccount.get_address_from_public_key">
 <span class="sig-name descname"><span class="pre">get_address_from_public_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key_hex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.get_address_from_public_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.DagAccount.get_address_from_public_key" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Generates the $DAG address associated with the account.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>public_key_hex</strong> – The private key as a hexadecimal string.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The DAG address corresponding to the public key (node ID).</p>
+<dd class="field-even"><p>The DAG address corresponding to the public key.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -696,17 +793,52 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.DagAccount.transfer_batch_transactions">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transfer_batch_transactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transactions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.transaction.SignedTransaction" title="pypergraph.dag_network.models.transaction.SignedTransaction"><span class="pre">SignedTransaction</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.transfer_batch_transactions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.DagAccount.transfer_batch_transactions" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Send a batch (list) of signed currency transactions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>transactions</strong> – [SignedTransaction, … ]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of transaction hashes.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.DagAccount.transfer_dag_batch">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transfer_dag_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transfers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pypergraph.dag_network.models.html#pypergraph.dag_network.models.account.LastReference" title="pypergraph.dag_network.models.account.LastReference"><span class="pre">LastReference</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.transfer_dag_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.DagAccount.transfer_dag_batch" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Build and send $DAG currency transactions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transfers</strong> – List of dictionaries, e.g. txn_data = [
+{‘to_address’: to_address, ‘amount’: 10000000, ‘fee’: 200000},
+{‘to_address’: to_address, ‘amount’: 5000000, ‘fee’: 200000},
+{‘to_address’: to_address, ‘amount’: 2500000, ‘fee’: 200000},
+{‘to_address’: to_address, ‘amount’: 1, ‘fee’: 200000}
+]</p></li>
+<li><p><strong>last_ref</strong> – Dictionary with former ordinal and transaction hash, e.g.: {‘ordinal’: x, ‘hash’: y}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.DagAccount.validate_address">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.validate_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.DagAccount.validate_address" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Check if $DAG address is valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>address</strong> – $DAG address.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if valid, False if invalid.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.DagAccount.wait">
@@ -715,19 +847,37 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.DagAccount.wait_for_balance_change">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_balance_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Decimal</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.wait_for_balance_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.DagAccount.wait_for_balance_change" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_balance_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.wait_for_balance_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.DagAccount.wait_for_balance_change" title="Link to this definition"></a></dt>
+<dd><p>Check if balance changed since initial value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>initial_value</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if balance changed, False if no change.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.dag_account.DagAccount.wait_for_checkpoint_accepted">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_checkpoint_accepted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#DagAccount.wait_for_checkpoint_accepted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.DagAccount.wait_for_checkpoint_accepted" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Check if transaction has been processed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hash</strong> – Transaction hash.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if processed, False if not processed.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pypergraph.dag_account.MetagraphTokenClient">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_account.</span></span><span class="sig-name descname"><span class="pre">MetagraphTokenClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pypergraph.dag_account.account.DagAccount" title="pypergraph.dag_account.account.DagAccount"><span class="pre">DagAccount</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_decimals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#MetagraphTokenClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.MetagraphTokenClient" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.dag_account.</span></span><span class="sig-name descname"><span class="pre">MetagraphTokenClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pypergraph.dag_account.account.DagAccount" title="pypergraph.dag_account.account.DagAccount"><span class="pre">DagAccount</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metagraph_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_explorer_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl1_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_decimals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/dag_account/account.html#MetagraphTokenClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.dag_account.MetagraphTokenClient" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pypergraph.dag_account.MetagraphTokenClient.address">

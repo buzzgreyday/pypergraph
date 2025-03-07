@@ -345,6 +345,12 @@
 <div class="viewcode-block" id="DagAccount.wait_for_checkpoint_accepted">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.wait_for_checkpoint_accepted">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">wait_for_checkpoint_accepted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if transaction has been processed.</span>
+
+<span class="sd">        :param hash: Transaction hash.</span>
+<span class="sd">        :return: True if processed, False if not processed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">txn</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">txn</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_pending_transaction</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
@@ -365,7 +371,13 @@
 
 <div class="viewcode-block" id="DagAccount.wait_for_balance_change">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.wait_for_balance_change">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">wait_for_balance_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Decimal</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">wait_for_balance_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if balance changed since initial value.</span>
+
+<span class="sd">        :param initial_value:</span>
+<span class="sd">        :return: True if balance changed, False if no change.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">initial_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">initial_value</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_balance</span><span class="p">()</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
@@ -388,11 +400,11 @@
 <span class="sd">        Generate a batch of transactions to be transferred from the active account.</span>
 
 <span class="sd">        :param transfers: List of dictionaries, e.g. txn_data = [</span>
-<span class="sd">        {&#39;to_address&#39;: to_address, &#39;amount&#39;: 10000000, &#39;fee&#39;: 200000},</span>
-<span class="sd">        {&#39;to_address&#39;: to_address, &#39;amount&#39;: 5000000, &#39;fee&#39;: 200000},</span>
-<span class="sd">        {&#39;to_address&#39;: to_address, &#39;amount&#39;: 2500000, &#39;fee&#39;: 200000},</span>
-<span class="sd">        {&#39;to_address&#39;: to_address, &#39;amount&#39;: 1, &#39;fee&#39;: 200000}</span>
-<span class="sd">        ]</span>
+<span class="sd">            {&#39;to_address&#39;: to_address, &#39;amount&#39;: 10000000, &#39;fee&#39;: 200000},</span>
+<span class="sd">            {&#39;to_address&#39;: to_address, &#39;amount&#39;: 5000000, &#39;fee&#39;: 200000},</span>
+<span class="sd">            {&#39;to_address&#39;: to_address, &#39;amount&#39;: 2500000, &#39;fee&#39;: 200000},</span>
+<span class="sd">            {&#39;to_address&#39;: to_address, &#39;amount&#39;: 1, &#39;fee&#39;: 200000}</span>
+<span class="sd">            ]</span>
 <span class="sd">        :param last_ref: (Optional) Dictionary or with the account&#39;s last transaction hash and ordinal.</span>
 <span class="sd">        :return: List of transactions to be transferred (see: transfer_batch_transactions(transactions=))</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -422,6 +434,12 @@
 <div class="viewcode-block" id="DagAccount.transfer_batch_transactions">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.transfer_batch_transactions">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer_batch_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transactions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a batch (list) of signed currency transactions.</span>
+
+<span class="sd">        :param transactions: [SignedTransaction, ... ]</span>
+<span class="sd">        :return: List of transaction hashes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">hashes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">txn</span> <span class="ow">in</span> <span class="n">transactions</span><span class="p">:</span>
@@ -434,6 +452,18 @@
 <div class="viewcode-block" id="DagAccount.transfer_dag_batch">
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.transfer_dag_batch">[docs]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">transfer_dag_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">last_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">LastReference</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build and send $DAG currency transactions.</span>
+
+<span class="sd">        :param transfers: List of dictionaries, e.g. txn_data = [</span>
+<span class="sd">            {&#39;to_address&#39;: to_address, &#39;amount&#39;: 10000000, &#39;fee&#39;: 200000},</span>
+<span class="sd">            {&#39;to_address&#39;: to_address, &#39;amount&#39;: 5000000, &#39;fee&#39;: 200000},</span>
+<span class="sd">            {&#39;to_address&#39;: to_address, &#39;amount&#39;: 2500000, &#39;fee&#39;: 200000},</span>
+<span class="sd">            {&#39;to_address&#39;: to_address, &#39;amount&#39;: 1, &#39;fee&#39;: 200000}</span>
+<span class="sd">            ]</span>
+<span class="sd">        :param last_ref: Dictionary with former ordinal and transaction hash, e.g.: {&#39;ordinal&#39;: x, &#39;hash&#39;: y}.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">txns</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_batch_transactions</span><span class="p">(</span><span class="n">transfers</span><span class="p">,</span> <span class="n">last_ref</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_batch_transactions</span><span class="p">(</span><span class="n">txns</span><span class="p">)</span></div>
 
@@ -442,6 +472,12 @@
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.validate_address">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">validate_address</span><span class="p">(</span><span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if $DAG address is valid.</span>
+
+<span class="sd">        :param address: $DAG address.</span>
+<span class="sd">        :return: True if valid, False if invalid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">address</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
@@ -461,8 +497,10 @@
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.DagAccount.get_address_from_public_key">[docs]</a>
     <span class="k">def</span> <span class="nf">get_address_from_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">public_key_hex</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the $DAG address associated with the account.</span>
+
 <span class="sd">        :param public_key_hex: The private key as a hexadecimal string.</span>
-<span class="sd">        :return: The DAG address corresponding to the public key (node ID).</span>
+<span class="sd">        :return: The DAG address corresponding to the public key.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">public_key_hex</span><span class="p">)</span> <span class="o">==</span> <span class="mi">128</span><span class="p">:</span>
             <span class="n">public_key</span> <span class="o">=</span> <span class="n">PKCS_PREFIX</span> <span class="o">+</span> <span class="s2">&quot;04&quot;</span> <span class="o">+</span> <span class="n">public_key_hex</span>
@@ -498,6 +536,18 @@
             <span class="n">cl1_host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">dl1_host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">token_decimals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Derive a Metagraph client from the active account to interact with a Metagraph.</span>
+
+<span class="sd">        :param account: active DagAccount.</span>
+<span class="sd">        :param metagraph_id: Associated Metagraph $DAG address.</span>
+<span class="sd">        :param block_explorer_url: (Optional) Block Explorer URL (default: associated account).</span>
+<span class="sd">        :param l0_host: (Optional) Layer 0 host URL (port might be required).</span>
+<span class="sd">        :param cl1_host: (Optional) Layer 1 currency host URL (port might be required).</span>
+<span class="sd">        :param dl1_host: (Optional) Layer 1 data host URL (port might be required).</span>
+<span class="sd">        :param token_decimals: (Optional) 1 $DAG = 100000000 (default: 8)</span>
+<span class="sd">        :return: MetagraphTokenClient object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span>
             <span class="n">account</span><span class="o">=</span><span class="n">account</span> <span class="ow">or</span> <span class="bp">self</span><span class="p">,</span>
             <span class="n">metagraph_id</span><span class="o">=</span><span class="n">metagraph_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">connected_network</span><span class="o">.</span><span class="n">metagraph_id</span><span class="p">,</span>
@@ -522,7 +572,7 @@
 <a class="viewcode-back" href="../../../pypergraph.dag_account.html#pypergraph.dag_account.account.MetagraphTokenClient">[docs]</a>
 <span class="k">class</span> <span class="nc">MetagraphTokenClient</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">account</span><span class="p">:</span> <span class="n">DagAccount</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">block_explorer_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">account</span><span class="p">:</span> <span class="n">DagAccount</span><span class="p">,</span> <span class="n">metagraph_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">block_explorer_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">l0_host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cl1_host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dl1_host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">token_decimals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
     <span class="p">):</span>
