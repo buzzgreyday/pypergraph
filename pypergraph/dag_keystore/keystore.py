@@ -275,6 +275,8 @@ class KeyStore:
         bip39 = Bip39()
         return bip39.mnemonic()
 
+    # TODO: generate_private_key()
+
     @staticmethod
     def get_private_key_from_mnemonic(phrase: str) -> str:
         """

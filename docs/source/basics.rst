@@ -1,15 +1,24 @@
-Basics
-======
+Account Management
+==================
 
-Create Account/Wallet
-_____________________
+Wallet Creation
+---------------
 
-In Pypergraph, wallets are referred to as accounts.
+.. admonition:: Cryptographic Key Trio
+
+    Constellation Network accounts utilize a cryptographic key trio comprising:
+
+    - **Private Key**: A secure cryptographic element used to authenticate ownership and authorize transactions.
+      Required for signing transactions and messages. **Treat as sensitive information**.
+    - **Public Key**: Derived from the private key, serves as a network identifier for node authentication and
+      signature verification in trust relationships.
+    - **Address**: Public wallet identifier generated from cryptographic keys. Shareable for receiving transactions
+      while maintaining private key confidentiality.
 
 -----
 
-Create New Account/Wallet
-^^^^^^^^^^^^^^^^^^^^^^^^^
+New Wallet Generation
+^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -17,371 +26,200 @@ Create New Account/Wallet
     from pypergraph.dag_account import DagAccount
 
     keystore = KeyStore()
+    mnemonic = keystore.get_mnemonic()  # Generate BIP-39 compliant seed phrase
 
-    # Generate a new mnemonic seed phrase
-    mnemonic = keystore.get_mnemonic()
-    seed_phrase = mnemonic
-
-    # Store the seed phrase securely before proceeding
+    # Initialize account after securing mnemonic
     account = DagAccount()
-    account.login_with_seed_phrase(words=seed_phrase)
+    account.login_with_seed_phrase(words=mnemonic)
 
-    # Example: Print the generated public address
-    print("DAG Address:", account.address)
+    print(f"Generated Address: {account.address}")
 
-Create Account from Existing Secret
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Existing Credential Authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
     from pypergraph.dag_account import DagAccount
 
-    # Use your existing seed phrase or private key
-    seed_phrase = "abandon abandon ..." # 12 words seed phrase
     account = DagAccount()
-    account.login_with_seed_phrase(words=seed_phrase)
+    account.login_with_seed_phrase(words="abandon abandon ...")  # Provide 12-word mnemonic
 
-.. dropdown:: Login Variations
-    :animate: fade-in
+.. dropdown:: Authentication Methods
+    :animate: fade-in-slide-down
 
-    * **Login with Seed Phrase**
-
+    **Mnemonic Authentication**
     .. code-block:: python
 
-        account.login_with_seed_phrase("abandon abandon ..." )
+        account.login_with_seed_phrase("abandon abandon ...")
 
-    * **Login with Private Key**
-
+    **Private Key Authentication**
     .. code-block:: python
 
-        account.login_with_private_key("your_private_key_here")
+        account.login_with_private_key("private_key_here")
 
-    * **Login with Public Key**
-
+    **Public Key Authentication** (Read-only)
     .. note::
-
-        Private key is required to send transactions. Public key login allows read-only access.
-
+        Transaction submission requires private key access
     .. code-block:: python
 
-        account.login_with_public_key("your_public_key_here")
-
+        account.login_with_public_key("public_key_here")
 
 -----
 
+Transaction Operations
+----------------------
 
-Send Transactions
-_________________
-
-Single $DAG Currency Transaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-    # Create and login to account
-    seed_phrase = "abandon abandon ..." # 12 words seed phrase
-    account = DagAccount()
-    account.login_with_seed_phrase(seed_phrase)
-    hash = await account.transfer(
-        to_address=to_address,
-        amount=100000000,
-        fee=200000
-    )
-
-**Or...**
+Standard DAG Transfer
+^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
-    import asyncio
     from pypergraph.dag_account import DagAccount
+    import asyncio
 
-    async def send_dag():
-        # Create and login to account
-        seed_phrase = "abandon abandon ..." # 12 words seed phrase
+    async def execute_transfer():
         account = DagAccount()
-        account.login_with_seed_phrase(words=seed_phrase)
+        account.login_with_seed_phrase("abandon abandon ...")
+        account.connect(network_id="testnet")  # Default: mainnet
 
-        # Connect to testnet (default: mainnet)
-        account.connect(network_id="testnet")
-
-        # Generate and send transaction
-        tx, tx_hash = await account.generate_signed_transaction(
-            to_address="DAG1testestestestestestestestestt",
-            amount=100000000,  # 1 DAG = 100,000,000 units
+        transaction_hash = await account.transfer(
+            to_address="DAG1...",
+            amount=100000000,  # 1 DAG = 10^8 units
             fee=200000
         )
-        await account.network.post_transaction(tx)
-        print("Transaction Hash:", tx_hash)
+        print(f"Transaction ID: {transaction_hash}")
 
-    asyncio.run(send_dag())
+    asyncio.run(execute_transfer())
 
-.. dropdown:: Transaction Building and Signing
+Advanced Transaction Construction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. dropdown:: Transaction Lifecycle Management
     :animate: fade-in
 
     .. code-block:: python
 
-        def prepare_tx(
-                amount: int,
-                to_address: str,
-                from_address: str,
-                last_ref: LastReference,
-                fee: int = 0
-                ) -> Tuple[Transaction, str]:
-
-            if to_address == from_address:
-              raise ValueError('KeyStore :: An address cannot send a transaction to itself')
-
-            if int(amount) < 1e-8:
-              raise ValueError('KeyStore :: Send amount must be greater than 1e-8')
-
-            if fee < 0:
-              raise ValueError('KeyStore :: Send fee must be greater or equal to zero')
-
-            # Create transaction
-            tx = Transaction(
-                source=from_address, destination=to_address, amount=amount, fee=fee,
-                parent=last_ref, salt=MIN_SALT + int(random.getrandbits(48))
-            )
-
-            # Get encoded transaction
-            encoded_tx = tx.encoded
-
-            kryo = Kryo()
-            serialized_tx = kryo.serialize(msg=encoded_tx, set_references=False)
-            hash_value = KeyStore._double_hash(serialized_tx)
-
-            return tx, hash_value
-
-        async def generate_signed_transaction(
-                self,
-                to_address: str,
-                amount: int,
-                fee: int = 0,
-                last_ref=None
-        ) -> Tuple[SignedTransaction, str]:
-            last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(
-                self.address
-            )
-            tx, hash_ = KeyStore.prepare_tx(
-                amount=amount,
-                to_address=to_address,
-                from_address=self.key_trio.address,
-                last_ref=last_ref,
-                fee=fee
-            )
-            signature = KeyStore.sign(self.key_trio.private_key, hash_)
-            valid = KeyStore.verify(self.public_key, hash_, signature)
-            if not valid:
-                raise ValueError("Wallet :: Invalid signature.")
-            proof = SignatureProof(id=self.public_key[2:], signature=signature)
-            tx = SignedTransaction(value=tx, proofs=[proof])
-            return tx, hash_
-
-        # Generate and send transaction
+        # Transaction preparation
         tx, tx_hash = await account.generate_signed_transaction(
-            to_address="DAG1testestestestestestestestest",
-            amount=100000000,  # 1 DAG = 100,000,000 units
-            fee=200000
-        )
-
-.. dropdown:: DagAccount Network Parameters
-    :animate: fade-in
-
-    Configure network endpoints when calling ``account.connect()``:
-
-    * **Network_id**
-
-        Supported values: ``"mainnet"``, ``"testnet"``, ``"integrationnet"``.
-
-    * **be_url**
-
-        Override the default Blockchain Explorer URL (``"https://be-{network_id}.constellationnetwork.io"``).
-
-    Other parameters (``l0_url``, ``cl1_url``, etc.) follow similar patterns.
-
-Single Metagraph Currency Transaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-    import asyncio
-    from pypergraph.dag_account import MetagraphTokenClient
-
-    async def send_metagraph_token():
-        account = DagAccount()
-        account.login_with_seed_phrase("abandon abandon ...")
-
-        # Initialize Metagraph client
-        metagraph_client = MetagraphTokenClient(
-            account=account,
-            metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
-            l0_host="http://custom-l0-host:9100",  # Replace with actual endpoints
-            cl1_host="http://custom-cl1-host:9200" # Currency layer host
-        )
-
-        # Get last transaction reference for the sender
-        last_ref = await metagraph_client.network.get_address_last_accepted_transaction_ref(
-            address=account.address  # Use the account's address
-        )
-
-        # Generate and send transaction
-        tx, tx_hash = await metagraph_client.account.generate_signed_transaction(
-            to_address="DAG2RecipientAddress...",
+            to_address="DAG1...",
             amount=100000000,
-            fee=0,  # Metagraphs may have custom fee rules
-            last_ref=last_ref
-        )
-        await metagraph_client.network.post_transaction(tx)
-        print("Metagraph Transaction Hash:", tx_hash)
-
-    asyncio.run(send_metagraph_token())
-
-
-Bulk $DAG Currency Transactions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-    import asyncio
-    from pypergraph.dag_network import DagNetwork
-    from pypergraph.dag_account import DagAccount
-
-    async def send_bulk_dag_transactions():
-        account = DagAccount()
-        account.login_with_seed_phrase(words="abandon abandon ...")
-        account.connect(network_id='testnet')
-
-        txn_data = [
-            {'to_address': to_address, 'amount': 10000000, 'fee': 200000},
-            {'to_address': to_address, 'amount': 5000000, 'fee': 200000},
-            {'to_address': to_address, 'amount': 2500000, 'fee': 200000},
-            {'to_address': to_address, 'amount': 1, 'fee': 200000}
-        ]
-
-        list_of_tx_hashes = await account.transfer_dag_batch(transfers=txn_data)
-
-    asyncio.run(send_bulk_dag_transactions())
-
-
-Bulk Metagraph Currency Transactions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-    import asyncio
-    from pypergraph.dag_account import MetagraphTokenClient
-
-    async def send_bulk_metagraph_transactions():
-        account = DagAccount()
-        account.login_with_seed_phrase("abandon abandon ... ")
-
-        metagraph_account = MetagraphTokenClient(
-            account=account,
-            metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
-            l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
-            cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+            fee=200000,
+            last_ref=await account.network.get_address_last_accepted_transaction_ref(account.address)
         )
 
-        txn_data = [
-            {'to_address': to_address, 'amount': 10000000},
-            {'to_address': to_address, 'amount': 5000000, 'fee': 200000},
-            {'to_address': to_address, 'amount': 2500000, 'fee': 200000},
-            {'to_address': to_address, 'amount': 1, 'fee': 200000}
-        ]
+        # Network submission
+        await account.network.post_transaction(tx)
 
-        list_of_transaction_hashes = await metagraph_account.transfer_batch(transfers=txn_data)
-
-    asyncio.run(send_bulk_metagraph_transactions())
-
-.. dropdown:: Batch Transfer Parameters
+.. dropdown:: Network Configuration
     :animate: fade-in
 
-    * **Transfers**: Dictionary with recipient address and amount to send, fee is optional but recommended due to possible transaction limiting.
+    Configure connection parameters via ``account.connect()``:
 
-    * **Last Reference**: It's possible to parse the last reference as a parameter.
+    - **Network Presets**:
+        - ``network_id="mainnet"`` (default)
+        - ``network_id="testnet"``
+        - ``network_id="integrationnet"``
+    - **Endpoint Overrides**:
+        - ``be_url``: Blockchain Explorer URL
+        - ``l0_url``: Layer 0 API endpoint
+        - ``cl1_url``: Currency Layer 1 endpoint
 
-        - Use parameter ``last_ref``.
-        - Get last reference using ``last_ref = await account.network.get_address_last_accepted_transaction_ref(account.address)`` or ``last_ref = await metagraph_account.network.get_address_last_accepted_transaction_ref(metagraph_account.account.address)``.
-
-Metagraph Data Transaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Metagraph Token Transactions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
-    import asyncio
-    import json
+    from pypergraph.dag_account import MetagraphTokenClient
+
+    async def metagraph_transfer():
+        account = DagAccount().login_with_seed_phrase("abandon ...")
+
+        metagraph = MetagraphTokenClient(
+            account=account,
+            metagraph_id="DAG7...",
+            l0_host="http://custom-l0-node:9100",
+            cl1_host="http://custom-cl1-node:9200"
+        )
+
+        tx_hash = await metagraph.transfer(
+            to_address="DAG2recipient...",
+            amount=100000000,
+            fee=0  # Metagraph-specific fee rules
+        )
+
+Bulk Transaction Processing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+DAG Bulk Transfers
+~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    async def batch_transfers():
+        account = DagAccount().login_with_seed_phrase("abandon ...")
+        transfers = [
+            {"to_address": "DAG1...", "amount": 100000000},
+            {"to_address": "DAG1...", "amount": 50000000, "fee": 200000}
+        ]
+        tx_hashes = await account.transfer_dag_batch(transfers=transfers)
+
+Metagraph Bulk Transfers
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    async def metagraph_batch():
+        metagraph = MetagraphTokenClient(...)
+        transfers = [
+            {"to_address": "DAG2...", "amount": 100000000},
+            {"to_address": "DAG2...", "amount": 50000000, "fee": 200000}
+        ]
+        tx_hashes = await metagraph.transfer_batch(transfers=transfers)
+
+Data Transaction Submission
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
     from pypergraph.dag_keystore import KeyStore
 
-    async def send_data_transaction():
-        keystore = KeyStore()
-        seed_phrase = "abandon abandon ... " # 12 word seed phrase
-        private_key = keystore.get_private_key_from_mnemonic(phrase=seed_phrase)
+    async def submit_metagraph_data():
+        account = DagAccount().login_with_seed_phrase("abandon ...")
+        metagraph = MetagraphTokenClient(..., dl1_host="http://custom-dl1-node:9300")
 
-        account = DagAccount()
-        account.login_with_seed_phrase(words=seed_phrase)
-
-        # Initialize Metagraph client
-        metagraph_client = MetagraphTokenClient(
-            account=account,
-            metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
-            l0_host="http://custom-l0-host:9200",
-            dl1_host="http://custom-dl1-host:9300" # Data layer host
-        )
-
-        # Prepare data payload
-        tx_data = {
+        payload = {
             "CreatePoll": {
-                "name": "test_poll",
+                "name": "consensus_vote",
                 "owner": account.address,
-                "pollOptions": ["true", "false"],
+                "pollOptions": ["approve", "reject"],
                 "startSnapshotOrdinal": 1000,
                 "endSnapshotOrdinal": 100000
             }
         }
 
-        # Sign the data
-        public_key = account.public_key[2:]  # Remove '04' prefix for SECP256k1
-        signature, data_hash = keystore.data_sign(
-            private_key=private_key,
-            msg=tx_data,
-            prefix=False  # Match your Metagraph's serialization requirements
+        signature, data_hash = KeyStore().data_sign(
+            private_key=account.private_key,
+            msg=payload,
+            prefix=False
         )
 
-        # Build the transaction with proof
-        tx = {
-            "value": tx_data,
-            "proofs": [{
-                "id": public_key,
-                "signature": signature
-            }]
-        }
+        response = await metagraph.network.post_data({
+            "value": payload,
+            "proofs": [{"id": account.public_key[2:], "signature": signature}]
+        })
 
-        # Submit to Metagraph
-        response = await metagraph_client.network.post_data(tx)
-        print("Data Transaction Response:", response)
-
-    asyncio.run(send_data_transaction())
-
-.. dropdown:: Data Signing Details
+.. dropdown:: Data Signing Configuration
     :animate: fade-in
 
-    * **Encoding and Prefix**:
+    **Serialization Options**:
 
-      - Set ``prefix=False`` to **not** prepend ``\u0019Constellation Signed Data:\n`` to the payload.
-      - Use ``encoding="base64"`` or a custom function if required by your Metagraph.
-
-    * **Example Custom Encoder**:
+    - ``prefix=False``: Exclude default data preamble
+    - ``encoding='hex'``: (Default) or 'base64' or custom encoding functions, e.g.:
 
     .. code-block:: python
 
-        def custom_encoder(tx: dict) -> str:
-            # Serialize to JSON with no whitespace
-            encoded = json.dumps(tx, separators=(",", ":"))
-            # Convert to Base64
-            return base64.b64encode(encoded.encode()).decode()
-
-        signature, hash_ = keystore.data_sign(
-            private_key=private_key,
-            msg=tx_data,
-            encoding=custom_encoder
-        )
+        def base64_serializer(data: dict) -> str:
+            import base64, json
+            return base64.b64encode(
+                json.dumps(data, separators=(",", ":")).encode()
+            ).decode()

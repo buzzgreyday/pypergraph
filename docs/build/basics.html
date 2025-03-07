@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Basics &mdash; pypergraph 2025.0.0a3 documentation</title>
+  <title>Account Management &mdash; pypergraph 2025.0.0a3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
@@ -47,18 +47,22 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Basics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#create-account-wallet">Create Account/Wallet</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#create-new-account-wallet">Create New Account/Wallet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#create-account-from-existing-secret">Create Account from Existing Secret</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Account Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#wallet-creation">Wallet Creation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#new-wallet-generation">New Wallet Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#existing-credential-authentication">Existing Credential Authentication</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#send-transactions">Send Transactions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#single-dag-currency-transaction">Single $DAG Currency Transaction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#single-metagraph-currency-transaction">Single Metagraph Currency Transaction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bulk-dag-currency-transactions">Bulk $DAG Currency Transactions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bulk-metagraph-currency-transactions">Bulk Metagraph Currency Transactions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#metagraph-data-transaction">Metagraph Data Transaction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transaction-operations">Transaction Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#standard-dag-transfer">Standard DAG Transfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advanced-transaction-construction">Advanced Transaction Construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metagraph-token-transactions">Metagraph Token Transactions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bulk-transaction-processing">Bulk Transaction Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dag-bulk-transfers">DAG Bulk Transfers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#metagraph-bulk-transfers">Metagraph Bulk Transfers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#data-transaction-submission">Data Transaction Submission</a></li>
 </ul>
 </li>
 </ul>
@@ -81,7 +85,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Basics</li>
+      <li class="breadcrumb-item active">Account Management</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/basics.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -91,383 +95,231 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="basics">
-<h1>Basics<a class="headerlink" href="#basics" title="Link to this heading"></a></h1>
-<section id="create-account-wallet">
-<h2>Create Account/Wallet<a class="headerlink" href="#create-account-wallet" title="Link to this heading"></a></h2>
-<p>In Pypergraph, wallets are referred to as accounts.</p>
+  <section id="account-management">
+<h1>Account Management<a class="headerlink" href="#account-management" title="Link to this heading"></a></h1>
+<section id="wallet-creation">
+<h2>Wallet Creation<a class="headerlink" href="#wallet-creation" title="Link to this heading"></a></h2>
+<div class="admonition-cryptographic-key-trio admonition">
+<p class="admonition-title">Cryptographic Key Trio</p>
+<p>Constellation Network accounts utilize a cryptographic key trio comprising:</p>
+<ul class="simple">
+<li><p><strong>Private Key</strong>: A secure cryptographic element used to authenticate ownership and authorize transactions.
+Required for signing transactions and messages. <strong>Treat as sensitive information</strong>.</p></li>
+<li><p><strong>Public Key</strong>: Derived from the private key, serves as a network identifier for node authentication and
+signature verification in trust relationships.</p></li>
+<li><p><strong>Address</strong>: Public wallet identifier generated from cryptographic keys. Shareable for receiving transactions
+while maintaining private key confidentiality.</p></li>
+</ul>
+</div>
 <hr class="docutils" />
-<section id="create-new-account-wallet">
-<h3>Create New Account/Wallet<a class="headerlink" href="#create-new-account-wallet" title="Link to this heading"></a></h3>
+<section id="new-wallet-generation">
+<h3>New Wallet Generation<a class="headerlink" href="#new-wallet-generation" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span>
 <span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">DagAccount</span>
 
 <span class="n">keystore</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="p">()</span>
+<span class="n">mnemonic</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">get_mnemonic</span><span class="p">()</span>  <span class="c1"># Generate BIP-39 compliant seed phrase</span>
 
-<span class="c1"># Generate a new mnemonic seed phrase</span>
-<span class="n">mnemonic</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">get_mnemonic</span><span class="p">()</span>
-<span class="n">seed_phrase</span> <span class="o">=</span> <span class="n">mnemonic</span>
-
-<span class="c1"># Store the seed phrase securely before proceeding</span>
+<span class="c1"># Initialize account after securing mnemonic</span>
 <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
-<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">mnemonic</span><span class="p">)</span>
 
-<span class="c1"># Example: Print the generated public address</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DAG Address:&quot;</span><span class="p">,</span> <span class="n">account</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated Address: </span><span class="si">{</span><span class="n">account</span><span class="o">.</span><span class="n">address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="create-account-from-existing-secret">
-<h3>Create Account from Existing Secret<a class="headerlink" href="#create-account-from-existing-secret" title="Link to this heading"></a></h3>
+<section id="existing-credential-authentication">
+<h3>Existing Credential Authentication<a class="headerlink" href="#existing-credential-authentication" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">DagAccount</span>
 
-<span class="c1"># Use your existing seed phrase or private key</span>
-<span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ...&quot;</span> <span class="c1"># 12 words seed phrase</span>
 <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
-<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
+<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="s2">&quot;abandon abandon ...&quot;</span><span class="p">)</span>  <span class="c1"># Provide 12-word mnemonic</span>
 </pre></div>
 </div>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in-slide-down">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Login Variations</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<ul class="simple">
-<li><p class="sd-card-text"><strong>Login with Seed Phrase</strong></p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon abandon ...&quot;</span> <span class="p">)</span>
+<span class="sd-summary-text">Authentication Methods</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text"><strong>Mnemonic Authentication</strong>
+.. code-block:: python</p>
+<blockquote>
+<div><p class="sd-card-text">account.login_with_seed_phrase(“abandon abandon …”)</p>
+</div></blockquote>
+<p class="sd-card-text"><strong>Private Key Authentication</strong>
+.. code-block:: python</p>
+<blockquote>
+<div><p class="sd-card-text">account.login_with_private_key(“private_key_here”)</p>
+</div></blockquote>
+<p class="sd-card-text"><strong>Public Key Authentication</strong> (Read-only)
+.. note:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Transaction</span> <span class="n">submission</span> <span class="n">requires</span> <span class="n">private</span> <span class="n">key</span> <span class="n">access</span>
 </pre></div>
 </div>
-<ul class="simple">
-<li><p class="sd-card-text"><strong>Login with Private Key</strong></p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_private_key</span><span class="p">(</span><span class="s2">&quot;your_private_key_here&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<ul class="simple">
-<li><p class="sd-card-text"><strong>Login with Public Key</strong></p></li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p class="sd-card-text">Private key is required to send transactions. Public key login allows read-only access.</p>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_public_key</span><span class="p">(</span><span class="s2">&quot;your_public_key_here&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account</span><span class="o">.</span><span class="n">login_with_public_key</span><span class="p">(</span><span class="s2">&quot;public_key_here&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </details></section>
 </section>
 <hr class="docutils" />
-<section id="send-transactions">
-<h2>Send Transactions<a class="headerlink" href="#send-transactions" title="Link to this heading"></a></h2>
-<section id="single-dag-currency-transaction">
-<h3>Single $DAG Currency Transaction<a class="headerlink" href="#single-dag-currency-transaction" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create and login to account</span>
-<span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ...&quot;</span> <span class="c1"># 12 words seed phrase</span>
-<span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
-<span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">seed_phrase</span><span class="p">)</span>
-<span class="nb">hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">transfer</span><span class="p">(</span>
-    <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span>
-    <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>
-    <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p><strong>Or…</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">DagAccount</span>
+<section id="transaction-operations">
+<h2>Transaction Operations<a class="headerlink" href="#transaction-operations" title="Link to this heading"></a></h2>
+<section id="standard-dag-transfer">
+<h3>Standard DAG Transfer<a class="headerlink" href="#standard-dag-transfer" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">DagAccount</span>
+<span class="kn">import</span> <span class="nn">asyncio</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_dag</span><span class="p">():</span>
-    <span class="c1"># Create and login to account</span>
-    <span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ...&quot;</span> <span class="c1"># 12 words seed phrase</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">execute_transfer</span><span class="p">():</span>
     <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
-    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon abandon ...&quot;</span><span class="p">)</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">network_id</span><span class="o">=</span><span class="s2">&quot;testnet&quot;</span><span class="p">)</span>  <span class="c1"># Default: mainnet</span>
 
-    <span class="c1"># Connect to testnet (default: mainnet)</span>
-    <span class="n">account</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">network_id</span><span class="o">=</span><span class="s2">&quot;testnet&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Generate and send transaction</span>
-    <span class="n">tx</span><span class="p">,</span> <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
-        <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG1testestestestestestestestestt&quot;</span><span class="p">,</span>
-        <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>  <span class="c1"># 1 DAG = 100,000,000 units</span>
+    <span class="n">transaction_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">transfer</span><span class="p">(</span>
+        <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG1...&quot;</span><span class="p">,</span>
+        <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>  <span class="c1"># 1 DAG = 10^8 units</span>
         <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span>
     <span class="p">)</span>
-    <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Transaction Hash:&quot;</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transaction ID: </span><span class="si">{</span><span class="n">transaction_hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">send_dag</span><span class="p">())</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">execute_transfer</span><span class="p">())</span>
 </pre></div>
 </div>
+</section>
+<section id="advanced-transaction-construction">
+<h3>Advanced Transaction Construction<a class="headerlink" href="#advanced-transaction-construction" title="Link to this heading"></a></h3>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Transaction Building and Signing</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">prepare_tx</span><span class="p">(</span>
-        <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">from_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">last_ref</span><span class="p">:</span> <span class="n">LastReference</span><span class="p">,</span>
-        <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Transaction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-
-    <span class="k">if</span> <span class="n">to_address</span> <span class="o">==</span> <span class="n">from_address</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;KeyStore :: An address cannot send a transaction to itself&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;KeyStore :: Send amount must be greater than 1e-8&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">fee</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;KeyStore :: Send fee must be greater or equal to zero&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Create transaction</span>
-    <span class="n">tx</span> <span class="o">=</span> <span class="n">Transaction</span><span class="p">(</span>
-        <span class="n">source</span><span class="o">=</span><span class="n">from_address</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span> <span class="n">fee</span><span class="o">=</span><span class="n">fee</span><span class="p">,</span>
-        <span class="n">parent</span><span class="o">=</span><span class="n">last_ref</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="n">MIN_SALT</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">getrandbits</span><span class="p">(</span><span class="mi">48</span><span class="p">))</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Get encoded transaction</span>
-    <span class="n">encoded_tx</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">encoded</span>
-
-    <span class="n">kryo</span> <span class="o">=</span> <span class="n">Kryo</span><span class="p">()</span>
-    <span class="n">serialized_tx</span> <span class="o">=</span> <span class="n">kryo</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="n">encoded_tx</span><span class="p">,</span> <span class="n">set_references</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">hash_value</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">_double_hash</span><span class="p">(</span><span class="n">serialized_tx</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">tx</span><span class="p">,</span> <span class="n">hash_value</span>
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">generate_signed_transaction</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">to_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">last_ref</span><span class="o">=</span><span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SignedTransaction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-    <span class="n">last_ref</span> <span class="o">=</span> <span class="n">last_ref</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">address</span>
-    <span class="p">)</span>
-    <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">prepare_tx</span><span class="p">(</span>
-        <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span>
-        <span class="n">to_address</span><span class="o">=</span><span class="n">to_address</span><span class="p">,</span>
-        <span class="n">from_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
-        <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span><span class="p">,</span>
-        <span class="n">fee</span><span class="o">=</span><span class="n">fee</span>
-    <span class="p">)</span>
-    <span class="n">signature</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_trio</span><span class="o">.</span><span class="n">private_key</span><span class="p">,</span> <span class="n">hash_</span><span class="p">)</span>
-    <span class="n">valid</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span> <span class="n">hash_</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wallet :: Invalid signature.&quot;</span><span class="p">)</span>
-    <span class="n">proof</span> <span class="o">=</span> <span class="n">SignatureProof</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
-    <span class="n">tx</span> <span class="o">=</span> <span class="n">SignedTransaction</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">tx</span><span class="p">,</span> <span class="n">proofs</span><span class="o">=</span><span class="p">[</span><span class="n">proof</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">tx</span><span class="p">,</span> <span class="n">hash_</span>
-
-<span class="c1"># Generate and send transaction</span>
+<span class="sd-summary-text">Transaction Lifecycle Management</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Transaction preparation</span>
 <span class="n">tx</span><span class="p">,</span> <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
-    <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG1testestestestestestestestest&quot;</span><span class="p">,</span>
-    <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>  <span class="c1"># 1 DAG = 100,000,000 units</span>
-    <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span>
+    <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG1...&quot;</span><span class="p">,</span>
+    <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>
+    <span class="n">fee</span><span class="o">=</span><span class="mi">200000</span><span class="p">,</span>
+    <span class="n">last_ref</span><span class="o">=</span><span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span><span class="n">account</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
 <span class="p">)</span>
+
+<span class="c1"># Network submission</span>
+<span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">DagAccount Network Parameters</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">Configure network endpoints when calling <code class="docutils literal notranslate"><span class="pre">account.connect()</span></code>:</p>
-<ul>
-<li><p class="sd-card-text"><strong>Network_id</strong></p>
-<blockquote>
-<div><p class="sd-card-text">Supported values: <code class="docutils literal notranslate"><span class="pre">&quot;mainnet&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;testnet&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;integrationnet&quot;</span></code>.</p>
-</div></blockquote>
+<span class="sd-summary-text">Network Configuration</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Configure connection parameters via <code class="docutils literal notranslate"><span class="pre">account.connect()</span></code>:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>Network Presets</strong>:</dt><dd><ul>
+<li><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">network_id=&quot;mainnet&quot;</span></code> (default)</p></li>
+<li><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">network_id=&quot;testnet&quot;</span></code></p></li>
+<li><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">network_id=&quot;integrationnet&quot;</span></code></p></li>
+</ul>
+</dd>
+</dl>
 </li>
-<li><p class="sd-card-text"><strong>be_url</strong></p>
-<blockquote>
-<div><p class="sd-card-text">Override the default Blockchain Explorer URL (<code class="docutils literal notranslate"><span class="pre">&quot;https://be-{network_id}.constellationnetwork.io&quot;</span></code>).</p>
-</div></blockquote>
+<li><dl class="simple">
+<dt><strong>Endpoint Overrides</strong>:</dt><dd><ul>
+<li><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">be_url</span></code>: Blockchain Explorer URL</p></li>
+<li><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">l0_url</span></code>: Layer 0 API endpoint</p></li>
+<li><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">cl1_url</span></code>: Currency Layer 1 endpoint</p></li>
+</ul>
+</dd>
+</dl>
 </li>
 </ul>
-<p class="sd-card-text">Other parameters (<code class="docutils literal notranslate"><span class="pre">l0_url</span></code>, <code class="docutils literal notranslate"><span class="pre">cl1_url</span></code>, etc.) follow similar patterns.</p>
 </div>
 </details></section>
-<section id="single-metagraph-currency-transaction">
-<h3>Single Metagraph Currency Transaction<a class="headerlink" href="#single-metagraph-currency-transaction" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">MetagraphTokenClient</span>
+<section id="metagraph-token-transactions">
+<h3>Metagraph Token Transactions<a class="headerlink" href="#metagraph-token-transactions" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">MetagraphTokenClient</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_metagraph_token</span><span class="p">():</span>
-    <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
-    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon abandon ...&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">metagraph_transfer</span><span class="p">():</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon ...&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Initialize Metagraph client</span>
-    <span class="n">metagraph_client</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span>
+    <span class="n">metagraph</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span>
         <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
-        <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span><span class="p">,</span>
-        <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://custom-l0-host:9100&quot;</span><span class="p">,</span>  <span class="c1"># Replace with actual endpoints</span>
-        <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://custom-cl1-host:9200&quot;</span> <span class="c1"># Currency layer host</span>
+        <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7...&quot;</span><span class="p">,</span>
+        <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://custom-l0-node:9100&quot;</span><span class="p">,</span>
+        <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://custom-cl1-node:9200&quot;</span>
     <span class="p">)</span>
 
-    <span class="c1"># Get last transaction reference for the sender</span>
-    <span class="n">last_ref</span> <span class="o">=</span> <span class="k">await</span> <span class="n">metagraph_client</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">get_address_last_accepted_transaction_ref</span><span class="p">(</span>
-        <span class="n">address</span><span class="o">=</span><span class="n">account</span><span class="o">.</span><span class="n">address</span>  <span class="c1"># Use the account&#39;s address</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Generate and send transaction</span>
-    <span class="n">tx</span><span class="p">,</span> <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">metagraph_client</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">generate_signed_transaction</span><span class="p">(</span>
-        <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG2RecipientAddress...&quot;</span><span class="p">,</span>
+    <span class="n">tx_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">metagraph</span><span class="o">.</span><span class="n">transfer</span><span class="p">(</span>
+        <span class="n">to_address</span><span class="o">=</span><span class="s2">&quot;DAG2recipient...&quot;</span><span class="p">,</span>
         <span class="n">amount</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span>
-        <span class="n">fee</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># Metagraphs may have custom fee rules</span>
-        <span class="n">last_ref</span><span class="o">=</span><span class="n">last_ref</span>
+        <span class="n">fee</span><span class="o">=</span><span class="mi">0</span>  <span class="c1"># Metagraph-specific fee rules</span>
     <span class="p">)</span>
-    <span class="k">await</span> <span class="n">metagraph_client</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_transaction</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Metagraph Transaction Hash:&quot;</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">)</span>
-
-<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">send_metagraph_token</span><span class="p">())</span>
 </pre></div>
 </div>
 </section>
-<section id="bulk-dag-currency-transactions">
-<h3>Bulk $DAG Currency Transactions<a class="headerlink" href="#bulk-dag-currency-transactions" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_network</span> <span class="kn">import</span> <span class="n">DagNetwork</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">DagAccount</span>
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_bulk_dag_transactions</span><span class="p">():</span>
-    <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
-    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="s2">&quot;abandon abandon ...&quot;</span><span class="p">)</span>
-    <span class="n">account</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">network_id</span><span class="o">=</span><span class="s1">&#39;testnet&#39;</span><span class="p">)</span>
-
-    <span class="n">txn_data</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">10000000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">5000000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">2500000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">}</span>
+<section id="bulk-transaction-processing">
+<h3>Bulk Transaction Processing<a class="headerlink" href="#bulk-transaction-processing" title="Link to this heading"></a></h3>
+<section id="dag-bulk-transfers">
+<h4>DAG Bulk Transfers<a class="headerlink" href="#dag-bulk-transfers" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">batch_transfers</span><span class="p">():</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon ...&quot;</span><span class="p">)</span>
+    <span class="n">transfers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;to_address&quot;</span><span class="p">:</span> <span class="s2">&quot;DAG1...&quot;</span><span class="p">,</span> <span class="s2">&quot;amount&quot;</span><span class="p">:</span> <span class="mi">100000000</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;to_address&quot;</span><span class="p">:</span> <span class="s2">&quot;DAG1...&quot;</span><span class="p">,</span> <span class="s2">&quot;amount&quot;</span><span class="p">:</span> <span class="mi">50000000</span><span class="p">,</span> <span class="s2">&quot;fee&quot;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">}</span>
     <span class="p">]</span>
-
-    <span class="n">list_of_tx_hashes</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">transfer_dag_batch</span><span class="p">(</span><span class="n">transfers</span><span class="o">=</span><span class="n">txn_data</span><span class="p">)</span>
-
-<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">send_bulk_dag_transactions</span><span class="p">())</span>
+    <span class="n">tx_hashes</span> <span class="o">=</span> <span class="k">await</span> <span class="n">account</span><span class="o">.</span><span class="n">transfer_dag_batch</span><span class="p">(</span><span class="n">transfers</span><span class="o">=</span><span class="n">transfers</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="bulk-metagraph-currency-transactions">
-<h3>Bulk Metagraph Currency Transactions<a class="headerlink" href="#bulk-metagraph-currency-transactions" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_account</span> <span class="kn">import</span> <span class="n">MetagraphTokenClient</span>
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_bulk_metagraph_transactions</span><span class="p">():</span>
-    <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
-    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon abandon ... &quot;</span><span class="p">)</span>
-
-    <span class="n">metagraph_account</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span>
-        <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
-        <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span><span class="p">,</span>
-        <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100&quot;</span><span class="p">,</span>
-        <span class="n">cl1_host</span><span class="o">=</span><span class="s2">&quot;http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200&quot;</span>
-    <span class="p">)</span>
-
-    <span class="n">txn_data</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">10000000</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">5000000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">2500000</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;to_address&#39;</span><span class="p">:</span> <span class="n">to_address</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">}</span>
+<section id="metagraph-bulk-transfers">
+<h4>Metagraph Bulk Transfers<a class="headerlink" href="#metagraph-bulk-transfers" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">metagraph_batch</span><span class="p">():</span>
+    <span class="n">metagraph</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">transfers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;to_address&quot;</span><span class="p">:</span> <span class="s2">&quot;DAG2...&quot;</span><span class="p">,</span> <span class="s2">&quot;amount&quot;</span><span class="p">:</span> <span class="mi">100000000</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;to_address&quot;</span><span class="p">:</span> <span class="s2">&quot;DAG2...&quot;</span><span class="p">,</span> <span class="s2">&quot;amount&quot;</span><span class="p">:</span> <span class="mi">50000000</span><span class="p">,</span> <span class="s2">&quot;fee&quot;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">}</span>
     <span class="p">]</span>
-
-    <span class="n">list_of_transaction_hashes</span> <span class="o">=</span> <span class="k">await</span> <span class="n">metagraph_account</span><span class="o">.</span><span class="n">transfer_batch</span><span class="p">(</span><span class="n">transfers</span><span class="o">=</span><span class="n">txn_data</span><span class="p">)</span>
-
-<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">send_bulk_metagraph_transactions</span><span class="p">())</span>
+    <span class="n">tx_hashes</span> <span class="o">=</span> <span class="k">await</span> <span class="n">metagraph</span><span class="o">.</span><span class="n">transfer_batch</span><span class="p">(</span><span class="n">transfers</span><span class="o">=</span><span class="n">transfers</span><span class="p">)</span>
 </pre></div>
 </div>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Batch Transfer Parameters</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<ul>
-<li><p class="sd-card-text"><strong>Transfers</strong>: Dictionary with recipient address and amount to send, fee is optional but recommended due to possible transaction limiting.</p></li>
-<li><p class="sd-card-text"><strong>Last Reference</strong>: It’s possible to parse the last reference as a parameter.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p class="sd-card-text">Use parameter <code class="docutils literal notranslate"><span class="pre">last_ref</span></code>.</p></li>
-<li><p class="sd-card-text">Get last reference using <code class="docutils literal notranslate"><span class="pre">last_ref</span> <span class="pre">=</span> <span class="pre">await</span> <span class="pre">account.network.get_address_last_accepted_transaction_ref(account.address)</span></code> or <code class="docutils literal notranslate"><span class="pre">last_ref</span> <span class="pre">=</span> <span class="pre">await</span> <span class="pre">metagraph_account.network.get_address_last_accepted_transaction_ref(metagraph_account.account.address)</span></code>.</p></li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
-</div>
-</details></section>
-<section id="metagraph-data-transaction">
-<h3>Metagraph Data Transaction<a class="headerlink" href="#metagraph-data-transaction" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span>
+</section>
+</section>
+<section id="data-transaction-submission">
+<h3>Data Transaction Submission<a class="headerlink" href="#data-transaction-submission" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pypergraph.dag_keystore</span> <span class="kn">import</span> <span class="n">KeyStore</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_data_transaction</span><span class="p">():</span>
-    <span class="n">keystore</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="p">()</span>
-    <span class="n">seed_phrase</span> <span class="o">=</span> <span class="s2">&quot;abandon abandon ... &quot;</span> <span class="c1"># 12 word seed phrase</span>
-    <span class="n">private_key</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">get_private_key_from_mnemonic</span><span class="p">(</span><span class="n">phrase</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">submit_metagraph_data</span><span class="p">():</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon ...&quot;</span><span class="p">)</span>
+    <span class="n">metagraph</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">dl1_host</span><span class="o">=</span><span class="s2">&quot;http://custom-dl1-node:9300&quot;</span><span class="p">)</span>
 
-    <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span>
-    <span class="n">account</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="n">words</span><span class="o">=</span><span class="n">seed_phrase</span><span class="p">)</span>
-
-    <span class="c1"># Initialize Metagraph client</span>
-    <span class="n">metagraph_client</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span>
-        <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
-        <span class="n">metagraph_id</span><span class="o">=</span><span class="s2">&quot;DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43&quot;</span><span class="p">,</span>
-        <span class="n">l0_host</span><span class="o">=</span><span class="s2">&quot;http://custom-l0-host:9200&quot;</span><span class="p">,</span>
-        <span class="n">dl1_host</span><span class="o">=</span><span class="s2">&quot;http://custom-dl1-host:9300&quot;</span> <span class="c1"># Data layer host</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Prepare data payload</span>
-    <span class="n">tx_data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;CreatePoll&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;test_poll&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;consensus_vote&quot;</span><span class="p">,</span>
             <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="n">account</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
-            <span class="s2">&quot;pollOptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;pollOptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;approve&quot;</span><span class="p">,</span> <span class="s2">&quot;reject&quot;</span><span class="p">],</span>
             <span class="s2">&quot;startSnapshotOrdinal&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
             <span class="s2">&quot;endSnapshotOrdinal&quot;</span><span class="p">:</span> <span class="mi">100000</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="c1"># Sign the data</span>
-    <span class="n">public_key</span> <span class="o">=</span> <span class="n">account</span><span class="o">.</span><span class="n">public_key</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>  <span class="c1"># Remove &#39;04&#39; prefix for SECP256k1</span>
-    <span class="n">signature</span><span class="p">,</span> <span class="n">data_hash</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">data_sign</span><span class="p">(</span>
-        <span class="n">private_key</span><span class="o">=</span><span class="n">private_key</span><span class="p">,</span>
-        <span class="n">msg</span><span class="o">=</span><span class="n">tx_data</span><span class="p">,</span>
-        <span class="n">prefix</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Match your Metagraph&#39;s serialization requirements</span>
+    <span class="n">signature</span><span class="p">,</span> <span class="n">data_hash</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="p">()</span><span class="o">.</span><span class="n">data_sign</span><span class="p">(</span>
+        <span class="n">private_key</span><span class="o">=</span><span class="n">account</span><span class="o">.</span><span class="n">private_key</span><span class="p">,</span>
+        <span class="n">msg</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
 
-    <span class="c1"># Build the transaction with proof</span>
-    <span class="n">tx</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">tx_data</span><span class="p">,</span>
-        <span class="s2">&quot;proofs&quot;</span><span class="p">:</span> <span class="p">[{</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">public_key</span><span class="p">,</span>
-            <span class="s2">&quot;signature&quot;</span><span class="p">:</span> <span class="n">signature</span>
-        <span class="p">}]</span>
-    <span class="p">}</span>
-
-    <span class="c1"># Submit to Metagraph</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">metagraph_client</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_data</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data Transaction Response:&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
-
-<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">send_data_transaction</span><span class="p">())</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">metagraph</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">post_data</span><span class="p">({</span>
+        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">payload</span><span class="p">,</span>
+        <span class="s2">&quot;proofs&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">account</span><span class="o">.</span><span class="n">public_key</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="s2">&quot;signature&quot;</span><span class="p">:</span> <span class="n">signature</span><span class="p">}]</span>
+    <span class="p">})</span>
 </pre></div>
 </div>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Data Signing Details</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<span class="sd-summary-text">Data Signing Configuration</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text"><strong>Serialization Options</strong>:</p>
 <ul class="simple">
-<li><p class="sd-card-text"><strong>Encoding and Prefix</strong>:</p>
-<ul>
-<li><p class="sd-card-text">Set <code class="docutils literal notranslate"><span class="pre">prefix=False</span></code> to <strong>not</strong> prepend <code class="docutils literal notranslate"><span class="pre">\u0019Constellation</span> <span class="pre">Signed</span> <span class="pre">Data:\n</span></code> to the payload.</p></li>
-<li><p class="sd-card-text">Use <code class="docutils literal notranslate"><span class="pre">encoding=&quot;base64&quot;</span></code> or a custom function if required by your Metagraph.</p></li>
+<li><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">prefix=False</span></code>: Exclude default data preamble</p></li>
+<li><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">encoding='hex'</span></code>: (Default) or ‘base64’ or custom encoding functions, e.g.:</p></li>
 </ul>
-</li>
-<li><p class="sd-card-text"><strong>Example Custom Encoder</strong>:</p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_encoder</span><span class="p">(</span><span class="n">tx</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="c1"># Serialize to JSON with no whitespace</span>
-    <span class="n">encoded</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">tx</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">))</span>
-    <span class="c1"># Convert to Base64</span>
-    <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">encoded</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-
-<span class="n">signature</span><span class="p">,</span> <span class="n">hash_</span> <span class="o">=</span> <span class="n">keystore</span><span class="o">.</span><span class="n">data_sign</span><span class="p">(</span>
-    <span class="n">private_key</span><span class="o">=</span><span class="n">private_key</span><span class="p">,</span>
-    <span class="n">msg</span><span class="o">=</span><span class="n">tx_data</span><span class="p">,</span>
-    <span class="n">encoding</span><span class="o">=</span><span class="n">custom_encoder</span>
-<span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">base64_serializer</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">base64</span><span class="o">,</span> <span class="nn">json</span>
+    <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
