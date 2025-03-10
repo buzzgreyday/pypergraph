@@ -1,9 +1,10 @@
 import base64
 import hashlib
 import json
-import os
 import random
 import secrets
+
+import aiopath
 import eth_keyfile
 from decimal import Decimal
 from typing import Tuple, Callable, Optional, Union, Literal, Dict, Any
@@ -300,16 +301,25 @@ class KeyStore:
         return eth_keyfile.decode_keyfile_json(data, password.encode()).hex()
 
     @staticmethod
-    def write_keystore_file(path: str, data: dict):
-        # now write output to a file
-        with open(f"{path}secret.json", "w") as secret:
-            secret.write(
-                json.dumps(data, indent=4)
-            )
+    async def write_keystore_file(full_path: str, data: dict):
+        if full_path.endswith('.json'):
+            full_path = aiopath.Path(full_path)
+            async with full_path.open("w") as secret:
+                await secret.write(
+                    json.dumps(data)
+                )
+        else:
+            raise TypeError('KeyStore :: The path must be the full path including the json extension.')
 
     @staticmethod
-    def load_keystore_file(path, password: str):
-        return eth_keyfile.load_keyfile(f"{path}secret.json")
+    async def load_keystore_file(full_path: str):
+        if full_path.endswith('.json'):
+            full_path = aiopath.Path(full_path)
+            async with full_path.open('r') as f:
+                content = await f.read()
+                return json.loads(content)
+        else:
+            TypeError('KeyStore :: The path must be the full path including the json extension.')
 
     @staticmethod
     def get_extended_private_key_from_mnemonic(mnemonic: str):

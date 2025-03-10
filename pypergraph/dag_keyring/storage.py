@@ -1,23 +1,13 @@
 import json
 from typing import Optional, List
 
+import aiopath
 import keyring
-
-from pathlib import Path
 
 from pydantic import BaseModel, Field
 
 import os
 
-# def get_keystore_path():
-#     if os.name == "nt":  # Windows
-#         return os.path.join(os.getenv("APPDATA"), "mywallet", "keystore")
-#     else:  # Linux/macOS
-#         return os.path.expanduser("~/.config/mywallet/keystore")
-#
-# path = get_keystore_path()
-# os.makedirs(path, exist_ok=True)  # Ensure the directory exists
-# print(f"Keystore directory: {path}")
 
 class StateStorageDb:
     def __init__(self, storage_client=None):
@@ -34,7 +24,7 @@ class StateStorageDb:
         :param storage_client: Defaults to JsonStorage()
         """
         self.key_prefix = "pypergraph-"
-        self.default_storage = JsonStorage()  # Fallback storage
+        self.default_storage = KeyringStorage()  # Fallback storage
         self.storage_client = storage_client or self.default_storage
 
     def set_client(self, client):
@@ -51,7 +41,7 @@ class StateStorageDb:
         key = key or "vault"
         full_key = self.key_prefix + key
         serialized_value = value
-        self.storage_client.set_item(full_key, serialized_value)
+        await self.storage_client.set_item(full_key, serialized_value)
 
     async def get(self, key: str = "vault"):
         full_key = self.key_prefix + key
@@ -62,7 +52,7 @@ class StateStorageDb:
 
     async def delete(self, key: str = "vault"):
         full_key = self.key_prefix + key
-        self.storage_client.remove_item(full_key)
+        await self.storage_client.remove_item(full_key)
 
 """
 The classes below are ready to use for personal wallets. Other storage methods can be added to StateStorageDB 
@@ -79,47 +69,64 @@ class KeyringStorage:
     """Storage client using the system keyring."""
 
     @staticmethod
-    def get_item(key: str):
+    async def get_item(key: str):
         return keyring.get_password("Pypergraph", key)
 
     @staticmethod
-    def set_item(key: str, value: str):
+    async def set_item(key: str, value: str):
         keyring.set_password("Pypergraph", key, value)
 
     @staticmethod
-    def remove_item(key: str):
+    async def remove_item(key: str):
         keyring.delete_password("Pypergraph", key)
+
+def get_keystore_path():
+    if os.name == "nt":  # Windows
+        return os.path.join(os.getenv("APPDATA"), "pypergraph", "keystore")
+    else:  # Linux/macOS
+        return os.path.expanduser("~/.config/pypergraph/keystore")
+path = get_keystore_path()
+os.makedirs(path, exist_ok=True)  # Ensure the directory exists
 
 
 class JsonStorage:
     """Fallback storage client using a JSON file."""
 
-    def __init__(self, file_path: str = "pypergraph_storage.json"):
-        self.file_path = Path(file_path)
-        if not self.file_path.exists():
-            self.file_path.write_text(json.dumps({}))
+    def __init__(self, full_path: Optional[str] = None):
+        if not full_path:
+            path = get_keystore_path()
+            os.makedirs(path, exist_ok=True)
+            self.file_path = aiopath.Path(f"{path}/keystore.json")
+        else:
+            if not full_path.endswith('.json'):
+                raise TypeError('JsonStorage :: File path must include the filename and include the json extension.')
+            else:
+                os.makedirs(full_path, exist_ok=True)
+                self.file_path = aiopath.Path(full_path)
+        # if not self.file_path.exists():
+        #     self.file_path.write_text(json.dumps({}))
 
-    def get_item(self, key: str):
-        data = self._read_data()
+    async def get_item(self, key: str):
+        data = await self._read_data()
         return data.get(key)
 
-    def set_item(self, key: str, value: str):
-        data = self._read_data()
+    async def set_item(self, key: str, value: str):
+        data = await self._read_data()
         data[key] = value
-        self._write_data(data)
+        await self._write_data(data)
 
-    def remove_item(self, key: str):
-        data = self._read_data()
+    async def remove_item(self, key: str):
+        data = await self._read_data()
         if key in data:
             del data[key]
-            self._write_data(data)
+            await self._write_data(data)
 
-    def _read_data(self):
-        with self.file_path.open("r") as f:
-            return json.load(f)
+    async def _read_data(self):
+        async with self.file_path.open("r") as f:
+            return json.load(await f)
 
-    def _write_data(self, data):
-        with self.file_path.open("w") as f:
+    async def _write_data(self, data):
+        async with self.file_path.open("w") as f:
             json.dump(data, f, indent=2)
 
 
