@@ -28,3 +28,18 @@ def test_new_keys():
     address = keystore.get_dag_address_from_public_key(pubk)
     keystore.validate_address(address)
 
+
+def test_encrypt_decrypt_keystore_v3():
+    keystore = KeyStore()
+    phrase = "multiply angle perfect verify behind sibling skirt attract first lift remove fortune"
+    keystore.validate_mnemonic(phrase)
+    pk = keystore.get_private_key_from_mnemonic(phrase)
+    enc_data = keystore.encrypt_keystore_from_private_key(private_key=pk, password="top_secret")
+    dec_pk = keystore.decrypt_keystore_private_key(data=enc_data, password='top_secret')
+    assert dec_pk == pk
+    keystore.write_keystore_file('', enc_data)
+    enc_data = keystore.load_keystore_file('', 'top_secret')
+    dec_pk = keystore.decrypt_keystore_private_key(data=enc_data, password='top_secret')
+    assert dec_pk == pk
+
+""" I would like to make it mor clear that 'encryptor' is custom, and that the above methods are industry standards"""

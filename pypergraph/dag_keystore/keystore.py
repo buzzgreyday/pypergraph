@@ -1,11 +1,12 @@
 import base64
 import hashlib
 import json
+import os
 import random
 import secrets
 import eth_keyfile
 from decimal import Decimal
-from typing import Tuple, Callable, Optional, Union, Literal
+from typing import Tuple, Callable, Optional, Union, Literal, Dict, Any
 
 import base58
 import eth_utils
@@ -284,32 +285,35 @@ class KeyStore:
         """
         return eth_utils.keccak(secrets.token_bytes(32)).hex()
 
-    @staticmethod
-    def encrypt_phrase(phrase: str, password: str):
-        # TODO v3
-        pass
-
-    @staticmethod
-    def decrypt_phrase(data: dict, password):
-        # TODO v3
-        pass
-
-    @staticmethod
-    async def generate_encrypted_private_key(password: str, private_key: Optional[str]):
-        # TODO v3
-        print(eth_keyfile.create_keyfile_json(private_key.encode(), password))
-        pass
+    def encrypt_keystore_from_phrase(self, phrase: str, password: str):
+        private_key = self.get_private_key_from_mnemonic(phrase=phrase)
+        return self.encrypt_keystore_from_private_key(private_key=private_key, password=password)
 
 
     @staticmethod
-    async def decrypt_private_key(data: dict, password: str):
-        # TODO v3
-        print(eth_keyfile.decode_keyfile_json(data, password))
-        pass
+    def encrypt_keystore_from_private_key(private_key: Optional[str], password: str) -> Dict[str, Any]:
+        return eth_keyfile.create_keyfile_json(bytes.fromhex(private_key), password.encode(), version=3)
 
-    # Extended keys can be used to derive child keys
+
+    @staticmethod
+    def decrypt_keystore_private_key(data, password: str):
+        return eth_keyfile.decode_keyfile_json(data, password.encode()).hex()
+
+    @staticmethod
+    def write_keystore_file(path: str, data: dict):
+        # now write output to a file
+        with open(f"{path}secret.json", "w") as secret:
+            secret.write(
+                json.dumps(data, indent=4)
+            )
+
+    @staticmethod
+    def load_keystore_file(path, password: str):
+        return eth_keyfile.load_keyfile(f"{path}secret.json")
+
     @staticmethod
     def get_extended_private_key_from_mnemonic(mnemonic: str):
+        # Extended keys can be used to derive child keys
         bip39 = Bip39()
         bip32 = Bip32()
         if bip39.validate_mnemonic(mnemonic):
