@@ -38,8 +38,8 @@ async def test_encrypt_decrypt_keystore_v3():
     enc_data = keystore.encrypt_keystore_from_private_key(private_key=pk, password="top_secret")
     dec_pk = keystore.decrypt_keystore_private_key(data=enc_data, password='top_secret')
     assert dec_pk == pk
-    await keystore.write_keystore_file('', enc_data)
-    enc_data = await keystore.load_keystore_file('')
+    await keystore.write_keystore_file('keystore.json', enc_data)
+    enc_data = await keystore.load_keystore_file('keystore.json')
     dec_pk = keystore.decrypt_keystore_private_key(data=enc_data, password='top_secret')
     assert dec_pk == pk
 
