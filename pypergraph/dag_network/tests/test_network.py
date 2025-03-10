@@ -5,6 +5,7 @@ import pytest
 import random
 
 import pypergraph.dag_account
+from pypergraph.dag_core.exceptions import NetworkError
 from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.models.network import NetworkInfo
 from pypergraph.dag_network.network import DagTokenNetwork
@@ -359,7 +360,7 @@ async def test_post_transaction(network):
        tx, hash_ = await account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=200000000)
        try:
             await account.network.post_transaction(tx)
-       except ValueError as e:
+       except NetworkError as e:
            if "InsufficientBalance" in str(e):
                pytest.skip(f"Insufficient balance: {e}")
            elif "TransactionLimited" in str(e):
@@ -385,7 +386,7 @@ async def test_post_metagraph_currency_transaction(network):
     )
     try:
         await account_metagraph_client.network.post_transaction(tx=tx)
-    except ValueError as e:
+    except NetworkError as e:
         if "InsufficientBalance" in str(e):
             pytest.skip(f"Insufficient balance: {e}")
         elif "TransactionLimited" in str(e):
