@@ -436,6 +436,8 @@ class MDL1Api:
 
     async def get_data(self) -> List[SignedTransaction]:
         """Get enqueued data update objects."""
+        # TODO
+        pass
 
     async def post_data(self, tx: Dict):
         """

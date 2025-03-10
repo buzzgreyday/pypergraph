@@ -150,8 +150,8 @@ Metagraph Token Transactions
 Bulk Transaction Processing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-DAG Bulk Transfers
-~~~~~~~~~~~~~~~~~~
+DAG Bulk Currency Transfers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -163,8 +163,8 @@ DAG Bulk Transfers
         ]
         tx_hashes = await account.transfer_dag_batch(transfers=transfers)
 
-Metagraph Bulk Transfers
-~~~~~~~~~~~~~~~~~~~~~~~~
+Metagraph Bulk Currency Transfers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 

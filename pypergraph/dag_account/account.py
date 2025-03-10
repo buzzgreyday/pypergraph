@@ -4,7 +4,6 @@ from datetime import datetime
 
 import base58
 import hashlib
-from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from pyee.asyncio import AsyncIOEventEmitter
@@ -408,7 +407,7 @@ class DagAccount:
         :param cl1_host: (Optional) Layer 1 currency host URL (port might be required).
         :param dl1_host: (Optional) Layer 1 data host URL (port might be required).
         :param token_decimals: (Optional) 1 $DAG = 100000000 (default: 8)
-        :return: MetagraphTokenClient object.
+        :return: Metagraph token client object.
         """
         return MetagraphTokenClient(
             account=account or self,
@@ -426,6 +425,10 @@ class DagAccount:
 
 
 class MetagraphTokenClient:
+    """
+    Create a metagraph account from DagAccount.
+
+    """
     def __init__(
             self, account: DagAccount, metagraph_id: str, block_explorer_url: Optional[str] = None,
             l0_host: Optional[str] = None, cl1_host: Optional[str] = None, dl1_host: Optional[str] = None,
@@ -454,15 +457,33 @@ class MetagraphTokenClient:
         return self.account.address
 
     async def get_transactions(self, limit: Optional[int] = None, search_after: Optional[str] = None):
+        """
+        Get paginated list of Block Explorer transaction objects.
+
+        :param address: DAG address.
+        :param limit: Limit per page.
+        :param search_after: Timestamp.
+        :return:
+        """
         return await self.network.get_transactions_by_address(self.address, limit, search_after)
 
-    async def get_balance(self):
+    async def get_balance(self) -> int:
+        """
+        Get Metagraph token balance for the active account.
+
+        :return: Integer.
+        """
         return await self.get_balance_for(self.address)
 
-    async def get_balance_for(self, address: str):
+    async def get_balance_for(self, address: str) -> int:
+        """
+        Get Metagraph token balance for the active account.
+
+        :return: Integer.
+        """
         response = await self.network.get_address_balance(address)
         if response and isinstance(response.balance, (int, float)):
-            return int(Decimal(response.balance))
+            return int(response.balance)
         return 0
 
     async def get_fee_recommendation(self):
@@ -477,7 +498,16 @@ class MetagraphTokenClient:
 
         return 1 / self.token_decimals
 
-    async def transfer(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee: bool = False):
+    async def transfer(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee: bool = False) -> Optional[Dict[str, Any]]:
+        """
+        Transfer DAG from active account to another DAG address. Amount as integer with the number of decimals used by the Metagraph.
+
+        :param to_address: DAG address.
+        :param amount: Integer with the number of decimals used by the Metagraph.
+        :param fee: Integer with the number of decimals used by the Metagraph.
+        :param auto_estimate_fee:
+        :return: Dictionary.
+        """
         # TODO: Fee api endpoint
         last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
 
@@ -498,6 +528,11 @@ class MetagraphTokenClient:
             }
 
     async def wait_for_balance_change(self, initial_value: Optional[int] = None):
+        """
+        Check if active account balance changes (around 2 minutes).
+        :param initial_value:
+        :return: False if check did not detect balance change, else True.
+        """
         if initial_value is None:
             initial_value = await self.get_balance()
             await self.wait(5)
@@ -510,7 +545,16 @@ class MetagraphTokenClient:
 
         return False
 
-    async def generate_batch_transactions(self, transfers: List[Dict[str, Any]], last_ref: Optional[Union[Dict[str, Any], LastReference]] = None):
+    async def generate_batch_transactions(
+            self, transfers: List[Dict[str, Any]], last_ref: Optional[Union[Dict[str, Any], LastReference]] = None
+    ):
+        """
+        Takes a list of dictionaries and returns a list of signed transaction objects.
+
+        :param transfers: List of dictionaries.
+        :param last_ref: Lost hash and ordinal from DAG address.
+        :return:
+        """
         if isinstance(last_ref, LastReference):
             last_ref = last_ref.model_dump()
         if not last_ref:
@@ -533,7 +577,13 @@ class MetagraphTokenClient:
 
         return txns
 
-    async def transfer_batch_transactions(self, transactions: List[SignedTransaction]):
+    async def transfer_batch_transactions(self, transactions: List[SignedTransaction]) -> List[Optional[str]]:
+        """
+        Send a list of signed transaction objects from the active account.
+
+        :param transactions: List of signed transactions.
+        :return: List of transactions.
+        """
         hashes = []
         for txn in transactions:
             tx_hash = await self.network.post_transaction(txn)
@@ -541,9 +591,20 @@ class MetagraphTokenClient:
         return hashes
 
     async def transfer_batch(self, transfers: List[Dict[str, Any]], last_ref: Optional[Union[Dict[str, Any], LastReference]] = None):
+        """
+        Build and send a list of transactions from the active account.
+
+        :param transfers: List of dictionaries.
+        :param last_ref: Last ordinal and hash from active account.
+        :return: List of transaction hashes.
+        """
         # Metagraph like PACA doesn't seem to support this, needs to wait for the transaction to appear
         txns = await self.generate_batch_transactions(transfers, last_ref)
         return await self.transfer_batch_transactions(txns)
 
     async def wait(self, time_in_seconds: int = 5):
+        """Wait for a number of seconds.
+
+        :param time_in_seconds: Integer.
+        """
         await asyncio.sleep(time_in_seconds)
