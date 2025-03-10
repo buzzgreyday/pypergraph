@@ -275,7 +275,76 @@ class KeyStore:
         bip39 = Bip39()
         return bip39.mnemonic()
 
-    # TODO: generate_private_key()
+
+    # TODO:
+    # generatePrivateKey(): string
+    # {
+    # return Wallet.generate().getPrivateKey().toString("hex")
+    # }
+
+    # encryptPhrase(phrase: string, password: string) {
+    # return V3Keystore.encryptPhrase(phrase, password);
+
+    # }
+
+    # decryptPhrase(jKey: V3Keystore < KDFParamsPhrase >, password) {
+    # return V3Keystore.decryptPhrase(jKey, password);
+    # }
+    #
+    # async generateEncryptedPrivateKey(password: string, privateKey?: string) {
+    # const
+    # wallet = privateKey ? Wallet.fromPrivateKey(Buffer.
+    # from
+    #
+    # (privateKey, "hex")): Wallet.generate();
+    # const
+    # result = await wallet.toV3(password) as V3Keystore;
+    # return result;
+    # }
+    #
+    # async decryptPrivateKey(jKey: V3Keystore < KDFParamsPrivateKey >, password) {
+    #
+    # if (this.isValidJsonPrivateKey(jKey)) {
+    # const wallet = await Wallet.fromV3(jKey, password);
+    # const key = wallet.getPrivateKey().toString("hex")
+    # return key;
+    # }
+    #
+    # throw
+    # new
+    # Error('Invalid JSON Private Key format');
+    # }
+    #
+    # isValidJsonPrivateKey(jKey: V3Keystore < KDFParamsPrivateKey >) {
+    #
+    #     const
+    # params = (jKey & & jKey.crypto & & jKey.crypto.kdfparams);
+    #
+    # if (params & & params.salt & & params.n !=
+    #     = undefined & & params.r != = undefined & & params.p != = undefined & & params.dklen != = undefined)
+    # {
+    # return true;
+    # }
+    #
+    # return false;
+    # }
+    #
+    # // Extended
+    # keys
+    # can
+    # be
+    # used
+    # to
+    # derive
+    # child
+    # keys
+    # getExtendedPrivateKeyFromMnemonic(mnemonic: string) {
+    # if (bip39.validateMnemonic(mnemonic)) {
+    # const seedBytes = bip39.mnemonicToSeedSync(mnemonic);
+    # const rootKey = hdkey.fromMasterSeed(seedBytes);
+    # return rootKey.privateExtendedKey();
+    # }
+    # }
 
     @staticmethod
     def get_private_key_from_mnemonic(phrase: str) -> str:
