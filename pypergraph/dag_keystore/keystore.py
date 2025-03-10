@@ -4,6 +4,8 @@ from decimal import Decimal
 import random
 from typing import Tuple, Callable, Optional, Union, Literal
 
+import secrets
+import eth_utils
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
 from pyasn1.codec.der.decoder import decode as der_decode
@@ -12,6 +14,7 @@ from pyasn1.type.univ import Sequence, Integer
 
 from .bip import Bip39, Bip32
 from .kryo import Kryo
+from .v3_keystore import V3Keystore
 from pypergraph.dag_core.constants import PKCS_PREFIX
 
 import hashlib
@@ -275,76 +278,42 @@ class KeyStore:
         bip39 = Bip39()
         return bip39.mnemonic()
 
+    def generate_private_key(self) -> str:
+        """
+        Generates an Ethereum private key.
 
-    # TODO:
-    # generatePrivateKey(): string
-    # {
-    # return Wallet.generate().getPrivateKey().toString("hex")
-    # }
+        :return: Private key.
+        """
+        return eth_utils.keccak(secrets.token_bytes(32)).hex()
 
-    # encryptPhrase(phrase: string, password: string) {
-    # return V3Keystore.encryptPhrase(phrase, password);
+    @staticmethod
+    def encrypt_phrase(phrase: str, password: str):
+        # TODO
+        pass
 
-    # }
+    @staticmethod
+    def decrypt_phrase(data: dict, password):
+        # TODO
+        pass
 
-    # decryptPhrase(jKey: V3Keystore < KDFParamsPhrase >, password) {
-    # return V3Keystore.decryptPhrase(jKey, password);
-    # }
-    #
-    # async generateEncryptedPrivateKey(password: string, privateKey?: string) {
-    # const
-    # wallet = privateKey ? Wallet.fromPrivateKey(Buffer.
-    # from
-    #
-    # (privateKey, "hex")): Wallet.generate();
-    # const
-    # result = await wallet.toV3(password) as V3Keystore;
-    # return result;
-    # }
-    #
-    # async decryptPrivateKey(jKey: V3Keystore < KDFParamsPrivateKey >, password) {
-    #
-    # if (this.isValidJsonPrivateKey(jKey)) {
-    # const wallet = await Wallet.fromV3(jKey, password);
-    # const key = wallet.getPrivateKey().toString("hex")
-    # return key;
-    # }
-    #
-    # throw
-    # new
-    # Error('Invalid JSON Private Key format');
-    # }
-    #
-    # isValidJsonPrivateKey(jKey: V3Keystore < KDFParamsPrivateKey >) {
-    #
-    #     const
-    # params = (jKey & & jKey.crypto & & jKey.crypto.kdfparams);
-    #
-    # if (params & & params.salt & & params.n !=
-    #     = undefined & & params.r != = undefined & & params.p != = undefined & & params.dklen != = undefined)
-    # {
-    # return true;
-    # }
-    #
-    # return false;
-    # }
-    #
-    # // Extended
-    # keys
-    # can
-    # be
-    # used
-    # to
-    # derive
-    # child
-    # keys
-    # getExtendedPrivateKeyFromMnemonic(mnemonic: string) {
-    # if (bip39.validateMnemonic(mnemonic)) {
-    # const seedBytes = bip39.mnemonicToSeedSync(mnemonic);
-    # const rootKey = hdkey.fromMasterSeed(seedBytes);
-    # return rootKey.privateExtendedKey();
-    # }
-    # }
+    async def generate_encrypted_private_key(self, password: str, private_key: Optional[str]):
+        # TODO
+        pass
+
+
+    async def decrypt_private_key(data: dict, password: str):
+        pass
+
+    # Extended keys can be used to derive child keys
+    @staticmethod
+    def get_extended_private_key_from_mnemonic(mnemonic: str):
+        bip39 = Bip39()
+        bip32 = Bip32()
+        if bip39.validate_mnemonic(mnemonic):
+            seed_bytes = bip39.get_seed_from_mnemonic(mnemonic)
+            root_key = bip32.get_root_key_from_seed(seed_bytes)
+            # TODO check this
+            return root_key.ExtendedKey()
 
     @staticmethod
     def get_private_key_from_mnemonic(phrase: str) -> str:

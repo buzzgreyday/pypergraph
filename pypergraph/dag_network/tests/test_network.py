@@ -352,7 +352,7 @@ async def test_get_pending(network):
 
 @pytest.mark.asyncio
 async def test_post_transaction(network):
-    from .secrets import mnemo, to_address
+    from .secret import mnemo, to_address
     account = pypergraph.dag_account.DagAccount()
     account.connect(network_id="testnet")
     if account.network.connected_network.network_id == "testnet":
@@ -370,7 +370,7 @@ async def test_post_transaction(network):
 
 @pytest.mark.asyncio
 async def test_post_metagraph_currency_transaction(network):
-    from .secrets import mnemo, to_address, from_address
+    from .secret import mnemo, to_address, from_address
     account = pypergraph.dag_account.DagAccount()
     account.login_with_seed_phrase(mnemo)
     account_metagraph_client = pypergraph.dag_account.MetagraphTokenClient(
@@ -415,7 +415,7 @@ async def test_post_metagraph_data_transaction(network):
     #
     #     signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
 
-    from .secrets import mnemo, from_address
+    from .secret import mnemo, from_address
 
     def build_todo_tx():
         """TO-DO TEMPLATE"""
