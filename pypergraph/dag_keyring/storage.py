@@ -7,6 +7,17 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
+import os
+
+# def get_keystore_path():
+#     if os.name == "nt":  # Windows
+#         return os.path.join(os.getenv("APPDATA"), "mywallet", "keystore")
+#     else:  # Linux/macOS
+#         return os.path.expanduser("~/.config/mywallet/keystore")
+#
+# path = get_keystore_path()
+# os.makedirs(path, exist_ok=True)  # Ensure the directory exists
+# print(f"Keystore directory: {path}")
 
 class StateStorageDb:
     def __init__(self, storage_client=None):
