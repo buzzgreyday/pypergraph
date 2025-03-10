@@ -1,10 +1,13 @@
 import base64
+import hashlib
 import json
-from decimal import Decimal
 import random
+import secrets
+import eth_keyfile
+from decimal import Decimal
 from typing import Tuple, Callable, Optional, Union, Literal
 
-import secrets
+import base58
 import eth_utils
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
@@ -12,16 +15,11 @@ from pyasn1.codec.der.decoder import decode as der_decode
 from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
 
-from .bip import Bip39, Bip32
-from .kryo import Kryo
-from .v3_keystore import V3Keystore
 from pypergraph.dag_core.constants import PKCS_PREFIX
-
-import hashlib
-import base58
-
 from pypergraph.dag_network.models.account import LastReference
 from pypergraph.dag_network.models.transaction import Transaction
+from .bip import Bip39, Bip32
+from .kryo import Kryo
 
 MIN_SALT = int(Decimal("1e8"))
 
@@ -288,20 +286,25 @@ class KeyStore:
 
     @staticmethod
     def encrypt_phrase(phrase: str, password: str):
-        # TODO
+        # TODO v3
         pass
 
     @staticmethod
     def decrypt_phrase(data: dict, password):
-        # TODO
+        # TODO v3
         pass
 
-    async def generate_encrypted_private_key(self, password: str, private_key: Optional[str]):
-        # TODO
+    @staticmethod
+    async def generate_encrypted_private_key(password: str, private_key: Optional[str]):
+        # TODO v3
+        print(eth_keyfile.create_keyfile_json(private_key.encode(), password))
         pass
 
 
+    @staticmethod
     async def decrypt_private_key(data: dict, password: str):
+        # TODO v3
+        print(eth_keyfile.decode_keyfile_json(data, password))
         pass
 
     # Extended keys can be used to derive child keys
