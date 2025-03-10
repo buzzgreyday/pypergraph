@@ -459,7 +459,7 @@ async def test_post_metagraph_data_transaction(network):
             },
         }
 
-    METAGRAPH_ID = "DAG6DOES00NOT00MATTER00HERE"
+    METAGRAPH_ID = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     L0 = "http://localhost:9200"
     CL1 = "http://localhost:9300"
     DL1 = "http://localhost:9400"
