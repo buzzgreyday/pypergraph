@@ -1,3 +1,5 @@
+import hashlib
+
 import pytest
 
 from pypergraph.dag_keystore.keystore import KeyStore
@@ -31,6 +33,7 @@ def test_new_keys():
 
 @pytest.mark.asyncio
 async def test_encrypt_decrypt_keystore_v3():
+
     keystore = KeyStore()
     phrase = "multiply angle perfect verify behind sibling skirt attract first lift remove fortune"
     keystore.validate_mnemonic(phrase)
