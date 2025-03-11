@@ -44,13 +44,7 @@ async def test_encrypt_decrypt_keystore_v3():
     enc_data = await keystore.load_keystore_file('keystore.json')
     dec_pk = keystore.decrypt_keystore_private_key(data=enc_data, password='top_secret')
     assert dec_pk == pk
-    eth_path = BIP_44_PATHS.ETH_WALLET_PATH.value+'/0'
-    cn_path = BIP_44_PATHS.CONSTELLATION_PATH.value+'/0'
-    from pypergraph.dag_keystore import mnemonic_utils
-    eth_private_key = mnemonic_utils.mnemonic_to_private_key(phrase, str_derivation_path=eth_path)
-    cn_private_key = mnemonic_utils.mnemonic_to_private_key(phrase, str_derivation_path=cn_path)
-    assert eth_private_key.hex() == '7bdf99e47c15ea9ce32b2306f1cf2d88be5f541e5a90fe92dedb795ea2a53e19'
-    assert cn_private_key.hex() == '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'
+
     eth_public_key = keys.PrivateKey(eth_private_key).public_key
     cn_public_key = keys.PrivateKey(cn_private_key).public_key
     assert eth_public_key.to_hex() == '0x65879c90895c191fe27bc9fee6b6a6a8d49b41600429e151687b0a274c2174f8c263a55008a3009cd5230fb526141558ee1aace50d54cc24b91fa4e19b79e5a7'
@@ -62,3 +56,16 @@ async def test_encrypt_decrypt_keystore_v3():
 
 
 """ I would like to make it mor clear that 'encryptor' is custom, and that the above methods are industry standards"""
+
+def test_create_keystores():
+    keystore = KeyStore()
+    cn_private_key = keystore.get_private_key_from_mnemonic(phrase="multiply angle perfect verify behind sibling skirt attract first lift remove fortune", path=BIP_44_PATHS.CONSTELLATION_PATH.value)
+    eth_private_key = keystore.get_private_key_from_mnemonic(phrase="multiply angle perfect verify behind sibling skirt attract first lift remove fortune", path=BIP_44_PATHS.ETH_WALLET_PATH.value)
+    assert eth_private_key == '7bdf99e47c15ea9ce32b2306f1cf2d88be5f541e5a90fe92dedb795ea2a53e19'
+    assert cn_private_key == '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'
+    cn_public_key = keystore.get_public_key_from_private(private_key=cn_private_key)
+    eth_public_key = '0x' + keystore.get_public_key_from_private(private_key=eth_private_key)[2:]
+    assert eth_public_key== '0x65879c90895c191fe27bc9fee6b6a6a8d49b41600429e151687b0a274c2174f8c263a55008a3009cd5230fb526141558ee1aace50d54cc24b91fa4e19b79e5a7'
+    assert cn_public_key == '044462191fb1056699c28607c7e8e03b73602fa070b78cad863b5f84d08a577d5d0399ccd90ba1e69f34382d678216d4b2a030d98e38c0c960447dc49514f92ad7'
+
+    print(cn_public_key, eth_public_key)
