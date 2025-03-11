@@ -1,7 +1,4 @@
-import eth_keys
 import pytest
-from eth_hash.auto import keccak
-from eth_utils import is_checksum_address
 
 from pypergraph.dag_core import BIP_44_PATHS
 from pypergraph.dag_keystore.keystore import KeyStore
