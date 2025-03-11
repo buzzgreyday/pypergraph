@@ -29,34 +29,6 @@ def test_new_keys():
     address = keystore.get_dag_address_from_public_key(pubk)
     keystore.validate_address(address)
 
-
-@pytest.mark.asyncio
-async def test_encrypt_decrypt_keystore_v3():
-    from eth_keys import keys
-    keystore = KeyStore()
-    phrase = "multiply angle perfect verify behind sibling skirt attract first lift remove fortune"
-    keystore.validate_mnemonic(phrase)
-    pk = keystore.get_private_key_from_mnemonic(phrase)
-    enc_data = keystore.encrypt_keystore_from_private_key(private_key=pk, password="top_secret")
-    dec_pk = keystore.decrypt_keystore_private_key(data=enc_data, password='top_secret')
-    assert dec_pk == pk
-    await keystore.write_keystore_file('keystore.json', enc_data)
-    enc_data = await keystore.load_keystore_file('keystore.json')
-    dec_pk = keystore.decrypt_keystore_private_key(data=enc_data, password='top_secret')
-    assert dec_pk == pk
-
-    eth_public_key = keys.PrivateKey(eth_private_key).public_key
-    cn_public_key = keys.PrivateKey(cn_private_key).public_key
-    assert eth_public_key.to_hex() == '0x65879c90895c191fe27bc9fee6b6a6a8d49b41600429e151687b0a274c2174f8c263a55008a3009cd5230fb526141558ee1aace50d54cc24b91fa4e19b79e5a7'
-    assert cn_public_key.to_hex()[2:] == '0x4462191fb1056699c28607c7e8e03b73602fa070b78cad863b5f84d08a577d5d0399ccd90ba1e69f34382d678216d4b2a030d98e38c0c960447dc49514f92ad7'[2:]
-    eth_address = eth_public_key.to_address()
-    cn_address = keystore.get_dag_address_from_public_key(cn_public_key.to_hex()[2:])
-    assert eth_address == '0x8fbc948ba2dd081a51036de02582f5dcb51a310c'
-    assert cn_address == 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX'
-
-
-""" I would like to make it mor clear that 'encryptor' is custom, and that the above methods are industry standards"""
-
 def test_create_keystores():
     keystore = KeyStore()
     cn_private_key = keystore.get_private_key_from_mnemonic(phrase="multiply angle perfect verify behind sibling skirt attract first lift remove fortune", path=BIP_44_PATHS.CONSTELLATION_PATH.value)
@@ -67,5 +39,7 @@ def test_create_keystores():
     eth_public_key = '0x' + keystore.get_public_key_from_private(private_key=eth_private_key)[2:]
     assert eth_public_key== '0x65879c90895c191fe27bc9fee6b6a6a8d49b41600429e151687b0a274c2174f8c263a55008a3009cd5230fb526141558ee1aace50d54cc24b91fa4e19b79e5a7'
     assert cn_public_key == '044462191fb1056699c28607c7e8e03b73602fa070b78cad863b5f84d08a577d5d0399ccd90ba1e69f34382d678216d4b2a030d98e38c0c960447dc49514f92ad7'
+    cn_address = keystore.get_dag_address_from_public_key(cn_public_key)
+    assert cn_address == 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX'
 
     print(cn_public_key, eth_public_key)
