@@ -67,7 +67,7 @@ async def test_metagraph_account_connect(network):
     :param network:
     :return:
     """
-    from secrets import mnemo
+    from secret import mnemo
     account = DagAccount()
     account.connect(network_id='testnet')
     account.login_with_seed_phrase(mnemo)
@@ -112,7 +112,7 @@ async def test_metagraph_account_connect(network):
 
 @pytest.mark.asyncio
 async def test_get_balance(network):
-    from secrets import mnemo
+    from secret import mnemo
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
     assert account.address == "DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX"
@@ -129,7 +129,7 @@ async def test_get_balance(network):
 
 @pytest.mark.asyncio
 async def test_get_currency_transactions(network):
-    from secrets import mnemo
+    from secret import mnemo
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
     metagraph_account = MetagraphTokenClient(
@@ -143,7 +143,7 @@ async def test_get_currency_transactions(network):
 
 @pytest.mark.asyncio
 async def test_currency_transfer(network):
-    from secrets import mnemo, to_address
+    from secret import mnemo, to_address
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
     account.connect(network_id='testnet')
@@ -172,11 +172,11 @@ async def test_currency_transfer(network):
 
 @pytest.mark.asyncio
 async def test_currency_batch_transfer(network):
-    from secrets import mnemo, to_address
+    from secret import mnemo, to_address
     from pypergraph.dag_account import DagAccount
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
-    account.connect(network_id='testnet')
+    account.connect(network_id='integrationnet')
     # last_ref = await account.network.get_address_last_accepted_transaction_ref(account.address)
 
     txn_data = [

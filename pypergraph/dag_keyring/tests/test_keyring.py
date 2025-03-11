@@ -2,7 +2,7 @@ import ecdsa
 import pytest
 
 from pypergraph.dag_keyring import KeyringManager, MultiKeyWallet, MultiAccountWallet
-from pypergraph.dag_keyring.tests.secrets import mnemo
+from pypergraph.dag_keyring.tests.secret import mnemo
 from pypergraph.dag_keystore import KeyStore
 
 # We need to write some more tests

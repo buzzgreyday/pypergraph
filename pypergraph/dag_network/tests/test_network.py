@@ -354,8 +354,8 @@ async def test_get_pending(network):
 async def test_post_transaction(network):
     from .secret import mnemo, to_address
     account = pypergraph.dag_account.DagAccount()
-    account.connect(network_id="testnet")
-    if account.network.connected_network.network_id == "testnet":
+    account.connect(network_id="integrationnet")
+    if account.network.connected_network.network_id == "integrationnet":
        account.login_with_seed_phrase(mnemo)
        tx, hash_ = await account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=200000000)
        try:
