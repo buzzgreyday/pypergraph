@@ -200,7 +200,8 @@ class EthAccount(EcdsaAccount):
     @staticmethod
     def validate_address(address: str) -> bool:
         """Validate an Ethereum address."""
-        return is_checksum_address(address)
+        # TODO: Not implemented yet.
+        return True
 
     def sign_transaction(self, tx):
         """
@@ -220,8 +221,8 @@ class EthAccount(EcdsaAccount):
 
     def get_address_from_public_key(self, public_key: str) -> str:
         """Derive the Ethereum address from the public key."""
-        address = b"\x04" + hashlib.sha3_256(public_key.encode("utf-8")).digest()
-        return to_checksum_address(address)
+        # TODO: Needs implementation. We need to make sure a Ethereum private key is derived using hd, then derive address.
+        return "Ethereum Address Not Yet Implemented"
 
     def get_encryption_public_key(self) -> str:
         """Get the public key for encryption."""

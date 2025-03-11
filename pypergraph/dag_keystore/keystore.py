@@ -11,6 +11,7 @@ from typing import Tuple, Callable, Optional, Union, Literal, Dict, Any
 
 import base58
 import eth_utils
+
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
 from pyasn1.codec.der.decoder import decode as der_decode
@@ -293,7 +294,8 @@ class KeyStore:
 
     @staticmethod
     def encrypt_keystore_from_private_key(private_key: Optional[str], password: str) -> Dict[str, Any]:
-        return eth_keyfile.create_keyfile_json(bytes.fromhex(private_key), password.encode(), version=3)
+        # TODO wrong address, try: py-eth-hd-wallet
+        return eth_keyfile.create_keyfile_json(bytes.fromhex(private_key), password.encode(), kdf="pbkdf2", version=3)
 
 
     @staticmethod
