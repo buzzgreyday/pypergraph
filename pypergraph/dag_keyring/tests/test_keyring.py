@@ -1,3 +1,4 @@
+import ecdsa
 import pytest
 
 from pypergraph.dag_keyring import KeyringManager, MultiKeyWallet, MultiAccountWallet
@@ -208,3 +209,9 @@ async def test_create_multi_account_wallet(key_manager):
             ('network', 'Constellation')
         ]
     }
+    wallet.create(network="Ethereum", label="New MAW", mnemonic=mnemo, num_of_accounts=1)
+    model = wallet.model_dump()
+    vk = model["rings"][0][1][0]["wallet"].get_verifying_key().to_string()
+    import eth_keys
+    address = eth_keys.keys.PublicKey(vk).to_address()
+    assert address == '0x8fbc948ba2dd081a51036de02582f5dcb51a310c'
