@@ -301,16 +301,6 @@ class KeyStore:
         return await V3KeystoreCrypto.decrypt_phrase(keystore=keystore, password=password)
 
     @staticmethod
-    async def load_keystore_file(full_path: str):
-        if full_path.endswith('.json'):
-            full_path = aiopath.Path(full_path)
-            async with full_path.open('r') as f:
-                content = await f.read()
-                return json.loads(content)
-        else:
-            TypeError('KeyStore :: The path must be the full path including the json extension.')
-
-    @staticmethod
     def get_extended_private_key_from_mnemonic(mnemonic: str):
         # Extended keys can be used to derive child keys
         bip39 = Bip39()
