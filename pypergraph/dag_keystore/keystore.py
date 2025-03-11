@@ -292,11 +292,6 @@ class KeyStore:
         return await V3KeystoreCrypto.encrypt_phrase(phrase=phrase, password=password)
 
     @staticmethod
-    async def encrypt_keystore_from_private_key(private_key: Optional[str], password: str = '') -> V3Keystore:
-        """Probably used if inactive for some time"""
-        return await V3KeystoreCrypto.encrypt_phrase(phrase=private_key, password=password)
-
-    @staticmethod
     async def decrypt_keystore_private_key(keystore: V3Keystore, password: str = ''):
         """Probably used if inactive for some time"""
         return await V3KeystoreCrypto.decrypt_phrase(keystore=keystore, password=password)
