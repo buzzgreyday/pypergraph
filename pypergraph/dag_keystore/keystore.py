@@ -12,6 +12,7 @@ import base58
 
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
+from eth_utils import keccak
 from pyasn1.codec.der.decoder import decode as der_decode
 from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
@@ -367,4 +368,9 @@ class KeyStore:
         address = f"DAG{check_digit}{public_key}"
 
         return address
+
+    @staticmethod
+    def get_eth_address_from_public_key(public_key: str):
+        eth_address = keccak(bytes.fromhex(public_key))[-20:]
+        return '0x' + eth_address.hex()
 
