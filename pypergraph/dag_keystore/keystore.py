@@ -281,11 +281,11 @@ class KeyStore:
 
     def generate_private_key(self) -> str:
         """
-        Generates an Ethereum private key.
+        Generates private key.
 
-        :return: Private key.
+        :return: Private key hex.
         """
-        return eth_utils.keccak(secrets.token_bytes(32)).hex()
+        return SigningKey.generate(SECP256k1).to_string().hex()
 
     def encrypt_keystore_from_phrase(self, phrase: str, password: str):
         private_key = self.get_private_key_from_mnemonic(phrase=phrase)
@@ -294,12 +294,13 @@ class KeyStore:
 
     @staticmethod
     def encrypt_keystore_from_private_key(private_key: Optional[str], password: str) -> Dict[str, Any]:
-        # TODO wrong address, try: py-eth-hd-wallet
+        # TODO wrong address, we need to use hd path
         return eth_keyfile.create_keyfile_json(bytes.fromhex(private_key), password.encode(), kdf="pbkdf2", version=3)
 
 
     @staticmethod
     def decrypt_keystore_private_key(data, password: str):
+        # TODO HD path
         return eth_keyfile.decode_keyfile_json(data, password.encode()).hex()
 
     @staticmethod

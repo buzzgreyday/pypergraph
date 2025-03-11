@@ -15,4 +15,3 @@ pydantic~=2.10.6
 pytest~=8.3.4
 typing_extensions~=4.12.2
 eth-keyfile~=0.8.1
-aiopath~=0.7.7
