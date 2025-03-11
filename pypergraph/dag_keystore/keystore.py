@@ -317,7 +317,7 @@ class KeyStore:
     @staticmethod
     def get_private_key_from_mnemonic(phrase: str, path = BIP_44_PATHS.CONSTELLATION_PATH.value) -> str:
         """
-        Get private key from mnemonic seed (not phrase)
+        Get private key from phrase. Returns the first account.
 
         :param phrase:
         :param path:
