@@ -298,13 +298,10 @@ class KeyStore:
         """Probably used if inactive for some time"""
         return await V3KeystoreCrypto.decrypt_phrase(keystore=keystore, password=password)
 
-    @staticmethod
-    async def generate_encrypted_private_key(private_key: Optional[str], password: str = '') -> V3Keystore:
+    async def generate_encrypted_private_key(self, private_key: Optional[str] = None, password: str = '') -> V3Keystore:
         """Can be stored and transferred"""
-        # TODO: Need HD path to mimic Stargazer, might need another library
-        keyfile = eth_keyfile.create_keyfile_json(private_key=bytes(private_key, 'utf-8'), password=password)
-        print(keyfile)
-        return keyfile
+        private_key = private_key or self.generate_private_key()
+        return eth_keyfile.create_keyfile_json(private_key=bytes.fromhex(private_key), password=password.encode('utf-8'))
 
     @staticmethod
     def get_extended_private_key_from_mnemonic(mnemonic: str):

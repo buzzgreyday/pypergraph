@@ -32,7 +32,8 @@ def test_new_keys():
     address = keystore.get_dag_address_from_public_key(pubk)
     keystore.validate_address(address)
 
-def test_create_keystores():
+@pytest.mark.asyncio
+async def test_create_keystores():
     keystore = KeyStore()
     cn_private_key = keystore.get_private_key_from_mnemonic(phrase="multiply angle perfect verify behind sibling skirt attract first lift remove fortune", path=BIP_44_PATHS.CONSTELLATION_PATH.value)
     eth_private_key = keystore.get_private_key_from_mnemonic(phrase="multiply angle perfect verify behind sibling skirt attract first lift remove fortune", path=BIP_44_PATHS.ETH_WALLET_PATH.value)
@@ -46,3 +47,4 @@ def test_create_keystores():
     eth_address = keystore.get_eth_address_from_public_key(eth_public_key)
     assert eth_address == '0x8fbc948ba2dd081a51036de02582f5dcb51a310c'
     assert cn_address == 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX'
+    print(await keystore.generate_encrypted_private_key(eth_private_key))
