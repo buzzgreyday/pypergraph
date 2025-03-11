@@ -337,27 +337,6 @@ class DagAccount:
         txns = await self.generate_batch_transactions(transfers, last_ref)
         return await self.transfer_batch_transactions(txns)
 
-    @staticmethod
-    def validate_address(address: str) -> bool:
-        """
-        Check if $DAG address is valid.
-
-        :param address: $DAG address.
-        :return: True if valid, False if invalid.
-        """
-        if not address:
-            return False
-
-        valid_len = len(address) == 40
-        valid_prefix = address.startswith("DAG")
-        valid_parity = address[3].isdigit() and 0 <= int(address[3]) < 10
-        base58_part = address[4:]
-        valid_base58 = (
-            len(base58_part) == 36 and base58_part == base58.b58encode(base58.b58decode(base58_part)).decode()
-        )
-
-        return valid_len and valid_prefix and valid_parity and valid_base58
-
 
     def get_eth_address(self) -> str:
         pass
@@ -409,11 +388,6 @@ class MetagraphTokenClient:
             token_decimals: int = 8
     ):
         self.account = account
-        valid_address = self.account.validate_address(metagraph_id)
-        if not metagraph_id or not valid_address:
-            raise ValueError(
-                "MetagraphTokenClient :: Parameter 'metagraph_id' must be a DAG address."
-            )
 
         self.network = MetagraphTokenNetwork(
             metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, dl1_host=dl1_host,
