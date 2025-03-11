@@ -22,6 +22,7 @@ from pypergraph.dag_network.models.transaction import Transaction
 from .bip import Bip39, Bip32
 from .kryo import Kryo
 from .v3_keystore import V3KeystoreCrypto, V3Keystore
+from ..dag_core import BIP_44_PATHS
 
 MIN_SALT = int(Decimal("1e8"))
 
@@ -316,17 +317,18 @@ class KeyStore:
             return root_key.ExtendedKey()
 
     @staticmethod
-    def get_private_key_from_mnemonic(phrase: str) -> str:
+    def get_private_key_from_mnemonic(phrase: str, path = BIP_44_PATHS.CONSTELLATION_PATH.value) -> str:
         """
         Get private key from mnemonic seed (not phrase)
 
         :param phrase:
+        :param path:
         :return: Private key as hexadecimal string
         """
         bip32 = Bip32()
         bip39 = Bip39()
         seed = bip39.get_seed_from_mnemonic(phrase)
-        private_key =  bip32.get_private_key_from_seed(seed_bytes=seed)
+        private_key =  bip32.get_private_key_from_seed(seed_bytes=seed, path=path)
         return private_key.hex()
 
     @staticmethod
