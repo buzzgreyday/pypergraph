@@ -299,6 +299,7 @@ class KeyStore:
     @staticmethod
     async def generate_encrypted_private_key(private_key: Optional[str], password: str = '') -> V3Keystore:
         """Can be stored and transferred"""
+        # TODO: Need HD path to mimic Stargazer, might need another library
         keyfile = eth_keyfile.create_keyfile_json(private_key=bytes(private_key, 'utf-8'), password=password)
         print(keyfile)
         return keyfile
