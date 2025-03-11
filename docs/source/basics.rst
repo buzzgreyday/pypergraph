@@ -34,6 +34,7 @@ New Wallet Generation
 
     print(f"Generated Address: {account.address}")
 
+
 Existing Credential Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

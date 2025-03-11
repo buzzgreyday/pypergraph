@@ -359,34 +359,8 @@ class DagAccount:
         return valid_len and valid_prefix and valid_parity and valid_base58
 
 
-    def get_address_from_public_key(self, public_key_hex: str) -> str:
-        """
-        Generates the $DAG address associated with the account.
-
-        :param public_key_hex: The private key as a hexadecimal string.
-        :return: The DAG address corresponding to the public key.
-        """
-        if len(public_key_hex) == 128:
-            public_key = PKCS_PREFIX + "04" + public_key_hex
-        elif len(public_key_hex) == 130 and public_key_hex[:2] == "04":
-            public_key = PKCS_PREFIX + public_key_hex
-        else:
-            raise ValueError("KeyStore :: Not a valid public key.")
-
-        public_key = hashlib.sha256(bytes.fromhex(public_key)).hexdigest()
-        public_key = base58.b58encode(bytes.fromhex(public_key)).decode()
-        public_key = public_key[len(public_key) - 36:]
-
-        check_digits = "".join([char for char in public_key if char.isdigit()])
-        check_digit = 0
-        for n in check_digits:
-            check_digit += int(n)
-            if check_digit >= 9:
-                check_digit = check_digit % 9
-
-        address = f"DAG{check_digit}{public_key}"
-
-        return address
+    def get_eth_address(self) -> str:
+        pass
 
 
     def create_metagraph_token_client(

@@ -27,8 +27,8 @@ class Block(BaseModel):
     transactions: List[Transaction]
 
 class SignedBlock(BaseModel):
-    value: Block
-    proofs: List[SignatureProof]
+    value: Optional[Block]
+    proofs: Optional[List[SignatureProof]]
 
 class GlobalSnapshotValue(BaseModel):
     ordinal: int = Field(ge=0)
