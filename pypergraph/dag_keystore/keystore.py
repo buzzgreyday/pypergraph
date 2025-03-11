@@ -21,6 +21,7 @@ from pypergraph.dag_network.models.account import LastReference
 from pypergraph.dag_network.models.transaction import Transaction
 from .bip import Bip39, Bip32
 from .kryo import Kryo
+from .v3_keystore import V3KeystoreCrypto, V3Keystore
 
 MIN_SALT = int(Decimal("1e8"))
 
@@ -289,28 +290,15 @@ class KeyStore:
         private_key = self.get_private_key_from_mnemonic(phrase=phrase)
         return self.encrypt_keystore_from_private_key(private_key=private_key, password=password)
 
+    @staticmethod
+    async def encrypt_keystore_from_private_key(private_key: Optional[str], password: str = '') -> V3Keystore:
+        """Probably used if inactive for some time"""
+        return await V3KeystoreCrypto.encrypt_phrase(phrase=private_key, password=password)
 
     @staticmethod
-    def encrypt_keystore_from_private_key(private_key: Optional[str], password: str) -> Dict[str, Any]:
-        # TODO wrong address, we need to use hd path
-        return eth_keyfile.create_keyfile_json(bytes.fromhex(private_key), password.encode(), kdf="pbkdf2", version=3)
-
-
-    @staticmethod
-    def decrypt_keystore_private_key(data, password: str):
-        # TODO HD path
-        return eth_keyfile.decode_keyfile_json(data, password.encode()).hex()
-
-    @staticmethod
-    async def write_keystore_file(full_path: str, data: dict):
-        if full_path.endswith('.json'):
-            full_path = aiopath.Path(full_path)
-            async with full_path.open("w") as secret:
-                await secret.write(
-                    json.dumps(data)
-                )
-        else:
-            raise TypeError('KeyStore :: The path must be the full path including the json extension.')
+    async def decrypt_keystore_private_key(keystore: V3Keystore, password: str = ''):
+        """Probably used if inactive for some time"""
+        return await V3KeystoreCrypto.decrypt_phrase(keystore=keystore, password=password)
 
     @staticmethod
     async def load_keystore_file(full_path: str):
