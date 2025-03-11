@@ -286,9 +286,10 @@ class KeyStore:
         """
         return SigningKey.generate(SECP256k1).to_string().hex()
 
-    def encrypt_keystore_from_phrase(self, phrase: str, password: str):
-        private_key = self.get_private_key_from_mnemonic(phrase=phrase)
-        return self.encrypt_keystore_from_private_key(private_key=private_key, password=password)
+    @staticmethod
+    async def encrypt_keystore_from_phrase(phrase: str, password: str):
+        """Probably used if inactive for some time"""
+        return await V3KeystoreCrypto.encrypt_phrase(phrase=phrase, password=password)
 
     @staticmethod
     async def encrypt_keystore_from_private_key(private_key: Optional[str], password: str = '') -> V3Keystore:
