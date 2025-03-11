@@ -2,7 +2,6 @@ import base64
 import hashlib
 import json
 import random
-import secrets
 
 import aiopath
 import eth_keyfile
@@ -10,7 +9,6 @@ from decimal import Decimal
 from typing import Tuple, Callable, Optional, Union, Literal, Dict, Any
 
 import base58
-import eth_utils
 
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
