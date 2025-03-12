@@ -325,18 +325,18 @@ class KeyStore:
             return root_key.ExtendedKey()
 
     @staticmethod
-    def get_private_key_from_mnemonic(phrase: str, path = BIP_44_PATHS.CONSTELLATION_PATH.value) -> str:
+    def get_private_key_from_mnemonic(phrase: str, derivation_path = BIP_44_PATHS.CONSTELLATION_PATH.value) -> str:
         """
         Get private key from phrase. Returns the first account.
 
         :param phrase:
-        :param path:
+        :param derivation_path:
         :return: Private key as hexadecimal string
         """
         bip32 = Bip32()
         bip39 = Bip39()
         seed = bip39.get_seed_from_mnemonic(phrase)
-        private_key =  bip32.get_private_key_from_seed(seed=seed, path=path)
+        private_key =  bip32.get_private_key_from_seed(seed=seed, path=derivation_path)
         return private_key.hex()
 
     @staticmethod
@@ -386,5 +386,5 @@ class KeyStore:
         return '0x' + eth_address.hex()
 
     def get_eth_address_from_private_key(self, private_key: str) -> str:
-        public_key = self.get_public_key_from_private(private_key=private_key)
+        public_key = self.get_public_key_from_private(private_key=private_key)[2:]
         return self.get_eth_address_from_public_key(public_key=public_key)
