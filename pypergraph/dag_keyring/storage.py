@@ -4,9 +4,9 @@ import aiofiles
 import keyring
 from typing import Optional, List
 from pathlib import Path
+
 from pydantic import BaseModel, Field
 
-DEFAULT_FILE_PATH =
 
 class StateStorageDb:
     def __init__(self, storage_client=None):
