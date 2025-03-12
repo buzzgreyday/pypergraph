@@ -21,7 +21,7 @@ class SecurityConstants:
     SALT_SIZE = 32  # 256-bit salt
     NONCE_SIZE = 12  # 96-bit nonce for GCM
     HMAC_KEY_SIZE = 32
-    VERSION = 3
+    VERSION = 1
 
 
 class AsyncAesGcmEncryptor:
