@@ -1,3 +1,5 @@
+from json import JSONDecodeError
+
 import httpx
 import json
 
@@ -105,26 +107,44 @@ class RestAPIClient:
         self._base_url = value.rstrip("/")
 
     def handle_api_response(self, response: Response, method: str, endpoint: str):
+        # Attempt to parse the response into JSON or fall back to text
         try:
-            # Attempt to parse the response as JSON
-            response = json.loads(response.text)
+            parsed_data = response.json()
+        except json.JSONDecodeError:
+            parsed_data = response.text  # Treat as text if JSON parsing fails
 
-            # Check if it contains errors
-            if "errors" in response:
-                errors = response["errors"]
+        # Check for HTTP status errors (4xx/5xx)
+        if response.status_code != 200:
+            error_detail = parsed_data
+            # Extract error message from JSON if available
+            if isinstance(parsed_data, dict):
+                error_detail = parsed_data.get("errors", "Unknown error")
+            raise NetworkError(
+                f"RestAPIClient :: {method} {self.base_url + endpoint} failed with: {error_detail}",
+                status=response.status_code
+            )
 
-                for error in errors:
-                    # TODO: Custom exceptions
-                    if isinstance(error, dict):
-                        errors = error.get("message")
-                        raise NetworkError(f"RestAPIClient :: {method} {self.base_url + endpoint} returned error(s): {errors}", status=420)
-                    else:
-                        # Handle unstructured errors (e.g., strings)
-                        raise ValueError(f"RestAPIClient :: {method} {self.base_url + endpoint} returned error(s): {error}")
+        # Check for business logic errors (e.g., 200 OK but {"errors": [...]})
+        if isinstance(parsed_data, dict) and "errors" in parsed_data:
+            errors = parsed_data["errors"]
+            error_messages = []
+            for error in errors:
+                if isinstance(error, dict):
+                    error_messages.append(error.get("message", "Unknown error"))
+                else:
+                    raise NetworkError(
+                        f"RestAPIClient :: {method} {self.base_url + endpoint} returned unprocessable error: {error}",
+                        status=422
+                    )
+            if error_messages:
+                raise NetworkError(
+                    f"RestAPIClient :: {method} {self.base_url + endpoint} returned errors: {error_messages}",
+                    status=420
+                )
 
-        except json.JSONDecodeError as e:
-            # Handle malformed JSON
-            raise NetworkError(f"RestAPIClient :: {method} {self.base_url} with endpoint {endpoint} failed to parse response {e}, raw response: {response}", response.status_code)
+        # Return parsed JSON or raw text
+        return parsed_data
+
 
     async def request(
             self,
@@ -146,8 +166,8 @@ class RestAPIClient:
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         # TODO: All headers should be string
-        if headers:
-            headers = {k: str(v) for k, v in headers.items()}
+        #if headers:
+        #    headers = {k: str(v) for k, v in headers.items()}
         async with httpx.AsyncClient(timeout=6) as client:
             response = await client.request(
                 method=method.upper(),
@@ -156,8 +176,8 @@ class RestAPIClient:
                 params=params,
                 json=payload
             )
-        self.handle_api_response(response, method, endpoint)
-        return response.json()
+        response = self.handle_api_response(response, method, endpoint)
+        return response
 
     async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, Any]] = None) -> json:
         return await self.request("GET", endpoint, headers=headers, params=params)

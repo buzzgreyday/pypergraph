@@ -1,4 +1,5 @@
 from typing import Optional, Any, Dict, List, Union
+from prometheus_client.parser import text_string_to_metric_families
 
 from pypergraph.dag_network.models.reward import Reward
 from pypergraph.dag_core.rest_api_client import RestAPIClient
@@ -7,6 +8,17 @@ from pypergraph.dag_network.models.transaction import PendingTransaction, BlockE
 from pypergraph.dag_network.models.network import TotalSupply, PeerInfo
 from pypergraph.dag_network.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot, Ordinal
 
+def _handle_metrics(response):
+    metrics = []
+    for family in text_string_to_metric_families(response):
+        for sample in family.samples:
+            metrics.append({
+                "name": sample[0],
+                "labels": sample[1],
+                "value": sample[2],
+                "type": family.type
+            })
+    return metrics
 
 class LoadBalancerApi:
     def __init__(self, host):
@@ -26,8 +38,8 @@ class LoadBalancerApi:
 
     async def get_metrics(self):
         # TODO: Handle text response
-        result = await self.service.get("/metrics")
-        return result
+        response = await self.service.get("/metrics")
+        return _handle_metrics(response)
 
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/dag/{address}/balance")
@@ -287,7 +299,8 @@ class L0Api:
     # Metrics
     async def get_metrics(self):
         # TODO: Handle text response
-        return await self.service.get("/metrics")
+        response = await self.service.get("/metrics")
+        return _handle_metrics(response)
 
     # DAG
     async def get_total_supply(self):
@@ -347,7 +360,8 @@ class L1Api:
     # Metrics
     async def get_metrics(self):
         # TODO: Handle text response
-        return await self.service.get("/metrics")
+        response = await self.service.get("/metrics")
+        return _handle_metrics(response)
 
     # Transactions
     async def get_last_reference(self, address: str) -> LastReference:
@@ -428,7 +442,8 @@ class MDL1Api:
     # Metrics
     async def get_metrics(self):
         # TODO: Handle text response
-        return await self.service.get("/metrics")
+        response = await self.service.get("/metrics")
+        return _handle_metrics(response)
 
     async def get_cluster_info(self) -> List["PeerInfo"]:
         result = await self.service.get("/cluster/info")

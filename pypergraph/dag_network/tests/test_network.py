@@ -512,11 +512,16 @@ async def test_post_metagraph_data_transaction(network):
         r = await account_metagraph_client.network.post_data(tx)
         assert 'hash' in r
         # Returns the full response from the metagraph
-    except (httpx.ConnectError, httpx.ReadError):
+    except (httpx.ConnectError, httpx.ReadTimeout):
         pytest.skip("No locally running Metagraph")
     except KeyError:
         pytest.fail(f"Post data didn't return a hash, returned value: {r}")
 
 
-
+@pytest.mark.asyncio
+async def test_get_metrics(network):
+    try:
+        r = await network.l0_lb_api.get_metrics()
+    except httpx.ReadTimeout:
+        pytest.skip("Timeout")
 
