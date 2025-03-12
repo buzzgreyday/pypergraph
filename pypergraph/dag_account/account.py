@@ -2,13 +2,10 @@ import logging
 import asyncio
 from datetime import datetime
 
-import base58
-import hashlib
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from pypergraph.dag_core.constants import PKCS_PREFIX
 from pypergraph.dag_account.models.key_trio import KeyTrio
 from pypergraph.dag_keyring.accounts import DagAccount
 from pypergraph.dag_network.models import LastReference
@@ -408,7 +405,6 @@ class MetagraphTokenClient:
         """
         Get paginated list of Block Explorer transaction objects.
 
-        :param address: DAG address.
         :param limit: Limit per page.
         :param search_after: Timestamp.
         :return:

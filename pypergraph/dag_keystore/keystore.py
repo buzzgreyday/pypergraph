@@ -150,11 +150,11 @@ class KeyStore:
 
 
     @staticmethod
-    def sign(private_key_hex: str, tx_hash: str) -> str:
+    def sign(private_key: str, tx_hash: str) -> str:
         """
         Create transaction signature.
 
-        :param private_key_hex: Private key in hex format.
+        :param private_key: Private key in hex format.
         :param tx_hash: Transaction hash from prepare_tx.
         :return: Signature supported by the transaction API (@noble/secp256k1).
         """
@@ -189,12 +189,12 @@ class KeyStore:
             seq.setComponentByPosition(1, Integer(s))
             return der_encode(seq)
 
-        def _sign_deterministic_canonical(private_key_hex: str, tx_hash: bytes) -> str:
+        def _sign_deterministic_canonical(private_key: str, tx_hash: bytes) -> str:
             """
             Create a deterministic and canonical secp256k1 signature.
             """
             # Create SigningKey object from private key hex
-            sk = SigningKey.from_string(bytes.fromhex(private_key_hex), curve=SECP256k1)
+            sk = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
 
             # Sign the prehashed message deterministically
             signature_der = sk.sign_digest_deterministic(
@@ -208,7 +208,7 @@ class KeyStore:
 
         tx_hash = hashlib.sha512(tx_hash.encode("utf-8")).digest()
 
-        return _sign_deterministic_canonical(private_key_hex=private_key_hex, tx_hash=tx_hash)
+        return _sign_deterministic_canonical(private_key=private_key, tx_hash=tx_hash)
 
     @staticmethod
     def verify(public_key_hex, tx_hash, signature_hex) -> bool:
@@ -336,7 +336,7 @@ class KeyStore:
         bip32 = Bip32()
         bip39 = Bip39()
         seed = bip39.get_seed_from_mnemonic(phrase)
-        private_key =  bip32.get_private_key_from_seed(seed_bytes=seed, path=path)
+        private_key =  bip32.get_private_key_from_seed(seed=seed, path=path)
         return private_key.hex()
 
     @staticmethod
@@ -346,18 +346,18 @@ class KeyStore:
         :return: Public key (Node ID)
         """
         bip32 = Bip32()
-        return bip32.get_public_key_from_private_hex(private_key_bytes=bytes.fromhex(private_key))
+        return bip32.get_public_key_from_private_hex(private_key=bytes.fromhex(private_key))
 
     @staticmethod
-    def get_dag_address_from_public_key(public_key_hex: str) -> str:
+    def get_dag_address_from_public_key(public_key: str) -> str:
         """
-        :param public_key_hex: The private key as a hexadecimal string.
+        :param public_key: The private key as a hexadecimal string.
         :return: The DAG address corresponding to the public key (node ID).
         """
-        if len(public_key_hex) == 128:
-            public_key = PKCS_PREFIX + "04" + public_key_hex
-        elif len(public_key_hex) == 130 and public_key_hex[:2] == "04":
-            public_key = PKCS_PREFIX + public_key_hex
+        if len(public_key) == 128:
+            public_key = PKCS_PREFIX + "04" + public_key
+        elif len(public_key) == 130 and public_key[:2] == "04":
+            public_key = PKCS_PREFIX + public_key
         else:
             raise ValueError("KeyStore :: Not a valid public key.")
 
@@ -376,8 +376,15 @@ class KeyStore:
 
         return address
 
+    def get_dag_address_from_private_key(self, private_key: str):
+        public_key = self.get_public_key_from_private(private_key=private_key)
+        return self.get_dag_address_from_public_key(public_key=public_key)
+
     @staticmethod
-    def get_eth_address_from_public_key(public_key: str):
+    def get_eth_address_from_public_key(public_key: str) -> str:
         eth_address = eth_utils.keccak(bytes.fromhex(public_key))[-20:]
         return '0x' + eth_address.hex()
 
+    def get_eth_address_from_private_key(self, private_key: str) -> str:
+        public_key = self.get_public_key_from_private(private_key=private_key)
+        return self.get_eth_address_from_public_key(public_key=public_key)
