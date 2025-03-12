@@ -45,3 +45,12 @@ async def test_create_keystores():
     assert eth_address == '0x8fbc948ba2dd081a51036de02582f5dcb51a310c'
     assert cn_address == 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX'
     content = await keystore.generate_encrypted_private_key(eth_private_key)
+
+def test_get_accounts_from_master_key():
+    keystore = KeyStore()
+    master_key = keystore.get_master_key_from_mnemonic("multiply angle perfect verify behind sibling skirt attract first lift remove fortune", derivation_path=BIP_44_PATHS.ETH_WALLET_PATH.value)
+    eth_private_key = keystore.derive_account_from_master_key(master_key, index=0)
+    assert eth_private_key == '7bdf99e47c15ea9ce32b2306f1cf2d88be5f541e5a90fe92dedb795ea2a53e19'
+    master_key = keystore.get_master_key_from_mnemonic("multiply angle perfect verify behind sibling skirt attract first lift remove fortune")
+    cn_private_key = keystore.derive_account_from_master_key(master_key, index=0)
+    assert cn_private_key == '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'

@@ -8,6 +8,7 @@ from decimal import Decimal
 from typing import Tuple, Callable, Optional, Union, Literal
 
 import base58
+from bip32utils import BIP32Key
 
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
@@ -301,6 +302,16 @@ class KeyStore:
         """Can be stored and transferred"""
         private_key = private_key or self.generate_private_key()
         return eth_keyfile.create_keyfile_json(private_key=bytes.fromhex(private_key), password=password.encode('utf-8'))
+
+    @staticmethod
+    def get_master_key_from_mnemonic(phrase: str, derivation_path: str = BIP_44_PATHS.CONSTELLATION_PATH.value):
+        bip32 = Bip32()
+        return bip32.get_master_key_from_mnemonic(phrase, path=derivation_path)
+
+    @staticmethod
+    def derive_account_from_master_key(master_key: BIP32Key, index: int) -> str:
+        account_key = master_key.ChildKey(index)
+        return account_key.PrivateKey().hex()
 
     @staticmethod
     def get_extended_private_key_from_mnemonic(mnemonic: str):

@@ -1,8 +1,17 @@
+from typing import Dict
+
 from bip32utils import BIP32Key
 from ecdsa import SigningKey, SECP256k1
 from mnemonic import Mnemonic
 from pypergraph.dag_core.constants import BIP_44_PATHS
 
+def parse_path(path) -> Dict:
+    path_parts = [int(part.strip("'")) for part in path.split("/")[1:]]
+    purpose = path_parts[0] + 2**31
+    coin_type = path_parts[1] + 2**31
+    account = path_parts[2] + 2**31
+    change = path_parts[3]
+    return {'purpose': purpose, 'coin_type': coin_type, 'account': account, 'change': change}
 
 class Bip32:
     @staticmethod
@@ -16,6 +25,14 @@ class Bip32:
         return BIP32Key.fromEntropy(seed_bytes)
 
     @staticmethod
+    def get_master_key_from_mnemonic(phrase: str, path = BIP_44_PATHS.CONSTELLATION_PATH.value):
+        bip39 = Bip39()
+        path = parse_path(path)
+        seed = bip39.get_seed_from_mnemonic(phrase)
+        root_key = Bip32().get_root_key_from_seed(seed_bytes=seed)
+        return root_key.ChildKey(path['purpose']).ChildKey(path['coin_type']).ChildKey(path['account']).ChildKey(path['change'])
+
+    @staticmethod
     def get_private_key_from_seed(seed_bytes, path = BIP_44_PATHS.CONSTELLATION_PATH.value):
         """
         Derive the private key from a seed entropy using derived path.
@@ -24,15 +41,10 @@ class Bip32:
         :param path: The derivation path.
         :return: The private key as a hexadecimal string.
         """
-
-        path_parts = [int(part.strip("'")) for part in path.split("/")[1:]]
-        purpose = path_parts[0] + 2**31
-        coin_type = path_parts[1] + 2**31
-        account = path_parts[2] + 2**31
-        change = 0
-        index = path_parts[3]
+        INDEX = 0
+        path = parse_path(path)
         root_key = Bip32().get_root_key_from_seed(seed_bytes=seed_bytes)
-        return root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change).ChildKey(index).PrivateKey()
+        return root_key.ChildKey(path['purpose']).ChildKey(path['coin_type']).ChildKey(path['account']).ChildKey(path['change']).ChildKey(INDEX).PrivateKey()
 
     @staticmethod
     def get_public_key_from_private_hex(private_key_bytes: bytes) -> str:
