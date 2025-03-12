@@ -2,7 +2,6 @@ import asyncio
 import json
 import secrets
 from typing import Dict, Any
-import hmac
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import hashes
@@ -78,7 +77,7 @@ class AsyncAesGcmEncryptor:
         encryption_key, hmac_key = await self._derive_keys(password, salt)
 
         # Verify HMAC before decryption
-        if not hmac.compare_digest(
+        if not secrets.compare_digest(
                 await self._calculate_hmac(hmac_key, vault),
                 stored_hmac
         ):
