@@ -1,82 +1,172 @@
-import os
+import asyncio
 import json
+import secrets
+from typing import Dict, Any
+import hmac
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import hmac as crypto_hmac
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import padding
+from cryptography.exceptions import InvalidTag
+import argon2
 
 
-class Encryptor:
-    def __init__(self, iterations: int = 100000):
-        self.iterations = iterations
-        self.algorithm = "aes-256-cbc"
-        self.digest = "sha256"
+class SecurityConstants:
+    """Cryptographic parameters meeting wallet security standards"""
+    AES_KEY_SIZE = 32  # 256-bit
+    ARGON_TIME_COST = 3  # OWASP recommended minimum
+    ARGON_MEMORY_COST = 65536  # 64MB per hash
+    ARGON_PARALLELISM = 1
+    SALT_SIZE = 32  # 256-bit salt
+    NONCE_SIZE = 12  # 96-bit nonce for GCM
+    HMAC_KEY_SIZE = 32
+    VERSION = 3
 
-    async def encrypt(self, password: str, data: dict) -> dict:
-        salt = os.urandom(16)
-        iv = os.urandom(16)
 
-        # Derive encryption key
-        key = self._derive_key(password, salt)
+class AsyncAesGcmEncryptor:
+    def __init__(self):
+        self.version = SecurityConstants.VERSION
 
-        # Prepare and encrypt data
-        encrypted_data = self._encrypt(key, iv, json.dumps(data))
+    async def encrypt(self, password: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Securely encrypt wallet data using:
+        - Argon2id for memory-hard KDF
+        - AES-256-GCM for authenticated encryption
+        - HKDF for key separation
+        - Random nonce with HMAC integrity
+        """
+        salt = secrets.token_bytes(SecurityConstants.SALT_SIZE)
+        nonce = secrets.token_bytes(SecurityConstants.NONCE_SIZE)
 
-        return {
-            "data": encrypted_data.hex(),
-            "iv": iv.hex(),
+        # Async key derivation
+        encryption_key, hmac_key = await self._derive_keys(password, salt)
+
+        # Encrypt data
+        aesgcm = AESGCM(encryption_key)
+        plaintext = json.dumps(data).encode()
+        ciphertext = aesgcm.encrypt(nonce, plaintext, None)
+
+        # Build and sign vault
+        vault = {
+            "version": self.version,
+            "ciphertext": ciphertext.hex(),
             "salt": salt.hex(),
-            "iterations": self.iterations,
-            "digest": self.digest,
-            "algorithm": self.algorithm
+            "nonce": nonce.hex(),
+            "hmac": "",
+            "kdf_params": {
+                "algorithm": "argon2id",
+                "time_cost": SecurityConstants.ARGON_TIME_COST,
+                "memory_cost": SecurityConstants.ARGON_MEMORY_COST,
+                "parallelism": SecurityConstants.ARGON_PARALLELISM
+            }
         }
 
-    async def decrypt(self, password: str, vault: dict) -> dict:
-        # Convert hex values to bytes
+        vault["hmac"] = (await self._calculate_hmac(hmac_key, vault)).hex()
+        return vault
+
+    async def decrypt(self, password: str, vault: Dict[str, Any]) -> Dict[str, Any]:
+        """Secure decryption with full validation"""
+        await self._validate_vault(vault)
+
         salt = bytes.fromhex(vault["salt"])
-        iv = bytes.fromhex(vault["iv"])
-        encrypted_data = bytes.fromhex(vault["data"])
+        nonce = bytes.fromhex(vault["nonce"])
+        ciphertext = bytes.fromhex(vault["ciphertext"])
+        stored_hmac = bytes.fromhex(vault["hmac"])
 
-        # Verify algorithm compatibility
-        if vault["algorithm"] != self.algorithm:
-            raise ValueError("Unsupported encryption algorithm")
-        if vault["digest"] != self.digest:
-            raise ValueError("Unsupported digest algorithm")
+        # Derive keys async
+        encryption_key, hmac_key = await self._derive_keys(password, salt)
 
-        # Derive encryption key
-        key = self._derive_key(password, salt, vault["iterations"])
+        # Verify HMAC before decryption
+        if not hmac.compare_digest(
+                await self._calculate_hmac(hmac_key, vault),
+                stored_hmac
+        ):
+            raise SecurityException("HMAC validation failed")
 
-        # Decrypt and return data
-        decrypted_data = self._decrypt(key, iv, encrypted_data)
-        return json.loads(decrypted_data)
+        # Decrypt data
+        try:
+            aesgcm = AESGCM(encryption_key)
+            plaintext = aesgcm.decrypt(nonce, ciphertext, None)
+            return json.loads(plaintext.decode())
+        except InvalidTag:
+            raise SecurityException("Authentication failed")
 
-    def _derive_key(self, password: str, salt: bytes, iterations: int = None) -> bytes:
-        """PBKDF2 key derivation"""
-        kdf = PBKDF2HMAC(
+    async def _derive_keys(self, password: str, salt: bytes) -> tuple[bytes, bytes]:
+        """Memory-hard key derivation with Argon2id + HKDF"""
+        loop = asyncio.get_running_loop()
+
+        # Argon2id in executor (CPU-bound)
+        raw_hash = await loop.run_in_executor(
+            None,
+            argon2.low_level.hash_secret_raw,
+            password.encode(),
+            salt,
+            SecurityConstants.ARGON_TIME_COST,
+            SecurityConstants.ARGON_MEMORY_COST,
+            SecurityConstants.ARGON_PARALLELISM,
+            SecurityConstants.AES_KEY_SIZE + SecurityConstants.HMAC_KEY_SIZE,
+            argon2.Type.ID,
+        )
+
+        # HKDF for key separation
+        hkdf = HKDF(
             algorithm=hashes.SHA256(),
-            length=32,
+            length=SecurityConstants.AES_KEY_SIZE + SecurityConstants.HMAC_KEY_SIZE,
             salt=salt,
-            iterations=iterations or self.iterations,
+            info=b"wallet-key-derivation",
             backend=default_backend()
         )
-        return kdf.derive(password.encode('utf-8'))
+        expanded_key = await loop.run_in_executor(None, hkdf.derive, raw_hash)
 
-    def _encrypt(self, key: bytes, iv: bytes, plaintext: str) -> bytes:
-        """AES-256-CBC encryption with PKCS7 padding"""
-        padder = padding.PKCS7(128).padder()
-        padded_data = padder.update(plaintext.encode('utf-8')) + padder.finalize()
+        return (
+            expanded_key[:SecurityConstants.AES_KEY_SIZE],
+            expanded_key[SecurityConstants.AES_KEY_SIZE:]
+        )
 
-        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-        encryptor = cipher.encryptor()
-        return encryptor.update(padded_data) + encryptor.finalize()
+    async def _calculate_hmac(self, key: bytes, vault: Dict[str, Any]) -> bytes:
+        """HMAC over critical vault parameters"""
+        h = crypto_hmac.HMAC(key, hashes.SHA256(), backend=default_backend())
+        h.update(vault["salt"].encode())
+        h.update(vault["nonce"].encode())
+        h.update(vault["ciphertext"].encode())
+        h.update(json.dumps(vault["kdf_params"]).encode())
+        return await asyncio.get_event_loop().run_in_executor(None, h.finalize)
 
-    def _decrypt(self, key: bytes, iv: bytes, ciphertext: bytes) -> str:
-        """AES-256-CBC decryption with PKCS7 padding removal"""
-        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-        decryptor = cipher.decryptor()
-        padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+    async def _validate_vault(self, vault: Dict[str, Any]):
+        """Structural and version validation"""
+        if vault.get("version") != self.version:
+            raise SecurityException("Unsupported version")
 
-        unpadder = padding.PKCS7(128).unpadder()
-        plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
-        return plaintext.decode('utf-8')
+        required = ["ciphertext", "salt", "nonce", "hmac", "kdf_params"]
+        if any(field not in vault for field in required):
+            raise SecurityException("Missing required fields")
+
+
+class SecurityException(Exception):
+    pass
+
+
+# Usage Example
+async def main():
+    encryptor = AsyncAesGcmEncryptor()
+    sensitive_data = {
+        "private_key": "0x...",
+        "wallet_address": "0x...",
+        "balance": "100 ETH"
+    }
+
+    # Encrypt
+    vault = await encryptor.encrypt("SuperSecretPassword123!", sensitive_data)
+    print("Encrypted Vault:", json.dumps(vault, indent=2))
+
+    # Decrypt
+    try:
+        decrypted = await encryptor.decrypt("SuperSecretPassword123!", vault)
+        print("Decrypted Data:", decrypted)
+    except SecurityException as e:
+        print(f"Security Alert: {str(e)}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

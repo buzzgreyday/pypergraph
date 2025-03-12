@@ -120,7 +120,7 @@ class V3KeystoreCrypto:
             },
             "id": keystore_id,
             "version": 1,
-            "meta": "stardust-collective/dag4"
+            "meta": "stardust-collective/pypergraph"
         })
 
     @staticmethod

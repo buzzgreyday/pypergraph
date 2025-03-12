@@ -5,7 +5,7 @@ import random
 
 import eth_keyfile
 from decimal import Decimal
-from typing import Tuple, Callable, Optional, Union, Literal
+from typing import Tuple, Callable, Optional, Union, Literal, Dict, Any
 
 import base58
 from bip32utils import BIP32Key
@@ -289,19 +289,42 @@ class KeyStore:
         return SigningKey.generate(SECP256k1).to_string().hex()
 
     @staticmethod
-    async def encrypt_phrase(phrase: str, password: str):
-        """Probably used if inactive for some time"""
+    async def encrypt_phrase(phrase: str, password: str) -> V3Keystore:
+        """
+        Probably used if inactive for some time.
+
+        :param phrase:
+        :param password:
+        :return:
+        """
         return await V3KeystoreCrypto.encrypt_phrase(phrase=phrase, password=password)
 
     @staticmethod
-    async def decrypt_phrase(keystore: V3Keystore, password: str = ''):
-        """Probably used if inactive for some time"""
+    async def decrypt_phrase(keystore: V3Keystore, password: str) -> str:
+        """
+        Probably used if inactive for some time.
+
+        :param keystore:
+        :param password:
+        :return:
+        """
         return await V3KeystoreCrypto.decrypt_phrase(keystore=keystore, password=password)
 
-    async def generate_encrypted_private_key(self, private_key: Optional[str] = None, password: str = '') -> V3Keystore:
-        """Can be stored and transferred"""
+    async def generate_encrypted_private_key(
+            self, password: str, private_key: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Can be stored (written to disk) and transferred.
+
+        :param private_key:
+        :param password:
+        :return: Dictionary, use json.dumps()
+        """
         private_key = private_key or self.generate_private_key()
-        return eth_keyfile.create_keyfile_json(private_key=bytes.fromhex(private_key), password=password.encode('utf-8'))
+        return eth_keyfile.create_keyfile_json(
+            private_key=bytes.fromhex(private_key),
+            password=password.encode('utf-8')
+        )
 
     @staticmethod
     def get_master_key_from_mnemonic(phrase: str, derivation_path: str = BIP_44_PATHS.CONSTELLATION_PATH.value):
