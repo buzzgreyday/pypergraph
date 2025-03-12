@@ -386,5 +386,5 @@ class KeyStore:
         return '0x' + eth_address.hex()
 
     def get_eth_address_from_private_key(self, private_key: str) -> str:
-        public_key = self.get_public_key_from_private(private_key=private_key)[2:]
+        public_key = self.get_public_key_from_private(private_key=private_key)[2:] # Removes the 04 prefix from public key
         return self.get_eth_address_from_public_key(public_key=public_key)
