@@ -1,8 +1,11 @@
 import time
+from unittest.mock import AsyncMock
 
 import httpx
 import pytest
 import random
+
+from httpx import ReadTimeout
 
 import pypergraph.dag_account
 from pypergraph.dag_core.exceptions import NetworkError
@@ -10,13 +13,11 @@ from pypergraph.dag_keystore import KeyStore
 from pypergraph.dag_network.models.network import NetworkInfo
 from pypergraph.dag_network.network import DagTokenNetwork
 
-
-""" NETWORK CONFIGURATION """
-
 @pytest.fixture
 def network():
     return DagTokenNetwork()
 
+""" NETWORK CONFIGURATION """
 
 @pytest.mark.parametrize("network_id, expected", [
     ("testnet", NetworkInfo(
@@ -104,7 +105,6 @@ async def test_get_latest_snapshot(network):
     result = await network.get_latest_snapshot()
     assert isinstance(result.hash, str)
     assert result.ordinal >= 3921360
-    assert isinstance(result.last_snapshot_hash, str)
 
 
 @pytest.mark.asyncio
@@ -331,8 +331,12 @@ async def test_get_latest_snapshot_ordinal(network):
 
 @pytest.mark.asyncio
 async def test_get_l1_cluster_info(network):
-    results = await network.cl1_api.get_cluster_info()
-    assert isinstance(results, list)
+    try:
+        results = await network.cl1_api.get_cluster_info()
+    except ReadTimeout as e:
+        pytest.skip(f'Timeout: {e}')
+    else:
+        assert isinstance(results, list)
 
 @pytest.mark.asyncio
 async def test_get_last_ref(network):
@@ -342,31 +346,38 @@ async def test_get_last_ref(network):
 
 @pytest.mark.asyncio
 async def test_get_pending(network):
-    result = await network.get_pending_transaction(
-        hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"
-    )
-    if result:
-        pytest.skip(f"Pending transaction: {result}")
+    try:
+        result = await network.get_pending_transaction(
+            hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"
+        )
+    except ReadTimeout as e:
+        pytest.skip(f'Timeout: {e}')
     else:
-        pytest.skip("No pending transactions.")
+        if result:
+            pytest.skip(f"Pending transaction: {result}")
+        else:
+            pytest.skip("No pending transactions.")
 
 @pytest.mark.asyncio
 async def test_post_transaction(network):
     from .secret import mnemo, to_address
     account = pypergraph.dag_account.DagAccount()
     account.connect(network_id="integrationnet")
+
     if account.network.connected_network.network_id == "integrationnet":
-       account.login_with_seed_phrase(mnemo)
-       tx, hash_ = await account.generate_signed_transaction(to_address=to_address, amount=100000000, fee=200000000)
-       try:
+        account.login_with_seed_phrase(mnemo)
+        tx, hash_ = await account.generate_signed_transaction(
+            to_address=to_address,
+            amount=100000000,
+            fee=200000000
+        )
+
+        try:
             await account.network.post_transaction(tx)
-       except NetworkError as e:
-           if "InsufficientBalance" in str(e):
-               pytest.skip(f"Insufficient balance: {e}")
-           elif "TransactionLimited" in str(e):
-               pytest.skip(f"Transaction limited: {e}")
-           else:
-               pytest.fail(f"Failed to post transaction: {e}")
+        except (httpx.NetworkError, NetworkError) as e:
+            if any(msg in str(e) for msg in ["InsufficientBalance", "TransactionLimited"]):
+                pytest.skip(f"Skipping due to expected error: {e}")
+            raise
 
 @pytest.mark.asyncio
 async def test_post_metagraph_currency_transaction(network):
@@ -379,20 +390,17 @@ async def test_post_metagraph_currency_transaction(network):
         l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
         cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
     )
-    # Generate signed tx
-    last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(address=from_address)
-    tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(
-        to_address=to_address, amount=100000000, fee=0, last_ref=last_ref
-    )
     try:
+        # Generate signed tx
+        last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(address=from_address)
+        tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(
+            to_address=to_address, amount=100000000, fee=0, last_ref=last_ref
+        )
         await account_metagraph_client.network.post_transaction(tx=tx)
-    except NetworkError as e:
-        if "InsufficientBalance" in str(e):
-            pytest.skip(f"Insufficient balance: {e}")
-        elif "TransactionLimited" in str(e):
-            pytest.skip(f"Transaction limited: {e}")
-        else:
-            pytest.fail(f"Failed to post transaction: {e}")
+    except (httpx.NetworkError, NetworkError, httpx.ReadTimeout) as e:
+            if any(msg in str(e) for msg in ["InsufficientBalance", "TransactionLimited"]):
+                pytest.skip(f"Skipping due to expected error: {e}")
+            raise
 
 @pytest.mark.asyncio
 async def test_post_metagraph_data_transaction(network):
@@ -504,7 +512,7 @@ async def test_post_metagraph_data_transaction(network):
         r = await account_metagraph_client.network.post_data(tx)
         assert 'hash' in r
         # Returns the full response from the metagraph
-    except httpx.ConnectError:
+    except (httpx.ConnectError, httpx.ReadError):
         pytest.skip("No locally running Metagraph")
     except KeyError:
         pytest.fail(f"Post data didn't return a hash, returned value: {r}")

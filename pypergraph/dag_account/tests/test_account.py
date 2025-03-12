@@ -1,4 +1,6 @@
+import httpx
 import pytest
+from httpx import ReadTimeout
 
 from pypergraph.dag_core.exceptions import NetworkError
 from pypergraph.dag_network import DagTokenNetwork
@@ -105,7 +107,7 @@ async def test_metagraph_account_connect(network):
     }
     try:
         await metagraph_account.get_balance()
-    except ValueError as e:
+    except (ValueError, ReadTimeout) as e:
         pytest.skip(e.args[0])
 
 
@@ -151,7 +153,7 @@ async def test_currency_transfer(network):
     try:
         r = await account.transfer(to_address=to_address, amount=100000000, fee=200000)
         assert isinstance(r, dict)
-    except NetworkError as e:
+    except (NetworkError, httpx.ReadError) as e:
         failed.append(e)
 
     metagraph_account = MetagraphTokenClient(
@@ -164,7 +166,7 @@ async def test_currency_transfer(network):
     try:
         r = await metagraph_account.transfer(to_address=to_address, amount=10000000, fee=2000000)
         assert isinstance(r, dict)
-    except NetworkError as e:
+    except (NetworkError, httpx.ReadTimeout) as e:
         failed.append(e)
 
     if failed:
