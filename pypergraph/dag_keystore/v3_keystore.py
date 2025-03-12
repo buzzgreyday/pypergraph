@@ -3,7 +3,7 @@ import os
 import uuid
 import hashlib
 import json
-from typing import TypedDict, NotRequired
+from typing_extensions import TypedDict, NotRequired
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from mnemonic import Mnemonic
