@@ -17,3 +17,4 @@ typing_extensions~=4.12.2
 eth-keyfile~=0.8.1
 aiofiles~=24.1.0
 argon2-cffi~=23.1.0
+prometheus_client~=0.21.1

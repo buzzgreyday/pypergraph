@@ -27,7 +27,8 @@ dependencies = [
     "eth-hash[pycryptodome]~=0.7.1",
     "pydantic~=2.10.6",
     "aiofiles~=24.1.0",
-    "argon2-cffi~=23.1.0"
+    "argon2-cffi~=23.1.0",
+    "prometheus_client~=0.21.1"
 ]
 
 requires-python = ">=3.9"
