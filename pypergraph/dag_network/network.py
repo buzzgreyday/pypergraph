@@ -23,7 +23,6 @@ class DagTokenNetwork(AsyncIOEventEmitter):
     def __init__(self, network_id: str = "mainnet", l0_host: Optional[str] = None, cl1_host: Optional[str] = None):
         super().__init__()
         """Validate connected network"""
-        # TODO: Do not hardcode urls
         self.connected_network = NetworkInfo(network_id=network_id, l0_host=l0_host, cl1_host=cl1_host)
         self.l1_lb_api = LoadBalancerApi(host=self.connected_network.l1_lb_url)
         self.l0_lb_api = LoadBalancerApi(host=self.connected_network.l0_lb_url)

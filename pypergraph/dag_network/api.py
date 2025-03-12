@@ -36,8 +36,12 @@ class LoadBalancerApi:
         """Reconfigure the RestAPIClient's base URL."""
         self._service = RestAPIClient(host)
 
-    async def get_metrics(self):
-        # TODO: Handle text response
+    async def get_metrics(self) -> List[Dict[str, Any]]:
+        """
+        Get metrics of a random node (served by the LB).
+
+        :return: Prometheus output as list of dictionaries.
+        """
         response = await self.service.get("/metrics")
         return _handle_metrics(response)
 
@@ -297,8 +301,12 @@ class L0Api:
         return PeerInfo.process_cluster_peers(data=result)
 
     # Metrics
-    async def get_metrics(self):
-        # TODO: Handle text response
+    async def get_metrics(self) -> List[Dict[str, Any]]:
+        """
+        Get metrics of the L0 URL.
+
+        :return: Prometheus output as list of dictionaries.
+        """
         response = await self.service.get("/metrics")
         return _handle_metrics(response)
 
@@ -358,8 +366,12 @@ class L1Api:
         return PeerInfo.process_cluster_peers(data=result)
 
     # Metrics
-    async def get_metrics(self):
-        # TODO: Handle text response
+    async def get_metrics(self) -> List[Dict[str, Any]]:
+        """
+        Get metrics of the L1 URL.
+
+        :return: Prometheus output as list of dictionaries.
+        """
         response = await self.service.get("/metrics")
         return _handle_metrics(response)
 
@@ -440,8 +452,12 @@ class MDL1Api:
         self._service = RestAPIClient(host)
 
     # Metrics
-    async def get_metrics(self):
-        # TODO: Handle text response
+    async def get_metrics(self) -> List[Dict[str, Any]]:
+        """
+        Get metrics of the Metagraph data layer 1 URL.
+
+        :return: Prometheus output as list of dictionaries.
+        """
         response = await self.service.get("/metrics")
         return _handle_metrics(response)
 

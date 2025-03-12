@@ -522,6 +522,9 @@ async def test_post_metagraph_data_transaction(network):
 async def test_get_metrics(network):
     try:
         r = await network.l0_lb_api.get_metrics()
+        for x in r:
+            print(x)
+        assert isinstance(r, list)
     except httpx.ReadTimeout:
         pytest.skip("Timeout")
 
