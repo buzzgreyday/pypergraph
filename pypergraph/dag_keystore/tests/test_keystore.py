@@ -63,5 +63,4 @@ def test_get_addresses_from_private_key():
     keystore = KeyStore()
     eth_private_key = keystore.get_private_key_from_mnemonic("multiply angle perfect verify behind sibling skirt attract first lift remove fortune", derivation_path=BIP_44_PATHS.ETH_WALLET_PATH.value)
     eth_address = keystore.get_eth_address_from_private_key(eth_private_key)
-    assert eth_address == 0x8fbc948ba2dd081a51036de02582f5dcb51a310c
-    print(eth_address)
+    assert eth_address == '0x8fbc948ba2dd081a51036de02582f5dcb51a310c'
