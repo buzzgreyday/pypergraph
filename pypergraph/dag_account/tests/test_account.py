@@ -107,8 +107,8 @@ async def test_metagraph_account_connect(network):
     }
     try:
         await metagraph_account.get_balance()
-    except (ValueError, ReadTimeout) as e:
-        pytest.skip(e.args[0])
+    except (ValueError, httpx.ReadTimeout) as e:
+        pytest.skip(f"Got expected error: {e}")
 
 
 
@@ -190,8 +190,8 @@ async def test_currency_batch_transfer(network):
     try:
         r = await account.transfer_dag_batch(transfers=txn_data)
         assert len(r) == 4
-    except NetworkError as e:
-        pytest.skip(e)
+    except (NetworkError, httpx.ReadTimeout) as e:
+        pytest.skip(f"Got expected error: {e}")
     """PACA Metagraph doesn't function well with bulk transfers, it seems"""
     # metagraph_account = MetagraphTokenClient(
     #     account=account,
