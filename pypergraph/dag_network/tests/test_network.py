@@ -401,6 +401,8 @@ async def test_post_metagraph_currency_transaction(network):
             if any(msg in str(e) for msg in ["InsufficientBalance", "TransactionLimited"]):
                 pytest.skip(f"Skipping due to expected error: {e}")
             raise
+    except httpx.ReadTimeout:
+        pytest.skip("Skipping due to timeout")
 
 @pytest.mark.asyncio
 async def test_post_metagraph_data_transaction(network):
