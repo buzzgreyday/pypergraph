@@ -397,7 +397,7 @@ async def test_post_metagraph_currency_transaction(network):
             to_address=to_address, amount=100000000, fee=0, last_ref=last_ref
         )
         await account_metagraph_client.network.post_transaction(tx=tx)
-    except (httpx.NetworkError, NetworkError, httpx.ReadTimeout) as e:
+    except (httpx.NetworkError, NetworkError) as e:
             if any(msg in str(e) for msg in ["InsufficientBalance", "TransactionLimited"]):
                 pytest.skip(f"Skipping due to expected error: {e}")
             raise
