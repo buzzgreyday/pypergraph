@@ -77,7 +77,20 @@ class KeyStore:
 
         return tx, hash_value
 
-    def _encode_data(self, encoding, prefix, msg):
+    def encode_data(
+            self,
+            msg: dict,
+            prefix: bool = True,
+            encoding: Optional[Union[Literal["base64"], Callable[[dict], str], None]] = None
+    ) -> str:
+        """
+        Encode custom data transaction for signing or signature verification.
+
+        :param msg: Dictionary (the content of 'value' in a SignedTransaction).
+        :param prefix: Enable or disable the default prefix '\u0019Constellation Signed Data:\n' to the encoded msg.
+        :param encoding: Can be None (default), 'base64' or a custom encoding function.
+        :return: Encoded data transaction.
+        """
         if encoding:
             if callable(encoding):
                 # Use custom encoding function
@@ -86,9 +99,8 @@ class KeyStore:
                 # Used in the VOTING and NFT metagraph example
                 encoded = json.dumps(msg, separators=(',', ':'))
                 msg = base64.b64encode(encoded.encode()).decode()
-            elif encoding == "hex":
-                # Used in the TO-DO, SOCIAL and WATER AND ENERGY metagraph example
-                msg = json.dumps(msg, separators=(',', ':'))
+            else:
+                raise ValueError("KeyStore :: Not a valid encoding method.")
         else:
             # Default: used in the TO-DO, SOCIAL and WATER AND ENERGY metagraph examples
             msg = json.dumps(msg, separators=(',', ':'))
@@ -102,16 +114,16 @@ class KeyStore:
             private_key,
             msg: dict,
             prefix: bool = True,
-            encoding: Optional[Union[Literal["hex", "base64"], Callable[[dict], str], None]] = None
+            encoding: Optional[Union[Literal["base64"], Callable[[dict], str], None]] = None
     ) -> Tuple[str, str]:
         """
         Encode message according to serializeUpdate on your template module l1.
 
         :param private_key:
-        :param msg:
-        :param prefix:
-        :param encoding:
-        :return:
+        :param msg: Dictionary (the content of 'value' in a SignedTransaction).
+        :param prefix: Enable or disable the default prefix '\u0019Constellation Signed Data:\n' to the encoded msg.
+        :param encoding: Can be None (default), 'base64' or a custom encoding function.
+        :return: signature, transaction hash.
         """
 
         # 1. The TO-DO, SOCIAL and WATER AND ENERGY template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
@@ -129,8 +141,8 @@ class KeyStore:
         #         return json.dumps(tx_value, separators=(',', ':'))
         #
         #     signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
-
-        msg = self._encode_data(encoding=encoding, prefix=prefix, msg=msg)
+        """ Encode """
+        msg = self.encode_data(encoding=encoding, prefix=prefix, msg=msg)
 
         """ Serialize """
         serialized = msg.encode('utf-8')
@@ -139,6 +151,33 @@ class KeyStore:
         """ Sign """
         signature = self.sign(private_key, hash_)
         return signature, hash_
+
+    def verify_data(
+            self,
+            public_key,
+            encoded_msg: str,
+            signature: str,
+    ):
+        # Encode the message the same way as in data_sign
+        serialized = encoded_msg.encode("utf-8")
+
+        # Compute SHA256 hash of the serialized message as hex
+        sha256_hash_hex = hashlib.sha256(serialized).hexdigest()
+        # Compute SHA512 digest of the hex string's UTF-8 bytes
+        sha512_digest = hashlib.sha512(sha256_hash_hex.encode("utf-8")).digest()
+
+        try:
+            vk = VerifyingKey.from_string(
+                bytes.fromhex(public_key),
+                curve=SECP256k1
+            )
+            return vk.verify_digest(
+                bytes.fromhex(signature),
+                sha512_digest[:32],
+                sigdecode=sigdecode_der
+            )
+        except Exception as e:
+            return False
 
     #def serialize(self, msg: str):
     #    return msg.encode("utf-8").hex()
@@ -232,11 +271,6 @@ class KeyStore:
             return valid
         except Exception:
             return False
-
-    @staticmethod
-    def verify_data(public_key: str, msg: str, signature: str):
-        # TODO
-        pass
 
 
     @staticmethod

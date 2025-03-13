@@ -491,7 +491,7 @@ async def test_post_metagraph_data_transaction(network):
     """ VOTING POLL """
     # signature, hash_ = keystore.data_sign(pk, tx_value, encoding="base64") # Default prefix is True
     """ WATER AND ENERGY """
-    signature, hash_ = keystore.data_sign(pk, msg, prefix=False, encoding="hex")
+    signature, hash_ = keystore.data_sign(pk, msg, prefix=False)
     """ TO-DO "CUSTOM" """
     # def encode(data: dict):
     #     return json.dumps(msg, separators=(',', ':'))
@@ -508,6 +508,27 @@ async def test_post_metagraph_data_transaction(network):
         proof
     ]
     }
+    encoded_msg = keystore.encode_data(msg=msg, prefix=False)
+    assert keystore.verify_data(public_key, encoded_msg, signature)
+    false_msg = {
+        "address": f"{from_address}",
+        "energyUsage": {
+            "usage": 5,
+            "timestamp": int(time.time() * 1000),
+        },
+        "waterUsage": {
+            "usage": 1,
+            "timestamp": int(time.time() * 1000),
+        },
+    }
+    encoded_msg = keystore.encode_data(msg=false_msg, prefix=False)
+    assert not keystore.verify_data(public_key, encoded_msg, signature)
+    encoded_msg = keystore.encode_data(msg=msg, prefix=False, encoding='base64')
+    assert not keystore.verify_data(public_key, encoded_msg, signature)
+    encoded_msg = keystore.encode_data(msg=msg)
+    assert not keystore.verify_data(public_key, encoded_msg, signature)
+
+
     try:
         r = await account_metagraph_client.network.post_data(tx)
         assert 'hash' in r
