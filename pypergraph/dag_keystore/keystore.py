@@ -289,6 +289,19 @@ class KeyStore:
         return SigningKey.generate(SECP256k1).to_string().hex()
 
     @staticmethod
+    def is_valid_json_private_key(data: dict) -> bool:
+        if not data:
+            return False
+
+        crypto = data.get("crypto", {})
+        kdfparams = crypto.get("kdfparams", {})
+
+        return all(
+            key in kdfparams and kdfparams[key] is not None
+            for key in ("salt", "n", "r", "p", "dklen")
+        )
+
+    @staticmethod
     async def encrypt_phrase(phrase: str, password: str) -> V3Keystore:
         """
         Probably used if inactive for some time.
@@ -310,7 +323,7 @@ class KeyStore:
         """
         return await V3KeystoreCrypto.decrypt_phrase(keystore=keystore, password=password)
 
-    async def generate_encrypted_private_key(
+    def generate_encrypted_private_key(
             self, password: str, private_key: Optional[str] = None
     ) -> Dict[str, Any]:
         """
@@ -323,8 +336,15 @@ class KeyStore:
         private_key = private_key or self.generate_private_key()
         return eth_keyfile.create_keyfile_json(
             private_key=bytes.fromhex(private_key),
-            password=password.encode('utf-8')
+            password=password.encode('utf-8'),
+            kdf="scrypt"
         )
+
+    def decrypt_private_key(self, data: dict, password: str):
+        if self.is_valid_json_private_key(data):
+            wallet = eth_keyfile.decode_keyfile_json(raw_keyfile_json=data, password=password.encode('utf-8'))
+            return wallet.hex()
+
 
     @staticmethod
     def get_master_key_from_mnemonic(phrase: str, derivation_path: str = BIP_44_PATHS.CONSTELLATION_PATH.value):

@@ -52,7 +52,9 @@ async def test_create_keystores():
     eth_address = keystore.get_eth_address_from_public_key(eth_public_key)
     assert eth_address == '0x8fbc948ba2dd081a51036de02582f5dcb51a310c'
     assert cn_address == 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX'
-    encrypted_private_key = await keystore.generate_encrypted_private_key(private_key=eth_private_key, password='top_secret')
+    encrypted_private_key = keystore.generate_encrypted_private_key(private_key=eth_private_key, password='top_secret')
+    decrypted_private_key = keystore.decrypt_private_key(encrypted_private_key, 'top_secret')
+    assert decrypted_private_key == '7bdf99e47c15ea9ce32b2306f1cf2d88be5f541e5a90fe92dedb795ea2a53e19'
     assert isinstance(json.dumps(encrypted_private_key), str)
     encrypted_phrase = await keystore.encrypt_phrase(
         phrase="multiply angle perfect verify behind sibling skirt attract first lift remove fortune",
