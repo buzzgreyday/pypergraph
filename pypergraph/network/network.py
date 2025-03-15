@@ -1,6 +1,7 @@
 from typing import Optional, Dict, List
 
-from pyee.asyncio import AsyncIOEventEmitter
+from rx.subject import Subject
+from rx import operators as ops
 
 from pypergraph.network.models.account import LastReference, Balance
 from pypergraph.network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api, MDL1Api
@@ -14,7 +15,7 @@ import logging
 # Get a logger for this specific module
 logger = logging.getLogger(__name__)
 
-class DagTokenNetwork(AsyncIOEventEmitter):
+class DagTokenNetwork:
     """
     Network instance used to interact with Constellation Network layer 0 and currency layer 1. Can be used as a separate instance or as 'network' in DagAccount.
 
@@ -29,7 +30,11 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         self.be_api = BlockExplorerApi(host=self.connected_network.be_url)
         self.l0_api = L0Api(host=self.connected_network.l0_host) if self.connected_network.l0_host else L0Api(host=self.connected_network.l0_lb_url)
         self.cl1_api = L1Api(host=self.connected_network.cl1_host) if self.connected_network.cl1_host else L1Api(host=self.connected_network.l1_lb_url)
-        # private networkChange$ = new Subject < NetworkInfo > ();
+        self._network_change = Subject()
+        self._network_observable = self._network_change.pipe(
+            ops.distinct_until_changed(),
+            ops.share()
+        )
 
 
     def config(
@@ -49,13 +54,9 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         """
         self.set_network(NetworkInfo(network_id=network_id, be_url=be_url, l0_host=l0_host, cl1_host=cl1_host, l0_lb_url=l0_lb_url, l1_lb_url=l1_lb_url))
 
-
-    def on_network_change(self):
-        pass
-
-    def observe_network_change(self, on_network_change):
-        """Subscribe to network changes."""
-        self.on('network_change', on_network_change)
+    def observe_network_change(self):
+        """Return network changes observable"""
+        return self._network_observable
 
     def set_network(self, network_info: NetworkInfo):
 
@@ -68,7 +69,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
             self.cl1_api.config(network_info.cl1_host) # Currency layer
 
             # Emit a network change event
-            self.emit('network_change', network_info.__dict__)
+            self._network_change.on_next(network_info.__dict__)
 
     def get_network(self) -> Dict:
         """
@@ -162,7 +163,7 @@ class DagTokenNetwork(AsyncIOEventEmitter):
         return response
 
 
-class MetagraphTokenNetwork(AsyncIOEventEmitter):
+class MetagraphTokenNetwork:
     """
     Network instance used to interact with Constellation Network layer 0 and Metagraph currency and data layer. Can be used as a separate instance or as 'network' in MetagraphTokenClient..
 

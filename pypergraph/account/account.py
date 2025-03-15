@@ -4,7 +4,8 @@ from datetime import datetime
 
 from typing import Any, Dict, List, Optional, Tuple, Union, Self
 
-from pyee.asyncio import AsyncIOEventEmitter
+from rx.subject import Subject
+from rx import operators as ops
 
 from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.network.models import LastReference
@@ -15,20 +16,14 @@ from pypergraph.network.network import DagTokenNetwork, MetagraphTokenNetwork
 
 class DagAccount:
 
-    def __init__(self, emitter: Optional[AsyncIOEventEmitter] = None):
-        """
-        Example on how setup the emitter with an event monitor, e.g.:
-        Dependency Injection:
-            from pypergraph.dag_account import DagAccount
-            from pypergraph.monitor import Monitor
-            account = DagAccount()
-            monitor = Monitor(account=account)
-
-        :param emitter:
-        """
+    def __init__(self):
         self.network: DagTokenNetwork = DagTokenNetwork()
         self.key_trio: Optional[KeyTrio] = None
-        self.emitter: AsyncIOEventEmitter = emitter or AsyncIOEventEmitter()
+        self._session_change: Subject = Subject()
+        self._network_observable = self._session_change.pipe(
+            ops.distinct_until_changed(),
+            ops.share()
+        )
 
     def connect(
             self,
@@ -143,17 +138,14 @@ class DagAccount:
         :return:
         """
         self.key_trio = None
-        self.emitter.emit("session_change", True)
+        self._session_change.on_next(True)
 
-    def on_network_change(self):
-        pass
-
-    def observe_session_change(self, on_network_change):
-        self.emitter.on("session_change", on_network_change)
+    def observe_session_change(self):
+        return self._network_observable
 
     def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
         self.key_trio = KeyTrio(private_key=private_key, public_key=public_key, address=address)
-        self.emitter.emit("session_change", True)
+        self._session_change.on_next(True)
 
     async def get_balance(self):
         """
