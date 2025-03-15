@@ -1,7 +1,10 @@
+import asyncio
 import re
 from typing import Optional, Union, List
 
-from pyee.asyncio import AsyncIOEventEmitter
+from rx.scheduler.eventloop import AsyncIOScheduler
+from rx.subject import BehaviorSubject, Subject
+from rx import operators as ops
 
 from pypergraph.core import KeyringWalletType, NetworkId
 from pypergraph.keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
@@ -11,7 +14,7 @@ from pypergraph.keyring.bip import Bip39Helper
 from pypergraph.keyring.storage import StateStorageDb, ObservableStore
 
 
-class KeyringManager(AsyncIOEventEmitter):
+class KeyringManager:
 
     def __init__(self):
         super().__init__()
@@ -20,9 +23,40 @@ class KeyringManager(AsyncIOEventEmitter):
         self.wallets: List[Union[MultiChainWallet, MultiKeyWallet, MultiAccountWallet, SingleAccountWallet]] = []
         self.password: Optional[str] = None
         self.mem_store: ObservableStore = ObservableStore()
-        # KeyringManager is also an event emitter
-        self.on("new_account", self.create_multi_chain_hd_wallet)
-        self.on("remove_account", self.remove_account)
+        # Reactive state management
+        self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())
+        self._state_subject = BehaviorSubject(self.mem_store.get_state())
+        self._event_subject = Subject()
+
+        # Set up state change reactions
+        self._event_subject.pipe(
+            ops.filter(lambda evt: evt["type"] == "lock"),
+            ops.observe_on(self._scheduler)
+        ).subscribe(lambda _: self._handle_lock())
+
+    def _handle_lock(self):
+        self._state_subject.on_next({
+        "is_unlocked": False,  # Vault is locked
+        "wallets": []          # Clear wallets from state
+    })
+
+    # Observable properties
+    @property
+    def on_state_change(self):
+        return self._state_subject.pipe(
+            ops.distinct_until_changed(),
+            ops.share()
+        )
+
+    @property
+    def on_account_update(self):
+        return self._event_subject.pipe(
+            ops.filter(lambda evt: evt["type"] == "account_update"),
+            ops.map(lambda evt: evt["data"]),
+            ops.share()
+        )
+
+    # > Rx changes
 
     def is_unlocked(self) -> bool:
         return bool(self.password)
@@ -56,7 +90,7 @@ class KeyringManager(AsyncIOEventEmitter):
         # Save safe wallet values in the manager cache
         # Secret values are encrypted and stored (default: encrypted JSON)
         self.wallets.append(wallet)
-        await self.full_update()
+        await self._full_update()
         return wallet
 
     async def create_or_restore_vault(
@@ -85,7 +119,7 @@ class KeyringManager(AsyncIOEventEmitter):
         # Starts fresh
         await self.clear_wallets()
         wallet = await self.create_multi_chain_hd_wallet(label, seed)
-        await self.full_update()
+        await self._full_update()
         return wallet
 
     # creates a single wallet with one chain, creates first account by default, one per chain.
@@ -100,16 +134,16 @@ class KeyringManager(AsyncIOEventEmitter):
         wallet.create(network=network, private_key=private_key, label=label)
         self.wallets.append(wallet)
 
-        await self.full_update()
+        await self._full_update()
 
         return wallet
 
 
-    async def full_update(self):
+    async def _full_update(self):
 
         await self.persist_all_wallets(self.password)
         await self.update_mem_store_wallets()
-        self.notify_update()
+        self._notify_update()
 
     async def persist_all_wallets(self, password):
         password = password or self.password
@@ -158,7 +192,8 @@ class KeyringManager(AsyncIOEventEmitter):
         wallet_for_account = self.get_wallet_for_account(address)
 
         wallet_for_account.remove_account(address)
-        self.emit('removed_account', address)
+        self._event_subject.on_next({"type": "removed_account", "data": address})
+        # self.emit('removed_account', address)
         accounts = wallet_for_account.get_accounts()
 
         if len(accounts) == 0:
@@ -166,7 +201,7 @@ class KeyringManager(AsyncIOEventEmitter):
 
         await self.persist_all_wallets(password=self.password)
         await self.update_mem_store_wallets()
-        self.notify_update()
+        self._notify_update()
 
     def remove_empty_wallets(self):
         self.wallets = [keyring for keyring in self.wallets if len(keyring.get_accounts()) > 0]
@@ -186,8 +221,11 @@ class KeyringManager(AsyncIOEventEmitter):
     def check_password(self, password) -> bool:
         return bool(self.password == password)
 
-    def notify_update(self):
-        self.emit("update", self.mem_store.get_state())
+    def _notify_update(self):
+        current_state = self.mem_store.get_state()
+        self._state_subject.on_next(current_state)
+        self._event_subject.on_next({"type": "state_update", "data": current_state})
+        #self.emit("update", self.mem_store.get_state())
 
     async def logout(self):
 
@@ -196,15 +234,16 @@ class KeyringManager(AsyncIOEventEmitter):
         self.password = None
         self.mem_store.update_state(is_unlocked=False)
         await self.clear_wallets()
-        self.emit('lock')
-        self.notify_update()
+        self._event_subject.on_next({"type": "lock"})
+        #self.emit('lock')
+        self._notify_update()
 
     async def login(self, password: str):
-        self.wallets = await self.unlock_wallets(password)
+        self.wallets = await self._unlock_wallets(password)
         self.update_unlocked()
-        self.notify_update()
+        self._notify_update()
 
-    async def unlock_wallets(
+    async def _unlock_wallets(
             self, password: str
     ) -> List[Union[MultiChainWallet, SingleAccountWallet, MultiAccountWallet, MultiKeyWallet]]:
         encrypted_vault = await self.storage.get("vault")
@@ -222,7 +261,9 @@ class KeyringManager(AsyncIOEventEmitter):
 
     def update_unlocked(self):
         self.mem_store.update_state(is_unlocked=True)
-        self.emit("unlock")
+        #self.emit("unlock")
+        self._state_subject.on_next(self.mem_store.get_state())
+        self._event_subject.on_next({"type": "unlock"})
 
     async def _restore_wallet(
             self, data
