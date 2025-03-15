@@ -19,11 +19,12 @@ class DagAccount:
         """
         Example on how setup the emitter with an event monitor, e.g.:
         Dependency Injection:
-            from pypergraph.account import DagAccount
+            from pypergraph.dag_account import DagAccount
             from pypergraph.monitor import Monitor
             account = DagAccount()
             monitor = Monitor(account=account)
-        :param emitter: An emitter can also be taken as argument.
+
+        :param emitter:
         """
         self.network: DagTokenNetwork = DagTokenNetwork()
         self.key_trio: Optional[KeyTrio] = None
