@@ -4,7 +4,7 @@ from datetime import datetime
 
 from typing import Any, Dict, List, Optional, Tuple, Union, Self
 
-from rx.subject import AsyncSubject
+from rx.subject import Subject
 from rx.scheduler.eventloop import AsyncIOScheduler
 from rx import operators as ops
 
@@ -20,7 +20,7 @@ class DagAccount:
     def __init__(self, scheduler: Optional = None):
         self.network: DagTokenNetwork = DagTokenNetwork()
         self.key_trio: Optional[KeyTrio] = None
-        self._session_change: AsyncSubject = AsyncSubject()
+        self._session_change: Subject = Subject()
         self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_event_loop())  # Async scheduler
         self._network_observable = self._session_change.pipe(
             ops.distinct_until_changed(),
@@ -149,7 +149,6 @@ class DagAccount:
     def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
         self.key_trio = KeyTrio(private_key=private_key, public_key=public_key, address=address)
         self._session_change.on_next(True)
-        self._session_change.on_completed()
 
     async def get_balance(self):
         """

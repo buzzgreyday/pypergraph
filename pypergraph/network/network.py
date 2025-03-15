@@ -2,7 +2,7 @@ import asyncio
 from typing import Optional, Dict, List
 
 from rx.scheduler.eventloop import AsyncIOScheduler
-from rx.subject import AsyncSubject
+from rx.subject import Subject
 from rx import operators as ops
 
 from pypergraph.network.models.account import LastReference, Balance
@@ -43,7 +43,7 @@ class DagTokenNetwork:
 
         # Use the injected scheduler if provided; otherwise default to AsyncIOScheduler.
         self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_event_loop())
-        self._network_change: AsyncSubject = AsyncSubject()
+        self._network_change: Subject = Subject()
         self._network_observable = self._network_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),
@@ -77,6 +77,8 @@ class DagTokenNetwork:
         self.set_network(new_info)
 
     def set_network(self, network_info: NetworkInfo):
+        if network_info.network_id not in ("mainnet", "integrationnet", "testnet", None):
+            raise ValueError("DagTokenNetwork :: Invalid network id.")
         if self.connected_network.__dict__ != network_info.__dict__:
             self.connected_network = network_info
             self.be_api.config(network_info.be_url)  # Block Explorer
@@ -87,7 +89,6 @@ class DagTokenNetwork:
 
             # Emit a network change event
             self._network_change.on_next(network_info.__dict__)
-            self._network_change.on_completed()
 
     def get_network(self) -> Dict:
         """

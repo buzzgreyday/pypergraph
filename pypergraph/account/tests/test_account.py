@@ -204,7 +204,3 @@ async def test_currency_batch_transfer(network):
     # last_ref = await metagraph_account.network.get_address_last_accepted_transaction_ref(account.address)
     # r = await metagraph_account.transfer_batch(transfers=txn_data)
     # assert len(r) == 4
-
-@pytest.mark.asyncio
-async def test_setup_pyee_emitter():
-    pass

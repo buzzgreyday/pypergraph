@@ -5,7 +5,6 @@ from pypergraph.account import DagAccount
 from pypergraph.monitor.tests import secret
 from pypergraph.network import DagTokenNetwork
 
-### MAKE ASYNC !
 
 @pytest.mark.asyncio
 async def test_login():
@@ -43,6 +42,8 @@ async def test_network_change():
     )
 
     network.config("testnet")
+    with pytest.raises(ValueError, match="Invalid network id"):
+        network.config("shoe_polish")
 
 
 def test_async_network_change():
