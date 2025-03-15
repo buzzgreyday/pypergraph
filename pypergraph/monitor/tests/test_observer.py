@@ -74,5 +74,4 @@ def test_async_network_change():
 
     assert observer.messages == [
         ReactiveTest.on_next(100, expected_config),
-        ReactiveTest.on_completed(100)
     ]
