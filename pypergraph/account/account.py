@@ -17,11 +17,11 @@ from pypergraph.network.network import DagTokenNetwork, MetagraphTokenNetwork
 
 class DagAccount:
 
-    def __init__(self):
+    def __init__(self, scheduler: Optional = None):
         self.network: DagTokenNetwork = DagTokenNetwork()
         self.key_trio: Optional[KeyTrio] = None
         self._session_change: AsyncSubject = AsyncSubject()
-        self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())  # Async scheduler
+        self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_event_loop())  # Async scheduler
         self._network_observable = self._session_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),

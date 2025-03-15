@@ -18,60 +18,72 @@ import logging
 logger = logging.getLogger(__name__)
 
 class DagTokenNetwork:
-    """
-    Network instance used to interact with Constellation Network layer 0 and currency layer 1. Can be used as a separate instance or as 'network' in DagAccount.
-
-    """
-
-    def __init__(self, network_id: str = "mainnet", l0_host: Optional[str] = None, cl1_host: Optional[str] = None):
-        super().__init__()
-        """Validate connected network"""
+    def __init__(
+        self,
+        network_id: str = "mainnet",
+        l0_host: Optional[str] = None,
+        cl1_host: Optional[str] = None,
+        scheduler: Optional = None  # Injected scheduler for testing or production
+    ):
+        # Initialize connected network info
         self.connected_network = NetworkInfo(network_id=network_id, l0_host=l0_host, cl1_host=cl1_host)
         self.l1_lb_api = LoadBalancerApi(host=self.connected_network.l1_lb_url)
         self.l0_lb_api = LoadBalancerApi(host=self.connected_network.l0_lb_url)
         self.be_api = BlockExplorerApi(host=self.connected_network.be_url)
-        self.l0_api = L0Api(host=self.connected_network.l0_host) if self.connected_network.l0_host else L0Api(host=self.connected_network.l0_lb_url)
-        self.cl1_api = L1Api(host=self.connected_network.cl1_host) if self.connected_network.cl1_host else L1Api(host=self.connected_network.l1_lb_url)
+        self.l0_api = (
+            L0Api(host=self.connected_network.l0_host)
+            if self.connected_network.l0_host
+            else L0Api(host=self.connected_network.l0_lb_url)
+        )
+        self.cl1_api = (
+            L1Api(host=self.connected_network.cl1_host)
+            if self.connected_network.cl1_host
+            else L1Api(host=self.connected_network.l1_lb_url)
+        )
 
+        # Use the injected scheduler if provided; otherwise default to AsyncIOScheduler.
+        self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_event_loop())
         self._network_change: AsyncSubject = AsyncSubject()
-        self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())  # Async scheduler
         self._network_observable = self._network_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler)  # Ensure async compatibility
+            ops.observe_on(self._scheduler)
         )
-
-
-    def config(
-            self, network_id: str = None, be_url: Optional[str] = None, l0_host: Optional[str] = None,
-            cl1_host: Optional[str] = None, l0_lb_url: Optional[str] = None, l1_lb_url: Optional[str] = None
-    ):
-        """
-        Configure a new NetworkInfo object to setup network_id, l0, l1, be, etc. (default: "mainnet" configuration)
-
-        :param network_id:
-        :param be_url:
-        :param l0_host:
-        :param cl1_host:
-        :param l0_lb_url:
-        :param l1_lb_url:
-        :return:
-        """
-        self.set_network(NetworkInfo(network_id=network_id, be_url=be_url, l0_host=l0_host, cl1_host=cl1_host, l0_lb_url=l0_lb_url, l1_lb_url=l1_lb_url))
 
     def observe_network_change(self):
         """Return network changes observable"""
         return self._network_observable
 
-    def set_network(self, network_info: NetworkInfo):
+    def config(
+        self,
+        network_id: str = None,
+        be_url: Optional[str] = None,
+        l0_host: Optional[str] = None,
+        cl1_host: Optional[str] = None,
+        l0_lb_url: Optional[str] = None,
+        l1_lb_url: Optional[str] = None
+    ):
+        """
+        Reconfigure the network; new configuration is applied only if different from the current one.
+        """
+        new_info = NetworkInfo(
+            network_id=network_id,
+            be_url=be_url,
+            l0_host=l0_host,
+            cl1_host=cl1_host,
+            l0_lb_url=l0_lb_url,
+            l1_lb_url=l1_lb_url
+        )
+        self.set_network(new_info)
 
+    def set_network(self, network_info: NetworkInfo):
         if self.connected_network.__dict__ != network_info.__dict__:
             self.connected_network = network_info
-            self.be_api.config(network_info.be_url) # Block Explorer
+            self.be_api.config(network_info.be_url)  # Block Explorer
             self.l0_api.config(network_info.l0_host)
             self.l0_lb_api.config(network_info.l0_lb_url)
             self.l1_lb_api.config(network_info.l1_lb_url)
-            self.cl1_api.config(network_info.cl1_host) # Currency layer
+            self.cl1_api.config(network_info.cl1_host)  # Currency layer
 
             # Emit a network change event
             self._network_change.on_next(network_info.__dict__)
