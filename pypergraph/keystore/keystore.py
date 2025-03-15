@@ -176,7 +176,7 @@ class KeyStore:
                 sha512_digest[:32],
                 sigdecode=sigdecode_der
             )
-        except Exception as e:
+        except Exception:
             return False
 
     #def serialize(self, msg: str):

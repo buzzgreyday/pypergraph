@@ -4,7 +4,7 @@ from typing import Optional, List, Any, Dict
 
 import base58
 from ecdsa import SigningKey, SECP256k1
-from eth_utils import keccak, to_checksum_address, is_checksum_address
+from eth_utils import keccak, to_checksum_address
 from eth_keys import keys
 from pydantic import BaseModel, Field, ConfigDict
 

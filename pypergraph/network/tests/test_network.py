@@ -1,5 +1,4 @@
 import time
-from unittest.mock import AsyncMock
 
 import httpx
 import pytest
@@ -87,7 +86,7 @@ async def test_init_custom(network):
         assert net.get_network() == vars(expected)
 
     except httpx.ReadTimeout:
-        pytest.skip(f"Timeout")
+        pytest.skip("Timeout")
 
 def test_config_network(network):
     assert network.connected_network.network_id == "mainnet"

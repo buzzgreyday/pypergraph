@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List
 
 from pyee.asyncio import AsyncIOEventEmitter
 

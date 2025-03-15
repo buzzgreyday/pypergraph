@@ -1,6 +1,5 @@
 import httpx
 import pytest
-from httpx import ReadTimeout
 
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.network import DagTokenNetwork

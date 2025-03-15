@@ -1,4 +1,3 @@
-import ecdsa
 import pytest
 
 from pypergraph.keyring import KeyringManager, MultiKeyWallet, MultiAccountWallet
