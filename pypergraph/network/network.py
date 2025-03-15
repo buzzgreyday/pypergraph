@@ -1,6 +1,8 @@
+import asyncio
 from typing import Optional, Dict, List
 
-from rx.subject import Subject
+from rx.scheduler.eventloop import AsyncIOScheduler
+from rx.subject import AsyncSubject
 from rx import operators as ops
 
 from pypergraph.network.models.account import LastReference, Balance
@@ -30,10 +32,13 @@ class DagTokenNetwork:
         self.be_api = BlockExplorerApi(host=self.connected_network.be_url)
         self.l0_api = L0Api(host=self.connected_network.l0_host) if self.connected_network.l0_host else L0Api(host=self.connected_network.l0_lb_url)
         self.cl1_api = L1Api(host=self.connected_network.cl1_host) if self.connected_network.cl1_host else L1Api(host=self.connected_network.l1_lb_url)
-        self._network_change = Subject()
+
+        self._network_change: AsyncSubject = AsyncSubject()
+        self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())  # Async scheduler
         self._network_observable = self._network_change.pipe(
             ops.distinct_until_changed(),
-            ops.share()
+            ops.share(),
+            ops.observe_on(self._scheduler)  # Ensure async compatibility
         )
 
 
@@ -70,6 +75,7 @@ class DagTokenNetwork:
 
             # Emit a network change event
             self._network_change.on_next(network_info.__dict__)
+            self._network_change.on_completed()
 
     def get_network(self) -> Dict:
         """
