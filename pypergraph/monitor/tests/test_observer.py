@@ -22,6 +22,8 @@ async def test_login():
 
 @pytest.mark.asyncio
 async def test_network_change():
+
+    network = DagTokenNetwork()
     async def test_handle_net_change(network_change):
         assert network_change == {
             'dl1_host': None,
@@ -33,7 +35,6 @@ async def test_network_change():
             'cl1_host': 'https://l1-lb-testnet.constellationnetwork.io',
             'metagraph_id': None
         }
-    network = DagTokenNetwork()
 
     # Subscribe to network changes (async-aware)
     network.observe_network_change().subscribe(
