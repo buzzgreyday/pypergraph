@@ -53,8 +53,8 @@ class KeyringManager:
         return self._state_subject.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-        ops.observe_on(self._scheduler),
-        ops.catch(lambda e, src: self._handle_error(e, src))
+            ops.observe_on(self._scheduler),
+            ops.catch(lambda e, src: self._handle_error(e, src))
         )
 
     @property
