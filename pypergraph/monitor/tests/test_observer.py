@@ -82,10 +82,18 @@ def test_async_network_change():
 async def test_async_manager_observer():
     # Subscribe to network changes (async-aware)
     manager = KeyringManager()
-    manager._on_state_change.subscribe(
-        on_next=lambda e: print(f"State change: {e}"),
-        on_error=lambda e: print(f"Error: {e}")
-    )
+    def event_handler(event):
+        if event["type"] == "lock":
+            print("Vault locked!")
+        elif event["type"] == "unlock":
+            print("Vault unlocked!")
+        elif event["type"] == "account_update":
+            print("Account updated:", event["data"])
+        elif event["type"] == "removed_account":
+            print("Account removed:", event["data"])
+        elif event["type"] == "state_update":
+            print("State updated:", event["data"])
+    manager.observe_account_change.subscribe(event_handler)
     # First we "create" a new wallet
     await manager.create_or_restore_vault("super_S3cretP_Asswo0rd", "New Wallet", secret.mnemo)
     # Then login as we would after creating the storage file (can be used without above step when file is present)

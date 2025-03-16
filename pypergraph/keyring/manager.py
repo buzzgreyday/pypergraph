@@ -42,17 +42,16 @@ class KeyringManager:
 
     # Observable properties
     @property
-    def _on_state_change(self):
+    def observe_state_change(self):
         return self._state_subject.pipe(
             ops.distinct_until_changed(),
             ops.share()
         )
 
     @property
-    def on_account_update(self):
+    def observe_account_change(self):
         return self._event_subject.pipe(
-            ops.filter(lambda evt: evt["type"] == "account_update"),
-            ops.map(lambda evt: evt["data"]),
+            ops.distinct_until_changed(),
             ops.share()
         )
 
@@ -240,7 +239,7 @@ class KeyringManager:
 
     async def login(self, password: str):
         self.wallets = await self._unlock_wallets(password)
-        self.update_unlocked()
+        self._update_unlocked()
         self._notify_update()
 
     async def _unlock_wallets(
@@ -255,11 +254,11 @@ class KeyringManager:
         await self.clear_wallets()
         vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
         self.password = password
-        self. wallets = [await self._restore_wallet(w) for w in vault["wallets"]]
+        self.wallets = [await self._restore_wallet(w) for w in vault["wallets"]]
         await self.update_mem_store_wallets()
         return self.wallets
 
-    def update_unlocked(self):
+    def _update_unlocked(self):
         self.mem_store.update_state(is_unlocked=True)
         #self.emit("unlock")
         self._state_subject.on_next(self.mem_store.get_state())
