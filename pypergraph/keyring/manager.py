@@ -34,12 +34,17 @@ class KeyringManager:
             ops.observe_on(self._scheduler)
         ).subscribe(lambda _: self._handle_lock())
 
-        self._event_subject.pipe(
-            ops.distinct_until_changed(),
-            ops.share(),
-            ops.observe_on(self._scheduler),
-            ops.catch(lambda e, src: self._handle_error(e, src))
-        )
+        #self._event_subject.pipe(
+        ##    ops.distinct_until_changed(),
+        #    ops.share(),
+        #    ops.observe_on(self._scheduler),
+        #    ops.catch(lambda e, src: self._handle_error(e, src)),
+        #    ops.retry(3)
+        #)
+
+    def __del__(self):
+        self._state_subject.dispose()
+        self._event_subject.dispose()
 
     def _handle_error(self, error, src):
         #logger.error(f"Unhandled error in observable: {error}")
@@ -63,7 +68,8 @@ class KeyringManager:
             ops.distinct_until_changed(),
             ops.share(),
             ops.observe_on(self._scheduler),
-            ops.catch(lambda e, src: self._handle_error(e, src))
+            ops.catch(lambda e, src: self._handle_error(e, src)),
+            ops.retry(3)
         )
 
     @property
@@ -72,10 +78,9 @@ class KeyringManager:
             ops.distinct_until_changed(),
             ops.share(),
             ops.observe_on(self._scheduler),
-            ops.catch(lambda e, src: self._handle_error(e, src))
+            ops.catch(lambda e, src: self._handle_error(e, src)),
+            ops.retry(3)
         )
-
-    # > Rx changes
 
     def is_unlocked(self) -> bool:
         return bool(self.password)
@@ -286,7 +291,9 @@ class KeyringManager:
         await self.clear_wallets()
         vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
         self.password = password
-        self.wallets = [await self._restore_wallet(w) for w in vault["wallets"]]
+        tasks = [self._restore_wallet(w) for w in vault["wallets"]]
+        self.wallets = await asyncio.gather(*tasks, return_exceptions=True)
+        # self.wallets = [w for w in self.wallets if not isinstance(w, Exception)]
         await self.update_mem_store_wallets()
         return self.wallets
 
