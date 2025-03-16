@@ -77,6 +77,7 @@ def test_async_network_change():
         ReactiveTest.on_next(100, expected_config),
     ]
 
+
 @pytest.mark.asyncio
 async def test_async_manager_observer():
     # Subscribe to network changes (async-aware)
@@ -85,5 +86,9 @@ async def test_async_manager_observer():
         on_next=lambda e: print(f"State change: {e}"),
         on_error=lambda e: print(f"Error: {e}")
     )
-
+    # First we "create" a new wallet
+    await manager.create_or_restore_vault("super_S3cretP_Asswo0rd", "New Wallet", secret.mnemo)
+    # Then login as we would after creating the storage file (can be used without above step when file is present)
     await manager.login(password="super_S3cretP_Asswo0rd")
+    # We then logout
+    await manager.logout()
