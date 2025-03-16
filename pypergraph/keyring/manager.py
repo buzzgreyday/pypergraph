@@ -4,7 +4,7 @@ from typing import Optional, Union, List
 
 from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import BehaviorSubject, Subject
-from rx import operators as ops, Observable, empty, catch
+from rx import operators as ops, empty
 
 from pypergraph.core import KeyringWalletType, NetworkId
 from pypergraph.keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
@@ -16,7 +16,7 @@ from pypergraph.keyring.storage import StateStorageDb, ObservableStore
 
 class KeyringManager:
 
-    def __init__(self):
+    def __init__(self, scheduler: Optional[AsyncIOScheduler] = None):
         super().__init__()
         self.encryptor: Encryptor = Encryptor()
         self.storage: StateStorageDb = StateStorageDb()
@@ -24,7 +24,7 @@ class KeyringManager:
         self.password: Optional[str] = None
         self.mem_store: ObservableStore = ObservableStore()
         # Reactive state management
-        self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())
+        self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_running_loop())
         self._state_subject = BehaviorSubject(self.mem_store.get_state())
         self._event_subject = Subject()
 
@@ -44,25 +44,6 @@ class KeyringManager:
         except Exception as e:
             #logger.error(f"Error in network change handler: {e}")
             print(f"Error in KeyringManager account change handler: {e}")
-
-    # Observable properties
-    @property
-    def observe_state_change(self):
-        return self._state_subject.pipe(
-            ops.distinct_until_changed(),
-            ops.share(),
-            ops.observe_on(self._scheduler),
-            ops.catch(lambda error, _: self._handle_observable_error(error))
-        )
-
-    @property
-    def observe_account_change(self):
-        return self._event_subject.pipe(
-            ops.distinct_until_changed(),
-            ops.share(),
-            ops.observe_on(self._scheduler),
-            ops.catch(lambda error, _: self._handle_observable_error(error))
-        )
 
     def _handle_observable_error(self, error):
         print(f"Observable error: {error}")
@@ -174,7 +155,8 @@ class KeyringManager:
         """Will enforce basic restrictions on password creation"""
 
         if len(password) < 8:
-            raise ValueError("KeyringManager :: Password must be at least 8 characters long.")
+            self._event_subject.on_next({"type": "error", "data": "Password must be at least 8 characters long."})
+            #raise ValueError("KeyringManager :: Password must be at least 8 characters long.")
         if re.search(r'\d', password) is None:
             raise ValueError("KeyringManager :: Password must contain at least one number.")
         if re.search(r'[a-z]', password) is None:
@@ -263,11 +245,15 @@ class KeyringManager:
             return []
 
         await self.clear_wallets()
-        vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
-        self.password = password
-        tasks = [self._restore_wallet(w) for w in vault["wallets"]]
-        self.wallets = await asyncio.gather(*tasks, return_exceptions=True)
-        # self.wallets = [w for w in self.wallets if not isinstance(w, Exception)]
+        try:
+            vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
+        except Exception as e:
+            self._event_subject.on_next({"type": "error", "data": e})
+            raise
+        else:
+            self.password = password
+            tasks = [self._restore_wallet(w) for w in vault["wallets"]]
+            self.wallets = [w for w in await asyncio.gather(*tasks, return_exceptions=True) if not isinstance(w, Exception)]
         await self.update_mem_store_wallets()
         return self.wallets
 
