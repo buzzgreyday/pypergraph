@@ -42,7 +42,7 @@ class KeyringManager:
 
     # Observable properties
     @property
-    def on_state_change(self):
+    def _on_state_change(self):
         return self._state_subject.pipe(
             ops.distinct_until_changed(),
             ops.share()

@@ -2,6 +2,7 @@ import pytest
 from rx.testing import TestScheduler, ReactiveTest
 
 from pypergraph.account import DagAccount
+from pypergraph.keyring import KeyringManager
 from pypergraph.monitor.tests import secret
 from pypergraph.network import DagTokenNetwork
 
@@ -75,3 +76,14 @@ def test_async_network_change():
     assert observer.messages == [
         ReactiveTest.on_next(100, expected_config),
     ]
+
+@pytest.mark.asyncio
+async def test_async_manager_observer():
+    # Subscribe to network changes (async-aware)
+    manager = KeyringManager()
+    manager._on_state_change.subscribe(
+        on_next=lambda e: print(f"State change: {e}"),
+        on_error=lambda e: print(f"Error: {e}")
+    )
+
+    await manager.login(password="super_S3cretP_Asswo0rd")
