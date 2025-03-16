@@ -27,13 +27,11 @@ class KeyringManager:
         self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_running_loop())
         self._state_subject = BehaviorSubject(self.mem_store.get_state())
         self._event_subject = Subject()
-
         # Set up state change reactions
         self._event_subject.pipe(
             ops.filter(lambda evt: evt["type"] == "lock"),
             ops.observe_on(self._scheduler)
         ).subscribe(lambda _: self._handle_lock())
-
 
     def _handle_lock(self):
         try:
@@ -244,12 +242,11 @@ class KeyringManager:
             vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
         except Exception as e:
             self._event_subject.on_next({"type": "error", "data": e})
-            raise
         else:
             self.password = password
             tasks = [self._restore_wallet(w) for w in vault["wallets"]]
             self.wallets = [w for w in await asyncio.gather(*tasks, return_exceptions=True) if not isinstance(w, Exception)]
-        await self.update_mem_store_wallets()
+            await self.update_mem_store_wallets()
         return self.wallets
 
     def _update_unlocked(self):
