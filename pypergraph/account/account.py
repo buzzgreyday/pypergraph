@@ -25,7 +25,8 @@ class DagAccount:
         self._network_observable = self._session_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler)  # Ensure async compatibility
+            ops.observe_on(self._scheduler),
+            ops.catch(lambda e, src: self._handle_error(e, src))
         )
 
     def connect(

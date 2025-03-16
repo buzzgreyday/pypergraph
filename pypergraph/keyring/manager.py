@@ -34,6 +34,13 @@ class KeyringManager:
             ops.observe_on(self._scheduler)
         ).subscribe(lambda _: self._handle_lock())
 
+        self._event_subject.pipe(
+            ops.distinct_until_changed(),
+            ops.share(),
+            ops.observe_on(self._scheduler),
+            ops.catch(lambda e, src: self._handle_error(e, src))
+        )
+
     def _handle_lock(self):
         self._state_subject.on_next({
         "is_unlocked": False,  # Vault is locked
@@ -45,14 +52,18 @@ class KeyringManager:
     def observe_state_change(self):
         return self._state_subject.pipe(
             ops.distinct_until_changed(),
-            ops.share()
+            ops.share(),
+        ops.observe_on(self._scheduler),
+        ops.catch(lambda e, src: self._handle_error(e, src))
         )
 
     @property
     def observe_account_change(self):
         return self._event_subject.pipe(
             ops.distinct_until_changed(),
-            ops.share()
+            ops.share(),
+            ops.observe_on(self._scheduler),
+            ops.catch(lambda e, src: self._handle_error(e, src))
         )
 
     # > Rx changes

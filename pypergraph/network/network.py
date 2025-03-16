@@ -47,7 +47,8 @@ class DagTokenNetwork:
         self._network_observable = self._network_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler)
+            ops.observe_on(self._scheduler),
+            ops.catch(lambda e, src: self._handle_error(e, src))
         )
 
     def observe_network_change(self):
