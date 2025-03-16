@@ -45,10 +45,6 @@ class KeyringManager:
             #logger.error(f"Error in network change handler: {e}")
             print(f"Error in KeyringManager account change handler: {e}")
 
-    def _handle_observable_error(self, error):
-        print(f"Observable error: {error}")
-        return empty(scheduler=self._scheduler)
-
     def is_unlocked(self) -> bool:
         return bool(self.password)
 
