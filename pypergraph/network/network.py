@@ -2,7 +2,7 @@ import asyncio
 from typing import Optional, Dict, List
 
 from rx.scheduler.eventloop import AsyncIOScheduler
-from rx.subject import Subject
+from rx.subject import Subject, BehaviorSubject
 from rx import operators as ops
 
 from pypergraph.network.models.account import LastReference, Balance
@@ -43,13 +43,18 @@ class DagTokenNetwork:
 
         # Use the injected scheduler if provided; otherwise default to AsyncIOScheduler.
         self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_event_loop())
-        self._network_change: Subject = Subject()
+        self._network_change: Subject = BehaviorSubject(self.connected_network.__dict__)
         self._network_observable = self._network_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),
             ops.observe_on(self._scheduler),
             ops.catch(lambda e, src: self._handle_error(e, src))
         )
+
+    def _handle_error(self, error, src):
+        logger.error(f"Unhandled error in observable: {error}")
+        # print(f"Unhandled error: {error}")
+        return src  # Resubscribe to the original source
 
     def observe_network_change(self):
         """Return network changes observable"""
@@ -89,7 +94,11 @@ class DagTokenNetwork:
             self.cl1_api.config(network_info.cl1_host)  # Currency layer
 
             # Emit a network change event
-            self._network_change.on_next(network_info.__dict__)
+            try:
+                self._network_change.on_next(network_info.__dict__)
+            except Exception as e:
+                # logger.error(f"Error in network change handler: {e}")
+                print(f"Error in DagTokenNetwork change handler: {e}")
 
     def get_network(self) -> Dict:
         """

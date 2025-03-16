@@ -29,6 +29,11 @@ class DagAccount:
             ops.catch(lambda e, src: self._handle_error(e, src))
         )
 
+    def _handle_error(self, error, src):
+        #logger.error(f"Unhandled error in observable: {error}")
+        print(f"Unhandled error: {error}")
+        return src  # Resubscribe to the original source
+
     def connect(
             self,
             network_id: Optional[str] = "mainnet",
@@ -142,14 +147,22 @@ class DagAccount:
         :return:
         """
         self.key_trio = None
-        self._session_change.on_next(True)
+        try:
+            self._session_change.on_next(True)
+        except Exception as e:
+            # logger.error(f"Error in network change handler: {e}")
+            print(f"Error in DagAccount session change handler: {e}")
 
     def observe_session_change(self):
         return self._network_observable
 
     def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
         self.key_trio = KeyTrio(private_key=private_key, public_key=public_key, address=address)
-        self._session_change.on_next(True)
+        try:
+            self._session_change.on_next(True)
+        except Exception as e:
+            #logger.error(f"Error in network change handler: {e}")
+            print(f"Error in DagAccount session change handler: {e}")
 
     async def get_balance(self):
         """

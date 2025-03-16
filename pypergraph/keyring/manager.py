@@ -41,11 +41,20 @@ class KeyringManager:
             ops.catch(lambda e, src: self._handle_error(e, src))
         )
 
+    def _handle_error(self, error, src):
+        #logger.error(f"Unhandled error in observable: {error}")
+        print(f"Unhandled error: {error}")
+        return src  # Resubscribe to the original source
+
     def _handle_lock(self):
-        self._state_subject.on_next({
-        "is_unlocked": False,  # Vault is locked
-        "wallets": []          # Clear wallets from state
-    })
+        try:
+            self._state_subject.on_next({
+            "is_unlocked": False,  # Vault is locked
+            "wallets": []          # Clear wallets from state
+        })
+        except Exception as e:
+            #logger.error(f"Error in network change handler: {e}")
+            print(f"Error in KeyringManager account change handler: {e}")
 
     # Observable properties
     @property
@@ -202,7 +211,11 @@ class KeyringManager:
         wallet_for_account = self.get_wallet_for_account(address)
 
         wallet_for_account.remove_account(address)
-        self._event_subject.on_next({"type": "removed_account", "data": address})
+        try:
+            self._event_subject.on_next({"type": "removed_account", "data": address})
+        except Exception as e:
+            #logger.error(f"Error in network change handler: {e}")
+            print(f"Error in KeyringManager account change handler: {e}")
         # self.emit('removed_account', address)
         accounts = wallet_for_account.get_accounts()
 
@@ -233,8 +246,12 @@ class KeyringManager:
 
     def _notify_update(self):
         current_state = self.mem_store.get_state()
-        self._state_subject.on_next(current_state)
-        self._event_subject.on_next({"type": "state_update", "data": current_state})
+        try:
+            self._state_subject.on_next(current_state)
+            self._event_subject.on_next({"type": "state_update", "data": current_state})
+        except Exception as e:
+            #logger.error(f"Error in network change handler: {e}")
+            print(f"Error in KeyringManager account change handler: {e}")
         #self.emit("update", self.mem_store.get_state())
 
     async def logout(self):
@@ -244,7 +261,11 @@ class KeyringManager:
         self.password = None
         self.mem_store.update_state(is_unlocked=False)
         await self.clear_wallets()
-        self._event_subject.on_next({"type": "lock"})
+        try:
+            self._event_subject.on_next({"type": "lock"})
+        except Exception as e:
+            #logger.error(f"Error in network change handler: {e}")
+            print(f"Error in KeyringManager account change handler: {e}")
         #self.emit('lock')
         self._notify_update()
 
@@ -272,8 +293,12 @@ class KeyringManager:
     def _update_unlocked(self):
         self.mem_store.update_state(is_unlocked=True)
         #self.emit("unlock")
-        self._state_subject.on_next(self.mem_store.get_state())
-        self._event_subject.on_next({"type": "unlock"})
+        try:
+            self._state_subject.on_next(self.mem_store.get_state())
+            self._event_subject.on_next({"type": "unlock"})
+        except Exception as e:
+            #logger.error(f"Error in network change handler: {e}")
+            print(f"Error in KeyringManager account change handler: {e}")
 
     async def _restore_wallet(
             self, data
