@@ -47,15 +47,9 @@ class DagTokenNetwork:
         self._network_observable = self._network_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler),
-            ops.catch(lambda e, src: self._handle_error(e, src)),
-            ops.retry(3)
+            ops.observe_on(self._scheduler)
         )
 
-    def _handle_error(self, error, src):
-        logger.error(f"Unhandled error in observable: {error}")
-        # print(f"Unhandled error: {error}")
-        return src  # Resubscribe to the original source
 
     def observe_network_change(self):
         """Return network changes observable"""
@@ -95,11 +89,8 @@ class DagTokenNetwork:
             self.cl1_api.config(network_info.cl1_host)  # Currency layer
 
             # Emit a network change event
-            try:
-                self._network_change.on_next(network_info.__dict__)
-            except Exception as e:
-                # logger.error(f"Error in network change handler: {e}")
-                print(f"Error in DagTokenNetwork change handler: {e}")
+            self._network_change.on_next(network_info.__dict__)
+
 
     def get_network(self) -> Dict:
         """

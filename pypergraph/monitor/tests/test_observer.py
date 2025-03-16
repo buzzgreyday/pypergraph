@@ -105,3 +105,26 @@ async def test_async_manager_observers():
     await manager.login(password="super_S3cretP_Asswo0rd")
     # We then logout
     await manager.logout()
+
+from rx import of
+from rx import operators as ops
+
+def test_safe_divide():
+
+    def safe_divide(x):
+        try:
+            return x / (x - 3)
+        except Exception as e:
+            print(f"Error processing value {x}: {e}")
+            return None  # or any fallback value, or skip it
+
+    source = of(1, 2, 3, 4, 5).pipe(
+        ops.map(safe_divide),
+        ops.filter(lambda result: result is not None)  # Optionally filter out fallback values
+    )
+
+    source.subscribe(
+        on_next=lambda x: print(f"Received: {x}"),
+        on_error=lambda e: print(f"Error: {e}"),
+        on_completed=lambda: print("Completed")
+)

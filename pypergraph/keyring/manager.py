@@ -34,23 +34,6 @@ class KeyringManager:
             ops.observe_on(self._scheduler)
         ).subscribe(lambda _: self._handle_lock())
 
-        #self._event_subject.pipe(
-        ##    ops.distinct_until_changed(),
-        #    ops.share(),
-        #    ops.observe_on(self._scheduler),
-        #    ops.catch(lambda e, src: self._handle_error(e, src)),
-        #    ops.retry(3)
-        #)
-
-    def __del__(self):
-        self._state_subject.dispose()
-        self._event_subject.dispose()
-
-    def _handle_error(self, error, src):
-        #logger.error(f"Unhandled error in observable: {error}")
-        print(f"Unhandled error: {error}")
-        return src  # Resubscribe to the original source
-
     def _handle_lock(self):
         try:
             self._state_subject.on_next({
@@ -67,9 +50,7 @@ class KeyringManager:
         return self._state_subject.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler),
-            ops.catch(lambda e, src: self._handle_error(e, src)),
-            ops.retry(3)
+            ops.observe_on(self._scheduler)
         )
 
     @property
@@ -77,9 +58,7 @@ class KeyringManager:
         return self._event_subject.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler),
-            ops.catch(lambda e, src: self._handle_error(e, src)),
-            ops.retry(3)
+            ops.observe_on(self._scheduler)
         )
 
     def is_unlocked(self) -> bool:
@@ -216,11 +195,7 @@ class KeyringManager:
         wallet_for_account = self.get_wallet_for_account(address)
 
         wallet_for_account.remove_account(address)
-        try:
-            self._event_subject.on_next({"type": "removed_account", "data": address})
-        except Exception as e:
-            #logger.error(f"Error in network change handler: {e}")
-            print(f"Error in KeyringManager account change handler: {e}")
+        self._event_subject.on_next({"type": "removed_account", "data": address})
         # self.emit('removed_account', address)
         accounts = wallet_for_account.get_accounts()
 
@@ -251,12 +226,8 @@ class KeyringManager:
 
     def _notify_update(self):
         current_state = self.mem_store.get_state()
-        try:
-            self._state_subject.on_next(current_state)
-            self._event_subject.on_next({"type": "state_update", "data": current_state})
-        except Exception as e:
-            #logger.error(f"Error in network change handler: {e}")
-            print(f"Error in KeyringManager account change handler: {e}")
+        self._state_subject.on_next(current_state)
+        self._event_subject.on_next({"type": "state_update", "data": current_state})
         #self.emit("update", self.mem_store.get_state())
 
     async def logout(self):
@@ -266,11 +237,7 @@ class KeyringManager:
         self.password = None
         self.mem_store.update_state(is_unlocked=False)
         await self.clear_wallets()
-        try:
-            self._event_subject.on_next({"type": "lock"})
-        except Exception as e:
-            #logger.error(f"Error in network change handler: {e}")
-            print(f"Error in KeyringManager account change handler: {e}")
+        self._event_subject.on_next({"type": "lock"})
         #self.emit('lock')
         self._notify_update()
 
@@ -300,12 +267,9 @@ class KeyringManager:
     def _update_unlocked(self):
         self.mem_store.update_state(is_unlocked=True)
         #self.emit("unlock")
-        try:
-            self._state_subject.on_next(self.mem_store.get_state())
-            self._event_subject.on_next({"type": "unlock"})
-        except Exception as e:
-            #logger.error(f"Error in network change handler: {e}")
-            print(f"Error in KeyringManager account change handler: {e}")
+        self._state_subject.on_next(self.mem_store.get_state())
+        self._event_subject.on_next({"type": "unlock"})
+
 
     async def _restore_wallet(
             self, data

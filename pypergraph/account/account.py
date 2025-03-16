@@ -25,15 +25,9 @@ class DagAccount:
         self._network_observable = self._session_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler),
-            ops.catch(lambda e, src: self._handle_error(e, src)),
-            ops.retry(3)
+            ops.observe_on(self._scheduler)
         )
 
-    def _handle_error(self, error, src):
-        #logger.error(f"Unhandled error in observable: {error}")
-        print(f"Unhandled error: {error}")
-        return src  # Resubscribe to the original source
 
     def connect(
             self,
