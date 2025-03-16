@@ -182,8 +182,7 @@ class KeyringManager:
 
     async def remove_account(self, address):
         wallet_for_account = self.get_wallet_for_account(address)
-
-        wallet_for_account.remove_account(address)
+        wallet_for_account.remove_account()
         self._event_subject.on_next({"type": "removed_account", "data": address})
         # self.emit('removed_account', address)
         accounts = wallet_for_account.get_accounts()

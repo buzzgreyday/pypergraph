@@ -54,6 +54,7 @@ async def main():
 
     await keyring.create_or_restore_vault("super_S3cretP_Asswo0rd", seed="multiply angle perfect verify behind sibling skirt attract first lift remove fortune")
     await keyring.login("super_S3cretP_Asswo0rd")
+    await keyring.remove_account(address='DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX')
     await keyring.logout()
     await keyring.login("fail")
 
