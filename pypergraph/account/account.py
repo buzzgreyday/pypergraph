@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union, Self
 
 from rx.subject import Subject
 from rx.scheduler.eventloop import AsyncIOScheduler
-from rx import operators as ops
+from rx import operators as ops, empty
 
 from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.network.models import LastReference
@@ -25,9 +25,13 @@ class DagAccount:
         self._network_observable = self._session_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler)
+            ops.observe_on(self._scheduler),
+            ops.catch(lambda error, _: self._handle_observable_error(error))
         )
 
+    def _handle_observable_error(self, error):
+        print(f"Observable error: {error}")
+        return empty(scheduler=self._scheduler)
 
     def connect(
             self,

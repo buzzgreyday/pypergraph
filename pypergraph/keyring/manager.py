@@ -4,7 +4,7 @@ from typing import Optional, Union, List
 
 from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import BehaviorSubject, Subject
-from rx import operators as ops
+from rx import operators as ops, Observable, empty, catch
 
 from pypergraph.core import KeyringWalletType, NetworkId
 from pypergraph.keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
@@ -34,6 +34,7 @@ class KeyringManager:
             ops.observe_on(self._scheduler)
         ).subscribe(lambda _: self._handle_lock())
 
+
     def _handle_lock(self):
         try:
             self._state_subject.on_next({
@@ -50,7 +51,8 @@ class KeyringManager:
         return self._state_subject.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler)
+            ops.observe_on(self._scheduler),
+            ops.catch(lambda error, _: self._handle_observable_error(error))
         )
 
     @property
@@ -58,8 +60,13 @@ class KeyringManager:
         return self._event_subject.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler)
+            ops.observe_on(self._scheduler),
+            ops.catch(lambda error, _: self._handle_observable_error(error))
         )
+
+    def _handle_observable_error(self, error):
+        print(f"Observable error: {error}")
+        return empty(scheduler=self._scheduler)
 
     def is_unlocked(self) -> bool:
         return bool(self.password)

@@ -3,7 +3,7 @@ from typing import Optional, Dict, List
 
 from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import Subject, BehaviorSubject
-from rx import operators as ops
+from rx import operators as ops, empty
 
 from pypergraph.network.models.account import LastReference, Balance
 from pypergraph.network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api, MDL1Api
@@ -47,13 +47,18 @@ class DagTokenNetwork:
         self._network_observable = self._network_change.pipe(
             ops.distinct_until_changed(),
             ops.share(),
-            ops.observe_on(self._scheduler)
+            ops.observe_on(self._scheduler),
+            ops.catch(lambda error, _: self._handle_observable_error(error))
         )
 
 
     def observe_network_change(self):
         """Return network changes observable"""
         return self._network_observable
+
+    def _handle_observable_error(self, error):
+        print(f"Observable error: {error}")
+        return empty(scheduler=self._scheduler)
 
     def config(
         self,
