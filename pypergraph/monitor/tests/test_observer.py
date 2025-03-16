@@ -79,7 +79,7 @@ def test_async_network_change():
 
 
 @pytest.mark.asyncio
-async def test_async_manager_observer():
+async def test_async_manager_observers():
     # Subscribe to network changes (async-aware)
     def event_handler(event):
         if event["type"] == "lock":
@@ -94,6 +94,10 @@ async def test_async_manager_observer():
             print("State updated:", event["data"])
     manager = KeyringManager()
     manager.observe_account_change.subscribe(event_handler)
+    manager.observe_state_change.subscribe(
+        on_next=lambda state: print(f"State changed: {state}",
+                                    )
+    )
 
     # First we "create" a new wallet
     await manager.create_or_restore_vault("super_S3cretP_Asswo0rd", "New Wallet", secret.mnemo)
