@@ -16,7 +16,6 @@ class KeyringMonitor:
 
         def event_handler(event):
             try:
-                print(event)
                 if event["type"] == "lock":
                     print("🔒 Vault locked!")
                 elif event["type"] == "unlock":
@@ -32,28 +31,34 @@ class KeyringMonitor:
             except Exception as e:
                 print(f"🚨 Error handling event: {e}")
 
-        def error_handler(e, src):
+        def state_handler(state):
+            if state["is_unlocked"] is False:
+                print(f"Wallet is locked: {len(state['wallets'])} wallets present")
+            elif state["is_unlocked"] is True:
+                print(f"Wallet is unlocked: {len(state['wallets'])} wallets present")
+
+        def error_handler(e):
             print(f"⚠️ Event processing error: {e}")
             return of(None)  # Continue processing other events
 
         # Subscribing to _event_subject safely
         self._keyring_manager._event_subject.pipe(
             ops.observe_on(self._scheduler),
-            ops.catch(lambda e, src: error_handler(e, src)),  # Catch errors and continue
+            ops.catch(lambda e, src: error_handler(e)),  # Catch errors and continue
         ).subscribe(
             on_next=event_handler,
-            on_error=lambda e: print(f"🔥 Fatal event error: {e}")
+            #on_error=lambda e: print(f"🔥 Fatal event error: {e}")
         )
 
         # Subscribing to _state_subject safely
-        #self._keyring_manager._state_subject.pipe(
-        #    ops.observe_on(self._scheduler),
-        ##    ops.distinct_until_changed(),
-        #    ops.catch(lambda e, src: error_handler(e)),  # Catch errors and continue
-        #).subscribe(
-        #    on_next=event_handler,
-        #    on_error=lambda e: print(f"🔥 Fatal state error: {e}")
-        #)
+        self._keyring_manager._state_subject.pipe(
+            ops.observe_on(self._scheduler),
+            ops.distinct_until_changed(),
+            ops.catch(lambda e, src: error_handler(e)),  # Catch errors and continue
+        ).subscribe(
+            on_next=state_handler,
+            #on_error=lambda e: print(f"🔥 Fatal state error: {e}")
+        )
 
 
 # Running the setup
