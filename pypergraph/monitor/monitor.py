@@ -1,13 +1,11 @@
 # MONITOR
 import asyncio
-from typing import Optional, Type
+from typing import Optional
 
-from rx import operators as ops, from_future, just, empty
-from rx import of
+from rx import operators as ops, empty, of
 from rx.scheduler.eventloop import AsyncIOScheduler
 
 from pypergraph.keyring import KeyringManager
-from pypergraph.keyring.encryptor import SecurityException
 
 
 class KeyringMonitor:
@@ -16,70 +14,68 @@ class KeyringMonitor:
         self._keyring_manager = keyring_manager or KeyringManager(scheduler=self._scheduler)
 
         def event_handler(event):
-            try:
-                if event["type"] == "lock":
-                    print("🔒 Vault locked!")
-                elif event["type"] == "unlock":
-                    print("🔓 Vault unlocked!")
-                elif event["type"] == "account_update":
-                    print("🔄 Account updated:", event["data"])
-                elif event["type"] == "removed_account":
-                    print("❌ Account removed:", event["data"])
-                elif event["type"] == "state_update":
-                    print("⚡ State updated:", event["data"])
-            except Exception as e:
-                print(f"🚨 Error handling event: {e}")
+            """Handles incoming keyring events."""
+            if not isinstance(event, dict):
+                print(f"⚠️ Unexpected event format: {event}")
+                return
+
+            event_type = event.get("type")
+            if event_type == "lock":
+                print("🔒 Vault locked!")
+            elif event_type == "unlock":
+                print("🔓 Vault unlocked!")
+            elif event_type == "account_update":
+                print("🔄 Account updated:", event["data"])
+            elif event_type == "removed_account":
+                print("❌ Account removed:", event["data"])
+            elif event_type == "state_update":
+                print("⚡ State updated:", event["data"])
+            else:
+                print(f"⚠️ Unknown event type: {event_type}")
 
         def state_handler(state):
-            if state["is_unlocked"] is False:
-                print(f"Wallet is locked: {len(state['wallets'])} wallets present")
-            elif state["is_unlocked"] is True:
-                print(f"Wallet is unlocked: {len(state['wallets'])} wallets present")
+            """Handles state changes."""
+            print(f"Wallet {'unlocked' if state['is_unlocked'] else 'locked'}: {len(state['wallets'])} wallets present")
 
-        def error_handler(e):
-            print(f"⚠️ Event processing error: {e}")
-            return of(None)  # Continue processing other events
+        def error_handler(event, e):
+            """Handles errors per event, ensuring processing continues."""
+            print(f"🚨 Error processing event {event}: {e}")
+            return of(None)  # Ensures the stream continues
 
-        # Catch: handle exceptions that might terminate the stream
-        #self._keyring_manager._event_subject.pipe(
-        #    ops.observe_on(self._scheduler),
-        #    ops.catch(lambda e, src: error_handler(e)),  # Catch errors and continue
-        #).subscribe(
-        #    on_next=event_handler,
-        #    #on_error=lambda e: print(f"🔥 Fatal event error: {e}")
-        #)
+        def safe_event_processing(event):
+            """Processes an event safely, catching errors per event."""
+            try:
+                print(event)
+                event_handler(event)
+                return of(event)  # Ensures an observable is returned
+            except Exception as e:
+                return error_handler(event, e)
 
-        # Subscribing to _state_subject safely
+        # Subscribing to state updates
         self._keyring_manager._state_subject.pipe(
             ops.observe_on(self._scheduler),
             ops.distinct_until_changed(),
-            ops.catch(lambda e, src: error_handler(e)),  # Catch errors and continue
+            ops.catch(lambda e, src: of(None)),  # Keep state stream alive
         ).subscribe(
             on_next=state_handler,
-            #on_error=lambda e: print(f"🔥 Fatal state error: {e}")
         )
 
-        # Flat mapping: recover from specific events
-
-        def handle_flat_map_error(event: Exception):
-            print(f"⚠️ Handling error event: {event}")
-            return empty(scheduler=self._scheduler)  # Emits a new observable
-
+        # Subscribing to events safely
         self._keyring_manager._event_subject.pipe(
             ops.observe_on(self._scheduler),
-            ops.flat_map(lambda event: event_handler(event)),
-        ).subscribe(
-            on_next=event_handler,
-            on_error=handle_flat_map_error
-        )
+            ops.flat_map(safe_event_processing),  # Ensures event processing continues
+        ).subscribe()
 
 
 # Running the setup
 async def main():
     keyring = KeyringManager()
     monitor = KeyringMonitor(keyring)
+    await keyring.login("super_S3cretP_Asswo0rd")
     await keyring.login("fail")  # Should trigger an error safely
     await keyring.login("super_S3cretP_Asswo0rd")
     await keyring.set_password("fail")
 
+
 asyncio.run(main())
+
