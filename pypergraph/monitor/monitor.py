@@ -11,7 +11,7 @@ from pypergraph.keyring import KeyringManager
 class KeyringMonitor:
     def __init__(self, keyring_manager: Optional[KeyringManager] = None):
         self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())
-        self._keyring_manager = keyring_manager or KeyringManager(scheduler=self._scheduler)
+        self._keyring_manager = keyring_manager or KeyringManager()
 
         def event_handler(event):
             """Handles incoming keyring events."""
@@ -40,12 +40,11 @@ class KeyringMonitor:
         def error_handler(event, e):
             """Handles errors per event, ensuring processing continues."""
             print(f"🚨 Error processing event {event}: {e}")
-            return of(None)  # Ensures the stream continues
+            return empty(scheduler=self._scheduler)  # Ensures the stream continues
 
         def safe_event_processing(event):
             """Processes an event safely, catching errors per event."""
             try:
-                print(event)
                 event_handler(event)
                 return of(event)  # Ensures an observable is returned
             except Exception as e:
@@ -63,7 +62,7 @@ class KeyringMonitor:
         # Subscribing to events safely
         self._keyring_manager._event_subject.pipe(
             ops.observe_on(self._scheduler),
-            ops.flat_map(safe_event_processing),  # Ensures event processing continues
+            ops.flat_map(safe_event_processing)  # Ensures event processing continues
         ).subscribe()
 
 
@@ -71,11 +70,23 @@ class KeyringMonitor:
 async def main():
     keyring = KeyringManager()
     monitor = KeyringMonitor(keyring)
-    await keyring.login("super_S3cretP_Asswo0rd")
-    await keyring.login("fail")  # Should trigger an error safely
-    await keyring.login("super_S3cretP_Asswo0rd")
-    await keyring.set_password("fail")
 
+    await keyring.login("super_S3cretP_Asswo0rd")
+    await keyring.logout()
+    await asyncio.sleep(2)
+    keyring._event_subject.on_next({"invalid": "error"})
+    try:
+        await keyring.login("fail")  # Should trigger an error safely
+    except Exception as e:
+        print(f"Login failed, continuing...")
+    await asyncio.sleep(2)
+    await keyring.login("super_S3cretP_Asswo0rd")
+    await keyring.logout()
+    await asyncio.sleep(2)
+    try:
+        await keyring.set_password("fail")
+    except Exception as e:
+        print(f"Login failed, continuing...")
 
 asyncio.run(main())
 

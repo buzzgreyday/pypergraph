@@ -2,9 +2,7 @@ import asyncio
 import re
 from typing import Optional, Union, List
 
-from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import BehaviorSubject, Subject
-from rx import operators as ops
 
 from pypergraph.core import KeyringWalletType, NetworkId
 from pypergraph.keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
@@ -16,7 +14,7 @@ from pypergraph.keyring.storage import StateStorageDb, ObservableStore
 
 class KeyringManager:
 
-    def __init__(self, scheduler: Optional[AsyncIOScheduler] = None):
+    def __init__(self):
         super().__init__()
         self.encryptor: Encryptor = Encryptor()
         self.storage: StateStorageDb = StateStorageDb()
@@ -24,16 +22,8 @@ class KeyringManager:
         self.password: Optional[str] = None
         self.mem_store: ObservableStore = ObservableStore()
         # Reactive state management
-        self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_running_loop())
         self._state_subject = BehaviorSubject(self.mem_store.get_state())
         self._event_subject = Subject()
-
-
-    def _handle_lock(self):
-        self._state_subject.on_next({
-        "is_unlocked": False,  # Vault is locked
-        "wallets": []          # Clear wallets from state
-    })
 
     def is_unlocked(self) -> bool:
         return bool(self.password)
@@ -224,15 +214,11 @@ class KeyringManager:
             return []
 
         await self.clear_wallets()
-        try:
-            vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
-        except Exception as e:
-            self._event_subject.on_error(e)
-        else:
-            self.password = password
-            tasks = [self._restore_wallet(w) for w in vault["wallets"]]
-            self.wallets = [w for w in await asyncio.gather(*tasks, return_exceptions=True) if not isinstance(w, Exception)]
-            await self.update_mem_store_wallets()
+        vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
+        self.password = password
+        tasks = [self._restore_wallet(w) for w in vault["wallets"]]
+        self.wallets = [w for w in await asyncio.gather(*tasks, return_exceptions=True) if not isinstance(w, Exception)]
+        await self.update_mem_store_wallets()
         return self.wallets
 
     def _update_unlocked(self):
