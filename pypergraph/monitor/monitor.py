@@ -48,7 +48,8 @@ class KeyringMonitor:
                 event_handler(event)
                 return of(event)  # Ensures an observable is returned
             except Exception as e:
-                return error_handler(event, e)
+                print(f"🚨 Error processing event {event}: {e}")
+                return of(None)  # Ensures the stream stays alive
 
         # Subscribing to state updates
         self._keyring_manager._state_subject.pipe(
@@ -71,22 +72,10 @@ async def main():
     keyring = KeyringManager()
     monitor = KeyringMonitor(keyring)
 
-    await keyring.login("super_S3cretP_Asswo0rd")
-    await keyring.logout()
-    await asyncio.sleep(2)
     keyring._event_subject.on_next({"invalid": "error"})
-    try:
-        await keyring.login("fail")  # Should trigger an error safely
-    except Exception as e:
-        print(f"Login failed, continuing...")
-    await asyncio.sleep(2)
+    keyring._event_subject.on_error(Exception("Something should be wrong."))
     await keyring.login("super_S3cretP_Asswo0rd")
     await keyring.logout()
-    await asyncio.sleep(2)
-    try:
-        await keyring.set_password("fail")
-    except Exception as e:
-        print(f"Password invalid, continuing...")
 
 asyncio.run(main())
 
