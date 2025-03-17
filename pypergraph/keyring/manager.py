@@ -34,14 +34,10 @@ class KeyringManager:
         ).subscribe(lambda _: self._handle_lock())
 
     def _handle_lock(self):
-        try:
-            self._state_subject.on_next({
-            "is_unlocked": False,  # Vault is locked
-            "wallets": []          # Clear wallets from state
-        })
-        except Exception as e:
-            #logger.error(f"Error in network change handler: {e}")
-            print(f"Error in KeyringManager account change handler: {e}")
+        self._state_subject.on_next({
+        "is_unlocked": False,  # Vault is locked
+        "wallets": []          # Clear wallets from state
+    })
 
     def is_unlocked(self) -> bool:
         return bool(self.password)
@@ -149,8 +145,7 @@ class KeyringManager:
         """Will enforce basic restrictions on password creation"""
 
         if len(password) < 8:
-            self._event_subject.on_next({"type": "error", "data": "Password must be at least 8 characters long."})
-            #raise ValueError("KeyringManager :: Password must be at least 8 characters long.")
+            raise ValueError("KeyringManager :: Password must be at least 8 characters long.")
         if re.search(r'\d', password) is None:
             raise ValueError("KeyringManager :: Password must contain at least one number.")
         if re.search(r'[a-z]', password) is None:
@@ -178,12 +173,9 @@ class KeyringManager:
         wallet_for_account = self.get_wallet_for_account(address)
         wallet_for_account.remove_account()
         self._event_subject.on_next({"type": "removed_account", "data": address})
-        # self.emit('removed_account', address)
         accounts = wallet_for_account.get_accounts()
-
         if len(accounts) == 0:
             self.remove_empty_wallets()
-
         await self.persist_all_wallets(password=self.password)
         await self.update_mem_store_wallets()
         self._notify_update()
@@ -210,7 +202,6 @@ class KeyringManager:
         current_state = self.mem_store.get_state()
         self._state_subject.on_next(current_state)
         self._event_subject.on_next({"type": "state_update", "data": current_state})
-        #self.emit("update", self.mem_store.get_state())
 
     async def logout(self):
 
@@ -220,7 +211,6 @@ class KeyringManager:
         self.mem_store.update_state(is_unlocked=False)
         await self.clear_wallets()
         self._event_subject.on_next({"type": "lock"})
-        #self.emit('lock')
         self._notify_update()
 
     async def login(self, password: str):
@@ -247,7 +237,6 @@ class KeyringManager:
 
     def _update_unlocked(self):
         self.mem_store.update_state(is_unlocked=True)
-        #self.emit("unlock")
         self._state_subject.on_next(self.mem_store.get_state())
         self._event_subject.on_next({"type": "unlock"})
 
