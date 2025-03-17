@@ -238,15 +238,11 @@ class KeyringManager:
             return []
 
         await self.clear_wallets()
-        try:
-            vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
-        except Exception as e:
-            self._event_subject.on_next({"type": "error", "data": e})
-        else:
-            self.password = password
-            tasks = [self._restore_wallet(w) for w in vault["wallets"]]
-            self.wallets = [w for w in await asyncio.gather(*tasks, return_exceptions=True) if not isinstance(w, Exception)]
-            await self.update_mem_store_wallets()
+        vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
+        self.password = password
+        tasks = [self._restore_wallet(w) for w in vault["wallets"]]
+        self.wallets = [w for w in await asyncio.gather(*tasks, return_exceptions=True) if not isinstance(w, Exception)]
+        await self.update_mem_store_wallets()
         return self.wallets
 
     def _update_unlocked(self):
