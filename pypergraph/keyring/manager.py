@@ -109,7 +109,7 @@ class KeyringManager:
     async def _full_update(self):
 
         await self._persist_all_wallets(self.password)
-        await self.update_mem_store_wallets()
+        await self._update_mem_store_wallets()
         self._notify_update()
 
     async def _persist_all_wallets(self, password):
@@ -123,7 +123,7 @@ class KeyringManager:
 
         await self.storage.set("vault", encrypted_string)
 
-    async def update_mem_store_wallets(self):
+    async def _update_mem_store_wallets(self):
         wallets = [w.get_state() for w in self.wallets]
         self.mem_store.update_state(wallets=wallets)
 
@@ -163,7 +163,7 @@ class KeyringManager:
         if len(accounts) == 0:
             self.remove_empty_wallets()
         await self._persist_all_wallets(password=self.password)
-        await self.update_mem_store_wallets()
+        await self._update_mem_store_wallets()
         self._notify_update()
 
     def remove_empty_wallets(self):
@@ -218,7 +218,7 @@ class KeyringManager:
         self.password = password
         tasks = [self._restore_wallet(w) for w in vault["wallets"]]
         self.wallets = [w for w in await asyncio.gather(*tasks, return_exceptions=True) if not isinstance(w, Exception)]
-        await self.update_mem_store_wallets()
+        await self._update_mem_store_wallets()
         return self.wallets
 
     def _update_unlocked(self):
