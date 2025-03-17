@@ -4,7 +4,7 @@ from typing import Optional, Union, List
 
 from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import BehaviorSubject, Subject
-from rx import operators as ops, empty
+from rx import operators as ops
 
 from pypergraph.core import KeyringWalletType, NetworkId
 from pypergraph.keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
@@ -122,11 +122,11 @@ class KeyringManager:
 
     async def _full_update(self):
 
-        await self.persist_all_wallets(self.password)
+        await self._persist_all_wallets(self.password)
         await self.update_mem_store_wallets()
         self._notify_update()
 
-    async def persist_all_wallets(self, password):
+    async def _persist_all_wallets(self, password):
         password = password or self.password
 
         self.set_password(password)
@@ -176,7 +176,7 @@ class KeyringManager:
         accounts = wallet_for_account.get_accounts()
         if len(accounts) == 0:
             self.remove_empty_wallets()
-        await self.persist_all_wallets(password=self.password)
+        await self._persist_all_wallets(password=self.password)
         await self.update_mem_store_wallets()
         self._notify_update()
 
@@ -228,11 +228,15 @@ class KeyringManager:
             return []
 
         await self.clear_wallets()
-        vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
-        self.password = password
-        tasks = [self._restore_wallet(w) for w in vault["wallets"]]
-        self.wallets = [w for w in await asyncio.gather(*tasks, return_exceptions=True) if not isinstance(w, Exception)]
-        await self.update_mem_store_wallets()
+        try:
+            vault = await self.encryptor.decrypt(password, encrypted_vault) # VaultSerialized
+        except Exception as e:
+            self._event_subject.on_error(e)
+        else:
+            self.password = password
+            tasks = [self._restore_wallet(w) for w in vault["wallets"]]
+            self.wallets = [w for w in await asyncio.gather(*tasks, return_exceptions=True) if not isinstance(w, Exception)]
+            await self.update_mem_store_wallets()
         return self.wallets
 
     def _update_unlocked(self):
