@@ -1,6 +1,6 @@
 # MONITOR
 import asyncio
-from typing import Optional
+from typing import Optional, Type
 
 from rx import operators as ops, from_future, just, empty
 from rx import of
@@ -27,8 +27,6 @@ class KeyringMonitor:
                     print("❌ Account removed:", event["data"])
                 elif event["type"] == "state_update":
                     print("⚡ State updated:", event["data"])
-                elif event["type"] == "error":
-                    print("❗ Error:", event["data"])
             except Exception as e:
                 print(f"🚨 Error handling event: {e}")
 
@@ -82,5 +80,6 @@ async def main():
     monitor = KeyringMonitor(keyring)
     await keyring.login("fail")  # Should trigger an error safely
     await keyring.login("super_S3cretP_Asswo0rd")
+    await keyring.set_password("fail")
 
 asyncio.run(main())
