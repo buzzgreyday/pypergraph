@@ -75,8 +75,10 @@ async def main():
     await keyring.logout()
     await asyncio.sleep(2)
     keyring._event_subject.on_next({"invalid": "error"})
-    await keyring.login("fail")  # Should trigger an error safely
-
+    try:
+        await keyring.login("fail")  # Should trigger an error safely
+    except Exception as e:
+        print(f"Login failed, continuing...")
     await asyncio.sleep(2)
     await keyring.login("super_S3cretP_Asswo0rd")
     await keyring.logout()
@@ -84,7 +86,7 @@ async def main():
     try:
         await keyring.set_password("fail")
     except Exception as e:
-        print(f"Login failed, continuing...")
+        print(f"Password invalid, continuing...")
 
 asyncio.run(main())
 
