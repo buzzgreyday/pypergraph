@@ -1,12 +1,14 @@
 # MONITOR
 import asyncio
+import logging
 from typing import Optional
 
-from rx import operators as ops, empty, of
+from rx import operators as ops, of
 from rx.scheduler.eventloop import AsyncIOScheduler
 
 from pypergraph.keyring import KeyringManager
 
+logging.basicConfig(level=logging.ERROR)
 
 class KeyringMonitor:
     def __init__(self, keyring_manager: Optional[KeyringManager] = None):
@@ -16,49 +18,44 @@ class KeyringMonitor:
         def event_handler(event):
             """Handles incoming keyring events."""
             if not isinstance(event, dict):
-                print(f"⚠️ Unexpected event format: {event}")
+                logging.warning(f"⚠️ Unexpected event format: {event}")
                 return
 
             event_type = event.get("type")
             if event_type == "lock":
-                print("🔒 Vault locked!")
+                logging.debug("🔒 Vault locked!")
             elif event_type == "unlock":
-                print("🔓 Vault unlocked!")
+                logging.debug("🔓 Vault unlocked!")
             elif event_type == "account_update":
-                print("🔄 Account updated:", event["data"])
+                logging.info("🔄 Account updated:", event["data"])
             elif event_type == "removed_account":
-                print("❌ Account removed:", event["data"])
+                logging.info("❌ Account removed:", event["data"])
             elif event_type == "state_update":
-                print("⚡ State updated:", event["data"])
+                logging.debug(f"⚡ State updated, has {len(event['data']['wallets'])} wallet(s): {event['data']}")
             else:
-                print(f"⚠️ Unknown event type: {event_type}")
+                logging.warning(f"⚠️ Unknown event type: {event_type}")
 
         def state_handler(state):
             """Handles state changes."""
-            print(f"Wallet {'unlocked' if state['is_unlocked'] else 'locked'}: {len(state['wallets'])} wallets present")
-
-        def error_handler(event, e):
-            """Handles errors per event, ensuring processing continues."""
-            print(f"🚨 Error processing event {event}: {e}")
-            return empty(scheduler=self._scheduler)  # Ensures the stream continues
+            #print(f"Wallet {'unlocked' if state['is_unlocked'] else 'locked'}: {len(state['wallets'])} wallets present")
+            pass
 
         def safe_event_processing(event):
             """Processes an event safely, catching errors per event."""
             try:
                 event_handler(event)
-                return of(event)  # Ensures an observable is returned
+                return of(event)  # Ensure an observable is returned
             except Exception as e:
-                print(f"🚨 Error processing event {event}: {e}")
-                return of(None)  # Ensures the stream stays alive
+                logging.error(f"🚨 Error processing event {event}: {e}", exc_info=True)
+                return of(None)  # Keep the event stream alive
 
         # Subscribing to state updates
         self._keyring_manager._state_subject.pipe(
             ops.observe_on(self._scheduler),
             ops.distinct_until_changed(),
-            ops.catch(lambda e, src: of(None)),  # Keep state stream alive
-        ).subscribe(
-            on_next=state_handler,
-        )
+            ops.retry(3),  # Retry on transient errors
+            ops.catch(lambda e, src: of(None)),  # Keep the stream alive after retries fail
+        ).subscribe(on_next=state_handler)
 
         # Subscribing to events safely
         self._keyring_manager._event_subject.pipe(
@@ -72,10 +69,10 @@ async def main():
     keyring = KeyringManager()
     monitor = KeyringMonitor(keyring)
 
-    keyring._event_subject.on_next({"invalid": "error"})
-    keyring._event_subject.on_error(Exception("Something should be wrong."))
+    keyring._event_subject.on_next({"invalid": "error"})  # Logs warning but doesn't crash
     await keyring.login("super_S3cretP_Asswo0rd")
     await keyring.logout()
 
 asyncio.run(main())
+
 
