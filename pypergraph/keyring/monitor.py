@@ -3,7 +3,7 @@ import asyncio
 import logging
 from typing import Optional
 
-from rx import operators as ops, of
+from rx import operators as ops, of, empty
 from rx.scheduler.eventloop import AsyncIOScheduler
 
 from pypergraph.keyring import KeyringManager
@@ -47,7 +47,8 @@ class KeyringMonitor:
                 return of(event)  # Ensure an observable is returned
             except Exception as e:
                 logging.error(f"🚨 Error processing event {event}: {e}", exc_info=True)
-                return of(None)  # Keep the event stream alive
+                #return of(None)  # Send placeholder down the line
+                return empty() # End the current stream entirely
 
         # Subscribing to state updates
         self._keyring_manager._state_subject.pipe(

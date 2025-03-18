@@ -5,33 +5,20 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union, Self
 
 from rx.subject import Subject
-from rx.scheduler.eventloop import AsyncIOScheduler
-from rx import operators as ops, empty
 
 from pypergraph.account.models.key_trio import KeyTrio
-from pypergraph.network.models import LastReference
-from pypergraph.network.models.transaction import SignatureProof, SignedTransaction
+from pypergraph.network.models import LastReference, PendingTransaction
+from pypergraph.network.models.transaction import SignatureProof, SignedTransaction, TransactionStatus
 from pypergraph.keystore import KeyStore
 from pypergraph.network.network import DagTokenNetwork, MetagraphTokenNetwork
 
 
 class DagAccount:
 
-    def __init__(self, scheduler: Optional = None):
+    def __init__(self):
         self.network: DagTokenNetwork = DagTokenNetwork()
         self.key_trio: Optional[KeyTrio] = None
         self._session_change: Subject = Subject()
-        self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_event_loop())  # Async scheduler
-        self._network_observable = self._session_change.pipe(
-            ops.distinct_until_changed(),
-            ops.share(),
-            ops.observe_on(self._scheduler),
-            ops.catch(lambda error, _: self._handle_observable_error(error))
-        )
-
-    def _handle_observable_error(self, error):
-        print(f"Observable error: {error}")
-        return empty(scheduler=self._scheduler)
 
     def connect(
             self,
@@ -212,7 +199,7 @@ class DagAccount:
         return tx, hash_
 
 
-    async def transfer(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False) -> dict:
+    async def transfer(self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False) -> PendingTransaction:
         """
         Build currency transaction, sign and transfer from the active account.
 
@@ -229,17 +216,17 @@ class DagAccount:
         tx_hash = await self.network.post_transaction(signed_tx)
 
         if tx_hash:
-            return {
-                "timestamp": datetime.now(),
-                "hash": tx_hash,
-                "amount": amount,
-                "receiver": to_address,
-                "fee": fee,
-                "sender": self.address,
-                "ordinal": last_ref.ordinal,
-                "pending": True,
-                "status": "POSTED",
-            }
+            return PendingTransaction(
+                timestamp=int(datetime.now().timestamp()*1000),
+                hash=tx_hash,
+                amount=amount,
+                receiver=to_address,
+                fee=fee,
+                sender=self.address,
+                ordinal=last_ref.ordinal,
+                pending=True,
+                status=TransactionStatus.POSTED
+            )
 
     async def wait_for_checkpoint_accepted(self, hash: str):
         """

@@ -1,9 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Dict, Optional
+from enum import Enum
+from typing import List, Dict, Optional, Union
 
 import base58
-from pydantic import BaseModel, Field, model_validator, constr, conint, computed_field, ConfigDict
+from pydantic import BaseModel, Field, model_validator, constr, computed_field, ConfigDict
 
 from pypergraph.core.constants import DAG_MAX
 from pypergraph.network.models.account import LastReference
@@ -41,32 +42,27 @@ class PostTransactionResponse(BaseModel):
     def __repr__(self) -> str:
         return f"PostTransactionResponse(hash={self.hash!r})"
 
-class PendingTransaction(BaseTransaction):
-    parent: LastReference
-    salt: int = Field(ge=0)
-    transaction_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="hash")
-    status: conint(ge=100, le=599)
+class TransactionStatus(str, Enum):
+    POSTED = "POSTED"
+    MEM_POOL = "MEM_POOL"
+    DROPPED = "DROPPED"
+    CHECKPOINT_ACCEPTED = "CHECKPOINT_ACCEPTED"
+    GLOBAL_STATE_PENDING = "GLOBAL_STATE_PENDING"
+    CONFIRMED = "CONFIRMED"
+    UNKNOWN = "UNKNOWN"
 
-    @model_validator(mode="before")
-    def flatten_data(cls, values: dict) -> dict:
-        transaction = values.get("transaction", {})
-        parent = values.get("parent", {}),
-        return {
-            "source": transaction.get("source"),
-            "destination": transaction.get("destination"),
-            "amount": transaction.get("amount"),
-            "fee": transaction.get("fee"),
-            "parent": parent,
-            "salt": transaction.get("salt"),
-            "hash": values.get("hash"),
-            "status": values.get("status"),
-        }
 
-    def __repr__(self):
-        return (f"PendingTransaction(source={self.source}, destination={self.destination}, "
-                f"amount={self.amount}, fee={self.fee}, parent_hash={self.parent_hash}, "
-                f"parent_ordinal={self.parent_ordinal}, salt={self.salt}, "
-                f"transaction_hash={self.transaction_hash}, status={self.status})")
+class PendingTransaction(BaseModel):
+    hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
+    sender: Optional[str] = None
+    receiver: Optional[str] = None
+    amount: Optional[int] = None
+    ordinal: Optional[int] = None
+    status: Optional[TransactionStatus] = None
+    pending: Optional[bool] = None
+    pendingMsg: Optional[str] = None
+    timestamp: int
+    fee: Optional[int] = None
 
 
 class Transaction(BaseTransaction):
@@ -107,7 +103,8 @@ class Transaction(BaseTransaction):
             b_int = int(val)
         return format(b_int, "x")
 
-
+class TransactionWithHash(Transaction):
+    hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
 
 class SignatureProof(BaseModel):
     id: constr(pattern=r"^[a-fA-F0-9]{128}$")
@@ -156,7 +153,7 @@ class BlockExplorerTransaction(BaseTransaction):
     block_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="blockHash")
     snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="snapshotHash")
     snapshot_ordinal: int = Field(alias="snapshotOrdinal", ge=0)
-    transaction_original: SignedTransaction = Field(alias="transactionOriginal")
+    transaction_original: Union[SignedTransaction, LastReference] = Field(alias="transactionOriginal")
     timestamp: datetime
     proofs: List[SignatureProof] = Field(default_factory=list)
     meta: Optional[Dict] = None # TODO: Validate
