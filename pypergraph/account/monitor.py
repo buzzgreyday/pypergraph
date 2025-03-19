@@ -11,8 +11,7 @@ from rx.subject import Subject
 from pypergraph.account import DagAccount
 from pypergraph.account.tests import secret
 from pypergraph.keyring.storage import StateStorageDb
-from pypergraph.network import DagTokenNetwork
-from pypergraph.network.models import PendingTransaction
+import json
 
 TWELVE_MINUTES = 12 * 60 * 1000
 
@@ -24,7 +23,7 @@ class WaitFor:
 @dataclass
 class DagWalletMonitorUpdate:
     pending_has_confirmed: bool
-    pending_txs: List[PendingTransaction]
+    pending_txs: List[json]
     tx_changed: bool
     pool_count: int  # Needed for `poll_pending_txs
 
@@ -57,89 +56,89 @@ class Monitor:
             ops.flat_map(self._safe_event_processing)  # Ensures event processing continues
         ).subscribe()
 
-    def _safe_account_process_event(self, event):
+    def _safe_account_process_event(self, observable):
         try:
-            if event == "logout":
+            if observable['event'] == "logout":
                 print(f"Logged Out!")
-            elif event == "login":
+            elif observable['event'] == "login":
                 print(f"Logged In!")
             else:
-                print(f"Unknown event: {event}")
-            return of(event)
+                print(f"Unknown event: {observable['event']}")
+            return of(observable)
         except Exception as e:
             print(f"🚨 Error processing event: {e}")
             return empty()  # Skip this event and continue the stream
 
-    def _safe_mem_store_process_event(self, event: dict):
+    def _safe_mem_store_process_event(self, observable: dict):
         """Process an event safely, catching errors."""
         try:
             # Simulate event processing (replace with your logic)
-            if event:
-                print(f"Transaction changed: {event}")
-            return of(event)  # Emit the event downstream
+            if observable:
+                print(f"Transaction changed: {observable['event']}")
+            return of(observable)  # Emit the event downstream
         except Exception as e:
             print(f"🚨 Error processing event: {e}")
             return empty()  # Skip this event and continue the stream
 
-    def _safe_network_process_event(self, event: dict):
+    def _safe_network_process_event(self, observable: dict):
         """Process an event safely, catching errors."""
         try:
             # Simulate event processing (replace with your logic)
-            print(f"Network changed: {event}")
-            return of(event)  # Emit the event downstream
+            print(f"Network changed: {observable['event']}")
+            return of(observable)  # Emit the event downstream
         except Exception as e:
             print(f"🚨 Error processing event: {e}")
             return empty()  # Skip this event and continue the stream
 
     def _safe_event_processing(self, observable: dict):
         if isinstance(observable, dict):
-            event_type = observable["type"]
-            event = observable["event"]
+            type: Optional[str] = observable.get("type", None)
+            event: Optional[str, dict] = observable.get("event", None)
+            module: Optional[str] = observable.get("module", None)
             try:
-                if event_type == "mem_store":
-                    self._safe_mem_store_process_event(event)
-                elif event_type == "account":
-                    self._safe_account_process_event(event)
-                elif event_type == "network":
-                    self._safe_network_process_event(event)
+                if type == "mem_store":
+                    self._safe_mem_store_process_event(observable)
+                elif module == "account":
+                    self._safe_account_process_event(observable)
+                elif type == "network":
+                    self._safe_network_process_event(observable)
                 return of(observable)  # Ensure an observable is returned
             except Exception as e:
                 logging.error(f"🚨 Error processing event {event}: {e}", exc_info=True)
                 #return of(None)  # Send placeholder down the line
                 return empty() # End the current stream entirely
         else:
-            print(observable)
+            print(f"Not a dict:", observable)
 
-    async def set_to_mem_pool_monitor(self, pool: List[PendingTransaction]):
+    async def set_to_mem_pool_monitor(self, pool: List[dict]):
         network_info = self.account.network.get_network()
         key = f"network-{network_info['network_id'].lower()}-mempool"
-        await self.cache_utils.set(key, [tx.model_dump() for tx in pool])
+        await self.cache_utils.set(key, [tx for tx in pool])
 
-    async def get_mem_pool_from_monitor(self, address: Optional[str] = None) -> List[PendingTransaction]:
+    async def get_mem_pool_from_monitor(self, address: Optional[str] = None) -> List[dict]:
         address = address or self.account.address
         network_info = self.account.network.get_network()
 
         try:
-            txs: List[PendingTransaction] = [PendingTransaction(**tx) for tx in await self.cache_utils.get(f"network-{network_info['network_id'].lower()}-mempool")] or []
+
+            txs: List[json] = await self.cache_utils.get(f"network-{network_info['network_id'].lower()}-mempool") or []
         except Exception as e:
             print(f'get_mem_pool_from_monitor warning: {e}, will return empty list.')
             return []
-
-        return [tx for tx in txs if not address or not tx.receiver or tx.receiver == address or tx.sender == address]
+        return [tx for tx in txs if not address or not tx["receiver"] or tx["receiver"] == address or tx["sender"] == address]
 
     async def schedule_polling(self):
         await asyncio.sleep(1)  # Wait 1 second
         await self.poll_pending_txs()  # Call the function asynchronously
 
-    async def add_to_mem_pool_monitor(self, value: Union[PendingTransaction, str]) -> Dict: # Dict PendingTx and Transaction models might go in Core
+    async def add_to_mem_pool_monitor(self, value: Union[dict, str]) -> Dict: # Dict PendingTx and Transaction models might go in Core
         network_info = self.account.network.get_network()
         key = f"network-{network_info['network_id'].lower()}-mempool"
-        payload: List[PendingTransaction] = await self.cache_utils.get(key) or []
+        payload: List[json] = await self.cache_utils.get(key) or []
 
-        tx = value if isinstance(value, PendingTransaction) else PendingTransaction(hash=value, timestamp=int(datetime.now().timestamp()*1000))
-
-        if not any(p['hash'] == tx.hash for p in payload):
-            payload.append(tx)
+        tx = value if isinstance(value, dict) else dict(hash=value, timestamp=int(datetime.now().timestamp()*1000))
+        if not any(p["hash"] == tx["hash"] for p in payload):
+            payload.append(json.dumps(tx))
             await self.cache_utils.set(key, payload)
             self.last_timer = datetime.now().timestamp()
             self.pending_timer = 1000
@@ -160,13 +159,13 @@ class Monitor:
 
             if pending_txs:
                 await self.set_to_mem_pool_monitor(pending_txs)
-                self.pending_timer = 10000
+                self.pending_timer = 10
                 self.last_timer = current_time
                 asyncio.create_task(self.schedule_polling())
             elif pending_result.pool_count > 0:
                 await self.set_to_mem_pool_monitor([])
 
-            self.mem_pool_change.on_next({"type": "mem_store", "event": pending_result})
+            self.mem_pool_change.on_next({"module": "monitor", "type": "mem_store", "event": pending_result})
         except Exception as e:
             print(f"🚨 Error in poll_pending_txs: {e}")
 
@@ -180,7 +179,7 @@ class Monitor:
 
             for pending_tx in pool:
                 try:
-                    tx_hash = pending_tx.hash
+                    tx_hash = pending_tx["hash"]
                     cb_tx = None
 
                     if cb_tx:
@@ -218,24 +217,24 @@ class Monitor:
                 pool_count=0  # Fix: Add pool count here
             )
 
-    def transform_pending_to_transaction(self, pending: PendingTransaction) -> Dict:
+    def transform_pending_to_transaction(self, pending: dict) -> Dict:
 
         return {
-    "hash": pending.hash,
-    "source": pending.sender,
-    "destination": pending.receiver,
-    "amount": pending.amount,
-    "fee": pending.fee,
+    "hash": pending["hash"],
+    "source": pending["sender"],
+    "destination": pending["receiver"],
+    "amount": pending["amount"],
+    "fee": pending["fee"],
     "parent": {
-        "ordinal": pending.ordinal,
+        "ordinal": pending["ordinal"],
         "hash": ""
     },
     "snapshot_hash": "",
     "block_hash": "",
-    "timestamp": datetime.fromtimestamp(pending.timestamp / 1000).isoformat(),
+    "timestamp": datetime.fromtimestamp(pending["timestamp"] / 1000).isoformat(),
     "transaction_original": {
-        "ordinal": pending.ordinal,
-        "hash": pending.hash
+        "ordinal": pending["ordinal"],
+        "hash": pending["hash"]
         }
     }
 
@@ -249,8 +248,14 @@ class Monitor:
             )
         return self.wait_for_map[hash].future
 
+    async def monitor_loop(self):
+        while True:
+            await self.poll_pending_txs()
+            await asyncio.sleep(1)
+
     def start_monitor(self):
-        asyncio.create_task(self.poll_pending_txs())
+        #asyncio.create_task(self.poll_pending_txs())
+        asyncio.create_task(self.monitor_loop())
 
     async def get_latest_transactions(self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None) -> List[dict]:
         c_txs = await self.account.network.get_transactions_by_address(address, limit, search_after)
@@ -265,10 +270,10 @@ async def main():
     monitor.start_monitor()
     account.connect('testnet')
     account.login_with_seed_phrase(secret.mnemo)
-    await asyncio.sleep(10)
     await account.transfer(secret.to_address, 50000, 200000)
+    await asyncio.sleep(60)
     account.logout()
-    await asyncio.sleep(25)
+
 
 
 if __name__ == "__main__":

@@ -134,7 +134,7 @@ class DagAccount:
         """
         self.key_trio = None
         try:
-            self._session_change.on_next({"type": "account", "event": "logout"})
+            self._session_change.on_next({"module": "account", "event": "logout"})
         except Exception as e:
             # logger.error(f"Error in network change handler: {e}")
             print(f"Error in DagAccount session change handler: {e}")
@@ -142,7 +142,7 @@ class DagAccount:
     def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
         self.key_trio = KeyTrio(private_key=private_key, public_key=public_key, address=address)
         try:
-            self._session_change.on_next({"type": "account", "event": "login"})
+            self._session_change.on_next({"module": "account", "event": "login"})
         except Exception as e:
             #logger.error(f"Error in network change handler: {e}")
             print(f"Error in DagAccount session change handler: {e}")
@@ -213,17 +213,18 @@ class DagAccount:
         tx_hash = await self.network.post_transaction(signed_tx)
 
         if tx_hash:
-            return PendingTransaction(
-                timestamp=int(datetime.now().timestamp()*1000),
-                hash=tx_hash,
-                amount=amount,
-                receiver=to_address,
-                fee=fee,
-                sender=self.address,
-                ordinal=last_ref.ordinal,
-                pending=True,
-                status=TransactionStatus.POSTED
-            )
+            pending_tx = PendingTransaction(
+                            timestamp=int(datetime.now().timestamp() * 1000),
+                            hash=tx_hash,
+                            amount=amount,
+                            receiver=to_address,
+                            fee=fee,
+                            sender=self.address,
+                            ordinal=last_ref.ordinal,
+                            pending=True,
+                            status=TransactionStatus.POSTED
+                         )
+            return pending_tx
 
     async def wait_for_checkpoint_accepted(self, hash: str):
         """

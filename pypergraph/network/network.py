@@ -1,10 +1,6 @@
-import asyncio
-from dataclasses import asdict
 from typing import Optional, Dict, List
 
-from rx.scheduler.eventloop import AsyncIOScheduler
-from rx.subject import Subject, BehaviorSubject
-from rx import operators as ops, empty
+from rx.subject import BehaviorSubject
 
 from pypergraph.network.models.account import LastReference, Balance
 from pypergraph.network.api import LoadBalancerApi, BlockExplorerApi, L0Api, L1Api, ML0Api, ML1Api, MDL1Api
@@ -42,7 +38,7 @@ class DagTokenNetwork:
             else L1Api(host=self.connected_network.l1_lb_url)
         )
 
-        self._network_change = BehaviorSubject({"type": "network", "event": self.get_network()})
+        self._network_change = BehaviorSubject({"module": "network", "type": "network_change", "event": self.get_network()})
 
     def config(
         self,
@@ -78,7 +74,7 @@ class DagTokenNetwork:
             self.cl1_api.config(network_info.cl1_host)  # Currency layer
 
             # Emit a network change event
-            self._network_change.on_next({"type": "network", "event": self.get_network()})
+            self._network_change.on_next({"module": "network", "type": "network_change", "event": self.get_network()})
 
 
     def get_network(self) -> Dict:
