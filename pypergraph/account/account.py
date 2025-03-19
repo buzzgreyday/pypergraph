@@ -134,7 +134,7 @@ class DagAccount:
         """
         self.key_trio = None
         try:
-            self._session_change.on_next({"type": "logout"})
+            self._session_change.on_next({"type": "account", "event": "logout"})
         except Exception as e:
             # logger.error(f"Error in network change handler: {e}")
             print(f"Error in DagAccount session change handler: {e}")
@@ -142,7 +142,7 @@ class DagAccount:
     def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
         self.key_trio = KeyTrio(private_key=private_key, public_key=public_key, address=address)
         try:
-            self._session_change.on_next({"type": "login"})
+            self._session_change.on_next({"type": "account", "event": "login"})
         except Exception as e:
             #logger.error(f"Error in network change handler: {e}")
             print(f"Error in DagAccount session change handler: {e}")
