@@ -42,7 +42,7 @@ class DagTokenNetwork:
             else L1Api(host=self.connected_network.l1_lb_url)
         )
 
-        self._network_change = BehaviorSubject({"type": "network", "event": self.connected_network.__dict__})
+        self._network_change = BehaviorSubject({"type": "network", "event": self.get_network()})
 
     def config(
         self,
@@ -78,7 +78,7 @@ class DagTokenNetwork:
             self.cl1_api.config(network_info.cl1_host)  # Currency layer
 
             # Emit a network change event
-            self._network_change.on_next({"type": "network", "event": network_info.__dict__})
+            self._network_change.on_next({"type": "network", "event": self.get_network()})
 
 
     def get_network(self) -> Dict:

@@ -42,7 +42,7 @@ class DagAccount:
         :return: Configured DagAccount object.
         """
 
-        self.network = DagTokenNetwork()
+        #self.network = DagTokenNetwork() This will stop monitor from emitting network changes
         self.network.config(network_id, be_url, l0_host, cl1_host, l0_lb_url, l1_lb_url)
         return self
 
