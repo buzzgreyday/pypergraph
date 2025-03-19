@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import asdict
 from typing import Optional, Dict, List
 
 from rx.scheduler.eventloop import AsyncIOScheduler
@@ -41,24 +42,7 @@ class DagTokenNetwork:
             else L1Api(host=self.connected_network.l1_lb_url)
         )
 
-        # Use the injected scheduler if provided; otherwise default to AsyncIOScheduler.
-        self._scheduler = scheduler or AsyncIOScheduler(asyncio.get_event_loop())
-        self._network_change: Subject = BehaviorSubject(self.connected_network.__dict__)
-        self._network_observable = self._network_change.pipe(
-            ops.distinct_until_changed(),
-            ops.share(),
-            ops.observe_on(self._scheduler),
-            ops.catch(lambda error, _: self._handle_observable_error(error))
-        )
-
-
-    def observe_network_change(self):
-        """Return network changes observable"""
-        return self._network_observable
-
-    def _handle_observable_error(self, error):
-        print(f"Observable error: {error}")
-        return empty(scheduler=self._scheduler)
+        self._network_change = BehaviorSubject({"type": "network", "event": self.connected_network.__dict__})
 
     def config(
         self,
@@ -94,7 +78,7 @@ class DagTokenNetwork:
             self.cl1_api.config(network_info.cl1_host)  # Currency layer
 
             # Emit a network change event
-            self._network_change.on_next(network_info.__dict__)
+            self._network_change.on_next({"type": "network", "event": network_info.__dict__})
 
 
     def get_network(self) -> Dict:
