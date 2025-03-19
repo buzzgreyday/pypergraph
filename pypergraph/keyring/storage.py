@@ -27,13 +27,13 @@ class StateStorageDb:
     async def set(self, key: Optional[str], value: any):
         key = key or "vault"
         full_key = self.key_prefix + key
-        serialized_value = value
+        serialized_value = json.dumps(value, separators=(',', ':'))
         await self.storage_client.set_item(full_key, serialized_value)
 
     async def get(self, key: str = "vault"):
         full_key = self.key_prefix + key
         value = await self.storage_client.get_item(full_key)
-        return value if value else None
+        return json.loads(value) if value else None
 
     async def delete(self, key: str = "vault"):
         full_key = self.key_prefix + key
@@ -75,7 +75,7 @@ class JsonStorage:
 
     async def get_item(self, key: str):
         data = await self._read_data()
-        return data.get(key)
+        return data.get(key) if data else None
 
     async def set_item(self, key: str, value: str):
         data = await self._read_data()
@@ -91,7 +91,7 @@ class JsonStorage:
     async def _read_data(self):
         async with aiofiles.open(self.file_path, "r") as f:
             contents = await f.read()
-            return json.loads(contents)
+            return json.loads(contents) if contents else {}
 
     async def _write_data(self, data):
         async with aiofiles.open(self.file_path, "w") as f:
