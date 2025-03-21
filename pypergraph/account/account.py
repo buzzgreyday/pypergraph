@@ -224,6 +224,7 @@ class DagAccount:
                             pending=True,
                             status=TransactionStatus.POSTED
                          )
+            self._session_change.on_next({"module": "account", "type": "add_transaction", "event": pending_tx.model_dump()})
             return pending_tx
 
     async def wait_for_checkpoint_accepted(self, hash: str):

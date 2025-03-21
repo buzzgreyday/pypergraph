@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import traceback
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Union, List, Optional
@@ -58,10 +59,13 @@ class Monitor:
 
     def _safe_account_process_event(self, observable):
         try:
-            if observable['event'] == "logout":
+            if observable["event"] == "logout":
                 print(f"Logged Out!")
-            elif observable['event'] == "login":
+            elif observable["event"] == "login":
                 print(f"Logged In!")
+            elif observable["type"] == "add_transaction":
+                print("Attempting to add transaction:", observable["event"])
+                asyncio.create_task(self.add_to_mem_pool_monitor(observable["event"]))
             else:
                 print(f"Unknown event: {observable['event']}")
             return of(observable)
@@ -120,10 +124,11 @@ class Monitor:
         network_info = self.account.network.get_network()
 
         try:
-
             txs: List[json] = await self.cache_utils.get(f"network-{network_info['network_id'].lower()}-mempool") or []
+            txs = [json.loads(tx) for tx in txs]
+            print(txs)
         except Exception as e:
-            print(f'get_mem_pool_from_monitor warning: {e}, will return empty list.')
+            print(f'get_mem_pool_from_monitor warning: {traceback.format_exc()}, will return empty list.')
             return []
         return [tx for tx in txs if not address or not tx["receiver"] or tx["receiver"] == address or tx["sender"] == address]
 
@@ -135,7 +140,6 @@ class Monitor:
         network_info = self.account.network.get_network()
         key = f"network-{network_info['network_id'].lower()}-mempool"
         payload: List[json] = await self.cache_utils.get(key) or []
-
         tx = value if isinstance(value, dict) else dict(hash=value, timestamp=int(datetime.now().timestamp()*1000))
         if not any(p["hash"] == tx["hash"] for p in payload):
             payload.append(json.dumps(tx))
@@ -167,7 +171,7 @@ class Monitor:
 
             self.mem_pool_change.on_next({"module": "monitor", "type": "mem_store", "event": pending_result})
         except Exception as e:
-            print(f"🚨 Error in poll_pending_txs: {e}")
+            print(f"🚨 Error in poll_pending_txs: {traceback.format_exc()}")
 
     async def process_pending_txs(self) -> DagWalletMonitorUpdate:
         try:
@@ -176,7 +180,6 @@ class Monitor:
             next_pool = []
             pending_has_confirmed = False
             tx_changed = False
-
             for pending_tx in pool:
                 try:
                     tx_hash = pending_tx["hash"]
@@ -206,15 +209,15 @@ class Monitor:
                 pending_has_confirmed=pending_has_confirmed,
                 pending_txs=pending_txs,
                 tx_changed=tx_changed,
-                pool_count=len(next_pool)  # Fix: Add pool count here
+                pool_count=len(next_pool)
             )
         except Exception as e:
-            print(f"🚨 Error in process_pending_txs: {e}")
+            print(f"🚨 Error in process_pending_txs: {traceback.format_exc()}")
             return DagWalletMonitorUpdate(
                 pending_has_confirmed=False,
                 pending_txs=[],
                 tx_changed=False,
-                pool_count=0  # Fix: Add pool count here
+                pool_count=0
             )
 
     def transform_pending_to_transaction(self, pending: dict) -> Dict:
