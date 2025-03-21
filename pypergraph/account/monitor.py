@@ -6,10 +6,10 @@ from datetime import datetime
 import time
 from typing import Dict, Union, List, Optional
 
-from anyio import current_time
+from pydantic import BaseModel, Field
 from rx import operators as ops, of, empty
 from rx.scheduler.eventloop import AsyncIOScheduler
-from rx.subject import Subject, BehaviorSubject
+from rx.subject import BehaviorSubject
 
 from pypergraph.account import DagAccount
 from pypergraph.account.tests import secret
@@ -26,11 +26,10 @@ class WaitFor:
     future: asyncio.Future
     resolve: callable
 
-@dataclass
-class DagWalletMonitorUpdate:
-    pending_has_confirmed: bool
-    trans_txs: List[PendingTransaction]
-    tx_changed: bool
+class DagWalletMonitorUpdate(BaseModel):
+    pending_has_confirmed: bool = False
+    trans_txs: List[PendingTransaction] = Field(default_factory=list)
+    tx_changed: bool = False
 
 
 class Monitor:
@@ -38,7 +37,7 @@ class Monitor:
     def __init__(self, account: DagAccount):
         self.account: DagAccount = account
         self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())
-        self.mem_pool_change = BehaviorSubject(DagWalletMonitorUpdate)
+        self.mem_pool_change = BehaviorSubject(DagWalletMonitorUpdate().model_dump())
         self.last_timer = 0.0
         self.pending_timer = 0.0
         self.wait_for_map: Dict[str, WaitFor] = {}
@@ -170,12 +169,11 @@ class Monitor:
 
             pending_result = await self.process_pending_txs()
             print(pending_result)
-            if pending_result:
-                pending_txs = pending_result["pending_txs"]
-                tx_changed = pending_result["tx_changed"]
-                trans_txs = pending_result["trans_txs"]
-                pending_has_confirmed = pending_result["pending_has_confirmed"]
-                pool_count = pending_result["pool_count"]
+            pending_txs = pending_result["pending_txs"]
+            tx_changed = pending_result["tx_changed"]
+            trans_txs = pending_result["trans_txs"]
+            pending_has_confirmed = pending_result["pending_has_confirmed"]
+            pool_count = pending_result["pool_count"]
 
             if pending_txs:
                 await self.set_to_mem_pool_monitor(pending_txs)
@@ -186,7 +184,8 @@ class Monitor:
             elif pool_count > 0:
                 await self.set_to_mem_pool_monitor([])
 
-            self.mem_pool_change.on_next(DagWalletMonitorUpdate(tx_changed=tx_changed, trans_txs=trans_txs, pending_has_confirmed=pending_has_confirmed))
+            self.mem_pool_change.on_next(DagWalletMonitorUpdate(tx_changed=tx_changed, trans_txs=trans_txs, pending_has_confirmed=pending_has_confirmed).model_dump())
+            print(self.mem_pool_change.value)
         except Exception as e:
             print(f"🚨 Error in poll_pending_txs: {traceback.format_exc()}")
 
