@@ -20,7 +20,6 @@ dependencies = [
     "ecdsa~=0.19.0",
     "pyasn1~=0.6.1",
     "httpx~=0.28.1",
-    "pyee~=12.1.1", # Will be removed
     "eth-utils~=5.2.0",
     "eth-keys~=0.6.1",
     "eth-keyfile~=0.8.1",
