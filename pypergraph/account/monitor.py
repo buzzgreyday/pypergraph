@@ -276,7 +276,6 @@ class Monitor:
             await asyncio.sleep(10)
 
     def start_monitor(self):
-        asyncio.create_task(self.poll_pending_txs())
         asyncio.create_task(self.monitor_loop())
 
     async def get_latest_transactions(self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None) -> List[dict]:
