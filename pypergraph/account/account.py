@@ -2,7 +2,8 @@ import logging
 import asyncio
 from datetime import datetime
 
-from typing import Any, Dict, List, Optional, Tuple, Union, Self
+from typing import Any, Dict, List, Optional, Tuple, Union
+from typing_extensions import Self
 
 from rx.subject import Subject
 
