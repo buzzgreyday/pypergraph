@@ -45,10 +45,10 @@ class Monitor:
         self.cache_utils.set_prefix('pypergraph-')
 
         # Subscribing to events safely
-        self.mem_pool_change.pipe(
-            ops.observe_on(self._scheduler),
-            ops.flat_map(self._safe_event_processing)  # Ensures event processing continues
-        ).subscribe()
+        # self.mem_pool_change.pipe(
+        #     ops.observe_on(self._scheduler),
+        #     ops.flat_map(self._safe_event_processing)  # Ensures event processing continues
+        # ).subscribe()
 
         self.account._session_change.pipe(
             ops.observe_on(self._scheduler),
@@ -203,7 +203,7 @@ class Monitor:
                     try:
                         be_tx = await self.account.network.get_transaction(tx_hash)
                         if be_tx:
-                            pending_tx.timestamp = be_tx.timestamp.isoformat()
+                            pending_tx.timestamp = int(be_tx.timestamp.timestamp() * 1000)
                             pending_has_confirmed = True
                             tx_changed = True
                             pending_tx.pending = False

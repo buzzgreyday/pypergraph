@@ -64,6 +64,10 @@ class PendingTransaction(BaseModel):
     timestamp: int
     fee: Optional[int] = None
 
+    model_config = ConfigDict(
+        use_enum_values=True
+    )
+
     def to_transaction(self):
         # TODO: Check how to best implement this
         return {
