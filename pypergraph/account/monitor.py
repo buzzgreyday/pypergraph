@@ -4,7 +4,7 @@ import traceback
 from dataclasses import dataclass
 from datetime import datetime
 import time
-from typing import Dict, Union, List, Optional
+from typing import Dict, Union, List, Optional, Any
 
 from pydantic import BaseModel, Field
 from rx import operators as ops, of, empty
@@ -189,7 +189,7 @@ class Monitor:
         except Exception as e:
             print(f"🚨 Error in poll_pending_txs: {traceback.format_exc()}")
 
-    async def process_pending_txs(self) -> Dict:
+    async def process_pending_txs(self) -> Dict[str, Any]:
         try:
             pool = await self.get_mem_pool_from_monitor()
             trans_txs = []
@@ -238,28 +238,6 @@ class Monitor:
         except Exception as e:
             print(f"🚨 Error in process_pending_txs: {traceback.format_exc()}")
 
-
-    def transform_pending_to_transaction(self, pending: PendingTransaction) -> Dict:
-        # TODO: Figure out how to return this best possible
-        return {
-            "hash": pending["hash"],
-            "source": pending["sender"],
-            "destination": pending["receiver"],
-            "amount": pending["amount"],
-            "fee": pending["fee"],
-            "parent": {
-                "ordinal": pending["ordinal"],
-                "hash": ""
-            },
-            "snapshot_hash": "",
-            "block_hash": "",
-            "timestamp": datetime.fromtimestamp(pending["timestamp"] / 1000).isoformat(),
-            "transaction_original": {
-                "ordinal": pending["ordinal"],
-                "hash": pending["hash"]
-                }
-        }
-
     async def wait_for_transaction(self, hash: str) -> asyncio.Future:
         if hash not in self.wait_for_map:
             loop = asyncio.get_event_loop()
@@ -274,9 +252,10 @@ class Monitor:
         asyncio.create_task(self.poll_pending_txs())
 
     async def get_latest_transactions(self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None) -> List[dict]:
+        # TODO: .to_transaction() should return a BlockExplorerTransaction type
         c_txs = await self.account.network.get_transactions_by_address(address, limit, search_after)
         pending_result = await self.process_pending_txs()
-        pending_transactions = [self.transform_pending_to_transaction(p) for p in pending_result.pending_txs]
+        pending_transactions = [p.to_transaction() for p in pending_result["pending_txs"]]
 
         return pending_transactions + (c_txs if c_txs else [])
 
