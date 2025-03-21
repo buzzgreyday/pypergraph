@@ -4,6 +4,7 @@ import pytest
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.network import DagTokenNetwork
 from pypergraph.account import DagAccount, MetagraphTokenClient
+from pypergraph.network.models import PendingTransaction
 
 
 @pytest.fixture
@@ -154,7 +155,7 @@ async def test_currency_transfer(network):
     failed = []
     try:
         r = await account.transfer(to_address=to_address, amount=100000000, fee=200000)
-        assert isinstance(r, dict)
+        assert isinstance(r, PendingTransaction)
     except (NetworkError, httpx.ReadError) as e:
         failed.append(e)
 

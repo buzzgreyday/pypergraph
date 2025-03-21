@@ -27,14 +27,13 @@ class StateStorageDb:
     async def set(self, key: Optional[str], value: any):
         key = key or "vault"
         full_key = self.key_prefix + key
-        serialized_value = json.dumps(value, separators=(',', ':'), indent=2)
+        serialized_value = value
         await self.storage_client.set_item(full_key, serialized_value)
 
     async def get(self, key: str = "vault"):
         full_key = self.key_prefix + key
         value = await self.storage_client.get_item(full_key)
-        print(value)
-        return json.loads(value) if value else None
+        return value if value else None
 
     async def delete(self, key: str = "vault"):
         full_key = self.key_prefix + key
@@ -76,12 +75,10 @@ class JsonStorage:
 
     async def get_item(self, key: str):
         data = await self._read_data()
-        data = json.loads(data)
-        return data.get(key) if data else None
+        return data.get(key)
 
     async def set_item(self, key: str, value: str):
         data = await self._read_data()
-        data = json.loads(data)
         data[key] = value
         await self._write_data(data)
 
@@ -94,11 +91,11 @@ class JsonStorage:
     async def _read_data(self):
         async with aiofiles.open(self.file_path, "r") as f:
             contents = await f.read()
-            return contents if contents else {}
+            return json.loads(contents) if contents else None
 
     async def _write_data(self, data):
         async with aiofiles.open(self.file_path, "w") as f:
-            await f.write(data)
+            await f.write(json.dumps(data, indent=2))
 
 
 class ObservableStore(BaseModel):

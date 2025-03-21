@@ -64,7 +64,6 @@ class Monitor:
             elif observable["event"] == "login":
                 print(f"Logged In!")
             elif observable["type"] == "add_transaction":
-                print("Attempting to add transaction:", observable["event"])
                 asyncio.create_task(self.add_to_mem_pool_monitor(observable["event"]))
             else:
                 print(f"Unknown event: {observable['event']}")
@@ -125,16 +124,11 @@ class Monitor:
 
         try:
             txs: List[json] = await self.cache_utils.get(f"network-{network_info['network_id'].lower()}-mempool") or []
-            txs = [json.loads(tx) for tx in txs]
-            print(txs)
+            txs = [json.loads(tx) if not isinstance(tx, dict) else tx for tx in txs] if txs else []
         except Exception as e:
             print(f'get_mem_pool_from_monitor warning: {traceback.format_exc()}, will return empty list.')
             return []
         return [tx for tx in txs if not address or not tx["receiver"] or tx["receiver"] == address or tx["sender"] == address]
-
-    async def schedule_polling(self):
-        await asyncio.sleep(1)  # Wait 1 second
-        await self.poll_pending_txs()  # Call the function asynchronously
 
     async def add_to_mem_pool_monitor(self, value: Union[dict, str]) -> Dict: # Dict PendingTx and Transaction models might go in Core
         network_info = self.account.network.get_network()
@@ -147,7 +141,7 @@ class Monitor:
             self.last_timer = datetime.now().timestamp()
             self.pending_timer = 1000
 
-        asyncio.create_task(self.schedule_polling())
+        #asyncio.create_task(self.poll_pending_txs())
 
         return self.transform_pending_to_transaction(tx)
 
@@ -163,9 +157,9 @@ class Monitor:
 
             if pending_txs:
                 await self.set_to_mem_pool_monitor(pending_txs)
-                self.pending_timer = 10
+                self.pending_timer = 1000
                 self.last_timer = current_time
-                asyncio.create_task(self.schedule_polling())
+                #asyncio.create_task(self.poll_pending_txs())
             elif pending_result.pool_count > 0:
                 await self.set_to_mem_pool_monitor([])
 
@@ -223,23 +217,23 @@ class Monitor:
     def transform_pending_to_transaction(self, pending: dict) -> Dict:
 
         return {
-    "hash": pending["hash"],
-    "source": pending["sender"],
-    "destination": pending["receiver"],
-    "amount": pending["amount"],
-    "fee": pending["fee"],
-    "parent": {
-        "ordinal": pending["ordinal"],
-        "hash": ""
-    },
-    "snapshot_hash": "",
-    "block_hash": "",
-    "timestamp": datetime.fromtimestamp(pending["timestamp"] / 1000).isoformat(),
-    "transaction_original": {
-        "ordinal": pending["ordinal"],
-        "hash": pending["hash"]
+            "hash": pending["hash"],
+            "source": pending["sender"],
+            "destination": pending["receiver"],
+            "amount": pending["amount"],
+            "fee": pending["fee"],
+            "parent": {
+                "ordinal": pending["ordinal"],
+                "hash": ""
+            },
+            "snapshot_hash": "",
+            "block_hash": "",
+            "timestamp": datetime.fromtimestamp(pending["timestamp"] / 1000).isoformat(),
+            "transaction_original": {
+                "ordinal": pending["ordinal"],
+                "hash": pending["hash"]
+                }
         }
-    }
 
     async def wait_for_transaction(self, hash: str) -> asyncio.Future:
         if hash not in self.wait_for_map:
@@ -254,10 +248,10 @@ class Monitor:
     async def monitor_loop(self):
         while True:
             await self.poll_pending_txs()
-            await asyncio.sleep(1)
+            await asyncio.sleep(10)
 
     def start_monitor(self):
-        #asyncio.create_task(self.poll_pending_txs())
+        asyncio.create_task(self.poll_pending_txs())
         asyncio.create_task(self.monitor_loop())
 
     async def get_latest_transactions(self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None) -> List[dict]:
