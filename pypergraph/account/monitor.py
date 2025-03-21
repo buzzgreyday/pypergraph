@@ -270,13 +270,8 @@ class Monitor:
             )
         return self.wait_for_map[hash].future
 
-    async def monitor_loop(self):
-        while True:
-            await self.poll_pending_txs()
-            await asyncio.sleep(10)
-
     def start_monitor(self):
-        asyncio.create_task(self.monitor_loop())
+        asyncio.create_task(self.poll_pending_txs())
 
     async def get_latest_transactions(self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None) -> List[dict]:
         c_txs = await self.account.network.get_transactions_by_address(address, limit, search_after)
