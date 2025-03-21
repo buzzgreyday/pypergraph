@@ -6,9 +6,10 @@ from datetime import datetime
 import time
 from typing import Dict, Union, List, Optional
 
+from anyio import current_time
 from rx import operators as ops, of, empty
 from rx.scheduler.eventloop import AsyncIOScheduler
-from rx.subject import Subject
+from rx.subject import Subject, BehaviorSubject
 
 from pypergraph.account import DagAccount
 from pypergraph.account.tests import secret
@@ -16,6 +17,7 @@ from pypergraph.keyring.storage import StateStorageDb
 import json
 
 from pypergraph.network.models import PendingTransaction, NetworkInfo, BlockExplorerTransaction
+from pypergraph.network.models.transaction import TransactionStatus
 
 TWELVE_MINUTES = 12 * 60 * 1000
 
@@ -27,9 +29,8 @@ class WaitFor:
 @dataclass
 class DagWalletMonitorUpdate:
     pending_has_confirmed: bool
-    pending_txs: List[json]
+    trans_txs: List[PendingTransaction]
     tx_changed: bool
-    pool_count: int  # Needed for `poll_pending_txs
 
 
 class Monitor:
@@ -37,7 +38,7 @@ class Monitor:
     def __init__(self, account: DagAccount):
         self.account: DagAccount = account
         self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())
-        self.mem_pool_change = Subject()
+        self.mem_pool_change = BehaviorSubject(DagWalletMonitorUpdate)
         self.last_timer = 0.0
         self.pending_timer = 0.0
         self.wait_for_map: Dict[str, WaitFor] = {}
@@ -75,16 +76,16 @@ class Monitor:
             print(f"🚨 Error processing event: {e}")
             return empty()  # Skip this event and continue the stream
 
-    def _safe_mem_store_process_event(self, observable: dict):
-        """Process an event safely, catching errors."""
-        try:
-            # Simulate event processing (replace with your logic)
-            if observable:
-                print(f"Transaction changed: {observable['event']}")
-            return of(observable)  # Emit the event downstream
-        except Exception as e:
-            print(f"🚨 Error processing event: {e}")
-            return empty()  # Skip this event and continue the stream
+    # def _safe_mem_store_process_event(self, observable: dict):
+    #     """Process an event safely, catching errors."""
+    #     try:
+    #         # Simulate event processing (replace with your logic)
+    #         if observable:
+    #             print(f"Transaction changed: {observable['event']}")
+    #         return of(observable)  # Emit the event downstream
+    #     except Exception as e:
+    #         print(f"🚨 Error processing event: {e}")
+    #         return empty()  # Skip this event and continue the stream
 
     def _safe_network_process_event(self, observable: dict):
         """Process an event safely, catching errors."""
@@ -102,9 +103,7 @@ class Monitor:
             event: Optional[str, dict] = observable.get("event", None)
             module: Optional[str] = observable.get("module", None)
             try:
-                if type == "mem_store":
-                    self._safe_mem_store_process_event(observable)
-                elif module == "account":
+                if module == "account":
                     self._safe_account_process_event(observable)
                 elif type == "network":
                     self._safe_network_process_event(observable)
@@ -114,24 +113,24 @@ class Monitor:
                 #return of(None)  # Send placeholder down the line
                 return empty() # End the current stream entirely
         else:
-            print(f"Not a dict:", observable)
+            print(self.mem_pool_change.value)
 
-    async def set_to_mem_pool_monitor(self, pool: List[dict]):
+    async def set_to_mem_pool_monitor(self, pool: List[PendingTransaction]):
         network_info = self.account.network.get_network()
         key = f"network-{network_info['network_id'].lower()}-mempool"
-        await self.cache_utils.set(key, [tx for tx in pool])
+        await self.cache_utils.set(key, [tx.model_dump() for tx in pool])
 
-    async def get_mem_pool_from_monitor(self, address: Optional[str] = None) -> List[dict]:
+    async def get_mem_pool_from_monitor(self, address: Optional[str] = None) -> List[PendingTransaction]:
         address = address or self.account.address
         network_info = self.account.network.get_network()
 
         try:
             txs: List[json] = await self.cache_utils.get(f"network-{network_info['network_id'].lower()}-mempool") or []
-            txs = [json.loads(tx) if not isinstance(tx, dict) else tx for tx in txs] if txs else []
+            txs = [PendingTransaction(**json.loads(tx)) if not isinstance(tx, dict) else PendingTransaction(**tx) for tx in txs] if txs else []
         except Exception as e:
             print(f'get_mem_pool_from_monitor warning: {traceback.format_exc()}, will return empty list.')
             return []
-        return [tx for tx in txs if not address or not tx["receiver"] or tx["receiver"] == address or tx["sender"] == address]
+        return [tx for tx in txs if not address or not tx.receiver or tx.receiver == address or tx.sender == address]
 
     async def add_to_mem_pool_monitor(self, value: PendingTransaction):  # 'value' can be a dict or string
         network_info = NetworkInfo(**self.account.network.get_network())
@@ -140,7 +139,7 @@ class Monitor:
         # Get cached payload or initialize empty list
         cached = await self.cache_utils.get(key)
         payload = cached if isinstance(cached, list) else []
-        payload = [PendingTransaction(**p) for p in payload]
+        payload = [PendingTransaction(**json.loads(p)) for p in payload]
 
         # Create transaction object
         if isinstance(value, str):
@@ -159,85 +158,90 @@ class Monitor:
             self.pending_timer = 1000
 
         # Schedule polling after 1 second
-        asyncio.create_task(self._schedule_poll())
-        return self.transform_pending_to_transaction(tx)
-
-    async def _schedule_poll(self):
-        await asyncio.sleep(1)  # 1 second delay
-        await self.poll_pending_txs()
+        asyncio.create_task(self.poll_pending_txs())
+        return tx.to_transaction()
 
     async def poll_pending_txs(self):
         try:
-            current_time = datetime.now().timestamp() * 1000
+            current_time = int(time.time() * 1000)
             if current_time - self.last_timer + 1000 < self.pending_timer:
                 print('Canceling extra timer')
                 return
 
             pending_result = await self.process_pending_txs()
-            pending_txs = pending_result.pending_txs
+            print(pending_result)
+            if pending_result:
+                pending_txs = pending_result["pending_txs"]
+                tx_changed = pending_result["tx_changed"]
+                trans_txs = pending_result["trans_txs"]
+                pending_has_confirmed = pending_result["pending_has_confirmed"]
+                pool_count = pending_result["pool_count"]
 
             if pending_txs:
                 await self.set_to_mem_pool_monitor(pending_txs)
                 self.pending_timer = 1000
                 self.last_timer = current_time
-                #asyncio.create_task(self.poll_pending_txs())
-            elif pending_result.pool_count > 0:
+                await asyncio.sleep(10)
+                asyncio.create_task(self.poll_pending_txs())
+            elif pool_count > 0:
                 await self.set_to_mem_pool_monitor([])
 
-            self.mem_pool_change.on_next({"module": "monitor", "type": "mem_store", "event": pending_result})
+            self.mem_pool_change.on_next(DagWalletMonitorUpdate(tx_changed=tx_changed, trans_txs=trans_txs, pending_has_confirmed=pending_has_confirmed))
         except Exception as e:
             print(f"🚨 Error in poll_pending_txs: {traceback.format_exc()}")
 
-    async def process_pending_txs(self) -> DagWalletMonitorUpdate:
+    async def process_pending_txs(self) -> Dict:
         try:
             pool = await self.get_mem_pool_from_monitor()
-            pending_txs = []
+            trans_txs = []
             next_pool = []
             pending_has_confirmed = False
             tx_changed = False
-            for pending_tx in pool:
+            for index, pending_tx in enumerate(pool):
+                pending_tx = pool[index]
                 try:
-                    tx_hash = pending_tx["hash"]
-                    cb_tx = None
-
-                    if cb_tx:
-                        # Process cb_tx and update pending_tx
-                        # ... (similar logic to TypeScript version)
-                        next_pool.append(pending_tx)
-                    else:
-                        try:
-                            be_tx = await self.account.network.get_transaction(tx_hash)
-                            if be_tx:
-                                pending_has_confirmed = True
+                    tx_hash = pending_tx.hash
+                    try:
+                        be_tx = await self.account.network.get_transaction(tx_hash)
+                        if be_tx:
+                            pending_tx.timestamp = be_tx.timestamp.isoformat()
+                            pending_has_confirmed = True
+                            tx_changed = True
+                            pending_tx.pending = False
+                            pending_tx.status = TransactionStatus.CONFIRMED.value
+                            pending_tx.pendingMsg = 'Confirmed'
+                            if tx_hash in self.wait_for_map:
+                                self.wait_for_map[tx_hash].resolve(True)
+                                del self.wait_for_map[tx_hash]
+                        else:
+                            if pending_tx.status != 'CHECKPOINT_ACCEPTED' and pending_tx.status != TransactionStatus.GLOBAL_STATE_PENDING.value and pending_tx.timestamp + TWELVE_MINUTES < int(time.time() * 1000):
+                                pending_tx.status = TransactionStatus.DROPPED.value
+                                pending_tx.pending = False
                                 tx_changed = True
-                                if tx_hash in self.wait_for_map:
-                                    self.wait_for_map[tx_hash].resolve(True)
-                                    del self.wait_for_map[tx_hash]
-                        except Exception as e:
-                            print(f'Error processing transaction: {e}')
+                            else:
+                                if pending_tx.status != TransactionStatus.GLOBAL_STATE_PENDING.value:
+                                    pending_tx.status = TransactionStatus.GLOBAL_STATE_PENDING.value
+                                    pending_tx.pendingMsg = 'Will confirm shortly...'
+                                    tx_changed = True
+                                elif not pending_tx.status:
+                                    pending_tx.status = 'UNKNOWN'
+                                    pending_tx.pendingMsg = 'Transaction not found...'
+                                next_pool.append(pending_tx)
+                    except Exception as e:
+                        print(f'Error processing transaction: {e}')
 
-                    pending_txs.append(pending_tx)
+                    trans_txs.append(pending_tx)
                 except Exception as e:
                     print(f"🚨 Error processing pending transaction: {e}")
 
-            return DagWalletMonitorUpdate(
-                pending_has_confirmed=pending_has_confirmed,
-                pending_txs=pending_txs,
-                tx_changed=tx_changed,
-                pool_count=len(next_pool)
-            )
+            return {'pending_txs': next_pool, 'tx_changed': tx_changed, 'trans_txs': trans_txs, 'pending_has_confirmed': pending_has_confirmed, 'pool_count': len(pool)}
+
         except Exception as e:
             print(f"🚨 Error in process_pending_txs: {traceback.format_exc()}")
-            return DagWalletMonitorUpdate(
-                pending_has_confirmed=False,
-                pending_txs=[],
-                tx_changed=False,
-                pool_count=0
-            )
+
 
     def transform_pending_to_transaction(self, pending: PendingTransaction) -> Dict:
-        print(BlockExplorerTransaction(PendingTransaction))
-        exit(0)
+        # TODO: Figure out how to return this best possible
         return {
             "hash": pending["hash"],
             "source": pending["sender"],
