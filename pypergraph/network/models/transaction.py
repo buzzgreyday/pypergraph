@@ -64,6 +64,26 @@ class PendingTransaction(BaseModel):
     timestamp: int
     fee: Optional[int] = None
 
+    def to_transaction(self):
+        # TODO: Check how to best implement this
+        return {
+            "hash": self.hash,
+            "source": self.sender,
+            "destination": self.receiver,
+            "amount": self.amount,
+            "fee": self.fee,
+            "parent": {
+                "ordinal": self.ordinal,
+                "hash": ""
+            },
+            "snapshot_hash": "",
+            "block_hash": "",
+            "timestamp": datetime.fromtimestamp(self.timestamp / 1000).isoformat(),
+            "transaction_original": {
+                "ordinal": self.ordinal,
+                "hash": self.hash
+                }
+        }
 
 class Transaction(BaseTransaction):
     parent: LastReference
@@ -72,7 +92,6 @@ class Transaction(BaseTransaction):
     def __repr__(self):
         return (f"TransactionValue(source={self.source}, destination={self.destination}, "
                 f"amount={self.amount}, fee={self.fee}, parent={self.parent}, salt={self.salt})")
-
 
     @computed_field
     @property

@@ -3,6 +3,7 @@ import logging
 import traceback
 from dataclasses import dataclass
 from datetime import datetime
+import time
 from typing import Dict, Union, List, Optional
 
 from rx import operators as ops, of, empty
@@ -13,6 +14,8 @@ from pypergraph.account import DagAccount
 from pypergraph.account.tests import secret
 from pypergraph.keyring.storage import StateStorageDb
 import json
+
+from pypergraph.network.models import PendingTransaction, NetworkInfo, BlockExplorerTransaction
 
 TWELVE_MINUTES = 12 * 60 * 1000
 
@@ -130,20 +133,38 @@ class Monitor:
             return []
         return [tx for tx in txs if not address or not tx["receiver"] or tx["receiver"] == address or tx["sender"] == address]
 
-    async def add_to_mem_pool_monitor(self, value: Union[dict, str]) -> Dict: # Dict PendingTx and Transaction models might go in Core
-        network_info = self.account.network.get_network()
-        key = f"network-{network_info['network_id'].lower()}-mempool"
-        payload: List[json] = await self.cache_utils.get(key) or []
-        tx = value if isinstance(value, dict) else dict(hash=value, timestamp=int(datetime.now().timestamp()*1000))
-        if not any(p["hash"] == tx["hash"] for p in payload):
-            payload.append(json.dumps(tx))
+    async def add_to_mem_pool_monitor(self, value: PendingTransaction):  # 'value' can be a dict or string
+        network_info = NetworkInfo(**self.account.network.get_network())
+        key = f"network-{network_info.network_id}-mempool"
+
+        # Get cached payload or initialize empty list
+        cached = await self.cache_utils.get(key)
+        payload = cached if isinstance(cached, list) else []
+        payload = [PendingTransaction(**p) for p in payload]
+
+        # Create transaction object
+        if isinstance(value, str):
+            tx = PendingTransaction(**{"hash": value, "timestamp": int(time.time() * 1000)})
+        elif isinstance(value, PendingTransaction):
+            tx = value
+        else:
+            raise ValueError("Monitor :: Must be PendingTransaction.")
+
+        # Check for existing transaction
+        if not any(p.hash == tx.hash for p in payload):
+            payload.append(tx)
+            payload = [tx.model_dump_json()]
             await self.cache_utils.set(key, payload)
-            self.last_timer = datetime.now().timestamp()
+            self.last_timer = int(time.time() * 1000)
             self.pending_timer = 1000
 
-        #asyncio.create_task(self.poll_pending_txs())
-
+        # Schedule polling after 1 second
+        asyncio.create_task(self._schedule_poll())
         return self.transform_pending_to_transaction(tx)
+
+    async def _schedule_poll(self):
+        await asyncio.sleep(1)  # 1 second delay
+        await self.poll_pending_txs()
 
     async def poll_pending_txs(self):
         try:
@@ -214,8 +235,9 @@ class Monitor:
                 pool_count=0
             )
 
-    def transform_pending_to_transaction(self, pending: dict) -> Dict:
-
+    def transform_pending_to_transaction(self, pending: PendingTransaction) -> Dict:
+        print(BlockExplorerTransaction(PendingTransaction))
+        exit(0)
         return {
             "hash": pending["hash"],
             "source": pending["sender"],
@@ -264,10 +286,11 @@ class Monitor:
 async def main():
     account = DagAccount()
     monitor = Monitor(account)
-    monitor.start_monitor()
+    # monitor.start_monitor()
     account.connect('testnet')
     account.login_with_seed_phrase(secret.mnemo)
-    await account.transfer(secret.to_address, 50000, 200000)
+    pending_tx = await account.transfer(secret.to_address, 50000, 200000)
+    await monitor.add_to_mem_pool_monitor(pending_tx)
     await asyncio.sleep(60)
     account.logout()
 
