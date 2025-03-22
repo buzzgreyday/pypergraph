@@ -122,7 +122,7 @@ class Monitor:
         # Get cached payload or initialize empty list
         cached = await self.cache_utils.get(key)
         payload = cached if isinstance(cached, list) else []
-        payload = [PendingTransaction(**json.loads(p)) for p in payload]
+        payload = [PendingTransaction(**p) for p in payload]
 
         # Create transaction object
         if isinstance(value, str):
@@ -130,17 +130,17 @@ class Monitor:
         elif isinstance(value, PendingTransaction):
             tx = value
         else:
-            raise ValueError("Monitor :: Must be PendingTransaction.")
+            raise ValueError("Monitor :: Must be PendingTransaction or hash.")
 
         # Check for existing transaction
         if not any(p.hash == tx.hash for p in payload):
             payload.append(tx)
-            payload = [tx.model_dump_json()]
+            print("Payload:", payload)
+            payload = [tx.model_dump_json(indent=2) for tx in payload]
             await self.cache_utils.set(key, payload)
             self.last_timer = int(time.time() * 1000)
             self.pending_timer = 1000
 
-        # Schedule polling after 1 second
         asyncio.create_task(self.poll_pending_txs())
         return tx.model_dump()
 
@@ -152,7 +152,6 @@ class Monitor:
                 return
 
             pending_result = await self.process_pending_txs()
-            print(pending_result)
             pending_txs = pending_result["pending_txs"]
             tx_changed = pending_result["tx_changed"]
             trans_txs = pending_result["trans_txs"]
@@ -239,8 +238,6 @@ class Monitor:
         # TODO: .to_transaction() should return a BlockExplorerTransaction type
         c_txs = await self.account.network.get_transactions_by_address(address, limit, search_after)
         pending_result = await self.process_pending_txs()
-        print("Get latest transactions, pending:", pending_result["pending_txs"])
-        print("Get latest transactions, explorer:", c_txs)
         pending_transactions = [p for p in pending_result["pending_txs"]]
 
         return pending_transactions + c_txs if c_txs else pending_transactions + []
