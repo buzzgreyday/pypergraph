@@ -232,7 +232,6 @@ class Monitor:
         asyncio.create_task(self.poll_pending_txs())
 
     async def get_latest_transactions(self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None) -> List[Union[PendingTransaction, BlockExplorerTransaction]]:
-        # TODO: .to_transaction() should return a BlockExplorerTransaction type
         c_txs = await self.account.network.get_transactions_by_address(address, limit, search_after)
         pending_result = await self.process_pending_txs()
         pending_transactions = [p for p in pending_result["pending_txs"]]
