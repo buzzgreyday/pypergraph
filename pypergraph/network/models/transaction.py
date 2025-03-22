@@ -68,27 +68,6 @@ class PendingTransaction(BaseModel):
         use_enum_values=True
     )
 
-    def to_transaction(self):
-        # TODO: Check how to best implement this
-        return {
-            "hash": self.hash,
-            "source": self.sender,
-            "destination": self.receiver,
-            "amount": self.amount,
-            "fee": self.fee,
-            "parent": {
-                "ordinal": self.ordinal,
-                "hash": ""
-            },
-            "snapshot_hash": "",
-            "block_hash": "",
-            "timestamp": datetime.fromtimestamp(self.timestamp / 1000).isoformat(),
-            "transaction_original": {
-                "ordinal": self.ordinal,
-                "hash": self.hash
-                }
-        }
-
 
 class Transaction(BaseTransaction):
     parent: LastReference
@@ -169,6 +148,9 @@ class SignedData(BaseModel):
     def add_proof(self, proof: SignatureProof) -> None:
         self.proofs.append(proof)
 
+class PendingBlockExplorerTransaction(BaseTransaction):
+    hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
+    timestamp: datetime
 
 class BlockExplorerTransaction(BaseTransaction):
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
@@ -193,6 +175,5 @@ class BlockExplorerTransaction(BaseTransaction):
     @classmethod
     def process_transactions(cls, data: List[dict], meta: Optional[dict] = None) -> List["BlockExplorerTransaction"]:
         return [cls.model_validate({**tx, "meta": meta}) for tx in data]
-
 
     model_config = ConfigDict(population_by_name=True)

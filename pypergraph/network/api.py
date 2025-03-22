@@ -197,7 +197,7 @@ class BlockExplorerApi:
             base_path, limit, search_after, sent_only, received_only, search_before
         )
         results = await self.service.get(endpoint=request["path"], params=request["params"])
-        return BlockExplorerTransaction.process_transactions(results)
+        return BlockExplorerTransaction.process_transactions(data=results.get("data"), meta=results.get("meta"))
 
     async def get_transaction(self, hash: str) -> BlockExplorerTransaction:
         """

@@ -158,7 +158,7 @@ class Monitor:
 
         # Schedule polling after 1 second
         asyncio.create_task(self.poll_pending_txs())
-        return tx.to_transaction()
+        return tx.model_dump()
 
     async def poll_pending_txs(self):
         try:
@@ -251,13 +251,15 @@ class Monitor:
     def start_monitor(self):
         asyncio.create_task(self.poll_pending_txs())
 
-    async def get_latest_transactions(self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None) -> List[dict]:
+    async def get_latest_transactions(self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None) -> List[Union[PendingTransaction, BlockExplorerTransaction]]:
         # TODO: .to_transaction() should return a BlockExplorerTransaction type
         c_txs = await self.account.network.get_transactions_by_address(address, limit, search_after)
         pending_result = await self.process_pending_txs()
-        pending_transactions = [p.to_transaction() for p in pending_result["pending_txs"]]
+        print("Get latest transactions, pending:", pending_result["pending_txs"])
+        print("Get latest transactions, explorer:", c_txs)
+        pending_transactions = [p for p in pending_result["pending_txs"]]
 
-        return pending_transactions + (c_txs if c_txs else [])
+        return pending_transactions + c_txs if c_txs else pending_transactions + []
 
 async def main():
     account = DagAccount()
@@ -267,6 +269,8 @@ async def main():
     account.login_with_seed_phrase(secret.mnemo)
     pending_tx = await account.transfer(secret.to_address, 50000, 200000)
     await monitor.add_to_mem_pool_monitor(pending_tx)
+    txs = await monitor.get_latest_transactions(address=account.address, limit=20)
+    print(txs)
     await asyncio.sleep(60)
     account.logout()
 

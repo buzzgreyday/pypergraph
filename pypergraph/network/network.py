@@ -1,3 +1,4 @@
+import traceback
 from typing import Optional, Dict, List
 
 from rx.subject import BehaviorSubject
@@ -248,7 +249,7 @@ class MetagraphTokenNetwork:
             )
         except Exception:
             # NOOP 404
-            logger.debug("No transaction found.")
+            logger.debug(f"No transactions found.")
 
     async def get_transaction(self, hash: Optional[str]) -> Optional[BlockExplorerTransaction]:
         """
