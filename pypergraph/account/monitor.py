@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import traceback
 from dataclasses import dataclass
 import time
 from typing import Dict, Union, List, Optional, Any
