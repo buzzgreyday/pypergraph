@@ -8,7 +8,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pypergraph"
-version = "2025.0.0a11"
+version = "0.0.1"
 description = "The Pypergraph package provides secure wallet functionality in Python and convenient wrappers for interacting with Constellation Network APIs, inspired by the TypeScript library DAG4.js created by Stardust Collective."
 authors = [{ name = "Michael Brummer Ringdal", email = "micbr@protonmail.com" }]
 maintainers = [{name = "Michael Brummer Ringdal", email = "micbr@pm.me"}]
