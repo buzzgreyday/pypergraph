@@ -44,12 +44,6 @@ class Monitor:
         self.cache_utils = StateStorageDb()
         self.cache_utils.set_prefix('pypergraph-')
 
-        # Subscribing to events safely
-        # self.mem_pool_change.pipe(
-        #     ops.observe_on(self._scheduler),
-        #     ops.flat_map(self._safe_event_processing)  # Ensures event processing continues
-        # ).subscribe()
-
         self.account._session_change.pipe(
             ops.observe_on(self._scheduler),
             ops.flat_map(self._safe_event_processing)  # Ensures event processing continues
@@ -75,16 +69,6 @@ class Monitor:
             print(f"🚨 Error processing event: {e}")
             return empty()  # Skip this event and continue the stream
 
-    # def _safe_mem_store_process_event(self, observable: dict):
-    #     """Process an event safely, catching errors."""
-    #     try:
-    #         # Simulate event processing (replace with your logic)
-    #         if observable:
-    #             print(f"Transaction changed: {observable['event']}")
-    #         return of(observable)  # Emit the event downstream
-    #     except Exception as e:
-    #         print(f"🚨 Error processing event: {e}")
-    #         return empty()  # Skip this event and continue the stream
 
     def _safe_network_process_event(self, observable: dict):
         """Process an event safely, catching errors."""

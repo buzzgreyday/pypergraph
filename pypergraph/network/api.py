@@ -47,7 +47,7 @@ class LoadBalancerApi:
 
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/dag/{address}/balance")
-        return Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(**result, meta=result.get("meta"))
 
     async def get_last_reference(self, address) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
@@ -103,7 +103,7 @@ class BlockExplorerApi:
         """
         # TODO: Add parameters limit, search_after, search_before, next
         results = await self.service.get(f"/global-snapshots/{id}/transactions")
-        return BlockExplorerTransaction.process_transactions(results["data"], results["meta"] if hasattr(results, "meta") else None)
+        return BlockExplorerTransaction.process_transactions(data=results["data"], meta=results.get("meta"))
 
 
     async def get_rewards_by_snapshot(self, id: Union[str, int]) -> List[Reward]:
@@ -128,8 +128,9 @@ class BlockExplorerApi:
         # TODO: Add parameters limit, search_after, search_before, next (according to Swagger)
         results = await self.service.get("/global-snapshots/latest/transactions")
         return BlockExplorerTransaction.process_transactions(
-            data=results["data"],
-            meta=results["meta"] if hasattr(results, "meta") else None)
+            data=results.get("data"),
+            meta=results.get("meta")
+        )
 
     async def get_latest_snapshot_rewards(self) -> List[Reward]:
         results = await self.service.get("/global-snapshots/latest/rewards")
@@ -175,7 +176,7 @@ class BlockExplorerApi:
             base_path, limit, search_after, False, False, search_before
         )
         results = await self.service.get(endpoint=request["path"], params=request["params"])
-        return BlockExplorerTransaction.process_transactions(results["data"])
+        return BlockExplorerTransaction.process_transactions(data=results.get("data"), meta=results.get("meta"))
 
     async def get_transactions_by_address(
             self, address: str, limit: int = 0, search_after: str = '',
@@ -207,7 +208,7 @@ class BlockExplorerApi:
         :return: Block Explorer type transaction object.
         """
         result = await self.service.get(f"/transactions/{hash}")
-        return BlockExplorerTransaction(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return BlockExplorerTransaction(**result["data"], meta=result.get("meta"))
 
     async def get_address_balance(self, hash: str) -> Balance:
         """
@@ -217,15 +218,15 @@ class BlockExplorerApi:
         :return: Balance object.
         """
         result = await self.service.get(f"/addresses/{hash}/balance")
-        return Balance(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(**result["data"], meta=result.get("meta"))
 
     async def get_latest_currency_snapshot(self, metagraph_id: str) -> CurrencySnapshot:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest")
-        return CurrencySnapshot(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return CurrencySnapshot(**result["data"], meta=result.get("meta"))
 
     async def get_currency_snapshot(self, metagraph_id: str, hash_or_ordinal: str) -> CurrencySnapshot:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}")
-        return CurrencySnapshot(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return CurrencySnapshot(**result["data"], meta=result.get("meta"))
 
     async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> List[Reward]:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest/rewards")
@@ -239,11 +240,11 @@ class BlockExplorerApi:
 
     async def get_currency_address_balance(self, metagraph_id: str, hash: str) -> Balance:
         result = await self.service.get(f"/currency/{metagraph_id}/addresses/{hash}/balance")
-        return Balance(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(**result["data"], meta=result.get("meta"))
 
     async def get_currency_transaction(self, metagraph_id: str, hash: str) -> BlockExplorerTransaction:
         result = await self.service.get(f"/currency/{metagraph_id}/transactions/{hash}")
-        return BlockExplorerTransaction(**result["data"], meta=result["meta"] if hasattr(result, "meta") else None)
+        return BlockExplorerTransaction(**result["data"], meta=result.get("meta"))
 
     async def get_currency_transactions(
             self, metagraph_id: str, limit: Optional[int], search_after: Optional[str] = None,
@@ -317,8 +318,7 @@ class L0Api:
 
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/dag/{address}/balance")
-        return Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
-
+        return Balance(**result, meta=result.get("meta"))
     # Global Snapshot
     async def get_latest_snapshot(self) -> GlobalSnapshot:
         result = await self.service.get(
@@ -414,11 +414,10 @@ class ML0Api(L0Api):
 
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/currency/{address}/balance")
-        return Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
-
+        return Balance(**result, meta=result.get("meta"))
     async def get_address_balance_at_ordinal(self, ordinal: int, address: str) -> Balance:
         result = await self.service.get(f"/currency/{ordinal}/{address}/balance")
-        return Balance(**result, meta=result["meta"] if hasattr(result, "meta") else None)
+        return Balance(**result, meta=result.get("meta"))
 
 
 class ML1Api(L1Api):
