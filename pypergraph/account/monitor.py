@@ -2,7 +2,6 @@ import asyncio
 import logging
 import traceback
 from dataclasses import dataclass
-from datetime import datetime
 import time
 from typing import Dict, Union, List, Optional, Any
 
@@ -57,16 +56,16 @@ class Monitor:
     def _safe_account_process_event(self, observable):
         try:
             if observable["event"] == "logout":
-                print(f"Logged Out!")
+                logging.debug("Monitor :: Logout signal received.")
             elif observable["event"] == "login":
-                print(f"Logged In!")
+                logging.debug("Monitor :: Login signal received.")
             elif observable["type"] == "add_transaction":
                 asyncio.create_task(self.add_to_mem_pool_monitor(observable["event"]))
             else:
-                print(f"Unknown event: {observable['event']}")
+                logging.warning(f"Monitor :: Unknown signal received: {observable}")
             return of(observable)
         except Exception as e:
-            print(f"🚨 Error processing event: {e}")
+            logging.error(f"Monitor :: {e}", exc_info=True)
             return empty()  # Skip this event and continue the stream
 
 
@@ -74,13 +73,14 @@ class Monitor:
         """Process an event safely, catching errors."""
         try:
             # Simulate event processing (replace with your logic)
-            print(f"Network changed: {observable['event']}")
+            logging.debug(f"Monitor :: Network changed: {observable.get('event')}")
             return of(observable)  # Emit the event downstream
         except Exception as e:
-            print(f"🚨 Error processing event: {e}")
+            logging.error(f"Monitor :: Monitor :: {e}", exc_info=True)
             return empty()  # Skip this event and continue the stream
 
     def _safe_event_processing(self, observable: dict):
+        # TODO: Class
         if isinstance(observable, dict):
             type: Optional[str] = observable.get("type", None)
             event: Optional[str, dict] = observable.get("event", None)
@@ -92,11 +92,9 @@ class Monitor:
                     self._safe_network_process_event(observable)
                 return of(observable)  # Ensure an observable is returned
             except Exception as e:
-                logging.error(f"🚨 Error processing event {event}: {e}", exc_info=True)
+                logging.error(f"Monitor :: {e}", exc_info=True)
                 #return of(None)  # Send placeholder down the line
                 return empty() # End the current stream entirely
-        else:
-            print(self.mem_pool_change.value)
 
     async def set_to_mem_pool_monitor(self, pool: List[PendingTransaction]):
         network_info = self.account.network.get_network()
@@ -111,7 +109,7 @@ class Monitor:
             txs: List[json] = await self.cache_utils.get(f"network-{network_info['network_id'].lower()}-mempool") or []
             txs = [PendingTransaction(**json.loads(tx)) if not isinstance(tx, dict) else PendingTransaction(**tx) for tx in txs] if txs else []
         except Exception as e:
-            print(f'get_mem_pool_from_monitor warning: {traceback.format_exc()}, will return empty list.')
+            logging.warning(f"Monitor :: {e}, will return empty list.", exc_info=True)
             return []
         return [tx for tx in txs if not address or not tx.receiver or tx.receiver == address or tx.sender == address]
 
@@ -135,7 +133,6 @@ class Monitor:
         # Check for existing transaction
         if not any(p.hash == tx.hash for p in payload):
             payload.append(tx)
-            print("Payload:", payload)
             payload = [tx.model_dump_json(indent=2) for tx in payload]
             await self.cache_utils.set(key, payload)
             self.last_timer = int(time.time() * 1000)
@@ -148,7 +145,7 @@ class Monitor:
         try:
             current_time = int(time.time() * 1000)
             if current_time - self.last_timer + 1000 < self.pending_timer:
-                print('Canceling extra timer')
+                logging.debug("Monitor :: Canceling extra timer.")
                 return
 
             pending_result = await self.process_pending_txs()
@@ -168,9 +165,9 @@ class Monitor:
                 await self.set_to_mem_pool_monitor([])
 
             self.mem_pool_change.on_next(DagWalletMonitorUpdate(tx_changed=tx_changed, trans_txs=trans_txs, pending_has_confirmed=pending_has_confirmed).model_dump())
-            print(self.mem_pool_change.value)
+            logging.debug(f"Monitor :: Memory pool updated: {self.mem_pool_change.value}")
         except Exception as e:
-            print(f"🚨 Error in poll_pending_txs: {traceback.format_exc()}")
+            logging.error(f"Monitor :: {e}", exc_info=True)
 
     async def process_pending_txs(self) -> Dict[str, Any]:
         try:
@@ -210,18 +207,19 @@ class Monitor:
                                     pending_tx.pendingMsg = 'Transaction not found...'
                                 next_pool.append(pending_tx)
                     except Exception as e:
-                        print(f'Error processing transaction: {e}')
+                        logging.error(f"Monitor :: {e}", exc_info=True)
 
                     trans_txs.append(pending_tx)
                 except Exception as e:
-                    print(f"🚨 Error processing pending transaction: {e}")
+                    logging.error(f"Monitor :: {e}", exc_info=True)
 
             return {'pending_txs': next_pool, 'tx_changed': tx_changed, 'trans_txs': trans_txs, 'pending_has_confirmed': pending_has_confirmed, 'pool_count': len(pool)}
 
         except Exception as e:
-            print(f"🚨 Error in process_pending_txs: {traceback.format_exc()}")
+            logging.error(f"Monitor :: {e}", exc_info=True)
 
     async def wait_for_transaction(self, hash: str) -> asyncio.Future:
+        # TODO
         if hash not in self.wait_for_map:
             loop = asyncio.get_event_loop()
             future = loop.create_future()

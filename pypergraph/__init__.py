@@ -9,7 +9,7 @@ from pypergraph.keyring.manager import KeyringManager
 
 def setup_logging():
     logging.basicConfig(
-        level=logging.DEBUG,  # Adjust this to the desired global log level
+        level=logging.INFO,  # Adjust this to the desired global log level
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     )
 
