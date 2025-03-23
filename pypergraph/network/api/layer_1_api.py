@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 
 from prometheus_client.parser import text_string_to_metric_families
 
@@ -26,20 +26,25 @@ def _handle_metrics(response: str) -> List[Dict[str, Any]]:
 
 class L1Api:
     def __init__(self, host: str):
-        self._service = RestAPIClient(host) if host else None
-
-    @property
-    def service(self) -> RestAPIClient:
-        if not self._service:
-            raise ValueError("L1Api :: Currency layer 1 host is not configured.")
-        return self._service
+        if not host:
+            raise ValueError("L0Api :: Layer 0 host is not configured.")
+        self._host = host
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL."""
-        self._service = RestAPIClient(host)
+        if not host:
+            raise ValueError("L0Api :: Layer 0 host is not configured.")
+        self._host = host
+
+    async def _make_request(self, method: str, endpoint: str, params: Dict[str, Any] = None, payload: Dict[str, Any] = None) -> Union[Dict, List, str]:
+        """
+        Helper function to create a new RestAPIClient instance and make a request.
+        """
+        async with RestAPIClient(base_url=self._host) as client:
+            return await client.request(method=method, endpoint=endpoint, params=params, payload=payload)
 
     async def get_cluster_info(self) -> List[PeerInfo]:
-        result = await self.service.get("/cluster/info")
+        result = await self._make_request("GET", "/cluster/info")
         return PeerInfo.process_cluster_peers(data=result)
 
     async def get_metrics(self) -> List[Dict[str, Any]]:
@@ -48,16 +53,16 @@ class L1Api:
 
         :return: Prometheus output as a list of dictionaries.
         """
-        response = await self.service.get("/metrics")
+        response = await self._make_request("GET", "/metrics")
         return _handle_metrics(response)
 
     async def get_last_reference(self, address: str) -> LastReference:
-        result = await self.service.get(f"/transactions/last-reference/{address}")
+        result = await self._make_request("GET", f"/transactions/last-reference/{address}")
         return LastReference(**result)
 
     async def get_pending_transaction(self, hash: str) -> PendingTransaction:
-        result = await self.service.get(f"/transactions/{hash}")
+        result = await self._make_request("GET", f"/transactions/{hash}")
         return PendingTransaction(**result)
 
     async def post_transaction(self, tx: SignedTransaction):
-        return await self.service.post("/transactions", payload=tx.model_dump())
+        return await self._make_request("POST", "/transactions", payload=tx.model_dump())
