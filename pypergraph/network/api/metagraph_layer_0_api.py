@@ -1,5 +1,5 @@
 from pypergraph.core.rest_api_client import RestAPIClient
-from pypergraph.network.layer_0_api import L0Api
+from pypergraph.network.api.layer_0_api import L0Api
 from pypergraph.network.models import TotalSupply, Balance
 
 

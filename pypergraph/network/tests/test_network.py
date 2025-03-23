@@ -10,7 +10,7 @@ import pypergraph.account
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.keystore import KeyStore
 from pypergraph.network.models.network import NetworkInfo
-from pypergraph.network.network import DagTokenNetwork
+from pypergraph.network.dag_network import DagTokenNetwork
 
 @pytest.fixture
 def network():

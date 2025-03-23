@@ -1,5 +1,5 @@
 from pypergraph.core.rest_api_client import RestAPIClient
-from pypergraph.network.layer_1_api import L1Api
+from pypergraph.network.api.layer_1_api import L1Api
 
 
 class ML1Api(L1Api):

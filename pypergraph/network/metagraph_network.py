@@ -1,20 +1,16 @@
 from typing import Optional, Dict, List
 
-from rx.subject import BehaviorSubject
-
 from pypergraph.network.models.account import LastReference, Balance
-from pypergraph.network.api.load_balancer_api import LoadBalancerApi
-from pypergraph.network.api.layer_0_api import L0Api
 from pypergraph.network.api.metagraph_layer_0_api import ML0Api
 from pypergraph.network.api.metagraph_currency_layer_1_api import ML1Api
 from pypergraph.network.api.metagraph_data_layer_1_api import MDL1Api
-from pypergraph.network.api.layer_1_api import L1Api
 from pypergraph.network.api.block_explorer_api import BlockExplorerApi
-from pypergraph.network.models.transaction import PendingTransaction, BlockExplorerTransaction, \
-    SignedTransaction
-from pypergraph.network.models.snapshot import Snapshot
+from pypergraph.network.models.transaction import (
+    PendingTransaction,
+    BlockExplorerTransaction,
+    SignedTransaction,
+)
 from pypergraph.network.models.network import NetworkInfo
-from pypergraph.core.exceptions import NetworkError
 import logging
 
 # Get a logger for this specific module
@@ -23,32 +19,49 @@ logger = logging.getLogger(__name__)
 
 class MetagraphTokenNetwork:
     """
-    Network instance used to interact with Constellation Network layer 0 and Metagraph currency and data layer. Can be used as a separate instance or as 'network' in MetagraphTokenClient..
-
+    Network instance used to interact with Constellation Network layer 0 and
+    Metagraph currency and data layers. Can be used as a separate instance or as
+    'network' in MetagraphTokenClient.
     """
-    def __init__(
-            self, metagraph_id: str, l0_host: Optional[str] = None, cl1_host: Optional[str] = None,
-            dl1_host: Optional[str] = None, network_id: Optional[str] = "mainnet", block_explorer: Optional[str] = None
-    ):
-        super().__init__()
-        """Validate connected network"""
-        if not metagraph_id:
-            raise ValueError("MetagraphTokenNetwork :: Parameter 'metagraph_id' must be a valid DAG address.")
-        self.connected_network = NetworkInfo(network_id=network_id, metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, dl1_host=dl1_host, be_url=block_explorer)
-        self.be_api = BlockExplorerApi(host=block_explorer) if block_explorer else BlockExplorerApi(host=self.connected_network.be_url)
-        self.l0_api = ML0Api(host=l0_host)
-        self.cl1_api = ML1Api(host=cl1_host) # Currency layer
-        self.dl1_api = MDL1Api(host=dl1_host) # Data layer
 
+    def __init__(
+            self,
+            metagraph_id: str,
+            l0_host: Optional[str] = None,
+            cl1_host: Optional[str] = None,
+            dl1_host: Optional[str] = None,
+            network_id: Optional[str] = "mainnet",
+            block_explorer: Optional[str] = None,
+    ):
+        # Validate connected network
+        if not metagraph_id:
+            raise ValueError(
+                "MetagraphTokenNetwork :: Parameter 'metagraph_id' must be a valid DAG address."
+            )
+        self.connected_network = NetworkInfo(
+            network_id=network_id,
+            metagraph_id=metagraph_id,
+            l0_host=l0_host,
+            cl1_host=cl1_host,
+            dl1_host=dl1_host,
+            be_url=block_explorer,
+        )
+        self.be_api = (
+            BlockExplorerApi(host=block_explorer)
+            if block_explorer
+            else BlockExplorerApi(host=self.connected_network.be_url)
+        )
+        self.l0_api = ML0Api(host=l0_host)
+        self.cl1_api = ML1Api(host=cl1_host)  # Currency layer
+        self.dl1_api = MDL1Api(host=dl1_host)  # Data layer
 
     def get_network(self) -> Dict:
         """
-        Returns the DagTokenNetwork NetworkInfo object as dictionary.
+        Returns the MetagraphTokenNetwork NetworkInfo object as a dictionary.
 
         :return: Serialized NetworkInfo object.
         """
         return self.connected_network.__dict__
-
 
     async def get_address_balance(self, address: str) -> Balance:
         """
@@ -61,7 +74,7 @@ class MetagraphTokenNetwork:
 
     async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
         """
-        Get the last transaction hash and ordinal from DAG address.
+        Get the last transaction hash and ordinal from a DAG address.
 
         :param address: DAG address.
         :return: Object with ordinal and hash.
@@ -73,71 +86,75 @@ class MetagraphTokenNetwork:
         Check if the given transaction is pending.
 
         :param hash: The transaction hash.
-        :return: Object if transaction is pending, else log error.
+        :return: PendingTransaction object if found; otherwise, None.
         """
-        pending_transaction = None
         try:
-            pending_transaction = await self.cl1_api.get_pending_transaction(hash)
+            return await self.cl1_api.get_pending_transaction(hash)
         except Exception:
-            # NOOP 404
+            # NOOP for 404 or other exceptions
             logger.debug("No pending transaction.")
-        return pending_transaction
+            return None
 
     async def get_transactions_by_address(
-        self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None
+            self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None
     ) -> Optional[List[BlockExplorerTransaction]]:
         """
-        Get paginated list of Block Explorer transaction objects.
+        Get a paginated list of Block Explorer transaction objects.
 
         :param address: DAG address.
         :param limit: Limit per page.
-        :param search_after: Timestamp.
-        :return:
+        :param search_after: Timestamp to paginate.
+        :return: List of BlockExplorerTransaction objects or None.
         """
         try:
             return await self.be_api.get_currency_transactions_by_address(
                 self.connected_network.metagraph_id, address, limit, search_after
             )
         except Exception:
-            # NOOP 404
-            logger.debug(f"No transactions found.")
+            # NOOP for 404 or other exceptions
+            logger.debug("No transactions found.")
+            return None
 
     async def get_transaction(self, hash: Optional[str]) -> Optional[BlockExplorerTransaction]:
         """
         Get the given transaction.
 
         :param hash: Transaction hash.
-        :return: Block explorer transaction object or None.
+        :return: BlockExplorerTransaction object or None.
         """
-        response = None
         try:
-            response = await self.be_api.get_currency_transaction(self.connected_network.metagraph_id, hash)
+            response = await self.be_api.get_currency_transaction(
+                self.connected_network.metagraph_id, hash
+            )
         except Exception:
-            # NOOP 404
+            # NOOP for 404 or other exceptions
             logger.debug("No transaction found.")
-        return response.get("data", None)
+            return None
+
+        return response.get("data", None) if response else None
 
     async def get_data(self):
         """
         NOT IMPLEMENTED YET!
         Get data from Metagraph data layer 1.
 
-        :return:
+        :return: Data extracted from the response or None.
         """
-        response = None
         try:
             response = await self.dl1_api.get_data()
         except Exception:
-            # NOOP 404
-            logger.debug("No transaction found.")
-        return response.get("data", None)
+            # NOOP for 404 or other exceptions
+            logger.debug("No data found.")
+            return None
+
+        return response.get("data", None) if response else None
 
     async def post_transaction(self, tx: SignedTransaction) -> str:
         """
-        Post signed transaction to Metagraph.
+        Post a signed transaction to Metagraph.
 
         :param tx: Signed transaction.
-        :return:  Transaction hash.
+        :return: Transaction hash.
         """
         response = await self.cl1_api.post_transaction(tx)
         # Support data/meta format and object return format
@@ -145,7 +162,8 @@ class MetagraphTokenNetwork:
 
     async def post_data(self, tx: Dict[str, Dict]) -> dict:
         """
-        Post data to Metagraph. Signed transaction:
+        Post data to Metagraph. Signed transaction should be in the format:
+
         {
           "value": { ... },
           "proofs": [
@@ -156,11 +174,10 @@ class MetagraphTokenNetwork:
           ]
         }
 
-        :param tx: Signed transaction as dictionary.
+        :param tx: Signed transaction as a dictionary.
         :return: Dictionary with response from Metagraph.
         """
         response = await self.dl1_api.post_data(tx)
-        # Support data/meta format and object return format
         return response
 
     async def get_latest_snapshot(self):
@@ -169,5 +186,7 @@ class MetagraphTokenNetwork:
 
         :return: A snapshot (type currency).
         """
-        response = await self.be_api.get_latest_currency_snapshot(self.connected_network.metagraph_id)
+        response = await self.be_api.get_latest_currency_snapshot(
+            self.connected_network.metagraph_id
+        )
         return response

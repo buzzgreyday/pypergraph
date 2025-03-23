@@ -3,7 +3,8 @@ import logging
 
 from pypergraph.account.account import DagAccount
 from pypergraph.account.monitor import Monitor
-from pypergraph.network.network import DagTokenNetwork, MetagraphTokenNetwork
+from pypergraph.network.metagraph_network import MetagraphTokenNetwork
+from pypergraph.network.dag_network import DagTokenNetwork
 from pypergraph.keystore.keystore import KeyStore
 from pypergraph.keyring.manager import KeyringManager
 
@@ -20,4 +21,4 @@ try:
 except PackageNotFoundError:
     __version__ = "0.0.0"
 
-__all__ = ["DagAccount", "Monitor", "MetagraphTokenNetwork", "KeyStore", "KeyringManager"]
+__all__ = ["DagAccount", "Monitor", "MetagraphTokenNetwork", "DagTokenNetwork", "KeyStore", "KeyringManager"]

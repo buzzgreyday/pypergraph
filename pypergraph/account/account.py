@@ -11,7 +11,8 @@ from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.network.models import LastReference, PendingTransaction
 from pypergraph.network.models.transaction import SignatureProof, SignedTransaction, TransactionStatus
 from pypergraph.keystore import KeyStore
-from pypergraph.network.network import DagTokenNetwork, MetagraphTokenNetwork
+from pypergraph.network.metagraph_network import MetagraphTokenNetwork
+from pypergraph.network.dag_network import DagTokenNetwork
 
 
 class DagAccount:
