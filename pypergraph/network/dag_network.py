@@ -4,9 +4,9 @@ from rx.subject import BehaviorSubject
 
 from pypergraph.network.models.account import LastReference, Balance
 from pypergraph.network.api.load_balancer_api import LoadBalancerApi
-from pypergraph.network.api.layer_0_api import L0Api
-from pypergraph.network.api.layer_1_api import L1Api
-from pypergraph.network.api.block_explorer_api import BlockExplorerApi
+from pypergraph.network.api import Layer0Api
+from pypergraph.network.api import Layer1Api
+from pypergraph.network.api import BlockExplorerApi
 from pypergraph.network.models.transaction import (
     PendingTransaction,
     BlockExplorerTransaction,
@@ -36,14 +36,14 @@ class DagTokenNetwork:
         self.l0_lb_api = LoadBalancerApi(host=self.connected_network.l0_lb_url)
         self.be_api = BlockExplorerApi(host=self.connected_network.be_url)
         self.l0_api = (
-            L0Api(host=self.connected_network.l0_host)
+            Layer0Api(host=self.connected_network.l0_host)
             if self.connected_network.l0_host
-            else L0Api(host=self.connected_network.l0_lb_url)
+            else Layer0Api(host=self.connected_network.l0_lb_url)
         )
         self.cl1_api = (
-            L1Api(host=self.connected_network.cl1_host)
+            Layer1Api(host=self.connected_network.cl1_host)
             if self.connected_network.cl1_host
-            else L1Api(host=self.connected_network.l1_lb_url)
+            else Layer1Api(host=self.connected_network.l1_lb_url)
         )
 
         self._network_change = BehaviorSubject({

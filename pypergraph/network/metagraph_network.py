@@ -1,9 +1,9 @@
 from typing import Optional, Dict, List
 
 from pypergraph.network.models.account import LastReference, Balance
-from pypergraph.network.api.metagraph_layer_0_api import ML0Api
-from pypergraph.network.api.metagraph_currency_layer_1_api import ML1Api
-from pypergraph.network.api.metagraph_data_layer_1_api import MDL1Api
+from pypergraph.network.api import MetagraphLayer0Api
+from pypergraph.network.api import MetagraphCurrencyLayerApi
+from pypergraph.network.api import MetagraphDataLayerApi
 from pypergraph.network.api.block_explorer_api import BlockExplorerApi
 from pypergraph.network.models.transaction import (
     PendingTransaction,
@@ -52,11 +52,11 @@ class MetagraphTokenNetwork:
             else BlockExplorerApi(host=self.connected_network.be_url)
         )
         if l0_host:
-            self.l0_api = ML0Api(host=l0_host)
+            self.l0_api = MetagraphLayer0Api(host=l0_host)
         if cl1_host:
-            self.cl1_api = ML1Api(host=cl1_host)  # Currency layer
+            self.cl1_api = MetagraphCurrencyLayerApi(host=cl1_host)  # Currency layer
         if dl1_host:
-            self.dl1_api = MDL1Api(host=dl1_host)  # Data layer
+            self.dl1_api = MetagraphDataLayerApi(host=dl1_host)  # Data layer
 
     def get_network(self) -> Dict:
         """

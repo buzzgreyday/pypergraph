@@ -35,7 +35,7 @@ class GlobalSnapshotValue(BaseModel):
     height: int = Field(ge=0)
     sub_height: int = Field(..., alias="subHeight", ge=0)
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
-    blocks: Union[List[Optional[SignedBlock]], SignedBlock]
+    blocks: Optional[Union[List[Optional[SignedBlock]], SignedBlock]] # TODO: Check if this is correct
     state_channel_snapshots: Dict[str, List[Dict]] = Field(..., alias="stateChannelSnapshots") # TODO: Validate, Dict[Metagraph ID, List[Dict]]
     rewards: List[Dict[str, Any]] # TODO: Validate
     epoch_progress: int = Field(..., alias="epochProgress", ge=0, le=EPOCH_MAX)
