@@ -51,10 +51,12 @@ class MetagraphTokenNetwork:
             if block_explorer
             else BlockExplorerApi(host=self.connected_network.be_url)
         )
-        # TODO: Handle optional layers
-        self.l0_api = ML0Api(host=l0_host)
-        self.cl1_api = ML1Api(host=cl1_host)  # Currency layer
-        self.dl1_api = MDL1Api(host=dl1_host)  # Data layer
+        if l0_host:
+            self.l0_api = ML0Api(host=l0_host)
+        if cl1_host:
+            self.cl1_api = ML1Api(host=cl1_host)  # Currency layer
+        if dl1_host:
+            self.dl1_api = MDL1Api(host=dl1_host)  # Data layer
 
     def get_network(self) -> Dict:
         """
@@ -71,7 +73,10 @@ class MetagraphTokenNetwork:
         :param address: DAG address.
         :return: Balance object.
         """
-        return await self.l0_api.get_address_balance(address)
+        try:
+            return await self.l0_api.get_address_balance(address)
+        except AttributeError:
+            raise ValueError("MetagraphTokenNetwork :: Layer 0 API URL is not set.")
 
     async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
         """
@@ -80,7 +85,10 @@ class MetagraphTokenNetwork:
         :param address: DAG address.
         :return: Object with ordinal and hash.
         """
-        return await self.cl1_api.get_last_reference(address)
+        try:
+            return await self.cl1_api.get_last_reference(address)
+        except AttributeError:
+            raise ValueError("MetagraphTokenNetwork :: Layer 0 API URL is not set.")
 
     async def get_pending_transaction(self, hash: Optional[str]) -> Optional[PendingTransaction]:
         """
@@ -91,6 +99,8 @@ class MetagraphTokenNetwork:
         """
         try:
             return await self.cl1_api.get_pending_transaction(hash)
+        except AttributeError:
+            raise ValueError("MetagraphTokenNetwork :: Currency layer 1 is not set.")
         except Exception:
             # NOOP for 404 or other exceptions
             logger.debug("No pending transaction.")
@@ -143,6 +153,8 @@ class MetagraphTokenNetwork:
         """
         try:
             response = await self.dl1_api.get_data()
+        except AttributeError:
+            raise ValueError("MetagraphTokenNetwork :: Data layer 1 API URL is not set.")
         except Exception:
             # NOOP for 404 or other exceptions
             logger.debug("No data found.")
@@ -157,9 +169,12 @@ class MetagraphTokenNetwork:
         :param tx: Signed transaction.
         :return: Transaction hash.
         """
-        response = await self.cl1_api.post_transaction(tx)
-        # Support data/meta format and object return format
-        return response["data"]["hash"] if "data" in response else response["hash"]
+        try:
+            response = await self.cl1_api.post_transaction(tx)
+            # Support data/meta format and object return format
+            return response["data"]["hash"] if "data" in response else response["hash"]
+        except AttributeError:
+            raise ValueError("MetagraphTokenNetwork :: Currency layer 1 API URL is not set.")
 
     async def post_data(self, tx: Dict[str, Dict]) -> dict:
         """
@@ -178,8 +193,11 @@ class MetagraphTokenNetwork:
         :param tx: Signed transaction as a dictionary.
         :return: Dictionary with response from Metagraph.
         """
-        response = await self.dl1_api.post_data(tx)
-        return response
+        try:
+            response = await self.dl1_api.post_data(tx)
+            return response
+        except AttributeError:
+            raise ValueError("MetagraphTokenNetwork :: Data layer 1 API URL is not set.")
 
     async def get_latest_snapshot(self):
         """
