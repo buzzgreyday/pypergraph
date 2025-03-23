@@ -4,11 +4,22 @@ from prometheus_client.parser import text_string_to_metric_families
 from pypergraph.network.models.reward import Reward
 from pypergraph.core.rest_api_client import RestAPIClient
 from pypergraph.network.models.account import Balance, LastReference
-from pypergraph.network.models.transaction import PendingTransaction, BlockExplorerTransaction, SignedTransaction
+from pypergraph.network.models.transaction import (
+    PendingTransaction,
+    BlockExplorerTransaction,
+    SignedTransaction,
+)
 from pypergraph.network.models.network import TotalSupply, PeerInfo
 from pypergraph.network.models.snapshot import Snapshot, GlobalSnapshot, CurrencySnapshot, Ordinal
 
-def _handle_metrics(response):
+
+def _handle_metrics(response: str) -> List[Dict[str, Any]]:
+    """
+    Parse Prometheus metrics output from a text response.
+
+    :param response: Prometheus text output.
+    :return: List of dictionaries with metric details.
+    """
     metrics = []
     for family in text_string_to_metric_families(response):
         for sample in family.samples:
@@ -16,21 +27,20 @@ def _handle_metrics(response):
                 "name": sample[0],
                 "labels": sample[1],
                 "value": sample[2],
-                "type": family.type
+                "type": family.type,
             })
     return metrics
 
-class LoadBalancerApi:
-    def __init__(self, host):
 
+class LoadBalancerApi:
+    def __init__(self, host: str):
         self._service = RestAPIClient(host) if host else None
 
     @property
-    def service(self):
+    def service(self) -> RestAPIClient:
         if not self._service:
             raise ValueError("LoadBalancerApi :: Load balancer host is not configured.")
         return self._service
-
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL."""
@@ -40,7 +50,7 @@ class LoadBalancerApi:
         """
         Get metrics of a random node (served by the LB).
 
-        :return: Prometheus output as list of dictionaries.
+        :return: Prometheus output as a list of dictionaries.
         """
         response = await self.service.get("/metrics")
         return _handle_metrics(response)
@@ -49,35 +59,33 @@ class LoadBalancerApi:
         result = await self.service.get(f"/dag/{address}/balance")
         return Balance(**result, meta=result.get("meta"))
 
-    async def get_last_reference(self, address) -> LastReference:
+    async def get_last_reference(self, address: str) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
         return LastReference(**result)
 
     async def get_total_supply(self) -> TotalSupply:
-        result = await self.service.get('/total-supply')
+        result = await self.service.get("/total-supply")
         return TotalSupply(**result)
 
     async def post_transaction(self, tx: Dict[str, Any]):
         result = await self.service.post("/transactions", payload=tx)
         return result
 
-    async def get_pending_transaction(self, tx_hash: str):
+    async def get_pending_transaction(self, tx_hash: str) -> PendingTransaction:
         result = await self.service.get(f"/transactions/{tx_hash}")
         return PendingTransaction(**result)
 
-    async def get_cluster_info(self) -> List["PeerInfo"]:
+    async def get_cluster_info(self) -> List[PeerInfo]:
         result = await self.service.get("/cluster/info")
         return PeerInfo.process_cluster_peers(data=result)
 
 
 class BlockExplorerApi:
-
-    def __init__(self, host):
-
+    def __init__(self, host: str):
         self._service = RestAPIClient(host) if host else None
 
     @property
-    def service(self):
+    def service(self) -> RestAPIClient:
         if not self._service:
             raise ValueError("BlockExplorerApi :: Block explorer host is not configured.")
         return self._service
@@ -88,36 +96,40 @@ class BlockExplorerApi:
 
     async def get_snapshot(self, id: Union[str, int]) -> Snapshot:
         """
+        Retrieve a snapshot by its hash or ordinal.
 
-        :param id: Hash or ordinal can be used as identifier.
+        :param id: Hash or ordinal identifier.
         :return: Snapshot object.
         """
         result = await self.service.get(f"/global-snapshots/{id}")
         return Snapshot(**result["data"])
 
-    async def get_transactions_by_snapshot(self, id: Union[str, int]) -> List["BlockExplorerTransaction"]:
+    async def get_transactions_by_snapshot(self, id: Union[str, int]) -> List[BlockExplorerTransaction]:
         """
+        Retrieve transactions for a given snapshot.
 
-        :param id:  Hash or ordinal can be used as identifier.
-        :return: List of Block Explorer type transactions.
+        :param id: Hash or ordinal identifier.
+        :return: List of BlockExplorerTransaction objects.
         """
-        # TODO: Add parameters limit, search_after, search_before, next
         results = await self.service.get(f"/global-snapshots/{id}/transactions")
-        return BlockExplorerTransaction.process_transactions(data=results["data"], meta=results.get("meta"))
-
+        return BlockExplorerTransaction.process_transactions(
+            data=results["data"],
+            meta=results.get("meta"),
+        )
 
     async def get_rewards_by_snapshot(self, id: Union[str, int]) -> List[Reward]:
         """
+        Retrieve reward objects for a given snapshot.
 
         :param id: Hash or ordinal.
-        :return: List of reward type objects.
+        :return: List of Reward objects.
         """
         results = await self.service.get(f"/global-snapshots/{id}/rewards")
         return Reward.process_snapshot_rewards(results["data"])
 
     async def get_latest_snapshot(self) -> Snapshot:
         """
-        Get the latest snapshot from block explorer.
+        Get the latest snapshot from the block explorer.
 
         :return: Snapshot object.
         """
@@ -125,11 +137,15 @@ class BlockExplorerApi:
         return Snapshot(**result["data"])
 
     async def get_latest_snapshot_transactions(self) -> List[BlockExplorerTransaction]:
-        # TODO: Add parameters limit, search_after, search_before, next (according to Swagger)
+        """
+        Retrieve transactions for the latest snapshot.
+
+        :return: List of BlockExplorerTransaction objects.
+        """
         results = await self.service.get("/global-snapshots/latest/transactions")
         return BlockExplorerTransaction.process_transactions(
             data=results.get("data"),
-            meta=results.get("meta")
+            meta=results.get("meta"),
         )
 
     async def get_latest_snapshot_rewards(self) -> List[Reward]:
@@ -138,8 +154,12 @@ class BlockExplorerApi:
 
     @staticmethod
     def _get_transaction_search_path_and_params(
-            base_path: str, limit: Optional[int], search_after: Optional[str],
-            sent_only: bool, received_only: bool, search_before: Optional[str]
+        base_path: str,
+        limit: Optional[int],
+        search_after: Optional[str],
+        sent_only: bool,
+        received_only: bool,
+        search_before: Optional[str],
     ) -> Dict:
         params = {}
         path = base_path
@@ -153,68 +173,81 @@ class BlockExplorerApi:
                 params["search_before"] = search_before
 
         if sent_only:
-            path += '/sent'
+            path += "/sent"
         elif received_only:
-            path += '/received'
+            path += "/received"
 
         return {"path": path, "params": params}
 
     async def get_transactions(
-            self, limit: Optional[int], search_after: Optional[str] = None,
-            search_before: Optional[str] = None
-    ) -> List["BlockExplorerTransaction"]:
+        self,
+        limit: Optional[int],
+        search_after: Optional[str] = None,
+        search_before: Optional[str] = None,
+    ) -> List[BlockExplorerTransaction]:
         """
-        Get transactions from block explorer. Supports pagination.
+        Get transactions from the block explorer. Supports pagination.
 
-        :param limit: Maximum transaction pagination.
-        :param search_after:
-        :param search_before:
-        :return: List of block explorer type transaction objects.
+        :param limit: Maximum number of transactions.
+        :param search_after: Pagination parameter.
+        :param search_before: Pagination parameter.
+        :return: List of BlockExplorerTransaction objects.
         """
         base_path = "/transactions"
         request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, False, False, search_before
         )
         results = await self.service.get(endpoint=request["path"], params=request["params"])
-        return BlockExplorerTransaction.process_transactions(data=results.get("data"), meta=results.get("meta"))
+        return BlockExplorerTransaction.process_transactions(
+            data=results.get("data"),
+            meta=results.get("meta"),
+        )
 
     async def get_transactions_by_address(
-            self, address: str, limit: int = 0, search_after: str = '',
-            sent_only: bool = False, received_only: bool = False, search_before: str = ''
+        self,
+        address: str,
+        limit: int = 0,
+        search_after: str = "",
+        sent_only: bool = False,
+        received_only: bool = False,
+        search_before: str = "",
     ) -> List[BlockExplorerTransaction]:
         """
-        Get transactions from block explorer per DAG address. Supports pagination.
+        Retrieve transactions for a specific DAG address. Supports pagination.
 
         :param address: DAG address.
-        :param limit: Maximum transaction pagination.
-        :param search_after:
-        :param sent_only:
-        :param received_only:
-        :param search_before:
-        :return:
+        :param limit: Maximum number of transactions.
+        :param search_after: Pagination parameter.
+        :param sent_only: Filter for sent transactions.
+        :param received_only: Filter for received transactions.
+        :param search_before: Pagination parameter.
+        :return: List of BlockExplorerTransaction objects.
         """
         base_path = f"/addresses/{address}/transactions"
         request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, sent_only, received_only, search_before
         )
         results = await self.service.get(endpoint=request["path"], params=request["params"])
-        return BlockExplorerTransaction.process_transactions(data=results.get("data"), meta=results.get("meta"))
+        return BlockExplorerTransaction.process_transactions(
+            data=results.get("data"),
+            meta=results.get("meta"),
+        )
 
     async def get_transaction(self, hash: str) -> BlockExplorerTransaction:
         """
-        Get the transaction associated with the transaction hash.
+        Retrieve a transaction by its hash.
 
         :param hash: Transaction hash.
-        :return: Block Explorer type transaction object.
+        :return: BlockExplorerTransaction object.
         """
         result = await self.service.get(f"/transactions/{hash}")
         return BlockExplorerTransaction(**result["data"], meta=result.get("meta"))
 
     async def get_address_balance(self, hash: str) -> Balance:
         """
-        Get address balance from block explorer.
+        Retrieve the balance for a given address from the block explorer.
 
-        :param hash: Transactions hash.
+        :param hash: Address hash.
         :return: Balance object.
         """
         result = await self.service.get(f"/addresses/{hash}/balance")
@@ -232,9 +265,7 @@ class BlockExplorerApi:
         result = await self.service.get(f"/currency/{metagraph_id}/snapshots/latest/rewards")
         return Reward.process_snapshot_rewards(data=result["data"])
 
-    async def get_currency_snapshot_rewards(
-            self, metagraph_id: str, hash_or_ordinal: str
-    ) -> List[Reward]:
+    async def get_currency_snapshot_rewards(self, metagraph_id: str, hash_or_ordinal: str) -> List[Reward]:
         results = await self.service.get(f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards")
         return Reward.process_snapshot_rewards(data=results["data"])
 
@@ -247,8 +278,11 @@ class BlockExplorerApi:
         return BlockExplorerTransaction(**result["data"], meta=result.get("meta"))
 
     async def get_currency_transactions(
-            self, metagraph_id: str, limit: Optional[int], search_after: Optional[str] = None,
-            search_before: Optional[str] = None
+        self,
+        metagraph_id: str,
+        limit: Optional[int],
+        search_after: Optional[str] = None,
+        search_before: Optional[str] = None,
     ) -> List[BlockExplorerTransaction]:
         base_path = f"/currency/{metagraph_id}/transactions"
         request = self._get_transaction_search_path_and_params(
@@ -258,8 +292,14 @@ class BlockExplorerApi:
         return BlockExplorerTransaction.process_transactions(results["data"])
 
     async def get_currency_transactions_by_address(
-            self, metagraph_id: str, address: str, limit: int = 0, search_after: str = '',
-            sent_only: bool = False, received_only: bool = False, search_before: str = ''
+        self,
+        metagraph_id: str,
+        address: str,
+        limit: int = 0,
+        search_after: str = "",
+        sent_only: bool = False,
+        received_only: bool = False,
+        search_before: str = "",
     ) -> List[BlockExplorerTransaction]:
         base_path = f"/currency/{metagraph_id}/addresses/{address}/transactions"
         request = self._get_transaction_search_path_and_params(
@@ -269,8 +309,12 @@ class BlockExplorerApi:
         return BlockExplorerTransaction.process_transactions(results["data"])
 
     async def get_currency_transactions_by_snapshot(
-            self, metagraph_id: str, hash_or_ordinal: str, limit: int = 0,
-            search_after: str = '', search_before: str = ''
+        self,
+        metagraph_id: str,
+        hash_or_ordinal: str,
+        limit: int = 0,
+        search_after: str = "",
+        search_before: str = "",
     ) -> List[BlockExplorerTransaction]:
         base_path = f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/transactions"
         request = self._get_transaction_search_path_and_params(
@@ -281,78 +325,59 @@ class BlockExplorerApi:
 
 
 class L0Api:
-
-    def __init__(self, host):
+    def __init__(self, host: str):
         self._service = RestAPIClient(host) if host else None
 
     @property
-    def service(self):
+    def service(self) -> RestAPIClient:
         if not self._service:
             raise ValueError("L0Api :: Layer 0 host is not configured.")
         return self._service
-
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL."""
         self._service = RestAPIClient(host)
 
-
-    async def get_cluster_info(self):
+    async def get_cluster_info(self) -> List[PeerInfo]:
         result = await self.service.get("/cluster/info")
         return PeerInfo.process_cluster_peers(data=result)
 
-    # Metrics
     async def get_metrics(self) -> List[Dict[str, Any]]:
         """
-        Get metrics of the L0 URL.
+        Get metrics from the L0 endpoint.
 
-        :return: Prometheus output as list of dictionaries.
+        :return: Prometheus output as a list of dictionaries.
         """
         response = await self.service.get("/metrics")
         return _handle_metrics(response)
 
-    # DAG
-    async def get_total_supply(self):
+    async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get("/dag/total-supply")
         return TotalSupply(**result)
 
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/dag/{address}/balance")
         return Balance(**result, meta=result.get("meta"))
-    # Global Snapshot
+
     async def get_latest_snapshot(self) -> GlobalSnapshot:
-        result = await self.service.get(
-            "/global-snapshots/latest"
-        )
+        result = await self.service.get("/global-snapshots/latest")
         return GlobalSnapshot(**result)
 
-    async def get_latest_snapshot_ordinal(self):
+    async def get_latest_snapshot_ordinal(self) -> Ordinal:
         result = await self.service.get("/global-snapshots/latest/ordinal")
         return Ordinal(**result)
 
-    #async def get_snapshot(self, id: Union[str, int]) -> Snapshot:
-    #    result = await self.service.get(
-    #                 f"/global-snapshots/{id}"
-    #             )
-    #    return result
-
-    # State Channels
     async def post_state_channel_snapshot(self, address: str, snapshot: dict):
-        # TODO: Validation
-        return await self.service.post(
-            f"/state-channel/{address}/snapshot",
-            payload=snapshot
-        )
+        # TODO: Add validation
+        return await self.service.post(f"/state-channel/{address}/snapshot", payload=snapshot)
 
-    # TODO: Estimate fee endpoint
 
 class L1Api:
-
-    def __init__(self, host):
+    def __init__(self, host: str):
         self._service = RestAPIClient(host) if host else None
 
     @property
-    def service(self):
+    def service(self) -> RestAPIClient:
         if not self._service:
             raise ValueError("L1Api :: Currency layer 1 host is not configured.")
         return self._service
@@ -361,21 +386,19 @@ class L1Api:
         """Reconfigure the RestAPIClient's base URL."""
         self._service = RestAPIClient(host)
 
-    async def get_cluster_info(self) -> List["PeerInfo"]:
+    async def get_cluster_info(self) -> List[PeerInfo]:
         result = await self.service.get("/cluster/info")
         return PeerInfo.process_cluster_peers(data=result)
 
-    # Metrics
     async def get_metrics(self) -> List[Dict[str, Any]]:
         """
-        Get metrics of the L1 URL.
+        Get metrics from the L1 endpoint.
 
-        :return: Prometheus output as list of dictionaries.
+        :return: Prometheus output as a list of dictionaries.
         """
         response = await self.service.get("/metrics")
         return _handle_metrics(response)
 
-    # Transactions
     async def get_last_reference(self, address: str) -> LastReference:
         result = await self.service.get(f"/transactions/last-reference/{address}")
         return LastReference(**result)
@@ -387,14 +410,13 @@ class L1Api:
     async def post_transaction(self, tx: SignedTransaction):
         return await self.service.post("/transactions", payload=tx.model_dump())
 
-    # TODO: Estimate fee endpoint
 
 class ML0Api(L0Api):
-    def __init__(self, host):
+    def __init__(self, host: str):
         super().__init__(host)
 
     @property
-    def service(self):
+    def service(self) -> RestAPIClient:
         if not self._service:
             raise ValueError("ML0Api :: Metagraph layer 0 host is not configured.")
         return self._service
@@ -403,7 +425,6 @@ class ML0Api(L0Api):
         """Reconfigure the RestAPIClient's base URL."""
         self._service = RestAPIClient(host)
 
-    # State Channel Token
     async def get_total_supply(self) -> TotalSupply:
         result = await self.service.get("/currency/total-supply")
         return TotalSupply(**result)
@@ -415,17 +436,18 @@ class ML0Api(L0Api):
     async def get_address_balance(self, address: str) -> Balance:
         result = await self.service.get(f"/currency/{address}/balance")
         return Balance(**result, meta=result.get("meta"))
+
     async def get_address_balance_at_ordinal(self, ordinal: int, address: str) -> Balance:
         result = await self.service.get(f"/currency/{ordinal}/{address}/balance")
         return Balance(**result, meta=result.get("meta"))
 
 
 class ML1Api(L1Api):
-    def __init__(self, host):
+    def __init__(self, host: str):
         super().__init__(host)
 
     @property
-    def service(self):
+    def service(self) -> RestAPIClient:
         if not self._service:
             raise ValueError("ML1Api :: Metagraph currency layer 1 host is not configured.")
         return self._service
@@ -436,12 +458,11 @@ class ML1Api(L1Api):
 
 
 class MDL1Api:
-
-    def __init__(self, host):
+    def __init__(self, host: str):
         self._service = RestAPIClient(host) if host else None
 
     @property
-    def service(self):
+    def service(self) -> RestAPIClient:
         if not self._service:
             raise ValueError("MDL1Api :: Metagraph data layer 1 host is not configured.")
         return self._service
@@ -450,39 +471,39 @@ class MDL1Api:
         """Reconfigure the RestAPIClient's base URL."""
         self._service = RestAPIClient(host)
 
-    # Metrics
     async def get_metrics(self) -> List[Dict[str, Any]]:
         """
-        Get metrics of the Metagraph data layer 1 URL.
+        Get metrics from the Metagraph data layer 1 endpoint.
 
-        :return: Prometheus output as list of dictionaries.
+        :return: Prometheus output as a list of dictionaries.
         """
         response = await self.service.get("/metrics")
         return _handle_metrics(response)
 
-    async def get_cluster_info(self) -> List["PeerInfo"]:
+    async def get_cluster_info(self) -> List[PeerInfo]:
         result = await self.service.get("/cluster/info")
         return PeerInfo.process_cluster_peers(data=result)
 
     async def get_data(self) -> List[SignedTransaction]:
-        """Get enqueued data update objects."""
-        # TODO
+        """Retrieve enqueued data update objects."""
+        # TODO: Implement this method.
         pass
 
     async def post_data(self, tx: Dict):
         """
-        Offer data update object for processing.
+        Submit a data update object for processing.
+
+        Example payload:
         {
           "value": {},
           "proofs": [
             {
-              "id": "c7f9a08bdea7ff5f51c8af16e223a1d751bac9c541125d9aef5658e9b7597aee8cba374119ebe83fb9edd8c0b4654af273f2d052e2d7dd5c6160b6d6c284a17c",
-              "signature": "3045022017607e6f32295b0ba73b372e31780bd373322b6342c3d234b77bea46adc78dde022100e6ffe2bca011f4850b7c76d549f6768b88d0f4c09745c6567bbbe45983a28bf1"
+              "id": "...",
+              "signature": "..."
             }
           ]
         }
         """
         return await self.service.post("/data", payload=tx)
 
-    # TODO: Estimate fee endpoint
 
