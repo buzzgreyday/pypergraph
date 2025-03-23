@@ -51,6 +51,7 @@ class MetagraphTokenNetwork:
             if block_explorer
             else BlockExplorerApi(host=self.connected_network.be_url)
         )
+        # TODO: Handle optional layers
         self.l0_api = ML0Api(host=l0_host)
         self.cl1_api = ML1Api(host=cl1_host)  # Currency layer
         self.dl1_api = MDL1Api(host=dl1_host)  # Data layer
