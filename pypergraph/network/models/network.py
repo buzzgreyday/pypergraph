@@ -63,7 +63,7 @@ class TotalSupply(BaseModel):
 
 
 class Ordinal(BaseModel):
-    value: int = Field(ge=0)
+    ordinal: int = Field(ge=0, alias="value")
 
     def __repr__(self):
         return f"Ordinal(value={self.value})"
