@@ -396,7 +396,7 @@ class MetagraphTokenClient:
 
         self.network = MetagraphTokenNetwork(
             metagraph_id=metagraph_id, l0_host=l0_host, cl1_host=cl1_host, dl1_host=dl1_host,
-            network_id=account.network.connected_network.network_id, block_explorer=block_explorer_url or account.network.be_api.service.base_url
+            network_id=account.network.connected_network.network_id, block_explorer=block_explorer_url or account.network.be_api._host
         )
         self.token_decimals = token_decimals
 
