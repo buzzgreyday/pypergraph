@@ -60,7 +60,7 @@ class MDL1Api:
 
     async def get_data(self) -> List[SignedTransaction]:
         """Retrieve enqueued data update objects."""
-        # TODO: Implement this method.
+        # TODO: How should this be implemented and used?
         raise NotImplementedError("get_data method not yet implemented")
 
     async def post_data(self, tx: Dict):

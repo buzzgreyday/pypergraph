@@ -18,7 +18,7 @@ class Transaction(BaseTransaction):
     transaction_original: SignedTransaction = Field(alias="transactionOriginal")
     timestamp: datetime
     proofs: List[SignatureProof] = Field(default_factory=list)
-    meta: Optional[Dict] = None # TODO: Validate
+    meta: Optional[Dict] = None
 
     def __repr__(self):
         return (f"BlockExplorerTransaction(hash={self.hash}, amount={self.amount}, "

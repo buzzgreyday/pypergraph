@@ -417,7 +417,6 @@ class KeyStore:
         if bip39.validate_mnemonic(mnemonic):
             seed_bytes = bip39.get_seed_from_mnemonic(mnemonic)
             root_key = bip32.get_root_key_from_seed(seed_bytes)
-            # TODO check this
             return root_key.ExtendedKey()
 
     @staticmethod

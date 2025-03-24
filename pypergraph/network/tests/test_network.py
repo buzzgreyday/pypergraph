@@ -327,15 +327,7 @@ async def test_get_cluster_info(network):
 async def test_get_latest_l0_snapshot(network):
     try:
         result = await network.l0_api.get_latest_snapshot()
-        # TODO: fails
-        # >       return GlobalSnapshot(**result)
-        # E       pydantic_core._pydantic_core.ValidationError: 1 validation error for GlobalSnapshot
-        # E       value.blocks.0
-        # E         Input should be a valid string [type=string_type, input_value={'block': {'value': {'par...71'}]}, 'usageCount': 0}, input_type=dict]
-        # E           For further information visit https://errors.pydantic.dev/2.10/v/string_type
-
-        # ../api.py:308: ValidationError
-        print(result.value.blocks)
+        print(result)
     except (httpx.ReadTimeout, NetworkError) as e:
         pytest.skip(f"Error: {e}")
 

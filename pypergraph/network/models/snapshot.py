@@ -60,7 +60,7 @@ class GlobalIncrementalSnapshot(BaseModel):
     rewards: List[Dict[str, RewardTransaction]]
     epoch_progress: int = Field(..., alias="epochProgress", ge=0, le=EPOCH_MAX)
     next_facilitators: List[constr(pattern=r"^[a-fA-F0-9]{128}$")] = Field(..., alias="nextFacilitators")
-    tips: SnapshotTips # TODO: Validate
+    tips: SnapshotTips
     state_proof: StateProof = Field(..., alias="stateProof")
     version: str
 

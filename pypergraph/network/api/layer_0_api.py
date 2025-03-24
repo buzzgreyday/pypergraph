@@ -77,5 +77,5 @@ class L0Api:
         return Ordinal(**result)
 
     async def post_state_channel_snapshot(self, address: str, snapshot: dict):
-        # TODO: Add validation
+        # TODO: How to test this?
         return await self._make_request("POST", f"/state-channel/{address}/snapshot", payload=snapshot)
