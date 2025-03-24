@@ -3,7 +3,7 @@ from typing import List, Dict, Any, Union
 from prometheus_client.parser import text_string_to_metric_families
 
 from pypergraph.core.rest_api_client import RestAPIClient
-from pypergraph.network.models import PeerInfo, LastReference, PendingTransaction, SignedTransaction
+from pypergraph.network.models import PeerInfo, PendingTransaction, SignedTransaction, TransactionReference
 
 
 def _handle_metrics(response: str) -> List[Dict[str, Any]]:
@@ -56,9 +56,9 @@ class L1Api:
         response = await self._make_request("GET", "/metrics")
         return _handle_metrics(response)
 
-    async def get_last_reference(self, address: str) -> LastReference:
+    async def get_last_reference(self, address: str) -> TransactionReference:
         result = await self._make_request("GET", f"/transactions/last-reference/{address}")
-        return LastReference(**result)
+        return TransactionReference(**result)
 
     async def get_pending_transaction(self, hash: str) -> PendingTransaction:
         result = await self._make_request("GET", f"/transactions/{hash}")

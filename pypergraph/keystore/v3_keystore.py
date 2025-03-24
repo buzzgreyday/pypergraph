@@ -3,10 +3,15 @@ import os
 import uuid
 import hashlib
 import json
+
 from typing_extensions import TypedDict, NotRequired
+
+from concurrent.futures import ThreadPoolExecutor
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from mnemonic import Mnemonic
+
+_executor = ThreadPoolExecutor(max_workers=4)  # Adjust as needed
 
 # Type definitions for type hinting
 class KDFParamsPhrase(TypedDict):
@@ -45,10 +50,10 @@ def type_check_jphrase(keystore: V3Keystore) -> bool:
     params = keystore.get("crypto", {}).get("kdfparams")
     if params and "salt" in params and "c" in params and "dklen" in params:
         return True
-    raise ValueError("Invalid JSON Keystore format")
+    raise TypeError("V3Keystore :: Invalid JSON Keystore format.")
 
 def blake256(data: bytes) -> str:
-    return hashlib.blake2b(data, digest_size=32).hexdigest()
+    return hashlib.blake2b(data, digest_size=hashlib.blake2b().digest_size).hexdigest()
 
 async def pbkdf2_async(
     passphrase: bytes,
@@ -59,7 +64,7 @@ async def pbkdf2_async(
 ) -> bytes:
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
-        None,
+        _executor,
         hashlib.pbkdf2_hmac,
         digest,
         passphrase,
@@ -71,9 +76,11 @@ async def pbkdf2_async(
 class V3KeystoreCrypto:
     @staticmethod
     async def encrypt_phrase(phrase: str, password: str) -> V3Keystore:
+        if not isinstance(phrase, str) or not isinstance(password, str):
+            raise TypeError("V3KeystoreCrypto :: Both phrase and password must be strings.")
         mnemo = Mnemonic("english")
         if not mnemo.check(phrase):
-            raise ValueError("Invalid BIP39 phrase")
+            raise TypeError("Invalid BIP39 phrase.")
 
         keystore_id = str(uuid.uuid4())
         salt = os.urandom(32)
@@ -104,7 +111,7 @@ class V3KeystoreCrypto:
         mac = blake256(mac_data)
 
         # Build the keystore structure
-        return V3Keystore({
+        return V3Keystore(**{
             "crypto": {
                 "cipher": ENCRYPT["cipher"],
                 "ciphertext": ciphertext.hex(),
@@ -147,18 +154,20 @@ class V3KeystoreCrypto:
         mac_data = derived_key[16:32] + ciphertext
         calculated_mac = blake256(mac_data)
         if calculated_mac != crypto["mac"]:
-            raise ValueError("Invalid password")
+            raise ValueError("V3KeystoreCrypto :: Invalid password.")
+        try:
+            # AES decryption
+            cipher = Cipher(
+                algorithms.AES(derived_key[:16]),
+                modes.CTR(iv),
+                backend=default_backend()
+            )
+            decryptor = cipher.decryptor()
+            phrase_bytes = decryptor.update(ciphertext) + decryptor.finalize()
 
-        # AES decryption
-        cipher = Cipher(
-            algorithms.AES(derived_key[:16]),
-            modes.CTR(iv),
-            backend=default_backend()
-        )
-        decryptor = cipher.decryptor()
-        phrase_bytes = decryptor.update(ciphertext) + decryptor.finalize()
-
-        return phrase_bytes.decode("utf-8")
+            return phrase_bytes.decode("utf-8")
+        except Exception as e:
+            raise ValueError(f"V3KeystoreCrypto :: Decryption failed: {str(e)}")
 
 # Example usage
 async def main():

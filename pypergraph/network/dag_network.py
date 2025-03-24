@@ -2,7 +2,7 @@ from typing import Optional, Dict, List
 
 from rx.subject import BehaviorSubject
 
-from pypergraph.network.models.account import LastReference, Balance
+from pypergraph.network.models.account import Balance
 from pypergraph.network.api.load_balancer_api import LoadBalancerApi
 from pypergraph.network.api import Layer0Api
 from pypergraph.network.api import Layer1Api
@@ -11,6 +11,7 @@ from pypergraph.network.models.transaction import (
     PendingTransaction,
     BlockExplorerTransaction,
     SignedTransaction,
+    TransactionReference
 )
 from pypergraph.network.models.snapshot import Snapshot
 from pypergraph.network.models.network import NetworkInfo
@@ -103,7 +104,7 @@ class DagTokenNetwork:
     async def get_address_balance(self, address: str) -> Balance:
         return await self.l0_api.get_address_balance(address)
 
-    async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
+    async def get_address_last_accepted_transaction_ref(self, address: str) -> TransactionReference:
         """
         Get the last transaction hash and ordinal from DAG address.
 
@@ -160,7 +161,7 @@ class DagTokenNetwork:
             return await self.be_api.get_transaction(hash)
         except Exception:
             # NOOP for 404 or other exceptions
-            logger.info("No transaction found.")
+            logger.info("DagTokenNetwork :: No transaction found.")
 
     async def post_transaction(self, tx: SignedTransaction) -> str:
         """

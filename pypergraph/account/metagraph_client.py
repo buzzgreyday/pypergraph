@@ -3,7 +3,7 @@ from datetime import datetime
 
 from typing import Any, Dict, List, Optional, Union
 
-from pypergraph.network.models import LastReference
+from pypergraph.network.models import TransactionReference
 from pypergraph.network.models.transaction import SignedTransaction
 from pypergraph.network.metagraph_network import MetagraphTokenNetwork
 
@@ -143,7 +143,7 @@ class MetagraphTokenClient:
     async def generate_batch_transactions(
         self,
         transfers: List[Dict[str, Any]],
-        last_ref: Optional[Union[Dict[str, Any], LastReference]] = None,
+        last_ref: Optional[Union[Dict[str, Any], TransactionReference]] = None,
     ):
         """
         Takes a list of dictionaries and returns a list of signed transaction objects.
@@ -152,7 +152,7 @@ class MetagraphTokenClient:
         :param last_ref: Lost hash and ordinal from DAG address.
         :return:
         """
-        if isinstance(last_ref, LastReference):
+        if isinstance(last_ref, TransactionReference):
             last_ref = last_ref.model_dump()
         if not last_ref:
             last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
@@ -189,7 +189,7 @@ class MetagraphTokenClient:
     async def transfer_batch(
         self,
         transfers: List[Dict[str, Any]],
-        last_ref: Optional[Union[Dict[str, Any], LastReference]] = None,
+        last_ref: Optional[Union[Dict[str, Any], TransactionReference]] = None,
     ):
         """
         Build and send a list of transactions from the active account.

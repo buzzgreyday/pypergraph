@@ -4,7 +4,7 @@ from pypergraph.core.rest_api_client import RestAPIClient
 from pypergraph.network.models import (
     Snapshot,
     BlockExplorerTransaction,
-    Reward,
+    RewardTransaction,
     Balance,
     CurrencySnapshot,
 )
@@ -62,7 +62,7 @@ class BlockExplorerApi:
             meta=results.get("meta"),
         )
 
-    async def get_rewards_by_snapshot(self, id: Union[str, int]) -> List[Reward]:
+    async def get_rewards_by_snapshot(self, id: Union[str, int]) -> List[RewardTransaction]:
         """
         Retrieve reward objects for a given snapshot.
 
@@ -70,7 +70,7 @@ class BlockExplorerApi:
         :return: List of Reward objects.
         """
         results = await self._make_request("GET", f"/global-snapshots/{id}/rewards")
-        return Reward.process_snapshot_rewards(results["data"])
+        return RewardTransaction.process_snapshot_rewards(results["data"])
 
     async def get_latest_snapshot(self) -> Snapshot:
         """
@@ -93,9 +93,9 @@ class BlockExplorerApi:
             meta=results.get("meta"),
         )
 
-    async def get_latest_snapshot_rewards(self) -> List[Reward]:
+    async def get_latest_snapshot_rewards(self) -> List[RewardTransaction]:
         results = await self._make_request("GET", "/global-snapshots/latest/rewards")
-        return Reward.process_snapshot_rewards(results["data"])
+        return RewardTransaction.process_snapshot_rewards(results["data"])
 
     @staticmethod
     def _get_transaction_search_path_and_params(
@@ -206,13 +206,13 @@ class BlockExplorerApi:
         result = await self._make_request("GET", f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}")
         return CurrencySnapshot(**result["data"], meta=result.get("meta"))
 
-    async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> List[Reward]:
+    async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> List[RewardTransaction]:
         result = await self._make_request("GET", f"/currency/{metagraph_id}/snapshots/latest/rewards")
-        return Reward.process_snapshot_rewards(data=result["data"])
+        return RewardTransaction.process_snapshot_rewards(data=result["data"])
 
-    async def get_currency_snapshot_rewards(self, metagraph_id: str, hash_or_ordinal: str) -> List[Reward]:
+    async def get_currency_snapshot_rewards(self, metagraph_id: str, hash_or_ordinal: str) -> List[RewardTransaction]:
         results = await self._make_request("GET", f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards")
-        return Reward.process_snapshot_rewards(data=results["data"])
+        return RewardTransaction.process_snapshot_rewards(data=results["data"])
 
     async def get_currency_address_balance(self, metagraph_id: str, hash: str) -> Balance:
         result = await self._make_request("GET", f"/currency/{metagraph_id}/addresses/{hash}/balance")

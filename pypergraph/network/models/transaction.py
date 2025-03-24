@@ -7,7 +7,6 @@ import base58
 from pydantic import BaseModel, Field, model_validator, constr, computed_field, ConfigDict
 
 from pypergraph.core.constants import DAG_MAX
-from pypergraph.network.models.account import LastReference
 
 
 class BaseTransaction(BaseModel):
@@ -35,13 +34,6 @@ class BaseTransaction(BaseModel):
         return values
 
 
-
-class PostTransactionResponse(BaseModel):
-    hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
-
-    def __repr__(self) -> str:
-        return f"PostTransactionResponse(hash={self.hash!r})"
-
 class TransactionStatus(str, Enum):
     POSTED = "POSTED"
     MEM_POOL = "MEM_POOL"
@@ -68,9 +60,18 @@ class PendingTransaction(BaseModel):
         use_enum_values=True
     )
 
+class TransactionReference(BaseModel):
+    ordinal: int = Field(ge=0)
+    hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
+
+    @model_validator(mode="before")
+    def alias_handling(cls, values: dict) -> dict:
+        values["hash"] = values.get("parentHash") or values.get("hash")
+        values["ordinal"] = values.get("parentOrdinal") or values.get("ordinal")
+        return values
 
 class Transaction(BaseTransaction):
-    parent: LastReference
+    parent: TransactionReference
     salt: int = Field(default=None, ge=0)
 
     def __repr__(self):
@@ -154,7 +155,7 @@ class PendingBlockExplorerTransaction(BaseTransaction):
 
 class BlockExplorerTransaction(BaseTransaction):
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
-    parent: LastReference
+    parent: TransactionReference
     salt: Optional[int] = Field(default=None, ge=0)
     block_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="blockHash")
     snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="snapshotHash")

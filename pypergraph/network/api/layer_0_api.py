@@ -3,7 +3,8 @@ from typing import List, Dict, Any, Union
 from prometheus_client.parser import text_string_to_metric_families
 
 from pypergraph.core.rest_api_client import RestAPIClient
-from pypergraph.network.models import PeerInfo, TotalSupply, Balance, GlobalSnapshot, Ordinal
+from pypergraph.network.models import PeerInfo, TotalSupply, Balance, Ordinal, \
+    SignedGlobalIncrementalSnapshot
 
 
 def _handle_metrics(response: str) -> List[Dict[str, Any]]:
@@ -65,9 +66,9 @@ class L0Api:
         result = await self._make_request("GET", f"/dag/{address}/balance")
         return Balance(**result, meta=result.get("meta"))
 
-    async def get_latest_snapshot(self) -> GlobalSnapshot:
+    async def get_latest_snapshot(self) -> SignedGlobalIncrementalSnapshot:
         result = await self._make_request("GET", "/global-snapshots/latest")
-        return GlobalSnapshot(**result)
+        return SignedGlobalIncrementalSnapshot(**result)
 
     async def get_latest_snapshot_ordinal(self) -> Ordinal:
         result = await self._make_request("GET", "/global-snapshots/latest/ordinal")

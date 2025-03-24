@@ -10,7 +10,7 @@ import pypergraph.account
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.keystore import KeyStore
 from pypergraph.network.models.network import NetworkInfo
-from pypergraph.network.dag_network import DagTokenNetwork
+from pypergraph.network import DagTokenNetwork
 
 @pytest.fixture
 def network():
@@ -247,10 +247,15 @@ async def test_get_latest_currency_snapshot_rewards(network):
 
 @pytest.mark.asyncio
 async def test_get_currency_snapshot_rewards(network):
-    from pypergraph.network.models import Reward
+    from pypergraph.network.models import RewardTransaction
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     results = await network.be_api.get_currency_snapshot_rewards(el_paca_metagraph_id, 950075)
-    assert results == [Reward(destination='DAG2ACig4MuEPit149J1mEjhYqwn8SBvXgVuy2aX', amount=300000000), Reward(destination='DAG2YaNbtUv35YVjJ5U6PR9r8obVunEky2RDdGJb', amount=100000000), Reward(destination='DAG3dQwyG69DmcXxqAQzfPEp39FEfepc3iaGGQVg', amount=200000000), Reward(destination='DAG4eVyr7kUzr7r2oPoxnUfLDgugdXYXLDh6gxZS', amount=200000000)]
+    assert results == [
+        RewardTransaction(destination='DAG2ACig4MuEPit149J1mEjhYqwn8SBvXgVuy2aX', amount=300000000),
+        RewardTransaction(destination='DAG2YaNbtUv35YVjJ5U6PR9r8obVunEky2RDdGJb', amount=100000000),
+        RewardTransaction(destination='DAG3dQwyG69DmcXxqAQzfPEp39FEfepc3iaGGQVg', amount=200000000),
+        RewardTransaction(destination='DAG4eVyr7kUzr7r2oPoxnUfLDgugdXYXLDh6gxZS', amount=200000000)
+    ]
 
 @pytest.mark.asyncio
 async def test_get_currency_address_balance(network):

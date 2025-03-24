@@ -3,7 +3,8 @@ from typing import Dict
 from bip32utils import BIP32Key
 from ecdsa import SigningKey, SECP256k1
 from mnemonic import Mnemonic
-from pypergraph.core.constants import BIP_44_PATHS
+
+from ..core import BIP_44_PATHS
 
 def parse_path(path) -> Dict:
     path_parts = [int(part.strip("'")) for part in path.split("/")[1:]]

@@ -8,7 +8,7 @@ from rx.subject import Subject
 from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.keystore import KeyStore
 from pypergraph.network import DagTokenNetwork
-from pypergraph.network.models import LastReference, SignedTransaction, SignatureProof, PendingTransaction
+from pypergraph.network.models import TransactionReference, SignedTransaction, SignatureProof, PendingTransaction
 from pypergraph.network.models.transaction import TransactionStatus
 
 
@@ -170,7 +170,7 @@ class DagAccount:
         to_address: str,
         amount: int,
         fee: int = 0,
-        last_ref: Optional[Union[dict, LastReference]] = None,
+        last_ref: Optional[Union[dict, TransactionReference]] = None,
     ) -> Tuple[SignedTransaction, str]:
         """
         Generate a signed currency transaction from the currently active account.
@@ -182,7 +182,7 @@ class DagAccount:
         :return: Signed transaction and the transaction hash.
         """
         if isinstance(last_ref, dict):
-            last_ref = LastReference(**last_ref)
+            last_ref = TransactionReference(**last_ref)
         last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
         tx, hash_ = KeyStore.prepare_tx(
             amount=amount,
@@ -278,7 +278,7 @@ class DagAccount:
     async def generate_batch_transactions(
         self,
         transfers: List[dict],
-        last_ref: Optional[Union[dict, LastReference]] = None,
+        last_ref: Optional[Union[dict, TransactionReference]] = None,
     ):
         """
         Generate a batch of transactions to be transferred from the active account.
@@ -293,7 +293,7 @@ class DagAccount:
         :return: List of transactions to be transferred (see: transfer_batch_transactions(transactions=))
         """
         if isinstance(last_ref, dict):
-            last_ref = LastReference(**last_ref)
+            last_ref = TransactionReference(**last_ref)
         if not last_ref:
             last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
 
@@ -305,7 +305,7 @@ class DagAccount:
                 fee=transfer.get("fee", 0),
                 last_ref=last_ref,
             )
-            last_ref = LastReference(ordinal=last_ref.ordinal + 1, hash=hash_)
+            last_ref = TransactionReference(ordinal=last_ref.ordinal + 1, hash=hash_)
             txns.append(transaction)
 
         return txns
@@ -326,7 +326,7 @@ class DagAccount:
     async def transfer_dag_batch(
         self,
         transfers: List[dict],
-        last_ref: Optional[Union[dict, LastReference]] = None,
+        last_ref: Optional[Union[dict, TransactionReference]] = None,
     ):
         """
         Build and send $DAG currency transactions.

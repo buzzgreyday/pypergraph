@@ -2,14 +2,12 @@ import base64
 import hashlib
 import json
 import random
-
-import eth_keyfile
 from decimal import Decimal
 from typing import Tuple, Callable, Optional, Union, Literal, Dict, Any
 
 import base58
+import eth_keyfile
 from bip32utils import BIP32Key
-
 from ecdsa import SigningKey, SECP256k1, VerifyingKey
 from ecdsa.util import sigencode_der, sigdecode_der
 import eth_utils
@@ -18,14 +16,14 @@ from pyasn1.codec.der.encoder import encode as der_encode
 from pyasn1.type.univ import Sequence, Integer
 
 from pypergraph.core.constants import PKCS_PREFIX
-from pypergraph.network.models.account import LastReference
-from pypergraph.network.models.transaction import Transaction
+from pypergraph.network.models.transaction import Transaction, TransactionReference
 from .bip import Bip39, Bip32
 from .kryo import Kryo
 from .v3_keystore import V3KeystoreCrypto, V3Keystore
 from ..core import BIP_44_PATHS
 
 MIN_SALT = int(Decimal("1e8"))
+
 
 class KeyStore:
     """
@@ -37,11 +35,11 @@ class KeyStore:
 
     @staticmethod
     def prepare_tx(
-            amount: int,
-            to_address: str,
-            from_address: str,
-            last_ref: LastReference,
-            fee: int = 0
+        amount: int,
+        to_address: str,
+        from_address: str,
+        last_ref: TransactionReference,
+        fee: int = 0,
     ) -> Tuple[Transaction, str]:
         """
         Prepare a new transaction.
@@ -54,18 +52,24 @@ class KeyStore:
         :return: TransactionV2 object, sha512hash, rle.
         """
         if to_address == from_address:
-          raise ValueError('KeyStore :: An address cannot send a transaction to itself')
+            raise ValueError(
+                "KeyStore :: An address cannot send a transaction to itself"
+            )
 
         if int(amount) < 1e-8:
-          raise ValueError('KeyStore :: Send amount must be greater than 1e-8')
+            raise ValueError("KeyStore :: Send amount must be greater than 1e-8")
 
         if fee < 0:
-          raise ValueError('KeyStore :: Send fee must be greater or equal to zero')
+            raise ValueError("KeyStore :: Send fee must be greater or equal to zero")
 
         # Create transaction
         tx = Transaction(
-            source=from_address, destination=to_address, amount=amount, fee=fee,
-            parent=last_ref, salt=MIN_SALT + int(random.getrandbits(48))
+            source=from_address,
+            destination=to_address,
+            amount=amount,
+            fee=fee,
+            parent=last_ref,
+            salt=MIN_SALT + int(random.getrandbits(48)),
         )
 
         # Get encoded transaction
@@ -78,10 +82,12 @@ class KeyStore:
         return tx, hash_value
 
     def encode_data(
-            self,
-            msg: dict,
-            prefix: bool = True,
-            encoding: Optional[Union[Literal["base64"], Callable[[dict], str], None]] = None
+        self,
+        msg: dict,
+        prefix: bool = True,
+        encoding: Optional[
+            Union[Literal["base64"], Callable[[dict], str], None]
+        ] = None,
     ) -> str:
         """
         Encode custom data transaction for signing or signature verification.
@@ -97,24 +103,26 @@ class KeyStore:
                 msg = encoding(msg)
             elif encoding == "base64":
                 # Used in the VOTING and NFT metagraph example
-                encoded = json.dumps(msg, separators=(',', ':'))
+                encoded = json.dumps(msg, separators=(",", ":"))
                 msg = base64.b64encode(encoded.encode()).decode()
             else:
                 raise ValueError("KeyStore :: Not a valid encoding method.")
         else:
             # Default: used in the TO-DO, SOCIAL and WATER AND ENERGY metagraph examples
-            msg = json.dumps(msg, separators=(',', ':'))
+            msg = json.dumps(msg, separators=(",", ":"))
 
         if prefix:
             msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
         return msg
 
     def data_sign(
-            self,
-            private_key,
-            msg: dict,
-            prefix: bool = True,
-            encoding: Optional[Union[Literal["base64"], Callable[[dict], str], None]] = None
+        self,
+        private_key,
+        msg: dict,
+        prefix: bool = True,
+        encoding: Optional[
+            Union[Literal["base64"], Callable[[dict], str], None]
+        ] = None,
     ) -> Tuple[str, str]:
         """
         Encode message according to serializeUpdate on your template module l1.
@@ -145,7 +153,7 @@ class KeyStore:
         msg = self.encode_data(encoding=encoding, prefix=prefix, msg=msg)
 
         """ Serialize """
-        serialized = msg.encode('utf-8')
+        serialized = msg.encode("utf-8")
 
         hash_ = hashlib.sha256(serialized).hexdigest()
         """ Sign """
@@ -153,10 +161,7 @@ class KeyStore:
         return signature, hash_
 
     def verify_data(
-            self,
-            public_key,
-            encoded_msg: str,
-            signature: str,
+        self, public_key, encoded_msg: str, signature: str,
     ):
         # Encode the message the same way as in data_sign
         serialized = encoded_msg.encode("utf-8")
@@ -168,25 +173,23 @@ class KeyStore:
 
         try:
             vk = VerifyingKey.from_string(
-                bytes.fromhex(public_key),
-                curve=SECP256k1
+                bytes.fromhex(public_key), curve=SECP256k1
             )
             return vk.verify_digest(
                 bytes.fromhex(signature),
                 sha512_digest[:32],
-                sigdecode=sigdecode_der
+                sigdecode=sigdecode_der,
             )
         except Exception:
             return False
 
-    #def serialize(self, msg: str):
+    # def serialize(self, msg: str):
     #    return msg.encode("utf-8").hex()
 
     def personal_sign(self, msg, private_key) -> str:
         # TODO: How is this used?
         message = f"{self.PERSONAL_SIGN_PREFIX}{len(msg)}\n{msg}"
         return self.sign(private_key, message)
-
 
     @staticmethod
     def sign(private_key: str, tx_hash: str) -> str:
@@ -228,25 +231,26 @@ class KeyStore:
             seq.setComponentByPosition(1, Integer(s))
             return der_encode(seq)
 
-        def _sign_deterministic_canonical(private_key: str, tx_hash: bytes) -> str:
+        def _sign_deterministic_canonical(
+            private_key: str, tx_hash: bytes
+        ) -> str:
             """
             Create a deterministic and canonical secp256k1 signature.
             """
             # Create SigningKey object from private key hex
-            sk = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
-
+            sk = SigningKey.from_string(
+                bytes.fromhex(private_key), curve=SECP256k1
+            )
             # Sign the prehashed message deterministically
             signature_der = sk.sign_digest_deterministic(
                 tx_hash[:32],  # Truncate to 32 bytes if needed
                 hashfunc=hashlib.sha256,
                 sigencode=sigencode_der,
             )
-
             canonical_signature_der = _enforce_canonical_signature(signature_der)
             return canonical_signature_der.hex()
 
         tx_hash = hashlib.sha512(tx_hash.encode("utf-8")).digest()
-
         return _sign_deterministic_canonical(private_key=private_key, tx_hash=tx_hash)
 
     @staticmethod
@@ -266,12 +270,11 @@ class KeyStore:
             valid = vk.verify_digest(
                 bytes.fromhex(signature_hex),
                 tx_hash[:32],  # Prehashed hash
-                sigdecode=sigdecode_der
+                sigdecode=sigdecode_der,
             )
             return valid
         except Exception:
             return False
-
 
     @staticmethod
     def validate_address(address: str) -> bool:
@@ -289,7 +292,8 @@ class KeyStore:
         valid_parity = address[3].isdigit() and 0 <= int(address[3]) < 10
         base58_part = address[4:]
         valid_base58 = (
-            len(base58_part) == 36 and base58_part == base58.b58encode(base58.b58decode(base58_part)).decode()
+            len(base58_part) == 36
+            and base58_part == base58.b58encode(base58.b58decode(base58_part)).decode()
         )
 
         return valid_len and valid_prefix and valid_parity and valid_base58
@@ -302,9 +306,7 @@ class KeyStore:
         :param mnemonic_phrase: String of words (default: 12).
         :return: Boolean value.
         """
-
         return Bip39.validate_mnemonic(mnemonic_phrase=mnemonic_phrase)
-
 
     @staticmethod
     def get_mnemonic() -> str:
@@ -338,7 +340,7 @@ class KeyStore:
     @staticmethod
     async def encrypt_phrase(phrase: str, password: str) -> V3Keystore:
         """
-        Probably used if inactive for some time.
+        Can be used to encrypt the phrase using password.
 
         :param phrase:
         :param password:
@@ -349,7 +351,7 @@ class KeyStore:
     @staticmethod
     async def decrypt_phrase(keystore: V3Keystore, password: str) -> str:
         """
-        Probably used if inactive for some time.
+        Can be used to decrypt the phrase using password.
 
         :param keystore:
         :param password:
@@ -358,7 +360,7 @@ class KeyStore:
         return await V3KeystoreCrypto.decrypt_phrase(keystore=keystore, password=password)
 
     def generate_encrypted_private_key(
-            self, password: str, private_key: Optional[str] = None
+        self, password: str, private_key: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Can be stored (written to disk) and transferred.
@@ -370,23 +372,40 @@ class KeyStore:
         private_key = private_key or self.generate_private_key()
         return eth_keyfile.create_keyfile_json(
             private_key=bytes.fromhex(private_key),
-            password=password.encode('utf-8'),
-            kdf="scrypt"
+            password=password.encode("utf-8"),
+            kdf="scrypt",
         )
 
     def decrypt_private_key(self, data: dict, password: str):
         if self.is_valid_json_private_key(data):
-            wallet = eth_keyfile.decode_keyfile_json(raw_keyfile_json=data, password=password.encode('utf-8'))
+            wallet = eth_keyfile.decode_keyfile_json(
+                raw_keyfile_json=data, password=password.encode("utf-8")
+            )
             return wallet.hex()
 
-
     @staticmethod
-    def get_master_key_from_mnemonic(phrase: str, derivation_path: str = BIP_44_PATHS.CONSTELLATION_PATH.value):
+    def get_master_key_from_mnemonic(
+        phrase: str, derivation_path: str = BIP_44_PATHS.CONSTELLATION_PATH.value
+    ):
+        """
+        Master key can be used to derive HD keys.
+
+        :param phrase:
+        :param derivation_path:
+        :return:
+        """
         bip32 = Bip32()
         return bip32.get_master_key_from_mnemonic(phrase, path=derivation_path)
 
     @staticmethod
     def derive_account_from_master_key(master_key: BIP32Key, index: int) -> str:
+        """
+        Derive HD private key from master key.
+
+        :param master_key:
+        :param index:
+        :return:
+        """
         account_key = master_key.ChildKey(index)
         return account_key.PrivateKey().hex()
 
@@ -402,7 +421,9 @@ class KeyStore:
             return root_key.ExtendedKey()
 
     @staticmethod
-    def get_private_key_from_mnemonic(phrase: str, derivation_path = BIP_44_PATHS.CONSTELLATION_PATH.value) -> str:
+    def get_private_key_from_mnemonic(
+        phrase: str, derivation_path = BIP_44_PATHS.CONSTELLATION_PATH.value
+    ) -> str:
         """
         Get private key from phrase. Returns the first account.
 
@@ -413,7 +434,7 @@ class KeyStore:
         bip32 = Bip32()
         bip39 = Bip39()
         seed = bip39.get_seed_from_mnemonic(phrase)
-        private_key =  bip32.get_private_key_from_seed(seed=seed, path=derivation_path)
+        private_key = bip32.get_private_key_from_seed(seed=seed, path=derivation_path)
         return private_key.hex()
 
     @staticmethod
@@ -423,7 +444,9 @@ class KeyStore:
         :return: Public key (Node ID)
         """
         bip32 = Bip32()
-        return bip32.get_public_key_from_private_hex(private_key=bytes.fromhex(private_key))
+        return bip32.get_public_key_from_private_hex(
+            private_key=bytes.fromhex(private_key)
+        )
 
     @staticmethod
     def get_dag_address_from_public_key(public_key: str) -> str:
@@ -440,7 +463,7 @@ class KeyStore:
 
         public_key = hashlib.sha256(bytes.fromhex(public_key)).hexdigest()
         public_key = base58.b58encode(bytes.fromhex(public_key)).decode()
-        public_key = public_key[len(public_key) - 36:]
+        public_key = public_key[len(public_key) - 36 :]
 
         check_digits = "".join([char for char in public_key if char.isdigit()])
         check_digit = 0
@@ -450,7 +473,6 @@ class KeyStore:
                 check_digit = check_digit % 9
 
         address = f"DAG{check_digit}{public_key}"
-
         return address
 
     def get_dag_address_from_private_key(self, private_key: str):
@@ -460,8 +482,8 @@ class KeyStore:
     @staticmethod
     def get_eth_address_from_public_key(public_key: str) -> str:
         eth_address = eth_utils.keccak(bytes.fromhex(public_key))[-20:]
-        return '0x' + eth_address.hex()
+        return "0x" + eth_address.hex()
 
     def get_eth_address_from_private_key(self, private_key: str) -> str:
-        public_key = self.get_public_key_from_private(private_key=private_key)[2:] # Removes the 04 prefix from public key
+        public_key = self.get_public_key_from_private(private_key=private_key)[2:]  # Removes the 04 prefix from public key
         return self.get_eth_address_from_public_key(public_key=public_key)

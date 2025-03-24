@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Union
 from prometheus_client.parser import text_string_to_metric_families
 
 from pypergraph.core.rest_api_client import RestAPIClient
-from pypergraph.network.models import Balance, LastReference, TotalSupply, PendingTransaction, PeerInfo
+from pypergraph.network.models import Balance, TotalSupply, PendingTransaction, PeerInfo, TransactionReference
 
 
 def _handle_metrics(response: str) -> List[Dict[str, Any]]:
@@ -58,9 +58,9 @@ class LoadBalancerApi:
         result = await self._make_request("GET", f"/dag/{address}/balance")
         return Balance(**result, meta=result.get("meta"))
 
-    async def get_last_reference(self, address: str) -> LastReference:
+    async def get_last_reference(self, address: str) -> TransactionReference:
         result = await self._make_request("GET", f"/transactions/last-reference/{address}")
-        return LastReference(**result)
+        return TransactionReference(**result)
 
     async def get_total_supply(self) -> TotalSupply:
         result = await self._make_request("GET", "/total-supply")

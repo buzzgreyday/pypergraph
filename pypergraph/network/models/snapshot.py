@@ -1,16 +1,27 @@
-from datetime import datetime
-from typing import Optional, List, Dict, Any, Union
-
 import base58
+
+from datetime import datetime
+from typing import Optional, List, Dict
+
 from pydantic import BaseModel, field_validator, Field, model_validator, constr
 
 from pypergraph.core.constants import DAG_MAX, SNAPSHOT_MAX_KB, BLOCK_MAX_LEN,EPOCH_MAX
+from pypergraph.network.models import RewardTransaction
 from pypergraph.network.models.transaction import SignatureProof, Transaction
 
 
 class LastCurrencySnapshotProof(BaseModel):
     leaf_count: int = Field(..., alias="leafCount", ge=0)
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
+
+class StateChannelSnapshotBinary(BaseModel):
+    last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="lastSnapshotHash")
+    content: List[int]
+    fee: int = Field(ge=0)
+
+class SignedStateChannelSnapshotBinary(BaseModel):
+    value: StateChannelSnapshotBinary
+    proofs: List[SignatureProof]
 
 class StateProof(BaseModel):
     lastStateChannelSnapshotHashesProof: constr(pattern=r"^[a-fA-F0-9]{64}$")
@@ -30,28 +41,40 @@ class SignedBlock(BaseModel):
     value: Optional[Block]
     proofs: Optional[List[SignatureProof]]
 
-class GlobalSnapshotValue(BaseModel):
+class BlockAsActiveTip(BaseModel):
+    block: SignedBlock
+    usage_count: int = Field(..., alias="usageCount")
+
+class DeprecatedTip(BaseModel):
+    block: BlockReference
+    deprecated_at: int = Field(alias="deprecatedAt", ge=0)
+
+class SnapshotTips(BaseModel):
+    deprecated: List
+    remained_active: List = Field(alias="remainedActive")
+
+class GlobalIncrementalSnapshot(BaseModel):
     ordinal: int = Field(ge=0)
     height: int = Field(ge=0)
     sub_height: int = Field(..., alias="subHeight", ge=0)
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
-    blocks: Optional[Union[List[Optional[SignedBlock]], SignedBlock]] # TODO: Check if this is correct
-    state_channel_snapshots: Dict[str, List[Dict]] = Field(..., alias="stateChannelSnapshots") # TODO: Validate, Dict[Metagraph ID, List[Dict]]
-    rewards: List[Dict[str, Any]] # TODO: Validate
+    blocks: Optional[List[BlockAsActiveTip]] = None
+    state_channel_snapshots: Dict[str, List[SignedStateChannelSnapshotBinary]] = Field(..., alias="stateChannelSnapshots")
+    rewards: List[Dict[str, RewardTransaction]]
     epoch_progress: int = Field(..., alias="epochProgress", ge=0, le=EPOCH_MAX)
     next_facilitators: List[constr(pattern=r"^[a-fA-F0-9]{128}$")] = Field(..., alias="nextFacilitators")
-    tips: Dict[str, Any] # TODO: Validate
+    tips: SnapshotTips # TODO: Validate
     state_proof: StateProof = Field(..., alias="stateProof")
     version: str
 
-class GlobalSnapshot(BaseModel):
-    value: GlobalSnapshotValue
+class SignedGlobalIncrementalSnapshot(BaseModel):
+    value: GlobalIncrementalSnapshot
     proofs: List[SignatureProof]
 
     @classmethod
-    def from_response(cls, response: dict) -> "GlobalSnapshot":
+    def from_response(cls, response: dict) -> "SignedGlobalIncrementalSnapshot":
         return cls(
-            value=GlobalSnapshotValue(**response["value"]),
+            value=GlobalIncrementalSnapshot(**response["value"]),
             proofs=SignatureProof.process_snapshot_proofs(response["proofs"]),
         )
 
@@ -65,7 +88,7 @@ class Snapshot(BaseModel):
     height: int = Field(ge=0)
     sub_height: int = Field(..., alias="subHeight", ge=0)
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
-    blocks: List[str] = Field(max_length=BLOCK_MAX_LEN) # TODO: Validate blocks
+    blocks: List[str] = Field(max_length=BLOCK_MAX_LEN)
     timestamp: datetime
 
     @field_validator("timestamp", mode="before")
@@ -86,7 +109,7 @@ class CurrencySnapshot(Snapshot):
     owner_address: str = Field(..., alias="ownerAddress") # Validated below
     staking_address: Optional[str] = Field(..., alias="stakingAddress") # Validated below
     size_in_kb: int = Field(..., ge=0, le=SNAPSHOT_MAX_KB, alias="sizeInKB")
-    meta: Optional[dict] = None # TODO: Validate
+    meta: Optional[dict] = None
 
     @model_validator(mode='before')
     def validate_dag_address(cls, values):

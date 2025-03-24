@@ -1,6 +1,7 @@
 from typing import Optional, Dict, List
 
-from pypergraph.network.models.account import LastReference, Balance
+from pypergraph.network.models.account import Balance
+from pypergraph.network.models.transaction import TransactionReference
 from pypergraph.network.api import MetagraphLayer0Api
 from pypergraph.network.api import MetagraphCurrencyLayerApi
 from pypergraph.network.api import MetagraphDataLayerApi
@@ -78,7 +79,7 @@ class MetagraphTokenNetwork:
         except AttributeError:
             raise ValueError("MetagraphTokenNetwork :: Layer 0 API URL is not set.")
 
-    async def get_address_last_accepted_transaction_ref(self, address: str) -> LastReference:
+    async def get_address_last_accepted_transaction_ref(self, address: str) -> TransactionReference:
         """
         Get the last transaction hash and ordinal from a DAG address.
 

@@ -6,12 +6,12 @@ from pydantic import BaseModel, field_validator, Field
 from pypergraph.core.constants import DAG_MAX
 
 
-class Reward(BaseModel):
+class RewardTransaction(BaseModel):
     destination: str # Validated below
     amount: int = Field(ge=0, le=DAG_MAX)
 
     @classmethod
-    def process_snapshot_rewards(cls, data: List[dict]) -> List["Reward"]:
+    def process_snapshot_rewards(cls, data: List[dict]) -> List["RewardTransaction"]:
         return [cls(**item) for item in data]
 
     @field_validator('destination')
