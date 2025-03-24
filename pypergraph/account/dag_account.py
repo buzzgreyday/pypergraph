@@ -8,8 +8,7 @@ from rx.subject import Subject
 from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.keystore import KeyStore
 from pypergraph.network import DagTokenNetwork
-from pypergraph.network.models import TransactionReference, SignedTransaction, SignatureProof, PendingTransaction
-from pypergraph.network.models.transaction import TransactionStatus
+from pypergraph.network.models.transaction import TransactionStatus, TransactionReference, SignedTransaction, SignatureProof, PendingTransaction
 
 
 class DagAccount:

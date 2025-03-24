@@ -8,10 +8,10 @@ from pypergraph.network.api import MetagraphDataLayerApi
 from pypergraph.network.api.block_explorer_api import BlockExplorerApi
 from pypergraph.network.models.transaction import (
     PendingTransaction,
-    BlockExplorerTransaction,
     SignedTransaction,
 )
 from pypergraph.network.models.network import NetworkInfo
+from pypergraph.network.models.block_explorer import Transaction
 import logging
 
 # Get a logger for this specific module
@@ -109,7 +109,7 @@ class MetagraphTokenNetwork:
 
     async def get_transactions_by_address(
             self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None
-    ) -> Optional[List[BlockExplorerTransaction]]:
+    ) -> Optional[List[Transaction]]:
         """
         Get a paginated list of Block Explorer transaction objects.
 
@@ -124,10 +124,10 @@ class MetagraphTokenNetwork:
             )
         except Exception:
             # NOOP for 404 or other exceptions
-            logger.debug("No transactions found.")
+            logger.debug("MetagraphTokenNetwork :: No transactions found.")
             return None
 
-    async def get_transaction(self, hash: Optional[str]) -> Optional[BlockExplorerTransaction]:
+    async def get_transaction(self, hash: Optional[str]) -> Optional[Transaction]:
         """
         Get the given transaction.
 

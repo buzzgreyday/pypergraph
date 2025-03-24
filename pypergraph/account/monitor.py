@@ -13,8 +13,8 @@ from rx.subject import BehaviorSubject
 from pypergraph.account import DagAccount
 from pypergraph.account.tests import secret
 from pypergraph.keyring.storage import StateStorageDb
-from pypergraph.network.models import PendingTransaction, NetworkInfo, BlockExplorerTransaction
-from pypergraph.network.models.transaction import TransactionStatus
+from pypergraph.network.models.network import NetworkInfo
+from pypergraph.network.models.transaction import TransactionStatus, PendingTransaction, BlockExplorerTransaction
 
 TWELVE_MINUTES = 12 * 60 * 1000
 

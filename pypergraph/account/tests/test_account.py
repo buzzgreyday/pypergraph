@@ -4,7 +4,7 @@ import pytest
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.network import DagTokenNetwork
 from pypergraph.account import DagAccount, MetagraphTokenClient
-from pypergraph.network.models import PendingTransaction
+from pypergraph.network.models.transaction import PendingTransaction
 
 
 @pytest.fixture

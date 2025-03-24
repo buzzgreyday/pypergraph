@@ -9,11 +9,10 @@ from pypergraph.network.api import Layer1Api
 from pypergraph.network.api import BlockExplorerApi
 from pypergraph.network.models.transaction import (
     PendingTransaction,
-    BlockExplorerTransaction,
     SignedTransaction,
     TransactionReference
 )
-from pypergraph.network.models.snapshot import Snapshot
+from pypergraph.network.models.block_explorer import Snapshot, Transaction
 from pypergraph.network.models.network import NetworkInfo
 from pypergraph.core.exceptions import NetworkError
 import logging
@@ -135,7 +134,7 @@ class DagTokenNetwork:
         address: str,
         limit: Optional[int] = None,
         search_after: Optional[str] = None,
-    ) -> List[BlockExplorerTransaction]:
+    ) -> List[Transaction]:
         """
         Get all address-specific transactions from a given timestamp.
 
@@ -150,7 +149,7 @@ class DagTokenNetwork:
             # NOOP for 404 or other exceptions
             logger.info(f"No transactions found for {address}.")
 
-    async def get_transaction(self, hash: str) -> BlockExplorerTransaction:
+    async def get_transaction(self, hash: str) -> Transaction:
         """
         Get the given transaction from the block explorer.
 

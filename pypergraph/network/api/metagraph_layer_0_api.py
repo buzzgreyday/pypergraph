@@ -1,5 +1,6 @@
 from pypergraph.network.api.layer_0_api import L0Api
-from pypergraph.network.models import TotalSupply, Balance
+from pypergraph.network.models.network import TotalSupply
+from pypergraph.network.models.account import Balance
 
 
 class ML0Api(L0Api):

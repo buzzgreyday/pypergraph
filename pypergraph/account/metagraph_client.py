@@ -3,8 +3,7 @@ from datetime import datetime
 
 from typing import Any, Dict, List, Optional, Union
 
-from pypergraph.network.models import TransactionReference
-from pypergraph.network.models.transaction import SignedTransaction
+from pypergraph.network.models.transaction import SignedTransaction, TransactionReference
 from pypergraph.network.metagraph_network import MetagraphTokenNetwork
 
 

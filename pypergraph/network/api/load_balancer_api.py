@@ -2,7 +2,9 @@ from typing import List, Dict, Any, Union
 from prometheus_client.parser import text_string_to_metric_families
 
 from pypergraph.core.rest_api_client import RestAPIClient
-from pypergraph.network.models import Balance, TotalSupply, PendingTransaction, PeerInfo, TransactionReference
+from pypergraph.network.models.account import Balance
+from pypergraph.network.models.network import TotalSupply, PeerInfo
+from pypergraph.network.models.transaction import PendingTransaction, TransactionReference
 
 
 def _handle_metrics(response: str) -> List[Dict[str, Any]]:

@@ -8,6 +8,8 @@ from pydantic import BaseModel, Field, model_validator, constr, computed_field, 
 
 from pypergraph.core.constants import DAG_MAX
 
+class Hash(BaseModel):
+    hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
 
 class BaseTransaction(BaseModel):
     source: str
@@ -148,10 +150,6 @@ class SignedData(BaseModel):
 
     def add_proof(self, proof: SignatureProof) -> None:
         self.proofs.append(proof)
-
-class PendingBlockExplorerTransaction(BaseTransaction):
-    hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
-    timestamp: datetime
 
 class BlockExplorerTransaction(BaseTransaction):
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
