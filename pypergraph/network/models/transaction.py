@@ -1,12 +1,12 @@
-from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import List, Dict, Optional
+from typing import List, Optional
 
 import base58
 from pydantic import BaseModel, Field, model_validator, constr, computed_field, ConfigDict
 
 from pypergraph.core.constants import DAG_MAX
+
 
 class Hash(BaseModel):
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
@@ -151,28 +151,72 @@ class SignedData(BaseModel):
     def add_proof(self, proof: SignatureProof) -> None:
         self.proofs.append(proof)
 
-class BlockExplorerTransaction(BaseTransaction):
+class DelegatedStakeReference(BaseModel):
+    ordinal: int = Field(ge=0)
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
+
+class CreateDelegatedStake(BaseModel):
+    node_id: constr(pattern=r"^[a-fA-F0-9]{128}$") = Field(alias="nodeId")
+    amount: int = Field(ge=0)
+    fee: int = Field(ge=0)
+    token_lock_ref: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="tokenLockRef")
+    parent: DelegatedStakeReference
+
+class SignedCreateDelegatedStake(BaseModel):
+    value: CreateDelegatedStake
+    proofs: List[SignatureProof]
+
+class WithdrawDelegatedStake(BaseModel):
+    stake_ref: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="stakeRef")
+
+class SignedWithdrawDelegatedStake(BaseModel):
+    value: WithdrawDelegatedStake
+    proofs: List[SignatureProof]
+
+class DelegatedStakeInfo(BaseModel):
+    node_id: constr(pattern=r"^[a-fA-F0-9]{128}$") = Field(alias="nodeId")
+    accepted_ordinal: int = Field(alias="acceptedOrdinal", ge=0)
+    token_lock_ref: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="tokenLockRef")
+    amount: int = Field(ge=0)
+    fee: int = Field(ge=0)
+    withdrawal_start_epoch: int = Field(alias="withdrawalStartEpoch", ge=0)
+    withdrawal_end_epoch: int = Field(alias="withdrawalEndEpoch", ge=0)
+
+class DelegatedStakesInfo(BaseModel):
+    address: str
+    active_delegated_stakes: List[DelegatedStakeInfo]
+    pending_withdrawals: List[DelegatedStakeInfo]
+
+class CreateNodeCollateral(BaseModel):
+    node_id: constr(pattern=r"^[a-fA-F0-9]{128}$") = Field(alias="nodeId")
+    amount: int = Field(ge=0)
+    fee: int = Field(ge=0)
+    token_lock_ref: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="tokenLockRef")
     parent: TransactionReference
-    salt: Optional[int] = Field(default=None, ge=0)
-    block_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="blockHash")
-    snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="snapshotHash")
-    snapshot_ordinal: int = Field(alias="snapshotOrdinal", ge=0)
-    transaction_original: SignedTransaction = Field(alias="transactionOriginal")
-    timestamp: datetime
-    proofs: List[SignatureProof] = Field(default_factory=list)
-    meta: Optional[Dict] = None
 
-    def __repr__(self):
-        return (f"BlockExplorerTransaction(hash={self.hash}, amount={self.amount}, "
-                f"source={self.source}, destination={self.destination}, fee={self.fee}, "
-                f"parent={self.parent}, salt={self.salt}, block_hash={self.block_hash}, "
-                f"snapshot_hash={self.snapshot_hash}, snapshot_ordinal={self.snapshot_ordinal}, "
-                f"transaction_original={self.transaction_original}, timestamp={self.timestamp}, "
-                f"proofs={self.proofs}, meta={self.meta})")
+class SignedCreateNodeCollateral(BaseModel):
+    value: CreateNodeCollateral
+    proofs: List[SignatureProof]
 
-    @classmethod
-    def process_transactions(cls, data: List[dict], meta: Optional[dict] = None) -> List["BlockExplorerTransaction"]:
-        return [cls.model_validate({**tx, "meta": meta}) for tx in data]
+class WithdrawNodeCollateral(BaseModel):
+    collateral_ref: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="collateralRef")
 
-    model_config = ConfigDict(population_by_name=True)
+class SignedWithdrawNodeCollateral(BaseModel):
+    value: WithdrawNodeCollateral
+    proofs: List[SignatureProof]
+
+class NodeCollateralInfo(BaseModel):
+    node_id: constr(pattern=r"^[a-fA-F0-9]{128}$") = Field(alias="nodeId")
+    accepted_ordinal: int = Field(alias="acceptedOrdinal", ge=0)
+    token_lock_ref: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="tokenLockRef")
+    amount: int = Field(ge=0)
+    fee: int = Field(ge=0)
+    withdrawal_start_epoch: int = Field(alias="withdrawalStartEpoch", ge=0)
+    withdrawal_end_epoch: int = Field(alias="withdrawalEndEpoch", ge=0)
+
+class NodeCollateralsInfo(BaseModel):
+    address: str
+    active_node_collaterals: List[NodeCollateralInfo]
+    pending_withdrawals: List[NodeCollateralInfo]
+
+# TODO: Node_collateral, Allow_spend, Node_params

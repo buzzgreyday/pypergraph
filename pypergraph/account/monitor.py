@@ -14,7 +14,8 @@ from pypergraph.account import DagAccount
 from pypergraph.account.tests import secret
 from pypergraph.keyring.storage import StateStorageDb
 from pypergraph.network.models.network import NetworkInfo
-from pypergraph.network.models.transaction import TransactionStatus, PendingTransaction, BlockExplorerTransaction
+from pypergraph.network.models.transaction import TransactionStatus, PendingTransaction
+from pypergraph.network.models.block_explorer import Transaction
 
 TWELVE_MINUTES = 12 * 60 * 1000
 
@@ -257,7 +258,7 @@ class Monitor:
         address: str,
         limit: Optional[int] = None,
         search_after: Optional[str] = None
-    ) -> List[Union[PendingTransaction, BlockExplorerTransaction]]:
+    ) -> List[Union[PendingTransaction, Transaction]]:
         c_txs = await self.account.network.get_transactions_by_address(address, limit, search_after)
         pending_result = await self.process_pending_txs()
         pending_transactions = [p for p in pending_result["pending_txs"]]
