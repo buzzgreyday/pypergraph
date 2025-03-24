@@ -247,7 +247,7 @@ async def test_get_latest_currency_snapshot_rewards(network):
 
 @pytest.mark.asyncio
 async def test_get_currency_snapshot_rewards(network):
-    from pypergraph.network.models import RewardTransaction
+    from pypergraph.network.models.reward import RewardTransaction
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
     results = await network.be_api.get_currency_snapshot_rewards(el_paca_metagraph_id, 950075)
     assert results == [
