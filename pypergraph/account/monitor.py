@@ -10,8 +10,7 @@ from rx import operators as ops, of, empty
 from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import BehaviorSubject
 
-from pypergraph.account import DagAccount
-from pypergraph.account.tests import secret
+# from pypergraph.account.tests import secret
 from pypergraph.keyring.storage import StateStorageDb
 from pypergraph.network.models.network import NetworkInfo
 from pypergraph.network.models.transaction import TransactionStatus, PendingTransaction
@@ -33,8 +32,9 @@ class DagWalletMonitorUpdate(BaseModel):
 
 
 class Monitor:
-    def __init__(self, account: DagAccount):
-        self.account: DagAccount = account
+
+    def __init__(self, account):
+        self.account = account
         self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())
         self.mem_pool_change = BehaviorSubject(DagWalletMonitorUpdate().model_dump())
         self.last_timer = 0.0
@@ -266,20 +266,20 @@ class Monitor:
         return pending_transactions + c_txs if c_txs else pending_transactions + []
 
 
-async def main():
-    account = DagAccount()
-    monitor = Monitor(account)
-    # monitor.start_monitor()
-    account.connect('testnet')
-    account.login_with_seed_phrase(secret.mnemo)
-    pending_tx = await account.transfer(secret.to_address, 50000, 200000)
-    await monitor.add_to_mem_pool_monitor(pending_tx)
-    txs = await monitor.get_latest_transactions(address=account.address, limit=20)
-    print(txs)
-    await asyncio.sleep(60)
-    account.logout()
+# async def main():
+#     account = DagAccount()
+#     monitor = Monitor(account)
+#     # monitor.start_monitor()
+#     account.connect('testnet')
+#     account.login_with_seed_phrase(secret.mnemo)
+#     pending_tx = await account.transfer(secret.to_address, 50000, 200000)
+#     await monitor.add_to_mem_pool_monitor(pending_tx)
+#     txs = await monitor.get_latest_transactions(address=account.address, limit=20)
+#     print(txs)
+#     await asyncio.sleep(60)
+#     account.logout()
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+# if __name__ == "__main__":
+#     asyncio.run(main())
 

@@ -219,4 +219,4 @@ class NodeCollateralsInfo(BaseModel):
     active_node_collaterals: List[NodeCollateralInfo]
     pending_withdrawals: List[NodeCollateralInfo]
 
-# TODO: Node_collateral, Allow_spend, Node_params
+# TODO: Node_params
