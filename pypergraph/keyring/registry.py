@@ -1,7 +1,8 @@
 from typing import Union
 
 from pypergraph.core import NetworkId
-from .accounts import DagAccount, EthAccount
+from .accounts.dag_account import DagAccount
+from .accounts.eth_account import EthAccount
 
 class KeyringRegistry:
     def __init__(self):

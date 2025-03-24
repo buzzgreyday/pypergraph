@@ -1,6 +1,7 @@
 import asyncio
 import json
 import secrets
+from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, Any
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
@@ -10,6 +11,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.exceptions import InvalidTag
 import argon2
 
+_executor = ThreadPoolExecutor(max_workers=4)  # Adjust as needed
 
 class SecurityConstants:
     """Cryptographic parameters meeting wallet security standards"""
@@ -97,7 +99,7 @@ class AsyncAesGcmEncryptor:
 
         # Argon2id in executor (CPU-bound)
         raw_hash = await loop.run_in_executor(
-            None,
+            _executor,
             argon2.low_level.hash_secret_raw,
             password.encode(),
             salt,

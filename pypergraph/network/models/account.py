@@ -10,5 +10,3 @@ class Balance(BaseModel):
     address: Optional[str] = Field(default=None, min_length=40, max_length=128)
     meta: Optional[Dict[str, Any]] = None
 
-    def __repr__(self):
-        return f"Balance(ordinal={self.ordinal}, balance={self.balance}, address='{self.address}', meta='{self.meta}')"

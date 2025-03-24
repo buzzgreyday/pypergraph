@@ -5,10 +5,11 @@ from ecdsa import SigningKey, SECP256k1
 from pydantic import Field, BaseModel, model_serializer, model_validator, constr
 
 from pypergraph.core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, NetworkId
-from .accounts import EthAccount
-from .keyrings import HdKeyring, SimpleKeyring
+
+from .accounts.dag_account import DagAccount
+from .accounts.eth_account import EthAccount
 from .bip import Bip39Helper
-from .accounts import DagAccount
+from .keyrings import HdKeyring, SimpleKeyring
 
 SID = 0
 

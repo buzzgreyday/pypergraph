@@ -5,9 +5,10 @@ from pydantic import BaseModel, Field, model_serializer, ConfigDict
 from typing_extensions import Self
 
 from pypergraph.core.constants import NetworkId
-from pypergraph.keyring.accounts import EthAccount, DagAccount
 from pypergraph.keyring.registry import KeyringRegistry
 from pypergraph.keyring.bip import Bip32Helper, Bip39Helper
+from .accounts.eth_account import EthAccount
+from .accounts.dag_account import DagAccount
 
 
 class HdKeyring(BaseModel):

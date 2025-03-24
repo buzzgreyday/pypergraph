@@ -57,7 +57,7 @@ class GlobalIncrementalSnapshot(BaseModel):
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
     blocks: Optional[List[BlockAsActiveTip]] = None
     state_channel_snapshots: Dict[str, List[SignedStateChannelSnapshotBinary]] = Field(..., alias="stateChannelSnapshots")
-    rewards: List[Dict[str, RewardTransaction]]
+    rewards: List[Dict[str, int]]
     epoch_progress: int = Field(..., alias="epochProgress", ge=0, le=EPOCH_MAX)
     next_facilitators: List[constr(pattern=r"^[a-fA-F0-9]{128}$")] = Field(..., alias="nextFacilitators")
     tips: SnapshotTips
