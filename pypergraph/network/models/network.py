@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from pydantic import Field, BaseModel, IPvAnyNetwork, conint, constr
 
-from pypergraph.core.constants import DAG_MAX, STATE_STR_MAX_LEN, ALIAS_MAX_LEN, PORT_MAX
+from pypergraph.core.constants import ALIAS_MAX_LEN, PORT_MAX
 
 
 class NetworkInfo:
@@ -34,7 +34,7 @@ class PeerInfo(BaseModel):
     alias: Optional[str] = Field(default=None, max_length=ALIAS_MAX_LEN)
     id: constr(pattern=r"^[0-9a-f]{128}$")
     ip: IPvAnyNetwork
-    state: str = Field(max_length=STATE_STR_MAX_LEN)
+    state: str
     session: int
     public_port: conint(ge=0, le=PORT_MAX) = Field(..., alias="publicPort")
     p2p_port: int = Field(..., alias="p2pPort")
