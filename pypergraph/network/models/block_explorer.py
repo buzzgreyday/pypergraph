@@ -4,7 +4,7 @@ from typing import Optional, List, Dict
 import base58
 from pydantic import constr, Field, ConfigDict, BaseModel, field_validator, model_validator
 
-from pypergraph.core.constants import BLOCK_MAX_LEN, DAG_MAX, SNAPSHOT_MAX_KB
+from pypergraph.core.constants import SNAPSHOT_MAX_KB
 from pypergraph.network.models.transaction import BaseTransaction, TransactionReference, SignedTransaction, SignatureProof
 
 
@@ -40,7 +40,7 @@ class Snapshot(BaseModel):
     height: int = Field(ge=0)
     sub_height: int = Field(..., alias="subHeight", ge=0)
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
-    blocks: List[str] = Field(max_length=BLOCK_MAX_LEN)
+    blocks: List[str]
     timestamp: datetime
 
     @field_validator("timestamp", mode="before")
@@ -56,7 +56,7 @@ class Snapshot(BaseModel):
             raise ValueError(f"Snapshot :: Invalid timestamp format: {value}")
 
 class CurrencySnapshot(Snapshot):
-    fee: int = Field(ge=0, lt=DAG_MAX)
+    fee: int = Field(ge=0)
     owner_address: str = Field(..., alias="ownerAddress") # Validated below
     staking_address: Optional[str] = Field(..., alias="stakingAddress") # Validated below
     size_in_kb: int = Field(..., ge=0, le=SNAPSHOT_MAX_KB, alias="sizeInKB")

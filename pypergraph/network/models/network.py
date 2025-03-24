@@ -2,8 +2,7 @@ from typing import Optional, List
 
 from pydantic import Field, BaseModel, IPvAnyNetwork, conint, constr
 
-from pypergraph.core.constants import DAG_MAX, STATE_STR_MAX_LEN, ALIAS_MAX_LEN, \
-    SESSION_MIN, SESSION_MAX, PORT_MAX
+from pypergraph.core.constants import DAG_MAX, STATE_STR_MAX_LEN, ALIAS_MAX_LEN, PORT_MAX
 
 
 class NetworkInfo:
@@ -36,7 +35,7 @@ class PeerInfo(BaseModel):
     id: constr(pattern=r"^[0-9a-f]{128}$")
     ip: IPvAnyNetwork
     state: str = Field(max_length=STATE_STR_MAX_LEN)
-    session: conint(ge=SESSION_MIN, le=SESSION_MAX)
+    session: int
     public_port: conint(ge=0, le=PORT_MAX) = Field(..., alias="publicPort")
     p2p_port: int = Field(..., alias="p2pPort")
     reputation: Optional[float] = None
@@ -56,7 +55,7 @@ class PeerInfo(BaseModel):
 
 class TotalSupply(BaseModel):
     ordinal: int = Field(..., ge=0)
-    total_supply: int = Field(..., ge=0, lt=DAG_MAX, alias="total")
+    total_supply: int = Field(..., ge=0, alias="total")
 
     def __repr__(self):
         return f"TotalSupply(ordinal={self.ordinal}, total_supply={self.total_supply})"

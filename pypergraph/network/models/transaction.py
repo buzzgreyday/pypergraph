@@ -5,8 +5,6 @@ from typing import List, Optional
 import base58
 from pydantic import BaseModel, Field, model_validator, constr, computed_field, ConfigDict
 
-from pypergraph.core.constants import DAG_MAX
-
 
 class Hash(BaseModel):
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
@@ -14,8 +12,8 @@ class Hash(BaseModel):
 class BaseTransaction(BaseModel):
     source: str
     destination: str
-    amount: int = Field(ge=0, le=DAG_MAX)
-    fee: int = Field(ge=0, lt=DAG_MAX)
+    amount: int = Field(ge=0)
+    fee: int = Field(ge=0)
 
     @model_validator(mode='before')
     def validate_dag_address(cls, values):

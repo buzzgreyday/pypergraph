@@ -3,12 +3,10 @@ from typing import List
 import base58
 from pydantic import BaseModel, field_validator, Field
 
-from pypergraph.core.constants import DAG_MAX
-
 
 class RewardTransaction(BaseModel):
     destination: str # Validated below
-    amount: int = Field(ge=0, le=DAG_MAX)
+    amount: int = Field(ge=0)
 
     @classmethod
     def process_snapshot_rewards(cls, data: List[dict]) -> List["RewardTransaction"]:
