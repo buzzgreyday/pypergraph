@@ -1,7 +1,8 @@
 from importlib.metadata import version, PackageNotFoundError
 import logging
 
-from pypergraph.account.account import DagAccount
+from pypergraph.account import DagAccount
+from pypergraph.account import MetagraphTokenClient
 from pypergraph.account.monitor import Monitor
 from pypergraph.network.metagraph_network import MetagraphTokenNetwork
 from pypergraph.network.dag_network import DagTokenNetwork
@@ -21,4 +22,4 @@ try:
 except PackageNotFoundError:
     __version__ = "0.0.0"
 
-__all__ = ["DagAccount", "Monitor", "MetagraphTokenNetwork", "DagTokenNetwork", "KeyStore", "KeyringManager"]
+__all__ = ["DagAccount", "MetagraphTokenClient", "Monitor", "MetagraphTokenNetwork", "DagTokenNetwork", "KeyStore", "KeyringManager"]

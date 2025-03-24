@@ -4,7 +4,7 @@ from enum import Enum
 from typing import List, Dict, Optional
 
 import base58
-from pydantic import BaseModel, Field, model_validator, constr, conint, computed_field, ConfigDict
+from pydantic import BaseModel, Field, model_validator, constr, computed_field, ConfigDict
 
 from pypergraph.core.constants import DAG_MAX
 from pypergraph.network.models.account import LastReference

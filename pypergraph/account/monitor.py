@@ -1,7 +1,8 @@
 import asyncio
 import logging
-from dataclasses import dataclass
 import time
+import json
+from dataclasses import dataclass
 from typing import Dict, Union, List, Optional, Any
 
 from pydantic import BaseModel, Field
@@ -12,17 +13,17 @@ from rx.subject import BehaviorSubject
 from pypergraph.account import DagAccount
 from pypergraph.account.tests import secret
 from pypergraph.keyring.storage import StateStorageDb
-import json
-
 from pypergraph.network.models import PendingTransaction, NetworkInfo, BlockExplorerTransaction
 from pypergraph.network.models.transaction import TransactionStatus
 
 TWELVE_MINUTES = 12 * 60 * 1000
 
+
 @dataclass
 class WaitFor:
     future: asyncio.Future
     resolve: callable
+
 
 class DagWalletMonitorUpdate(BaseModel):
     pending_has_confirmed: bool = False
@@ -31,7 +32,6 @@ class DagWalletMonitorUpdate(BaseModel):
 
 
 class Monitor:
-
     def __init__(self, account: DagAccount):
         self.account: DagAccount = account
         self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())
@@ -67,7 +67,6 @@ class Monitor:
             logging.error(f"Monitor :: {e}", exc_info=True)
             return empty()  # Skip this event and continue the stream
 
-
     def _safe_network_process_event(self, observable: dict):
         """Process an event safely, catching errors."""
         try:
@@ -81,19 +80,19 @@ class Monitor:
     def _safe_event_processing(self, observable: dict):
         # TODO: Class
         if isinstance(observable, dict):
-            type: Optional[str] = observable.get("type", None)
-            event: Optional[str, dict] = observable.get("event", None)
+            type_: Optional[str] = observable.get("type", None)
+            event: Optional[Union[str, dict]] = observable.get("event", None)
             module: Optional[str] = observable.get("module", None)
             try:
                 if module == "account":
                     self._safe_account_process_event(observable)
-                elif type == "network":
+                elif type_ == "network":
                     self._safe_network_process_event(observable)
                 return of(observable)  # Ensure an observable is returned
             except Exception as e:
                 logging.error(f"Monitor :: {e}", exc_info=True)
-                #return of(None)  # Send placeholder down the line
-                return empty() # End the current stream entirely
+                # return of(None)  # Send placeholder down the line
+                return empty()  # End the current stream entirely
 
     async def set_to_mem_pool_monitor(self, pool: List[PendingTransaction]):
         network_info = self.account.network.get_network()
@@ -105,12 +104,20 @@ class Monitor:
         network_info = self.account.network.get_network()
 
         try:
-            txs: List[json] = await self.cache_utils.get(f"network-{network_info['network_id'].lower()}-mempool") or []
-            txs = [PendingTransaction(**json.loads(tx)) if not isinstance(tx, dict) else PendingTransaction(**tx) for tx in txs] if txs else []
+            txs: List[json] = await self.cache_utils.get(
+                f"network-{network_info['network_id'].lower()}-mempool"
+            ) or []
+            txs = [
+                PendingTransaction(**json.loads(tx)) if not isinstance(tx, dict) else PendingTransaction(**tx)
+                for tx in txs
+            ] if txs else []
         except Exception as e:
             logging.warning(f"Monitor :: {e}, will return empty list.", exc_info=True)
             return []
-        return [tx for tx in txs if not address or not tx.receiver or tx.receiver == address or tx.sender == address]
+        return [
+            tx for tx in txs
+            if not address or not tx.receiver or tx.receiver == address or tx.sender == address
+        ]
 
     async def add_to_mem_pool_monitor(self, value: PendingTransaction):  # 'value' can be a dict or string
         network_info = NetworkInfo(**self.account.network.get_network())
@@ -163,7 +170,13 @@ class Monitor:
             elif pool_count > 0:
                 await self.set_to_mem_pool_monitor([])
 
-            self.mem_pool_change.on_next(DagWalletMonitorUpdate(tx_changed=tx_changed, trans_txs=trans_txs, pending_has_confirmed=pending_has_confirmed).model_dump())
+            self.mem_pool_change.on_next(
+                DagWalletMonitorUpdate(
+                    tx_changed=tx_changed,
+                    trans_txs=trans_txs,
+                    pending_has_confirmed=pending_has_confirmed
+                ).model_dump()
+            )
             logging.debug(f"Monitor :: Memory pool updated: {self.mem_pool_change.value}")
         except Exception as e:
             logging.error(f"Monitor :: {e}", exc_info=True)
@@ -175,6 +188,7 @@ class Monitor:
             next_pool = []
             pending_has_confirmed = False
             tx_changed = False
+
             for index, pending_tx in enumerate(pool):
                 pending_tx = pool[index]
                 try:
@@ -192,7 +206,9 @@ class Monitor:
                                 self.wait_for_map[tx_hash].resolve(True)
                                 del self.wait_for_map[tx_hash]
                         else:
-                            if pending_tx.status != 'CHECKPOINT_ACCEPTED' and pending_tx.status != TransactionStatus.GLOBAL_STATE_PENDING.value and pending_tx.timestamp + TWELVE_MINUTES < int(time.time() * 1000):
+                            if (pending_tx.status != 'CHECKPOINT_ACCEPTED' and
+                                    pending_tx.status != TransactionStatus.GLOBAL_STATE_PENDING.value and
+                                    pending_tx.timestamp + TWELVE_MINUTES < int(time.time() * 1000)):
                                 pending_tx.status = TransactionStatus.DROPPED.value
                                 pending_tx.pending = False
                                 tx_changed = True
@@ -212,8 +228,13 @@ class Monitor:
                 except Exception as e:
                     logging.error(f"Monitor :: {e}", exc_info=True)
 
-            return {'pending_txs': next_pool, 'tx_changed': tx_changed, 'trans_txs': trans_txs, 'pending_has_confirmed': pending_has_confirmed, 'pool_count': len(pool)}
-
+            return {
+                'pending_txs': next_pool,
+                'tx_changed': tx_changed,
+                'trans_txs': trans_txs,
+                'pending_has_confirmed': pending_has_confirmed,
+                'pool_count': len(pool)
+            }
         except Exception as e:
             logging.error(f"Monitor :: {e}", exc_info=True)
 
@@ -231,12 +252,18 @@ class Monitor:
     def start_monitor(self):
         asyncio.create_task(self.poll_pending_txs())
 
-    async def get_latest_transactions(self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None) -> List[Union[PendingTransaction, BlockExplorerTransaction]]:
+    async def get_latest_transactions(
+        self,
+        address: str,
+        limit: Optional[int] = None,
+        search_after: Optional[str] = None
+    ) -> List[Union[PendingTransaction, BlockExplorerTransaction]]:
         c_txs = await self.account.network.get_transactions_by_address(address, limit, search_after)
         pending_result = await self.process_pending_txs()
         pending_transactions = [p for p in pending_result["pending_txs"]]
 
         return pending_transactions + c_txs if c_txs else pending_transactions + []
+
 
 async def main():
     account = DagAccount()
@@ -252,7 +279,6 @@ async def main():
     account.logout()
 
 
-
 if __name__ == "__main__":
-
     asyncio.run(main())
+

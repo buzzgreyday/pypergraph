@@ -1,4 +1,3 @@
-from pypergraph.core.rest_api_client import RestAPIClient
 from pypergraph.network.api.layer_1_api import L1Api
 
 
