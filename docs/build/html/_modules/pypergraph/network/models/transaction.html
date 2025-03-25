@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypergraph.network.models.transaction &mdash; pypergraph 2025.0.0a3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=d273756d"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            pypergraph
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../basics.html">Account Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">pypergraph</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pypergraph</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pypergraph.network.models.transaction</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pypergraph.network.models.transaction</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">decimal</span> <span class="kn">import</span> <span class="n">Decimal</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">base58</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">model_validator</span><span class="p">,</span> <span class="n">constr</span><span class="p">,</span> <span class="n">computed_field</span><span class="p">,</span> <span class="n">ConfigDict</span>
+
+
+<div class="viewcode-block" id="Hash">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.Hash">[docs]</a>
+<span class="k">class</span> <span class="nc">Hash</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">hash</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseTransaction">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.BaseTransaction">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseTransaction</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">destination</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BaseTransaction.validate_dag_address">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.BaseTransaction.validate_dag_address">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;before&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">validate_dag_address</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">),</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;destination&#39;</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">address</span><span class="p">:</span>
+                <span class="n">valid_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">address</span><span class="p">)</span> <span class="o">==</span> <span class="mi">40</span>
+                <span class="n">valid_prefix</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DAG&quot;</span><span class="p">)</span>
+                <span class="n">valid_parity</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">10</span>
+                <span class="n">base58_part</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+                <span class="n">valid_base58</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">base58_part</span><span class="p">)</span> <span class="o">==</span> <span class="mi">36</span> <span class="ow">and</span> <span class="n">base58_part</span> <span class="o">==</span> <span class="n">base58</span><span class="o">.</span><span class="n">b58encode</span><span class="p">(</span><span class="n">base58</span><span class="o">.</span><span class="n">b58decode</span><span class="p">(</span><span class="n">base58_part</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="p">)</span>
+
+                <span class="c1"># If any validation fails, raise an error</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">valid_len</span> <span class="ow">and</span> <span class="n">valid_prefix</span> <span class="ow">and</span> <span class="n">valid_parity</span> <span class="ow">and</span> <span class="n">valid_base58</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid address: </span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">values</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TransactionStatus">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.TransactionStatus">[docs]</a>
+<span class="k">class</span> <span class="nc">TransactionStatus</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">POSTED</span> <span class="o">=</span> <span class="s2">&quot;POSTED&quot;</span>
+    <span class="n">MEM_POOL</span> <span class="o">=</span> <span class="s2">&quot;MEM_POOL&quot;</span>
+    <span class="n">DROPPED</span> <span class="o">=</span> <span class="s2">&quot;DROPPED&quot;</span>
+    <span class="n">CHECKPOINT_ACCEPTED</span> <span class="o">=</span> <span class="s2">&quot;CHECKPOINT_ACCEPTED&quot;</span>
+    <span class="n">GLOBAL_STATE_PENDING</span> <span class="o">=</span> <span class="s2">&quot;GLOBAL_STATE_PENDING&quot;</span>
+    <span class="n">CONFIRMED</span> <span class="o">=</span> <span class="s2">&quot;CONFIRMED&quot;</span>
+    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="s2">&quot;UNKNOWN&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="PendingTransaction">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.PendingTransaction">[docs]</a>
+<span class="k">class</span> <span class="nc">PendingTransaction</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">hash</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span>
+    <span class="n">sender</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">receiver</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ordinal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TransactionStatus</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pending</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pendingMsg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">fee</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span>
+        <span class="n">use_enum_values</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TransactionReference">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.TransactionReference">[docs]</a>
+<span class="k">class</span> <span class="nc">TransactionReference</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nb">hash</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TransactionReference.alias_handling">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.TransactionReference.alias_handling">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">alias_handling</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">values</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parentHash&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hash&quot;</span><span class="p">)</span>
+        <span class="n">values</span><span class="p">[</span><span class="s2">&quot;ordinal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parentOrdinal&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ordinal&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">values</span></div>
+</div>
+
+
+<div class="viewcode-block" id="Transaction">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.Transaction">[docs]</a>
+<span class="k">class</span> <span class="nc">Transaction</span><span class="p">(</span><span class="n">BaseTransaction</span><span class="p">):</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="n">TransactionReference</span>
+    <span class="n">salt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TransactionValue(source=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">, destination=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">destination</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;amount=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2">, fee=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fee</span><span class="si">}</span><span class="s2">, parent=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">, salt=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">salt</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+
+    <span class="nd">@computed_field</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">encoded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Automatically generates the encoded signing string&quot;&quot;&quot;</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>  <span class="c1"># Parent count (fixed)</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">),</span>  <span class="c1"># Hex amount</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">ordinal</span><span class="p">),</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fee</span><span class="p">),</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_hex_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">salt</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="si">}{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">include_length</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">include_length</span> <span class="ow">in</span> <span class="n">components</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Transaction.to_hex_string">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.Transaction.to_hex_string">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">to_hex_string</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">b_int</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">64</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">b_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">format</span><span class="p">(</span><span class="n">b_int</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="SignatureProof">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignatureProof">[docs]</a>
+<span class="k">class</span> <span class="nc">SignatureProof</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{128}</span><span class="s2">$&quot;</span><span class="p">)</span>
+    <span class="n">signature</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">138</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">144</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SignatureProof.process_snapshot_proofs">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignatureProof.process_snapshot_proofs">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">process_snapshot_proofs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;SignatureProof&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Proof(id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, signature=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">signature</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SignedTransaction">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedTransaction">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedTransaction</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">Transaction</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Transaction(value=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">, proofs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proofs</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+<div class="viewcode-block" id="SignedTransaction.add_value">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedTransaction.add_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Transaction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="SignedTransaction.add_proof">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedTransaction.add_proof">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_proof</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proof</span><span class="p">:</span> <span class="n">SignatureProof</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proof</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SignedData">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedData">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedData</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Transaction(value=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">, proofs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proofs</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+<div class="viewcode-block" id="SignedData.add_value">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedData.add_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="SignedData.add_proof">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedData.add_proof">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_proof</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proof</span><span class="p">:</span> <span class="n">SignatureProof</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proof</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="DelegatedStakeReference">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.DelegatedStakeReference">[docs]</a>
+<span class="k">class</span> <span class="nc">DelegatedStakeReference</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nb">hash</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CreateDelegatedStake">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.CreateDelegatedStake">[docs]</a>
+<span class="k">class</span> <span class="nc">CreateDelegatedStake</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">node_id</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{128}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;nodeId&quot;</span><span class="p">)</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">token_lock_ref</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;tokenLockRef&quot;</span><span class="p">)</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="n">DelegatedStakeReference</span></div>
+
+
+<div class="viewcode-block" id="SignedCreateDelegatedStake">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedCreateDelegatedStake">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedCreateDelegatedStake</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">CreateDelegatedStake</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="WithdrawDelegatedStake">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.WithdrawDelegatedStake">[docs]</a>
+<span class="k">class</span> <span class="nc">WithdrawDelegatedStake</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">stake_ref</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;stakeRef&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SignedWithdrawDelegatedStake">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedWithdrawDelegatedStake">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedWithdrawDelegatedStake</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">WithdrawDelegatedStake</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DelegatedStakeInfo">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.DelegatedStakeInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">DelegatedStakeInfo</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">node_id</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{128}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;nodeId&quot;</span><span class="p">)</span>
+    <span class="n">accepted_ordinal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;acceptedOrdinal&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">token_lock_ref</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;tokenLockRef&quot;</span><span class="p">)</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">withdrawal_start_epoch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;withdrawalStartEpoch&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">withdrawal_end_epoch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;withdrawalEndEpoch&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelegatedStakesInfo">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.DelegatedStakesInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">DelegatedStakesInfo</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">address</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">active_delegated_stakes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DelegatedStakeInfo</span><span class="p">]</span>
+    <span class="n">pending_withdrawals</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DelegatedStakeInfo</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CreateNodeCollateral">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.CreateNodeCollateral">[docs]</a>
+<span class="k">class</span> <span class="nc">CreateNodeCollateral</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">node_id</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{128}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;nodeId&quot;</span><span class="p">)</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">token_lock_ref</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;tokenLockRef&quot;</span><span class="p">)</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="n">TransactionReference</span></div>
+
+
+<div class="viewcode-block" id="SignedCreateNodeCollateral">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedCreateNodeCollateral">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedCreateNodeCollateral</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">CreateNodeCollateral</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="WithdrawNodeCollateral">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.WithdrawNodeCollateral">[docs]</a>
+<span class="k">class</span> <span class="nc">WithdrawNodeCollateral</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">collateral_ref</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;collateralRef&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SignedWithdrawNodeCollateral">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.SignedWithdrawNodeCollateral">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedWithdrawNodeCollateral</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">WithdrawNodeCollateral</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="NodeCollateralInfo">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.NodeCollateralInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">NodeCollateralInfo</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">node_id</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{128}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;nodeId&quot;</span><span class="p">)</span>
+    <span class="n">accepted_ordinal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;acceptedOrdinal&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">token_lock_ref</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;tokenLockRef&quot;</span><span class="p">)</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">withdrawal_start_epoch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;withdrawalStartEpoch&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">withdrawal_end_epoch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;withdrawalEndEpoch&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NodeCollateralsInfo">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.transaction.NodeCollateralsInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">NodeCollateralsInfo</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">address</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">active_node_collaterals</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeCollateralInfo</span><span class="p">]</span>
+    <span class="n">pending_withdrawals</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeCollateralInfo</span><span class="p">]</span></div>
+
+
+<span class="c1"># TODO: Node_params</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Michael Brummer Ringdal.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

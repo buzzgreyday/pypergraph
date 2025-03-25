@@ -81,15 +81,15 @@ class DagAccount:
             raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
         return self.key_trio.private_key
 
-    def login_with_seed_phrase(self, words: str):
+    def login_with_seed_phrase(self, phrase: str):
         """
         Login with a 12 word seed phrase. Before transferring data or currency you need to login using a seed phrase
         or private key.
 
-        :param words: 12 word seed phrase.
+        :param phrase: 12 word seed phrase.
         :return:
         """
-        private_key = KeyStore.get_private_key_from_mnemonic(words)
+        private_key = KeyStore.get_private_key_from_mnemonic(phrase)
         self.login_with_private_key(private_key)
 
     def login_with_private_key(self, private_key: str):

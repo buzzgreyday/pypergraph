@@ -3,14 +3,21 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Pypergraph Documentation
-========================
+Pypergraph: Python SDK for Constellation Network
+================================================
+
+Pypergraph is a Python tool similar to `DAG for JavaScript (DAG4JS) <https://github.com/StardustCollective/dag4.js/>`_.
+Use it to send data to Metagraph, build a wallet and more.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Getting Started:
 
    introduction
-   basics
    installation
-   modules
+
+.. toctree::
+   :maxdepth: 1
+   :caption: User Guide:
+
+   account.creation

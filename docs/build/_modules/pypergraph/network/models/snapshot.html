@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypergraph.network.models.snapshot &mdash; pypergraph 2025.0.0a3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=d273756d"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            pypergraph
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../basics.html">Account Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">pypergraph</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pypergraph</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pypergraph.network.models.snapshot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pypergraph.network.models.snapshot</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">constr</span>
+
+<span class="kn">from</span> <span class="nn">pypergraph.network.models.reward</span> <span class="kn">import</span> <span class="n">RewardTransaction</span>
+<span class="kn">from</span> <span class="nn">pypergraph.network.models.transaction</span> <span class="kn">import</span> <span class="n">SignatureProof</span><span class="p">,</span> <span class="n">Transaction</span>
+
+
+<div class="viewcode-block" id="LastCurrencySnapshotProof">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.LastCurrencySnapshotProof">[docs]</a>
+<span class="k">class</span> <span class="nc">LastCurrencySnapshotProof</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">leaf_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;leafCount&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nb">hash</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StateChannelSnapshotBinary">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.StateChannelSnapshotBinary">[docs]</a>
+<span class="k">class</span> <span class="nc">StateChannelSnapshotBinary</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">last_snapshot_hash</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;lastSnapshotHash&quot;</span><span class="p">)</span>
+    <span class="n">content</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">fee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SignedStateChannelSnapshotBinary">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.SignedStateChannelSnapshotBinary">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedStateChannelSnapshotBinary</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">StateChannelSnapshotBinary</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="StateProof">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.StateProof">[docs]</a>
+<span class="k">class</span> <span class="nc">StateProof</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">lastStateChannelSnapshotHashesProof</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span>
+    <span class="n">lastTxRefsProof</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span>
+    <span class="n">balancesProof</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span>
+    <span class="n">lastCurrencySnapshotsProof</span><span class="p">:</span> <span class="n">LastCurrencySnapshotProof</span></div>
+
+
+<div class="viewcode-block" id="BlockReference">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.BlockReference">[docs]</a>
+<span class="k">class</span> <span class="nc">BlockReference</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nb">hash</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Block">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.Block">[docs]</a>
+<span class="k">class</span> <span class="nc">Block</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BlockReference</span><span class="p">]</span>
+    <span class="n">transactions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Transaction</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SignedBlock">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.SignedBlock">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedBlock</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Block</span><span class="p">]</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="BlockAsActiveTip">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.BlockAsActiveTip">[docs]</a>
+<span class="k">class</span> <span class="nc">BlockAsActiveTip</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">block</span><span class="p">:</span> <span class="n">SignedBlock</span>
+    <span class="n">usage_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;usageCount&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DeprecatedTip">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.DeprecatedTip">[docs]</a>
+<span class="k">class</span> <span class="nc">DeprecatedTip</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">block</span><span class="p">:</span> <span class="n">BlockReference</span>
+    <span class="n">deprecated_at</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;deprecatedAt&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SnapshotTips">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.SnapshotTips">[docs]</a>
+<span class="k">class</span> <span class="nc">SnapshotTips</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">deprecated</span><span class="p">:</span> <span class="n">List</span>
+    <span class="n">remained_active</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;remainedActive&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GlobalIncrementalSnapshot">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.GlobalIncrementalSnapshot">[docs]</a>
+<span class="k">class</span> <span class="nc">GlobalIncrementalSnapshot</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sub_height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;subHeight&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">last_snapshot_hash</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{64}</span><span class="s2">$&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;lastSnapshotHash&quot;</span><span class="p">)</span>
+    <span class="n">blocks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BlockAsActiveTip</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">state_channel_snapshots</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">SignedStateChannelSnapshotBinary</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;stateChannelSnapshots&quot;</span><span class="p">)</span>
+    <span class="n">rewards</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RewardTransaction</span><span class="p">]</span> <span class="c1"># value: RewardTransaction</span>
+    <span class="n">epoch_progress</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;epochProgress&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">next_facilitators</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">constr</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[a-fA-F0-9]</span><span class="si">{128}</span><span class="s2">$&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;nextFacilitators&quot;</span><span class="p">)</span>
+    <span class="n">tips</span><span class="p">:</span> <span class="n">SnapshotTips</span>
+    <span class="n">state_proof</span><span class="p">:</span> <span class="n">StateProof</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;stateProof&quot;</span><span class="p">)</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="SignedGlobalIncrementalSnapshot">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.SignedGlobalIncrementalSnapshot">[docs]</a>
+<span class="k">class</span> <span class="nc">SignedGlobalIncrementalSnapshot</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">GlobalIncrementalSnapshot</span>
+    <span class="n">proofs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SignatureProof</span><span class="p">]</span>
+
+<div class="viewcode-block" id="SignedGlobalIncrementalSnapshot.from_response">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.SignedGlobalIncrementalSnapshot.from_response">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_response</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SignedGlobalIncrementalSnapshot&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">GlobalIncrementalSnapshot</span><span class="p">(</span><span class="o">**</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]),</span>
+            <span class="n">proofs</span><span class="o">=</span><span class="n">SignatureProof</span><span class="o">.</span><span class="n">process_snapshot_proofs</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;proofs&quot;</span><span class="p">]),</span>
+        <span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="Ordinal">
+<a class="viewcode-back" href="../../../../pypergraph.network.models.html#pypergraph.network.models.snapshot.Ordinal">[docs]</a>
+<span class="k">class</span> <span class="nc">Ordinal</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span></div>
+
+
+<span class="sd">&quot;&quot;&quot;BE MODELS: DTO&quot;&quot;&quot;</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Michael Brummer Ringdal.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

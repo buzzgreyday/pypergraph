@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypergraph.keyring.bip_helpers package &mdash; pypergraph 2025.0.0a3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d273756d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pypergraph
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Account Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pypergraph</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypergraph</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pypergraph.keyring.bip_helpers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pypergraph.keyring.bip_helpers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pypergraph-keyring-bip-helpers-package">
+<h1>pypergraph.keyring.bip_helpers package<a class="headerlink" href="#pypergraph-keyring-bip-helpers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pypergraph.keyring.bip_helpers.bip32_helper">
+<span id="pypergraph-keyring-bip-helpers-bip32-helper-module"></span><h2>pypergraph.keyring.bip_helpers.bip32_helper module<a class="headerlink" href="#module-pypergraph.keyring.bip_helpers.bip32_helper" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.keyring.bip_helpers.bip32_helper.Bip32Helper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.keyring.bip_helpers.bip32_helper.</span></span><span class="sig-name descname"><span class="pre">Bip32Helper</span></span><a class="reference internal" href="_modules/pypergraph/keyring/bip_helpers/bip32_helper.html#Bip32Helper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.keyring.bip_helpers.bip32_helper.Bip32Helper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.keyring.bip_helpers.bip32_helper.Bip32Helper.get_hd_root_key_from_seed">
+<span class="sig-name descname"><span class="pre">get_hd_root_key_from_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hd_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BIP32Key</span></span></span><a class="reference internal" href="_modules/pypergraph/keyring/bip_helpers/bip32_helper.html#Bip32Helper.get_hd_root_key_from_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.keyring.bip_helpers.bip32_helper.Bip32Helper.get_hd_root_key_from_seed" title="Link to this definition"></a></dt>
+<dd><p>Derive the private key from a seed entropy using derived path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seed_bytes</strong> – The seed in bytes format.</p></li>
+<li><p><strong>hd_path</strong> – The derivation path.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The private key as a hexadecimal string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.keyring.bip_helpers.bip32_helper.Bip32Helper.get_root_key_from_seed">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_root_key_from_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed_bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BIP32Key</span></span></span><a class="reference internal" href="_modules/pypergraph/keyring/bip_helpers/bip32_helper.html#Bip32Helper.get_root_key_from_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.keyring.bip_helpers.bip32_helper.Bip32Helper.get_root_key_from_seed" title="Link to this definition"></a></dt>
+<dd><p>Derive the HD root/master key from a seed entropy in bytes format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seed_bytes</strong> – The seed entropy in bytes format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The root/master key.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pypergraph.keyring.bip_helpers.bip39_helper">
+<span id="pypergraph-keyring-bip-helpers-bip39-helper-module"></span><h2>pypergraph.keyring.bip_helpers.bip39_helper module<a class="headerlink" href="#module-pypergraph.keyring.bip_helpers.bip39_helper" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypergraph.keyring.bip_helpers.bip39_helper.</span></span><span class="sig-name descname"><span class="pre">Bip39Helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'english'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/keyring/bip_helpers/bip39_helper.html#Bip39Helper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate 12 or 24 words and derive entropy</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper.LANGUAGES">
+<span class="sig-name descname"><span class="pre">LANGUAGES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('english',</span> <span class="pre">'chinese_simplified',</span> <span class="pre">'chinese_traditional',</span> <span class="pre">'french',</span> <span class="pre">'italian',</span> <span class="pre">'japanese',</span> <span class="pre">'korean',</span> <span class="pre">'spanish',</span> <span class="pre">'turkish',</span> <span class="pre">'czech',</span> <span class="pre">'portuguese')</span></em><a class="headerlink" href="#pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper.LANGUAGES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper.generate_mnemonic">
+<span class="sig-name descname"><span class="pre">generate_mnemonic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/keyring/bip_helpers/bip39_helper.html#Bip39Helper.generate_mnemonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper.generate_mnemonic" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with Mnemonic object, mnemonic phrase, mnemonic seed, mnemonic entropy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper.get_seed_bytes_from_mnemonic">
+<span class="sig-name descname"><span class="pre">get_seed_bytes_from_mnemonic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypergraph/keyring/bip_helpers/bip39_helper.html#Bip39Helper.get_seed_bytes_from_mnemonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper.get_seed_bytes_from_mnemonic" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper.is_valid">
+<span class="sig-name descname"><span class="pre">is_valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/pypergraph/keyring/bip_helpers/bip39_helper.html#Bip39Helper.is_valid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.keyring.bip_helpers.bip39_helper.Bip39Helper.is_valid" title="Link to this definition"></a></dt>
+<dd><p>Validates the mnemonic phrase and returns bool.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong></p></li>
+<li><p><strong>seed</strong> – Mnemonic phrase.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pypergraph.keyring.bip_helpers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pypergraph.keyring.bip_helpers" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Michael Brummer Ringdal.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

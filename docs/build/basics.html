@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="pypergraph.dag_network.tests package" href="pypergraph.dag_network.tests.html" /> 
+    <link rel="prev" title="Overview" href="introduction.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,9 +44,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Account Management</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#wallet-creation">Wallet Creation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#new-wallet-generation">New Wallet Generation</a></li>
@@ -58,8 +58,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#advanced-transaction-construction">Advanced Transaction Construction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#metagraph-token-transactions">Metagraph Token Transactions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#bulk-transaction-processing">Bulk Transaction Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#dag-bulk-transfers">DAG Bulk Transfers</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#metagraph-bulk-transfers">Metagraph Bulk Transfers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dag-bulk-currency-transfers">DAG Bulk Currency Transfers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#metagraph-bulk-currency-transfers">Metagraph Bulk Currency Transfers</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#data-transaction-submission">Data Transaction Submission</a></li>
@@ -252,8 +252,8 @@ while maintaining private key confidentiality.</p></li>
 </section>
 <section id="bulk-transaction-processing">
 <h3>Bulk Transaction Processing<a class="headerlink" href="#bulk-transaction-processing" title="Link to this heading"></a></h3>
-<section id="dag-bulk-transfers">
-<h4>DAG Bulk Transfers<a class="headerlink" href="#dag-bulk-transfers" title="Link to this heading"></a></h4>
+<section id="dag-bulk-currency-transfers">
+<h4>DAG Bulk Currency Transfers<a class="headerlink" href="#dag-bulk-currency-transfers" title="Link to this heading"></a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">batch_transfers</span><span class="p">():</span>
     <span class="n">account</span> <span class="o">=</span> <span class="n">DagAccount</span><span class="p">()</span><span class="o">.</span><span class="n">login_with_seed_phrase</span><span class="p">(</span><span class="s2">&quot;abandon ...&quot;</span><span class="p">)</span>
     <span class="n">transfers</span> <span class="o">=</span> <span class="p">[</span>
@@ -264,8 +264,8 @@ while maintaining private key confidentiality.</p></li>
 </pre></div>
 </div>
 </section>
-<section id="metagraph-bulk-transfers">
-<h4>Metagraph Bulk Transfers<a class="headerlink" href="#metagraph-bulk-transfers" title="Link to this heading"></a></h4>
+<section id="metagraph-bulk-currency-transfers">
+<h4>Metagraph Bulk Currency Transfers<a class="headerlink" href="#metagraph-bulk-currency-transfers" title="Link to this heading"></a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">metagraph_batch</span><span class="p">():</span>
     <span class="n">metagraph</span> <span class="o">=</span> <span class="n">MetagraphTokenClient</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
     <span class="n">transfers</span> <span class="o">=</span> <span class="p">[</span>
@@ -331,7 +331,7 @@ while maintaining private key confidentiality.</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="pypergraph.dag_network.tests.html" class="btn btn-neutral float-left" title="pypergraph.dag_network.tests package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

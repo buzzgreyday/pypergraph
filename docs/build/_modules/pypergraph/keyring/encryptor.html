@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypergraph.keyring.encryptor &mdash; pypergraph 2025.0.0a3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=d273756d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pypergraph
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Account Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pypergraph</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pypergraph</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pypergraph.keyring.encryptor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pypergraph.keyring.encryptor</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">secrets</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives.ciphers.aead</span> <span class="kn">import</span> <span class="n">AESGCM</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives.kdf.hkdf</span> <span class="kn">import</span> <span class="n">HKDF</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives</span> <span class="kn">import</span> <span class="n">hashes</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives</span> <span class="kn">import</span> <span class="n">hmac</span> <span class="k">as</span> <span class="n">crypto_hmac</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.backends</span> <span class="kn">import</span> <span class="n">default_backend</span>
+<span class="kn">from</span> <span class="nn">cryptography.exceptions</span> <span class="kn">import</span> <span class="n">InvalidTag</span>
+<span class="kn">import</span> <span class="nn">argon2</span>
+
+<span class="n">_executor</span> <span class="o">=</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># Adjust as needed</span>
+
+<div class="viewcode-block" id="SecurityConstants">
+<a class="viewcode-back" href="../../../pypergraph.keyring.html#pypergraph.keyring.encryptor.SecurityConstants">[docs]</a>
+<span class="k">class</span> <span class="nc">SecurityConstants</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cryptographic parameters meeting wallet security standards&quot;&quot;&quot;</span>
+    <span class="n">AES_KEY_SIZE</span> <span class="o">=</span> <span class="mi">32</span>  <span class="c1"># 256-bit</span>
+    <span class="n">ARGON_TIME_COST</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># OWASP recommended minimum</span>
+    <span class="n">ARGON_MEMORY_COST</span> <span class="o">=</span> <span class="mi">65536</span>  <span class="c1"># 64MB per hash</span>
+    <span class="n">ARGON_PARALLELISM</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">SALT_SIZE</span> <span class="o">=</span> <span class="mi">32</span>  <span class="c1"># 256-bit salt</span>
+    <span class="n">NONCE_SIZE</span> <span class="o">=</span> <span class="mi">12</span>  <span class="c1"># 96-bit nonce for GCM</span>
+    <span class="n">HMAC_KEY_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">VERSION</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="AsyncAesGcmEncryptor">
+<a class="viewcode-back" href="../../../pypergraph.keyring.html#pypergraph.keyring.encryptor.AsyncAesGcmEncryptor">[docs]</a>
+<span class="k">class</span> <span class="nc">AsyncAesGcmEncryptor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">VERSION</span>
+
+<div class="viewcode-block" id="AsyncAesGcmEncryptor.encrypt">
+<a class="viewcode-back" href="../../../pypergraph.keyring.html#pypergraph.keyring.encryptor.AsyncAesGcmEncryptor.encrypt">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Securely encrypt wallet data using:</span>
+<span class="sd">        - Argon2id for memory-hard KDF</span>
+<span class="sd">        - AES-256-GCM for authenticated encryption</span>
+<span class="sd">        - HKDF for key separation</span>
+<span class="sd">        - Random nonce with HMAC integrity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">salt</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_bytes</span><span class="p">(</span><span class="n">SecurityConstants</span><span class="o">.</span><span class="n">SALT_SIZE</span><span class="p">)</span>
+        <span class="n">nonce</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_bytes</span><span class="p">(</span><span class="n">SecurityConstants</span><span class="o">.</span><span class="n">NONCE_SIZE</span><span class="p">)</span>
+
+        <span class="c1"># Async key derivation</span>
+        <span class="n">encryption_key</span><span class="p">,</span> <span class="n">hmac_key</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_derive_keys</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">salt</span><span class="p">)</span>
+
+        <span class="c1"># Encrypt data</span>
+        <span class="n">aesgcm</span> <span class="o">=</span> <span class="n">AESGCM</span><span class="p">(</span><span class="n">encryption_key</span><span class="p">)</span>
+        <span class="n">plaintext</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+        <span class="n">ciphertext</span> <span class="o">=</span> <span class="n">aesgcm</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Build and sign vault</span>
+        <span class="n">vault</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="s2">&quot;ciphertext&quot;</span><span class="p">:</span> <span class="n">ciphertext</span><span class="o">.</span><span class="n">hex</span><span class="p">(),</span>
+            <span class="s2">&quot;salt&quot;</span><span class="p">:</span> <span class="n">salt</span><span class="o">.</span><span class="n">hex</span><span class="p">(),</span>
+            <span class="s2">&quot;nonce&quot;</span><span class="p">:</span> <span class="n">nonce</span><span class="o">.</span><span class="n">hex</span><span class="p">(),</span>
+            <span class="s2">&quot;hmac&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kdf_params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;argon2id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;time_cost&quot;</span><span class="p">:</span> <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">ARGON_TIME_COST</span><span class="p">,</span>
+                <span class="s2">&quot;memory_cost&quot;</span><span class="p">:</span> <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">ARGON_MEMORY_COST</span><span class="p">,</span>
+                <span class="s2">&quot;parallelism&quot;</span><span class="p">:</span> <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">ARGON_PARALLELISM</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="n">vault</span><span class="p">[</span><span class="s2">&quot;hmac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_hmac</span><span class="p">(</span><span class="n">hmac_key</span><span class="p">,</span> <span class="n">vault</span><span class="p">))</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">vault</span></div>
+
+
+<div class="viewcode-block" id="AsyncAesGcmEncryptor.decrypt">
+<a class="viewcode-back" href="../../../pypergraph.keyring.html#pypergraph.keyring.encryptor.AsyncAesGcmEncryptor.decrypt">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">decrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vault</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Secure decryption with full validation&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_vault</span><span class="p">(</span><span class="n">vault</span><span class="p">)</span>
+
+        <span class="n">salt</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">vault</span><span class="p">[</span><span class="s2">&quot;salt&quot;</span><span class="p">])</span>
+        <span class="n">nonce</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">vault</span><span class="p">[</span><span class="s2">&quot;nonce&quot;</span><span class="p">])</span>
+        <span class="n">ciphertext</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">vault</span><span class="p">[</span><span class="s2">&quot;ciphertext&quot;</span><span class="p">])</span>
+        <span class="n">stored_hmac</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">vault</span><span class="p">[</span><span class="s2">&quot;hmac&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Derive keys async</span>
+        <span class="n">encryption_key</span><span class="p">,</span> <span class="n">hmac_key</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_derive_keys</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">salt</span><span class="p">)</span>
+
+        <span class="c1"># Verify HMAC before decryption</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">secrets</span><span class="o">.</span><span class="n">compare_digest</span><span class="p">(</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_hmac</span><span class="p">(</span><span class="n">hmac_key</span><span class="p">,</span> <span class="n">vault</span><span class="p">),</span>
+                <span class="n">stored_hmac</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SecurityException</span><span class="p">(</span><span class="s2">&quot;HMAC validation failed&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Decrypt data</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">aesgcm</span> <span class="o">=</span> <span class="n">AESGCM</span><span class="p">(</span><span class="n">encryption_key</span><span class="p">)</span>
+            <span class="n">plaintext</span> <span class="o">=</span> <span class="n">aesgcm</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">ciphertext</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">plaintext</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+        <span class="k">except</span> <span class="n">InvalidTag</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SecurityException</span><span class="p">(</span><span class="s2">&quot;Authentication failed&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_derive_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">salt</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Memory-hard key derivation with Argon2id + HKDF&quot;&quot;&quot;</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+
+        <span class="c1"># Argon2id in executor (CPU-bound)</span>
+        <span class="n">raw_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span>
+            <span class="n">_executor</span><span class="p">,</span>
+            <span class="n">argon2</span><span class="o">.</span><span class="n">low_level</span><span class="o">.</span><span class="n">hash_secret_raw</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">salt</span><span class="p">,</span>
+            <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">ARGON_TIME_COST</span><span class="p">,</span>
+            <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">ARGON_MEMORY_COST</span><span class="p">,</span>
+            <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">ARGON_PARALLELISM</span><span class="p">,</span>
+            <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">AES_KEY_SIZE</span> <span class="o">+</span> <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">HMAC_KEY_SIZE</span><span class="p">,</span>
+            <span class="n">argon2</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># HKDF for key separation</span>
+        <span class="n">hkdf</span> <span class="o">=</span> <span class="n">HKDF</span><span class="p">(</span>
+            <span class="n">algorithm</span><span class="o">=</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">(),</span>
+            <span class="n">length</span><span class="o">=</span><span class="n">SecurityConstants</span><span class="o">.</span><span class="n">AES_KEY_SIZE</span> <span class="o">+</span> <span class="n">SecurityConstants</span><span class="o">.</span><span class="n">HMAC_KEY_SIZE</span><span class="p">,</span>
+            <span class="n">salt</span><span class="o">=</span><span class="n">salt</span><span class="p">,</span>
+            <span class="n">info</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;wallet-key-derivation&quot;</span><span class="p">,</span>
+            <span class="n">backend</span><span class="o">=</span><span class="n">default_backend</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">expanded_key</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">hkdf</span><span class="o">.</span><span class="n">derive</span><span class="p">,</span> <span class="n">raw_hash</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">expanded_key</span><span class="p">[:</span><span class="n">SecurityConstants</span><span class="o">.</span><span class="n">AES_KEY_SIZE</span><span class="p">],</span>
+            <span class="n">expanded_key</span><span class="p">[</span><span class="n">SecurityConstants</span><span class="o">.</span><span class="n">AES_KEY_SIZE</span><span class="p">:]</span>
+        <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_calculate_hmac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">vault</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;HMAC over critical vault parameters&quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">crypto_hmac</span><span class="o">.</span><span class="n">HMAC</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">default_backend</span><span class="p">())</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">vault</span><span class="p">[</span><span class="s2">&quot;salt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">vault</span><span class="p">[</span><span class="s2">&quot;nonce&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">vault</span><span class="p">[</span><span class="s2">&quot;ciphertext&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">vault</span><span class="p">[</span><span class="s2">&quot;kdf_params&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="o">.</span><span class="n">finalize</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_validate_vault</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vault</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Structural and version validation&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">vault</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SecurityException</span><span class="p">(</span><span class="s2">&quot;Unsupported version&quot;</span><span class="p">)</span>
+
+        <span class="n">required</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ciphertext&quot;</span><span class="p">,</span> <span class="s2">&quot;salt&quot;</span><span class="p">,</span> <span class="s2">&quot;nonce&quot;</span><span class="p">,</span> <span class="s2">&quot;hmac&quot;</span><span class="p">,</span> <span class="s2">&quot;kdf_params&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vault</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SecurityException</span><span class="p">(</span><span class="s2">&quot;Missing required fields&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SecurityException">
+<a class="viewcode-back" href="../../../pypergraph.keyring.html#pypergraph.keyring.encryptor.SecurityException">[docs]</a>
+<span class="k">class</span> <span class="nc">SecurityException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<span class="c1"># Usage Example</span>
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../pypergraph.keyring.html#pypergraph.keyring.encryptor.main">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">encryptor</span> <span class="o">=</span> <span class="n">AsyncAesGcmEncryptor</span><span class="p">()</span>
+    <span class="n">sensitive_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;private_key&quot;</span><span class="p">:</span> <span class="s2">&quot;0x...&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;wallet_address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x...&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;balance&quot;</span><span class="p">:</span> <span class="s2">&quot;100 ETH&quot;</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Encrypt</span>
+    <span class="n">vault</span> <span class="o">=</span> <span class="k">await</span> <span class="n">encryptor</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="s2">&quot;SuperSecretPassword123!&quot;</span><span class="p">,</span> <span class="n">sensitive_data</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Encrypted Vault:&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">vault</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># Decrypt</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">decrypted</span> <span class="o">=</span> <span class="k">await</span> <span class="n">encryptor</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="s2">&quot;SuperSecretPassword123!&quot;</span><span class="p">,</span> <span class="n">vault</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Decrypted Data:&quot;</span><span class="p">,</span> <span class="n">decrypted</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">SecurityException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Security Alert: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Michael Brummer Ringdal.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

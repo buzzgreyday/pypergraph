@@ -2,17 +2,12 @@ import httpx
 import pytest
 
 from pypergraph.core.exceptions import NetworkError
-from pypergraph.network import DagTokenNetwork
 from pypergraph.account import DagAccount, MetagraphTokenClient
 from pypergraph.network.models.transaction import PendingTransaction
 
 
-@pytest.fixture
-def network():
-    return DagTokenNetwork()
-
 @pytest.mark.asyncio
-async def test_dag_account_connect(network):
+async def test_dag_account_connect():
     """Configure the network connection."""
     account = DagAccount()
     account.connect(network_id="testnet")
@@ -61,12 +56,11 @@ async def test_dag_account_connect(network):
     }
 
 @pytest.mark.asyncio
-async def test_metagraph_account_connect(network):
+async def test_metagraph_account_connect():
     """
     account.network_id is either ethereum or constellation, account.network.network_id is either mainnet,
     integrationnet or testnet. Lb should get reset and be_url should be set as
     get_currency_transactions by address is using BE
-    :param network:
     :return:
     """
     from secret import mnemo
@@ -111,9 +105,31 @@ async def test_metagraph_account_connect(network):
         pytest.skip(f"Got expected error: {e}")
 
 
+@pytest.mark.asyncio
+async def test_login_logout():
+    from secret import mnemo
+    account = DagAccount()
+    account.login_with_seed_phrase(mnemo)
+    private_key = account.private_key
+    assert account.key_trio.public_key == '044462191fb1056699c28607c7e8e03b73602fa070b78cad863b5f84d08a577d5d0399ccd90ba1e69f34382d678216d4b2a030d98e38c0c960447dc49514f92ad7'
+    assert account.key_trio.private_key == '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'
+    assert account.key_trio.address == 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX'
+    account.logout()
+    account.login_with_private_key(private_key)
+    public_key = account.public_key
+    assert account.key_trio.public_key == '044462191fb1056699c28607c7e8e03b73602fa070b78cad863b5f84d08a577d5d0399ccd90ba1e69f34382d678216d4b2a030d98e38c0c960447dc49514f92ad7'
+    assert account.key_trio.private_key == '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'
+    assert account.key_trio.address == 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX'
+    account.logout()
+    account.login_with_public_key(public_key)
+    assert account.key_trio.public_key == '044462191fb1056699c28607c7e8e03b73602fa070b78cad863b5f84d08a577d5d0399ccd90ba1e69f34382d678216d4b2a030d98e38c0c960447dc49514f92ad7'
+    assert not account.key_trio.private_key
+    assert account.key_trio.address == 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX'
+    account.logout()
+
 
 @pytest.mark.asyncio
-async def test_get_balance(network):
+async def test_get_balance():
     from secret import mnemo
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
@@ -133,7 +149,7 @@ async def test_get_balance(network):
         pytest.skip(f"Error: {e}")
 
 @pytest.mark.asyncio
-async def test_get_currency_transactions(network):
+async def test_get_currency_transactions():
     from secret import mnemo
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
@@ -147,7 +163,7 @@ async def test_get_currency_transactions(network):
     assert len(r) == 3
 
 @pytest.mark.asyncio
-async def test_currency_transfer(network):
+async def test_currency_transfer():
     from secret import mnemo, to_address
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
@@ -176,7 +192,7 @@ async def test_currency_transfer(network):
         pytest.skip(', '.join(str(x) for x in failed))
 
 @pytest.mark.asyncio
-async def test_currency_batch_transfer(network):
+async def test_currency_batch_transfer():
     from secret import mnemo, to_address
     from pypergraph.account import DagAccount
     account = DagAccount()

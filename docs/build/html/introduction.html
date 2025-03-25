@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pypergraph 2025.0.0a3 documentation</title>
+  <title>Overview &mdash; pypergraph 2025.0.0a3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
@@ -21,8 +21,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pypergraph.dag_account package" href="pypergraph.dag_account.html" />
-    <link rel="prev" title="Pypergraph Documentation" href="index.html" /> 
+    <link rel="next" title="Account Management" href="basics.html" />
+    <link rel="prev" title="Pypergraph: Python SDK for Constellation Network" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,19 +44,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_account.html">pypergraph.dag_account package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_core.html">pypergraph.dag_core package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keyring.html">pypergraph.dag_keyring package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_keystore.html">pypergraph.dag_keystore package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypergraph.dag_network.html">pypergraph.dag_network package</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Account Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pypergraph</a></li>
 </ul>
 
         </div>
@@ -73,7 +65,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Introduction</li>
+      <li class="breadcrumb-item active">Overview</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/introduction.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -83,32 +75,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
-<p>Pypergraph is a Python package that enables secure wallet functionalities and interaction with Constellation Network APIs, in Python.</p>
+  <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h1>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
-<p>The package is currently in the early alpha state and not intended for production.</p>
-</div>
-<p>The package has 5 modules:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pypergraph.dag_account.html">pypergraph.dag_account package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pypergraph.dag_core.html">pypergraph.dag_core package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pypergraph.dag_keyring.html">pypergraph.dag_keyring package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pypergraph.dag_keystore.html">pypergraph.dag_keystore package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pypergraph.dag_network.html">pypergraph.dag_network package</a></li>
-</ul>
-</div>
+<p>The package is currently in alpha.</p>
 <p><strong>Wish to contribute?</strong> Please reach out on <a class="reference external" href="https://github.com/buzzgreyday">GitHub</a>.</p>
+</div>
+<p>Pypergraph consists of 5 subpackages.</p>
+<ol class="arabic simple">
+<li><p>The <a class="reference internal" href="pypergraph.account.html"><span class="doc">account package</span></a> handles account functionality such as creation and storage of keys, logging in and out, connecting to networks and Metagraphs, transfer of currency and data, etc.</p></li>
+<li><p>The <a class="reference internal" href="pypergraph.keystore.html"><span class="doc">keystore package</span></a> handles key related functionalities such as currency and data transaction signing/verification, encrypting and decrypting, key generation and validation.</p></li>
+<li><p>The <a class="reference internal" href="pypergraph.network.html"><span class="doc">network package</span></a> handles network related functionalities such as network and Metagraph configuration and get/post methods for CN APIs.</p></li>
+<li><p>The <a class="reference internal" href="pypergraph.keyring.html"><span class="doc">keyring package</span></a> contains a <code class="code docutils literal notranslate"><span class="pre">KeyringManager()</span></code> that handles wallet creation, restoration and storage of wallet accounts and data. Used together with above packages it enables easy building of e.g. wallet applications.</p></li>
+<li><p>The <a class="reference internal" href="pypergraph.core.html"><span class="doc">core package</span></a> contains the <code class="code docutils literal notranslate"><span class="pre">REST</span> <span class="pre">API</span> <span class="pre">client</span></code> and the shared modules <code class="code docutils literal notranslate"><span class="pre">constants</span></code> and <code class="code docutils literal notranslate"><span class="pre">exceptions</span></code>.</p></li>
+</ol>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Pypergraph Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="pypergraph.dag_account.html" class="btn btn-neutral float-right" title="pypergraph.dag_account package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Pypergraph: Python SDK for Constellation Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="basics.html" class="btn btn-neutral float-right" title="Account Management" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
