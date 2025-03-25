@@ -17,9 +17,9 @@ from pyasn1.type.univ import Sequence, Integer
 
 from pypergraph.core.constants import PKCS_PREFIX
 from pypergraph.network.models.transaction import Transaction, TransactionReference
+from .kryo import Kryo
 from .bip_helpers.bip32_helper import Bip32Helper
 from .bip_helpers.bip39_helper import Bip39Helper
-from .kryo import Kryo
 from .v3_keystore import V3KeystoreCrypto, V3Keystore
 from ..core import BIP_44_PATHS
 
