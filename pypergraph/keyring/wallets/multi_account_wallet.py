@@ -5,7 +5,7 @@ from pydantic import Field, model_serializer, model_validator, BaseModel
 from pypergraph.core import BIP_44_PATHS, KeyringAssetType, KeyringWalletType, NetworkId
 
 from .shared import sid_manager
-from ..bip import Bip39Helper
+from ..bip_helpers.bip39_helper import Bip39Helper
 from ..keyrings.hd_keyring import HdKeyring
 
 

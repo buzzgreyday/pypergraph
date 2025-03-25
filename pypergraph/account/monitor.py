@@ -11,7 +11,7 @@ from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import BehaviorSubject
 
 # from pypergraph.account.tests import secret
-from pypergraph.keyring.storage import StateStorageDb
+from pypergraph.keyring.storage.state_storage_db import StateStorageDb
 from pypergraph.network.models.network import NetworkInfo
 from pypergraph.network.models.transaction import TransactionStatus, PendingTransaction
 from pypergraph.network.models.block_explorer import Transaction

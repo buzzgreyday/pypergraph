@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, model_serializer
 from typing_extensions import Self
 
 from pypergraph.core.constants import NetworkId
-from pypergraph.keyring.registry import KeyringRegistry
+from pypergraph.keyring.keyrings.registry import KeyringRegistry
 
 from ..accounts.eth_account import EthAccount
 from ..accounts.dag_account import DagAccount

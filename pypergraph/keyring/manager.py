@@ -6,11 +6,12 @@ from rx.subject import BehaviorSubject, Subject
 
 from pypergraph.core import KeyringWalletType, NetworkId
 from pypergraph.keyring import Encryptor
-from pypergraph.keyring.bip import Bip39Helper
-from pypergraph.keyring.storage import StateStorageDb, ObservableStore
 
+from .storage.state_storage_db import StateStorageDb
+from .storage.observable_store import ObservableStore
 from .accounts.dag_account import DagAccount
 from .accounts.eth_account import EthAccount
+from .bip_helpers.bip39_helper import Bip39Helper
 from .wallets.multi_account_wallet import MultiAccountWallet
 from .wallets.multi_chain_wallet import MultiChainWallet
 from .wallets.multi_key_wallet import MultiKeyWallet

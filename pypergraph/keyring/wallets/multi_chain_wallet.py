@@ -7,7 +7,7 @@ from pypergraph.core import BIP_44_PATHS, KeyringWalletType, NetworkId
 from .shared import sid_manager
 from ..accounts.dag_account import DagAccount
 from ..accounts.eth_account import EthAccount
-from ..bip import Bip39Helper
+from ..bip_helpers.bip39_helper import Bip39Helper
 from ..keyrings.hd_keyring import HdKeyring
 
 

@@ -17,7 +17,8 @@ from pyasn1.type.univ import Sequence, Integer
 
 from pypergraph.core.constants import PKCS_PREFIX
 from pypergraph.network.models.transaction import Transaction, TransactionReference
-from .bip import Bip39, Bip32
+from .bip_helpers.bip32_helper import Bip32Helper
+from .bip_helpers.bip39_helper import Bip39Helper
 from .kryo import Kryo
 from .v3_keystore import V3KeystoreCrypto, V3Keystore
 from ..core import BIP_44_PATHS
@@ -306,14 +307,14 @@ class KeyStore:
         :param mnemonic_phrase: String of words (default: 12).
         :return: Boolean value.
         """
-        return Bip39.validate_mnemonic(mnemonic_phrase=mnemonic_phrase)
+        return Bip39Helper.validate_mnemonic(mnemonic_phrase=mnemonic_phrase)
 
     @staticmethod
     def get_mnemonic() -> str:
         """
         :return: Mnemonic values in a dictionary with keys: mnemo, words, seed, entropy
         """
-        bip39 = Bip39()
+        bip39 = Bip39Helper()
         return bip39.mnemonic()
 
     def generate_private_key(self) -> str:
@@ -394,7 +395,7 @@ class KeyStore:
         :param derivation_path:
         :return:
         """
-        bip32 = Bip32()
+        bip32 = Bip32Helper()
         return bip32.get_master_key_from_mnemonic(phrase, path=derivation_path)
 
     @staticmethod
@@ -412,8 +413,8 @@ class KeyStore:
     @staticmethod
     def get_extended_private_key_from_mnemonic(mnemonic: str):
         # Extended keys can be used to derive child keys
-        bip39 = Bip39()
-        bip32 = Bip32()
+        bip39 = Bip39Helper()
+        bip32 = Bip32Helper()
         if bip39.validate_mnemonic(mnemonic):
             seed_bytes = bip39.get_seed_from_mnemonic(mnemonic)
             root_key = bip32.get_root_key_from_seed(seed_bytes)
@@ -430,8 +431,8 @@ class KeyStore:
         :param derivation_path:
         :return: Private key as hexadecimal string
         """
-        bip32 = Bip32()
-        bip39 = Bip39()
+        bip32 = Bip32Helper()
+        bip39 = Bip39Helper()
         seed = bip39.get_seed_from_mnemonic(phrase)
         private_key = bip32.get_private_key_from_seed(seed=seed, path=derivation_path)
         return private_key.hex()
@@ -442,7 +443,7 @@ class KeyStore:
         :param private_key:
         :return: Public key (Node ID)
         """
-        bip32 = Bip32()
+        bip32 = Bip32Helper()
         return bip32.get_public_key_from_private_hex(
             private_key=bytes.fromhex(private_key)
         )
