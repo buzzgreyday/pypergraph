@@ -4,9 +4,11 @@ import uuid
 import hashlib
 import json
 
+from eth_hash.backends.pycryptodome import keccak256
 from typing_extensions import TypedDict, NotRequired
 
 from concurrent.futures import ThreadPoolExecutor
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from mnemonic import Mnemonic
@@ -43,7 +45,7 @@ ENCRYPT = {
     "prf": "hmac-sha256",
     "dklen": 32,
     "c": 262144,
-    "hash": "sha256"
+    "hash": hashes.SHA256().name
 }
 
 def type_check_jphrase(keystore: V3Keystore) -> bool:
@@ -108,7 +110,7 @@ class V3KeystoreCrypto:
 
         # MAC calculation
         mac_data = derived_key[16:32] + ciphertext
-        mac = blake256(mac_data)
+        mac = keccak256(mac_data).hex()
 
         # Build the keystore structure
         return V3Keystore(**{
@@ -126,7 +128,7 @@ class V3KeystoreCrypto:
                 "mac": mac
             },
             "id": keystore_id,
-            "version": 1,
+            "version": 3,
             "meta": "stardust-collective/pypergraph"
         })
 
@@ -152,7 +154,7 @@ class V3KeystoreCrypto:
 
         # MAC verification
         mac_data = derived_key[16:32] + ciphertext
-        calculated_mac = blake256(mac_data)
+        calculated_mac = keccak256(mac_data).hex()
         if calculated_mac != crypto["mac"]:
             raise ValueError("V3KeystoreCrypto :: Invalid password.")
         try:
