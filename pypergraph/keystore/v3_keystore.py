@@ -4,6 +4,7 @@ import uuid
 import hashlib
 import json
 
+import eth_keyfile
 from eth_hash.backends.pycryptodome import keccak256
 from typing_extensions import TypedDict, NotRequired
 
@@ -181,6 +182,8 @@ async def main():
     print("Encrypted keystore:", json.dumps(encrypted, indent=2))
 
     # Decryption
+    decrypted_eth_keyfile = eth_keyfile.decode_keyfile_json(encrypted, "securepassword123".encode("utf-8"))
+    print("ETH Keyfile decrypted phrase:", decrypted_eth_keyfile)
     decrypted = await V3KeystoreCrypto.decrypt_phrase(encrypted, password)
     print("\nDecrypted phrase:", decrypted)
 
