@@ -80,7 +80,7 @@ class V3KeystoreCrypto:
             raise TypeError("V3KeystoreCrypto :: Both phrase and password must be strings.")
         mnemo = Mnemonic("english")
         if not mnemo.check(phrase):
-            raise TypeError("Invalid BIP39 phrase.")
+            raise TypeError("V3KeystoreCrypto :: Invalid BIP39 phrase.")
 
         keystore_id = str(uuid.uuid4())
         salt = os.urandom(32)
