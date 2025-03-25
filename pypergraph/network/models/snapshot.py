@@ -2,6 +2,7 @@ from typing import Optional, List, Dict
 
 from pydantic import BaseModel, Field, constr
 
+from pypergraph.network.models.reward import RewardTransaction
 from pypergraph.network.models.transaction import SignatureProof, Transaction
 
 
@@ -55,7 +56,7 @@ class GlobalIncrementalSnapshot(BaseModel):
     last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
     blocks: Optional[List[BlockAsActiveTip]] = None
     state_channel_snapshots: Dict[str, List[SignedStateChannelSnapshotBinary]] = Field(..., alias="stateChannelSnapshots")
-    rewards: List[Dict[str, int]] # RewardTransaction
+    rewards: List[Dict[str, RewardTransaction]] # RewardTransaction
     epoch_progress: int = Field(..., alias="epochProgress", ge=0)
     next_facilitators: List[constr(pattern=r"^[a-fA-F0-9]{128}$")] = Field(..., alias="nextFacilitators")
     tips: SnapshotTips

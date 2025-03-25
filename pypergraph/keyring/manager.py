@@ -5,12 +5,16 @@ from typing import Optional, Union, List
 from rx.subject import BehaviorSubject, Subject
 
 from pypergraph.core import KeyringWalletType, NetworkId
-from pypergraph.keyring import SingleAccountWallet, MultiChainWallet, Encryptor, MultiKeyWallet, MultiAccountWallet
+from pypergraph.keyring import Encryptor
 from pypergraph.keyring.bip import Bip39Helper
 from pypergraph.keyring.storage import StateStorageDb, ObservableStore
 
 from .accounts.dag_account import DagAccount
 from .accounts.eth_account import EthAccount
+from .wallets.multi_account_wallet import MultiAccountWallet
+from .wallets.multi_chain_wallet import MultiChainWallet
+from .wallets.multi_key_wallet import MultiKeyWallet
+from .wallets.single_account_wallet import SingleAccountWallet
 
 
 
