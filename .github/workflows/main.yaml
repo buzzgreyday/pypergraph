@@ -49,6 +49,24 @@ jobs:
         name: security-report-${{ github.run_id }}-${{ matrix.python-version }}
         path: security_report.txt
 
+  hatchling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.11'
+      - name: Install Hatch
+        run: pip install hatch
+      - name: Build package
+        run: hatch build
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-build
+          path: dist/
+
   release:
     needs: hatchling
     runs-on: ubuntu-latest
