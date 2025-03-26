@@ -91,7 +91,7 @@ jobs:
           tag_name: "v${{ env.VERSION }}"
           name: "Release v${{ env.VERSION }}"
           draft: false
-          prerelease: true
+          prerelease: ${{ github.ref == 'refs/heads/dev' }}  # ✅ Pre-release if on 'dev'
           files: ./dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PYPERGRAPH_PAT }}
