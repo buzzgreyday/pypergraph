@@ -100,7 +100,7 @@ jobs:
   publish:
     needs: [ hatchling, build ]  # ✅ Only runs if tests pass
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'  # ✅ Runs only on master
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
