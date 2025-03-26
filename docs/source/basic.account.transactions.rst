@@ -54,7 +54,7 @@ Batch $DAG Transactions
             {"to_address": "DAG1...", "amount": 100000000},
             {"to_address": "DAG2...", "amount": 50000000, "fee": 200000}
         ]
-        tx_hashes = await account.transfer_dag_batch(transfers=transfers)
+        tx_hashes = await account.transfer_batch(transfers=transfers)
 
 Send Metagraph Token
 ^^^^^^^^^^^^^^^^^^^^
