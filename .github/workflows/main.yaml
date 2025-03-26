@@ -50,7 +50,7 @@ jobs:
         path: security_report.txt
 
   release:
-    needs: build-package
+    needs: hatchling
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
     steps:
