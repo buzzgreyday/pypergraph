@@ -35,7 +35,7 @@ Connect to Metagraph
             metagraph_id="DAG7...",
             l0_host="http://custom-l0-node:9100",
             cl1_host="http://custom-cl1-node:9200",
-            dl1_host="http://custom-cl1-node:9300"
+            dl1_host="http://custom-dl1-node:9300"
         )
 
 .. dropdown:: Alternative

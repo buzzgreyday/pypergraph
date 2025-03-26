@@ -320,7 +320,7 @@ class DagAccount:
             hashes.append(hash_)
         return hashes
 
-    async def transfer_dag_batch(
+    async def transfer_batch(
         self,
         transfers: List[dict],
         last_ref: Optional[Union[dict, TransactionReference]] = None,

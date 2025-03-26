@@ -207,7 +207,7 @@ async def test_currency_batch_transfer():
         {'to_address': to_address, 'amount': 1, 'fee': 200000}
     ]
     try:
-        r = await account.transfer_dag_batch(transfers=txn_data)
+        r = await account.transfer_batch(transfers=txn_data)
         assert len(r) == 4
     except (NetworkError, httpx.ReadTimeout) as e:
         pytest.skip(f"Got expected error: {e}")
