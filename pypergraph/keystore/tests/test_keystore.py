@@ -20,7 +20,7 @@ def test_get_keys_from_mnemonic():
 
 def test_new_keys():
     keystore = KeyStore()
-    mnemo = keystore.get_mnemonic()
+    mnemo = keystore.generate_mnemonic()
     keystore.validate_mnemonic(mnemo)
     pk = keystore.get_private_key_from_mnemonic(mnemo)
     pubk = keystore.get_public_key_from_private(pk)
