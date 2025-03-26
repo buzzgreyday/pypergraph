@@ -9,6 +9,13 @@ Pypergraph: Python SDK for Constellation Network
 Pypergraph is a Python tool similar to `DAG for JavaScript (DAG4JS) <https://github.com/StardustCollective/dag4.js/>`_.
 Use it to send data to Metagraph, build a wallet and more.
 
+.. caution::
+
+  This package is currently in alpha. Changes will happen rapidly, as I develop.
+  **Do not use it for production purposes** as it may contain bugs or incomplete features.
+
+  **Wish to contribute?** Please reach out on `GitHub <https://github.com/buzzgreyday>`_.
+
 .. toctree::
    :maxdepth: 1
    :caption: Getting Started:
