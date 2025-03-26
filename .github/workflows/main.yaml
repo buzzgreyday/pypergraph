@@ -52,7 +52,7 @@ jobs:
   release:
     needs: build-package
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/testing'
+    if: github.ref == 'refs/heads/dev'
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
