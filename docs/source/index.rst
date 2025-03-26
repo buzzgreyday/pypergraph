@@ -20,13 +20,18 @@ Use it to send data to Metagraph, build a wallet and more.
    :maxdepth: 1
    :caption: Getting Started:
 
-   getting_started.overview
-   getting_started.installation
+   getting_started/getting_started.overview
+   getting_started/getting_started.installation
 
 .. toctree::
    :maxdepth: 1
-   :caption: Basics:
+   :caption: Account Basics:
 
-   basic.account.keys
-   basic.account.network
-   basic.account.transactions
+   basics/account/basic.account.introduction
+   basics/account/basic.account.keys
+   basics/account/basic.account.network
+   basics/account/basic.account.transactions
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Keystore Basics:

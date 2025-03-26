@@ -1,5 +1,5 @@
-Account Network
-===============
+Network
+=======
 
 .. admonition:: Network Configurations
 

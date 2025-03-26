@@ -1,5 +1,5 @@
-Account Transactions
-====================
+Transactions
+============
 
 Single $DAG Transaction
 ^^^^^^^^^^^^^^^^^^^^^^^
