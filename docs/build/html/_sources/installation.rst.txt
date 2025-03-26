@@ -1,36 +1,38 @@
 Installation
 ============
 
-The package is not yet available on PyPi. You can try it out by running the commands below.
+The package is not yet available through PyPi. You can use the following method to test the package.
 
-1. Clone the repository:
+1. Make sure Python 3.9+ is installed. Instructions available `here <https://www.python.org/downloads/>`_ or see `pyenv <https://github.com/pyenv/pyenv>`_.
+
+2. Clone the repository:
 
 .. code-block:: bash
 
     git clone https://github.com/buzzgreyday/pypergraph
     cd pypergraph
 
-2. Create a virtual environment:
+3. Create a virtual environment:
 
 .. code-block:: bash
 
     python -m venv venv
 
-3. Activate the virtual environment:
+4. Activate the virtual environment:
 
-- **Linux/MacOS**:
+- Linux/MacOS:
 
 .. code-block:: bash
 
     source venv/bin/activate
 
-- **Windows**:
+- Windows:
 
 .. code-block:: bash
 
     .\venv\Scripts\activate
 
-4. Install dependencies:
+5. Install dependencies:
 
 .. code-block:: bash
 

@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.abspath('../../pypergraph/'))
 project = 'pypergraph'
 copyright = '2025, Michael Brummer Ringdal'
 author = 'Michael Brummer Ringdal'
-release = '2025.0.0a3'
+release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -22,12 +22,14 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',  # For Google and NumPy style docstrings
+    'sphinx_rtd_dark_mode',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
-
+# user starts in dark mode
+default_dark_mode = True
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

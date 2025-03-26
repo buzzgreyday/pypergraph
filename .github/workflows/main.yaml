@@ -49,3 +49,31 @@ jobs:
         name: security-report-${{ github.run_id }}-${{ matrix.python-version }}
         path: security_report.txt
 
+  release:
+    needs: build-package
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.11'
+      - name: Extract version from pyproject.toml
+        id: get_version
+        run: echo "VERSION=$(sed -n 's/version = \"\(.*\)\"/\1/p' pyproject.toml)" >> $GITHUB_ENV
+      - name: Download package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: package-build
+          path: ./dist
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ env.VERSION }}"
+          release_name: "Release v${{ env.VERSION }}"
+          draft: false
+          prerelease: true
+          files: ./dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

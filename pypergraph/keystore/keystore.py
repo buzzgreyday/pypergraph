@@ -310,7 +310,7 @@ class KeyStore:
         return Bip39Helper.validate_mnemonic(mnemonic_phrase=mnemonic_phrase)
 
     @staticmethod
-    def get_mnemonic() -> str:
+    def generate_mnemonic() -> str:
         """
         :return: Mnemonic values in a dictionary with keys: mnemo, words, seed, entropy
         """

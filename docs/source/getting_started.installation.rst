@@ -28,7 +28,7 @@ The package is not yet available through PyPi. You can use the following method 
 
 - Windows:
 
-.. code-block:: bash
+.. code-block::
 
     .\venv\Scripts\activate
 

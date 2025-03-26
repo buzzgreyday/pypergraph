@@ -6,18 +6,22 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pypergraph package &mdash; pypergraph 2025.0.0a3 documentation</title>
+  <title>pypergraph package &mdash; pypergraph 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="_static/dark_mode_css/general.css?v=c0a7eb24" />
+      <link rel="stylesheet" type="text/css" href="_static/dark_mode_css/dark.css?v=70edf1c7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=d273756d"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/design-tabs.js?v=f930bc37"></script>
+      <script src="_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+      <script src="_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -42,12 +46,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Basics:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Account Management</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pypergraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.account.keys.html">Account Keys</a></li>
 </ul>
 
         </div>
@@ -578,6 +579,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.encode_data"><code class="docutils literal notranslate"><span class="pre">KeyStore.encode_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.encrypt_phrase"><code class="docutils literal notranslate"><span class="pre">KeyStore.encrypt_phrase()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.generate_encrypted_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.generate_encrypted_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.generate_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.generate_mnemonic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.generate_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.generate_private_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.get_dag_address_from_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_dag_address_from_private_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.get_dag_address_from_public_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_dag_address_from_public_key()</span></code></a></li>
@@ -585,7 +587,6 @@
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.get_eth_address_from_public_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_eth_address_from_public_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.get_extended_private_key_from_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_extended_private_key_from_mnemonic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.get_master_key_from_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_master_key_from_mnemonic()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.get_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_mnemonic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.get_private_key_from_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_private_key_from_mnemonic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.get_public_key_from_private"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_public_key_from_private()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.keystore.KeyStore.is_valid_json_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.is_valid_json_private_key()</span></code></a></li>
@@ -657,6 +658,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.encode_data"><code class="docutils literal notranslate"><span class="pre">KeyStore.encode_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.encrypt_phrase"><code class="docutils literal notranslate"><span class="pre">KeyStore.encrypt_phrase()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.generate_encrypted_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.generate_encrypted_private_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.generate_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.generate_mnemonic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.generate_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.generate_private_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.get_dag_address_from_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_dag_address_from_private_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.get_dag_address_from_public_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_dag_address_from_public_key()</span></code></a></li>
@@ -664,7 +666,6 @@
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.get_eth_address_from_public_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_eth_address_from_public_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.get_extended_private_key_from_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_extended_private_key_from_mnemonic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.get_master_key_from_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_master_key_from_mnemonic()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.get_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_mnemonic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.get_private_key_from_mnemonic"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_private_key_from_mnemonic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.get_public_key_from_private"><code class="docutils literal notranslate"><span class="pre">KeyStore.get_public_key_from_private()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pypergraph.keystore.html#pypergraph.keystore.KeyStore.is_valid_json_private_key"><code class="docutils literal notranslate"><span class="pre">KeyStore.is_valid_json_private_key()</span></code></a></li>
@@ -1366,6 +1367,16 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pypergraph.KeyStore.generate_mnemonic">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_mnemonic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/keystore/keystore.html#KeyStore.generate_mnemonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.KeyStore.generate_mnemonic" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mnemonic values in a dictionary with keys: mnemo, words, seed, entropy</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pypergraph.KeyStore.generate_private_key">
 <span class="sig-name descname"><span class="pre">generate_private_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/keystore/keystore.html#KeyStore.generate_private_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.KeyStore.generate_private_key" title="Link to this definition"></a></dt>
 <dd><p>Generates private key.</p>
@@ -1422,16 +1433,6 @@ See: login_with_seed_phrase(words=), login_with_private_key(private_key=) and lo
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pypergraph.KeyStore.get_mnemonic">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_mnemonic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pypergraph/keystore/keystore.html#KeyStore.get_mnemonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypergraph.KeyStore.get_mnemonic" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Mnemonic values in a dictionary with keys: mnemo, words, seed, entropy</p>
 </dd>
 </dl>
 </dd></dl>

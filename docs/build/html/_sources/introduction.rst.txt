@@ -19,7 +19,7 @@ Pypergraph consists of 5 subpackages.
 3. The :doc:`network package </pypergraph.network>` handles network related functionalities such as network and Metagraph configuration and get/post methods for CN APIs.
 
 
-4. The :doc:`keyring package </pypergraph.keyring>` contains a :code:`KeyringManager()` that handles wallet creation, restoration and storage of wallet accounts and data. Used together with above packages it enables easy building of e.g. wallet applications.
+4. The :doc:`keyring package </pypergraph.keyring>` contains a :code:`KeyringManager()` that handles wallet creation, restoration and secure storage of wallet accounts and data using the :code:`AsyncAesGcmEncryptor`. Used together with above packages it enables easy building of e.g. wallet applications.
 
 
 5. The :doc:`core package </pypergraph.core>` contains the :code:`REST API client` and the shared modules :code:`constants` and :code:`exceptions`.
