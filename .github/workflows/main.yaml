@@ -1,4 +1,4 @@
-name: "pypergraph-dag"
+name: "dag-pypergraph"
 
 on:
   push:
