@@ -71,7 +71,7 @@ class KeyringMonitor:
 
 # Running the setup
 async def main():
-    keyring = KeyringManager()
+    keyring = KeyringManager(storage_file_path="key_storage.json")
     monitor = KeyringMonitor(keyring)
 
     keyring._event_subject.on_next({"invalid": "error"})  # Logs warning but doesn't crash
