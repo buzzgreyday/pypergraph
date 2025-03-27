@@ -8,7 +8,7 @@ Pypergraph is a Python package that enables secure wallet functionalities and in
 
 View [documentation here](https://dag-pypergraph.readthedocs.io).
 
-[![Read the Docs](https://img.shields.io/readthedocs/dag-pypergraph)](https://dag-pypergraph.readthedocs.io)
+[![Read the Docs](https://img.shields.io/readthedocs/pypergraph-dag)](https://dag-pypergraph.readthedocs.io)
 ![Version](https://img.shields.io/badge/version-0.0.1-yellow.svg)
 ![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 ---
