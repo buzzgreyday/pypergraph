@@ -4,9 +4,9 @@ from .json_storage import JsonStorage
 
 
 class StateStorageDb:
-    def __init__(self, storage_client=None):
+    def __init__(self, storage_client = None, file_path: Optional[str] = None):
         self.key_prefix = "pypergraph-"
-        self.default_storage = JsonStorage()  # Fallback storage
+        self.default_storage = JsonStorage(file_path=file_path)  # Fallback storage
         self.storage_client = storage_client or self.default_storage
 
     def set_client(self, client):

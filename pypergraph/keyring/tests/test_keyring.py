@@ -8,7 +8,7 @@ from pypergraph.keystore import KeyStore
 
 @pytest.fixture
 def key_manager():
-    return KeyringManager()
+    return KeyringManager(storage_file_path="key_storage.json")
 
 @pytest.mark.asyncio
 async def test_create_or_restore_wallet(key_manager):

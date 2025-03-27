@@ -21,10 +21,10 @@ from .wallets.single_account_wallet import SingleAccountWallet
 
 class KeyringManager:
 
-    def __init__(self):
+    def __init__(self, storage_file_path: Optional[str] = None):
         super().__init__()
         self.encryptor: Encryptor = Encryptor()
-        self.storage: StateStorageDb = StateStorageDb()
+        self.storage: StateStorageDb = StateStorageDb(file_path=storage_file_path)
         self.wallets: List[Union[MultiChainWallet, MultiKeyWallet, MultiAccountWallet, SingleAccountWallet]] = []
         self.password: Optional[str] = None
         self.mem_store: ObservableStore = ObservableStore()

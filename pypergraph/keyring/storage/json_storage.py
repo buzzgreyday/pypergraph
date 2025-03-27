@@ -6,7 +6,9 @@ from pathlib import Path
 class JsonStorage:
     """Async JSON file storage using aiofiles."""
 
-    def __init__(self, file_path: str = "pypergraph_storage.json"):
+    def __init__(self, file_path: str = None):
+        if not file_path:
+            raise ValueError("JsonStorage :: Please provide a file path.")
         self.file_path = Path(file_path)
         if not self.file_path.exists():
             self.file_path.write_text(json.dumps({}))  # Sync write for initialization
