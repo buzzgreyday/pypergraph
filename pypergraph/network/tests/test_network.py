@@ -21,35 +21,31 @@ def network():
 @pytest.mark.parametrize("network_id, expected", [
     ("testnet", NetworkInfo(
         network_id='testnet',
-        be_url='https://be-testnet.constellationnetwork.io',
+        block_explorer_url='https://be-testnet.constellationnetwork.io',
         l0_host='https://l0-lb-testnet.constellationnetwork.io',
-        cl1_host='https://l1-lb-testnet.constellationnetwork.io',
-        l0_lb_url='https://l0-lb-testnet.constellationnetwork.io',
-        l1_lb_url='https://l1-lb-testnet.constellationnetwork.io')
+        currency_l1_host='https://l1-lb-testnet.constellationnetwork.io'
+        )
     ),
     ("integrationnet", NetworkInfo(
         network_id='integrationnet',
-        be_url='https://be-integrationnet.constellationnetwork.io',
+        block_explorer_url='https://be-integrationnet.constellationnetwork.io',
         l0_host='https://l0-lb-integrationnet.constellationnetwork.io',
-        cl1_host='https://l1-lb-integrationnet.constellationnetwork.io',
-        l0_lb_url='https://l0-lb-integrationnet.constellationnetwork.io',
-        l1_lb_url='https://l1-lb-integrationnet.constellationnetwork.io')
+        currency_l1_host='https://l1-lb-integrationnet.constellationnetwork.io'
+        )
     ),
     ("mainnet", NetworkInfo(
         network_id='mainnet',
-        be_url='https://be-mainnet.constellationnetwork.io',
+        block_explorer_url='https://be-mainnet.constellationnetwork.io',
         l0_host='https://l0-lb-mainnet.constellationnetwork.io',
-        cl1_host='https://l1-lb-mainnet.constellationnetwork.io',
-        l0_lb_url='https://l0-lb-mainnet.constellationnetwork.io',
-        l1_lb_url='https://l1-lb-mainnet.constellationnetwork.io')
+        currency_l1_host='https://l1-lb-mainnet.constellationnetwork.io'
+        )
     ),
     (None, NetworkInfo(
         network_id='mainnet',
-        be_url='https://be-mainnet.constellationnetwork.io',
+        block_explorer_url='https://be-mainnet.constellationnetwork.io',
         l0_host='https://l0-lb-mainnet.constellationnetwork.io',
-        cl1_host='https://l1-lb-mainnet.constellationnetwork.io',
-        l0_lb_url='https://l0-lb-mainnet.constellationnetwork.io',
-        l1_lb_url='https://l1-lb-mainnet.constellationnetwork.io')
+        currency_l1_host='https://l1-lb-mainnet.constellationnetwork.io'
+        )
     )
 ])
 
@@ -72,16 +68,14 @@ async def test_init_custom(network):
         net = DagTokenNetwork(
             network_id="mainnet",
             l0_host=f"http://{l0_api_cluster_node[0]}:{l0_api_cluster_node[1]}",
-            cl1_host=f"http://{l1_api_cluster_node[0]}:{l1_api_cluster_node[1]}"
+            currency_l1_host=f"http://{l1_api_cluster_node[0]}:{l1_api_cluster_node[1]}"
         )
 
         expected = NetworkInfo(
             network_id="mainnet",
-            be_url='https://be-mainnet.constellationnetwork.io',
+            block_explorer_url='https://be-mainnet.constellationnetwork.io',
             l0_host=f"http://{l0_api_cluster_node[0]}:{l0_api_cluster_node[1]}",
-            cl1_host=f"http://{l1_api_cluster_node[0]}:{l1_api_cluster_node[1]}",
-            l0_lb_url='https://l0-lb-mainnet.constellationnetwork.io',
-            l1_lb_url='https://l1-lb-mainnet.constellationnetwork.io'
+            currency_l1_host=f"http://{l1_api_cluster_node[0]}:{l1_api_cluster_node[1]}"
         )
         assert net.get_network() == vars(expected)
 
@@ -93,11 +87,9 @@ def test_config_network(network):
     network.config("integrationnet")
     expected = NetworkInfo(
         network_id='integrationnet',
-        be_url='https://be-integrationnet.constellationnetwork.io',
+        block_explorer_url='https://be-integrationnet.constellationnetwork.io',
         l0_host='https://l0-lb-integrationnet.constellationnetwork.io',
-        cl1_host='https://l1-lb-integrationnet.constellationnetwork.io',
-        l0_lb_url='https://l0-lb-integrationnet.constellationnetwork.io',
-        l1_lb_url='https://l1-lb-integrationnet.constellationnetwork.io'
+        currency_l1_host='https://l1-lb-integrationnet.constellationnetwork.io'
     )
     assert network.get_network() == expected.__dict__
 
@@ -401,7 +393,7 @@ async def test_post_metagraph_currency_transaction(network):
         account=account,
         metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
         l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
-        cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+        currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
     )
     try:
         # Generate signed tx
@@ -490,7 +482,7 @@ async def test_post_metagraph_data_transaction(network):
     account = pypergraph.account.DagAccount()
     account.login_with_seed_phrase(mnemo)
     account_metagraph_client = pypergraph.account.MetagraphTokenClient(
-        account=account, metagraph_id=METAGRAPH_ID, l0_host=L0, cl1_host=CL1, dl1_host=DL1
+        account=account, metagraph_id=METAGRAPH_ID, l0_host=L0, currency_l1_host=CL1, data_l1_host=DL1
     )
     keystore = KeyStore()
     pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
@@ -557,7 +549,7 @@ async def test_post_metagraph_data_transaction(network):
 @pytest.mark.asyncio
 async def test_get_metrics(network):
     try:
-        r = await network.l0_lb_api.get_metrics()
+        r = await network.l0_api.get_metrics()
         for x in r:
             print(x)
         assert isinstance(r, list)

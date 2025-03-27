@@ -12,46 +12,38 @@ async def test_dag_account_connect():
     account = DagAccount()
     account.connect(network_id="testnet")
     assert account.network.get_network() == {
-        'dl1_host': None,
+        'data_l1_host': None,
         'network_id': 'testnet',
-        'be_url': 'https://be-testnet.constellationnetwork.io',
-        'l0_lb_url': 'https://l0-lb-testnet.constellationnetwork.io',
-        'l1_lb_url': 'https://l1-lb-testnet.constellationnetwork.io',
+        'block_explorer_url': 'https://be-testnet.constellationnetwork.io',
         'l0_host': 'https://l0-lb-testnet.constellationnetwork.io',
-        'cl1_host': 'https://l1-lb-testnet.constellationnetwork.io',
+        'currency_l1_host': 'https://l1-lb-testnet.constellationnetwork.io',
         'metagraph_id': None
     }
     account.connect(network_id="integrationnet")
     assert account.network.get_network() == {
-        'dl1_host': None,
+        'data_l1_host': None,
         'network_id': 'integrationnet',
-        'be_url': 'https://be-integrationnet.constellationnetwork.io',
-        'l0_lb_url': 'https://l0-lb-integrationnet.constellationnetwork.io',
-        'l1_lb_url': 'https://l1-lb-integrationnet.constellationnetwork.io',
+        'block_explorer_url': 'https://be-integrationnet.constellationnetwork.io',
         'l0_host': 'https://l0-lb-integrationnet.constellationnetwork.io',
-        'cl1_host': 'https://l1-lb-integrationnet.constellationnetwork.io',
+        'currency_l1_host': 'https://l1-lb-integrationnet.constellationnetwork.io',
         'metagraph_id': None
     }
     account.connect(network_id="mainnet")
     assert account.network.get_network() == {
-        'dl1_host': None,
+        'data_l1_host': None,
         'network_id': 'mainnet',
-        'be_url': 'https://be-mainnet.constellationnetwork.io',
-        'l0_lb_url': 'https://l0-lb-mainnet.constellationnetwork.io',
-        'l1_lb_url': 'https://l1-lb-mainnet.constellationnetwork.io',
+        'block_explorer_url': 'https://be-mainnet.constellationnetwork.io',
         'l0_host': 'https://l0-lb-mainnet.constellationnetwork.io',
-        'cl1_host': 'https://l1-lb-mainnet.constellationnetwork.io',
+        'currency_l1_host': 'https://l1-lb-mainnet.constellationnetwork.io',
         'metagraph_id': None
     }
     account.connect(network_id="mainnet", l0_host='http://123.123.13.123:9000', cl1_host='http://123.123.123.123:9010')
     assert account.network.get_network() == {
-        'dl1_host': None,
+        'data_l1_host': None,
         'network_id': 'mainnet',
-        'be_url': 'https://be-mainnet.constellationnetwork.io',
-        'l0_lb_url': 'https://l0-lb-mainnet.constellationnetwork.io',
-        'l1_lb_url': 'https://l1-lb-mainnet.constellationnetwork.io',
+        'block_explorer_url': 'https://be-mainnet.constellationnetwork.io',
         'l0_host': 'http://123.123.13.123:9000',
-        'cl1_host': 'http://123.123.123.123:9010',
+        'currency_l1_host': 'http://123.123.123.123:9010',
         'metagraph_id': None
     }
 
@@ -70,19 +62,17 @@ async def test_metagraph_account_connect():
     metagraph_account = MetagraphTokenClient(
         account=account,
         l0_host='http://123.123.123.123:9000',
-        dl1_host='http://123.123.123.123:9020',
-        cl1_host='http://123.123.123.123:9010',
+        data_l1_host='http://123.123.123.123:9020',
+        currency_l1_host='http://123.123.123.123:9010',
         metagraph_id='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'
     )
     metagraph_account.network.get_network()
     assert metagraph_account.network.get_network() == {
-        'dl1_host': 'http://123.123.123.123:9020',
+        'data_l1_host': 'http://123.123.123.123:9020',
         'network_id': 'testnet',
-        'be_url': 'https://be-testnet.constellationnetwork.io',
-        'l0_lb_url': 'https://l0-lb-testnet.constellationnetwork.io',
-        'l1_lb_url': 'https://l1-lb-testnet.constellationnetwork.io',
+        'block_explorer_url': 'https://be-testnet.constellationnetwork.io',
         'l0_host': 'http://123.123.123.123:9000',
-        'cl1_host': 'http://123.123.123.123:9010',
+        'currency_l1_host': 'http://123.123.123.123:9010',
         'metagraph_id': 'DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'
     }
     metagraph_account = account.create_metagraph_token_client(
@@ -90,18 +80,16 @@ async def test_metagraph_account_connect():
         cl1_host='http://123.123.123.123:9010'
     )
     assert metagraph_account.network.get_network() == {
-        'dl1_host': None,
+        'data_l1_host': None,
         'network_id': 'testnet',
-        'be_url': 'https://be-testnet.constellationnetwork.io',
-        'l0_lb_url': 'https://l0-lb-testnet.constellationnetwork.io',
-        'l1_lb_url': 'https://l1-lb-testnet.constellationnetwork.io',
+        'block_explorer_url': 'https://be-testnet.constellationnetwork.io',
         'l0_host': 'https://l0-lb-testnet.constellationnetwork.io',
-        'cl1_host': 'http://123.123.123.123:9010',
+        'currency_l1_host': 'http://123.123.123.123:9010',
         'metagraph_id': 'DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'
     }
     try:
         await metagraph_account.get_balance()
-    except (ValueError, httpx.ReadTimeout) as e:
+    except httpx.ReadTimeout as e:
         pytest.skip(f"Got expected error: {e}")
 
 
@@ -141,7 +129,7 @@ async def test_get_balance():
             account=account,
             metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
             l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
-            cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+            currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
         )
         r = await metagraph_account.get_balance()
         assert r >= 0
@@ -157,7 +145,7 @@ async def test_get_currency_transactions():
         account=account,
         metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
         l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
-        cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+        currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
     )
     r = await metagraph_account.get_transactions(limit=3)
     assert len(r) == 3
@@ -179,7 +167,7 @@ async def test_currency_transfer():
         account=account,
         metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
         # l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
-        cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+        currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
     )
 
     try:

@@ -3,7 +3,6 @@ from typing import Optional, Dict, List
 from rx.subject import BehaviorSubject
 
 from pypergraph.network.models.account import Balance
-from pypergraph.network.api.load_balancer_api import LoadBalancerApi
 from pypergraph.network.api import Layer0Api
 from pypergraph.network.api import Layer1Api
 from pypergraph.network.api import BlockExplorerApi
@@ -17,6 +16,7 @@ from pypergraph.network.models.network import NetworkInfo
 from pypergraph.core.exceptions import NetworkError
 import logging
 
+
 # Get a logger for this specific module
 logger = logging.getLogger(__name__)
 
@@ -26,24 +26,18 @@ class DagTokenNetwork:
         self,
         network_id: str = "mainnet",
         l0_host: Optional[str] = None,
-        cl1_host: Optional[str] = None,
+        currency_l1_host: Optional[str] = None,
     ):
         # Initialize connected network info
         self.connected_network = NetworkInfo(
-            network_id=network_id, l0_host=l0_host, cl1_host=cl1_host
+            network_id=network_id, l0_host=l0_host, currency_l1_host=currency_l1_host
         )
-        self.l1_lb_api = LoadBalancerApi(host=self.connected_network.l1_lb_url)
-        self.l0_lb_api = LoadBalancerApi(host=self.connected_network.l0_lb_url)
-        self.be_api = BlockExplorerApi(host=self.connected_network.be_url)
+        self.be_api = BlockExplorerApi(host=self.connected_network.block_explorer_url)
         self.l0_api = (
-            Layer0Api(host=self.connected_network.l0_host)
-            if self.connected_network.l0_host
-            else Layer0Api(host=self.connected_network.l0_lb_url)
+            Layer0Api(host=self.connected_network.l0_host or f"https://l0-lb-{network_id}.constellationnetwork.io")
         )
         self.cl1_api = (
-            Layer1Api(host=self.connected_network.cl1_host)
-            if self.connected_network.cl1_host
-            else Layer1Api(host=self.connected_network.l1_lb_url)
+            Layer1Api(host=self.connected_network.currency_l1_host or f"https://l1-lb-{network_id}.constellationnetwork.io")
         )
 
         self._network_change = BehaviorSubject({
@@ -55,22 +49,18 @@ class DagTokenNetwork:
     def config(
         self,
         network_id: str = None,
-        be_url: Optional[str] = None,
+        block_explorer_url: Optional[str] = None,
         l0_host: Optional[str] = None,
-        cl1_host: Optional[str] = None,
-        l0_lb_url: Optional[str] = None,
-        l1_lb_url: Optional[str] = None,
+        currency_l1_host: Optional[str] = None,
     ):
         """
         Reconfigure the network; new configuration is applied only if different from the current one.
         """
         new_info = NetworkInfo(
             network_id=network_id,
-            be_url=be_url,
+            block_explorer_url=block_explorer_url,
             l0_host=l0_host,
-            cl1_host=cl1_host,
-            l0_lb_url=l0_lb_url,
-            l1_lb_url=l1_lb_url,
+            currency_l1_host=currency_l1_host
         )
         self.set_network(new_info)
 
@@ -79,11 +69,9 @@ class DagTokenNetwork:
             raise ValueError("DagTokenNetwork :: Invalid network id.")
         if self.connected_network.__dict__ != network_info.__dict__:
             self.connected_network = network_info
-            self.be_api.config(network_info.be_url)  # Block Explorer
+            self.be_api.config(network_info.block_explorer_url)  # Block Explorer
             self.l0_api.config(network_info.l0_host)
-            self.l0_lb_api.config(network_info.l0_lb_url)
-            self.l1_lb_api.config(network_info.l1_lb_url)
-            self.cl1_api.config(network_info.cl1_host)  # Currency layer
+            self.cl1_api.config(network_info.currency_l1_host)  # Currency layer
 
             # Emit a network change event
             self._network_change.on_next({

@@ -1,3 +1,5 @@
+import logging
+import warnings
 from typing import List, Dict, Any
 
 from prometheus_client.parser import text_string_to_metric_families
@@ -29,13 +31,13 @@ def _handle_metrics(response: str) -> List[Dict[str, Any]]:
 class MDL1Api:
     def __init__(self, host: str):
         if not host:
-            raise ValueError("MDL1Api :: Metagraph data layer 1 host is not configured.")
+            logging.warning("MDL1Api :: Metagraph data layer 1 API object not set.")
         self._host = host
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL."""
         if not host:
-            raise ValueError("MDL1Api :: Metagraph data layer 1 host is not configured.")
+            logging.warning("MDL1Api :: Metagraph data layer 1 API object not set.")
         self._host = host
 
     async def _make_request(self, method: str, endpoint: str, params: Dict[str, Any] = None, payload: Dict[str, Any] = None) -> Any:

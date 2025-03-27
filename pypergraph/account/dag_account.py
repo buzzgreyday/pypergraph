@@ -22,9 +22,7 @@ class DagAccount:
         network_id: Optional[str] = "mainnet",
         be_url: Optional[str] = None,
         l0_host: Optional[str] = None,
-        cl1_host: Optional[str] = None,
-        l0_lb_url: Optional[str] = None,
-        l1_lb_url: Optional[str] = None,
+        cl1_host: Optional[str] = None
     ) -> "DagAccount":
         """
         Configure the DagAccount network instance. Parameter 'network_id' can be used to change between 'testnet',
@@ -34,13 +32,11 @@ class DagAccount:
         :param be_url: Block Explorer host URL.
         :param l0_host: Layer 0 host URL.
         :param cl1_host: Currency Layer 1 host URL.
-        :param l0_lb_url: Layer 0 Load Balancer (if available).
-        :param l1_lb_url: Layer 1 Load Balancer (if available).
         :return: Configured DagAccount object.
         """
 
         # self.network = DagTokenNetwork() This will stop monitor from emitting network changes
-        self.network.config(network_id, be_url, l0_host, cl1_host, l0_lb_url, l1_lb_url)
+        self.network.config(network_id, be_url, l0_host, cl1_host)
         return self
 
     @property
@@ -371,10 +367,10 @@ class DagAccount:
         return MetagraphTokenClient(
             account=account or self,
             metagraph_id=metagraph_id or self.network.connected_network.metagraph_id,
-            block_explorer_url=block_explorer_url or self.network.connected_network.be_url,
+            block_explorer_url=block_explorer_url or self.network.connected_network.block_explorer_url,
             l0_host=l0_host,
-            cl1_host=cl1_host,
-            dl1_host=dl1_host,
+            currency_l1_host=cl1_host,
+            data_l1_host=dl1_host,
             token_decimals=token_decimals,
         )
 

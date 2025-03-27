@@ -19,16 +19,16 @@ class MetagraphTokenClient:
         metagraph_id: str,
         block_explorer_url: Optional[str] = None,
         l0_host: Optional[str] = None,
-        cl1_host: Optional[str] = None,
-        dl1_host: Optional[str] = None,
+        currency_l1_host: Optional[str] = None,
+        data_l1_host: Optional[str] = None,
         token_decimals: int = 8,
     ):
         self.account = account
         self.network = MetagraphTokenNetwork(
             metagraph_id=metagraph_id,
             l0_host=l0_host,
-            cl1_host=cl1_host,
-            dl1_host=dl1_host,
+            currency_l1_host=currency_l1_host,
+            data_l1_host=data_l1_host,
             network_id=account.network.connected_network.network_id,
             block_explorer=block_explorer_url or account.network.be_api._host,
         )

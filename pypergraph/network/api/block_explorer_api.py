@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 class BlockExplorerApi:
     def __init__(self, host: str):
         if not host:
-            raise ValueError("BlockExplorerApi :: Block explorer host is not configured.")
+            logging.warning("BlockExplorerApi :: Block explorer API object not set.")
         self._host = host
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL dynamically."""
         if not host:
-            raise ValueError("BlockExplorerApi :: Block explorer host is not configured.")
+            logging.warning("BlockExplorerApi :: Block explorer API object not set.")
         self._host = host
 
     async def _make_request(

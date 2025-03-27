@@ -1,8 +1,8 @@
+import logging
 from typing import List, Dict, Any, Union
 
 from prometheus_client.parser import text_string_to_metric_families
 
-from pypergraph.account.monitor import DagWalletMonitorUpdate
 from pypergraph.core.rest_api_client import RestAPIClient
 from pypergraph.network.models.network import PeerInfo, TotalSupply
 from pypergraph.network.models.account import Balance
@@ -35,13 +35,13 @@ def _handle_metrics(response: str) -> List[Dict[str, Any]]:
 class L0Api:
     def __init__(self, host: str):
         if not host:
-            raise ValueError("L0Api :: Layer 0 host is not configured.")
+            logging.warning("L0Api | ML0 :: Layer 0 API object not set.")
         self._host = host
 
     def config(self, host: str):
         """Reconfigure the RestAPIClient's base URL."""
         if not host:
-            raise ValueError("L0Api :: Layer 0 host is not configured.")
+            logging.warning("L0Api | ML0 :: Layer 0 API object not set.")
         self._host = host
 
     async def _make_request(self, method: str, endpoint: str, params: Dict[str, Any] = None, payload: Dict[str, Any] = None) -> Union[Dict, List, str]:

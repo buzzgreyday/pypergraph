@@ -29,8 +29,8 @@ class MetagraphTokenNetwork:
             self,
             metagraph_id: str,
             l0_host: Optional[str] = None,
-            cl1_host: Optional[str] = None,
-            dl1_host: Optional[str] = None,
+            currency_l1_host: Optional[str] = None,
+            data_l1_host: Optional[str] = None,
             network_id: Optional[str] = "mainnet",
             block_explorer: Optional[str] = None,
     ):
@@ -43,21 +43,18 @@ class MetagraphTokenNetwork:
             network_id=network_id,
             metagraph_id=metagraph_id,
             l0_host=l0_host,
-            cl1_host=cl1_host,
-            dl1_host=dl1_host,
-            be_url=block_explorer,
+            currency_l1_host=currency_l1_host,
+            data_l1_host=data_l1_host,
+            block_explorer_url=block_explorer
         )
         self.be_api = (
             BlockExplorerApi(host=block_explorer)
             if block_explorer
-            else BlockExplorerApi(host=self.connected_network.be_url)
+            else BlockExplorerApi(host=self.connected_network.block_explorer_url)
         )
-        if l0_host:
-            self.l0_api = MetagraphLayer0Api(host=l0_host)
-        if cl1_host:
-            self.cl1_api = MetagraphCurrencyLayerApi(host=cl1_host)  # Currency layer
-        if dl1_host:
-            self.dl1_api = MetagraphDataLayerApi(host=dl1_host)  # Data layer
+        self.l0_api = MetagraphLayer0Api(host=l0_host)
+        self.cl1_api = MetagraphCurrencyLayerApi(host=currency_l1_host)  # Currency layer
+        self.dl1_api = MetagraphDataLayerApi(host=data_l1_host)  # Data layer
 
     def get_network(self) -> Dict:
         """
@@ -77,7 +74,7 @@ class MetagraphTokenNetwork:
         try:
             return await self.l0_api.get_address_balance(address)
         except AttributeError:
-            raise ValueError("MetagraphTokenNetwork :: Layer 0 API URL is not set.")
+            logging.warning("MetagraphTokenNetwork :: Layer 0 API object not set.")
 
     async def get_address_last_accepted_transaction_ref(self, address: str) -> TransactionReference:
         """
@@ -89,7 +86,7 @@ class MetagraphTokenNetwork:
         try:
             return await self.cl1_api.get_last_reference(address)
         except AttributeError:
-            raise ValueError("MetagraphTokenNetwork :: Layer 0 API URL is not set.")
+            logging.warning("MetagraphTokenNetwork :: Currency layer 1 API object not set.")
 
     async def get_pending_transaction(self, hash: Optional[str]) -> Optional[PendingTransaction]:
         """
@@ -101,7 +98,7 @@ class MetagraphTokenNetwork:
         try:
             return await self.cl1_api.get_pending_transaction(hash)
         except AttributeError:
-            raise ValueError("MetagraphTokenNetwork :: Currency layer 1 is not set.")
+            logging.warning("MetagraphTokenNetwork :: Currency layer 1 API object not set.")
         except Exception:
             # NOOP for 404 or other exceptions
             logger.debug("No pending transaction.")
@@ -155,13 +152,13 @@ class MetagraphTokenNetwork:
         try:
             response = await self.dl1_api.get_data()
         except AttributeError:
-            raise ValueError("MetagraphTokenNetwork :: Data layer 1 API URL is not set.")
+            logging.warning("MetagraphTokenNetwork :: Data layer 1 API object not set.")
         except Exception:
             # NOOP for 404 or other exceptions
             logger.debug("No data found.")
             return None
-
-        return response.get("data", None) if response else None
+        else:
+            return response.get("data", None) if response else None
 
     async def post_transaction(self, tx: SignedTransaction) -> str:
         """
@@ -175,7 +172,7 @@ class MetagraphTokenNetwork:
             # Support data/meta format and object return format
             return response["data"]["hash"] if "data" in response else response["hash"]
         except AttributeError:
-            raise ValueError("MetagraphTokenNetwork :: Currency layer 1 API URL is not set.")
+            logging.warning("MetagraphTokenNetwork :: Currency layer 1 API object not set.")
 
     async def post_data(self, tx: Dict[str, Dict]) -> dict:
         """
@@ -198,7 +195,7 @@ class MetagraphTokenNetwork:
             response = await self.dl1_api.post_data(tx)
             return response
         except AttributeError:
-            raise ValueError("MetagraphTokenNetwork :: Data layer 1 API URL is not set.")
+            logging.warning("MetagraphTokenNetwork :: Data layer 1 API object not set.")
 
     async def get_latest_snapshot(self):
         """
