@@ -341,7 +341,8 @@ class DagAccount:
         return await self.transfer_batch_transactions(txns)
 
     def get_eth_address(self) -> str:
-        pass
+        # TODO
+        raise NotImplementedError("DagAccount :: Method not implemented.")
 
     def create_metagraph_token_client(
         self,

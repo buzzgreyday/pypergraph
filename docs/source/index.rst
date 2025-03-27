@@ -25,13 +25,22 @@ Use it to send data to Metagraph, build a wallet and more.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Account Basics:
+   :caption: Account:
 
-   basics/account/basic.account.introduction
-   basics/account/basic.account.keys
-   basics/account/basic.account.network
-   basics/account/basic.account.transactions
+   account/account.introduction
+   account/account.keys
+   account/account.network
+   account/account.transactions
+   account/account.other
 
 .. toctree::
    :maxdepth: 1
-   :caption: Keystore Basics:
+   :caption: Network:
+
+   network/network.introduction
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Keystore:
+
+   keystore/keystore.introduction
