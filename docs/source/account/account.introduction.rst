@@ -22,6 +22,8 @@ This section documents the ``DagAccount`` class. The object is instantiated as f
    key_trio         KeyTrio()            Pydantic model that validates and stores ``private_key``, ``public_key``, and ``address`` after a ``login(...)``.
    ===============  ===================  =================================================================================================================
 
+-----
+
 Network Configuration
 ---------------------
 

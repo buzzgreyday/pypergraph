@@ -3,6 +3,8 @@ Introduction
 
 Networks can be either a ``DagTokenNetwork()`` class or a ``MetagraphTokenNetwork()`` class. These classes have methods for easing API interactions. Both are temporarily configured using the ``NetworkInfo`` class [missing ref]. The main difference between the two classes is the parameters they support.
 
+-----
+
 DAG Token Network
 -----------------
 
@@ -46,6 +48,8 @@ Additional properties of ``DagTokenNetwork`` and ``NetworkInfo``:
                                                                                       interacting with the Constellation block explorer
                                                                                       API endpoints.
    ============  ===================================================================  ===========================================================
+
+-----
 
 Metagraph Token Network
 -----------------------

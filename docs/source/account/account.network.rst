@@ -1,7 +1,7 @@
 Network
 =======
 
-This section documents how to switch network and connect to Metagraphs
+This section documents how to switch network and connect to Metagraphs.
 
 -----
 
