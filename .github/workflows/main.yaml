@@ -1,4 +1,4 @@
-name: Python package
+name: "pypergraph-dag"
 
 on:
   push:
