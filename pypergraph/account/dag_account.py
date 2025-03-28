@@ -346,8 +346,8 @@ class DagAccount:
         metagraph_id: Optional[str] = None,
         block_explorer_url: Optional[str] = None,
         l0_host: Optional[str] = None,
-        cl1_host: Optional[str] = None,
-        dl1_host: Optional[str] = None,
+        currency_l1_host: Optional[str] = None,
+        data_l1_host: Optional[str] = None,
         token_decimals: int = 8,
     ):
         """
@@ -369,8 +369,8 @@ class DagAccount:
             metagraph_id=metagraph_id or self.network.connected_network.metagraph_id,
             block_explorer_url=block_explorer_url or self.network.connected_network.block_explorer_url,
             l0_host=l0_host,
-            currency_l1_host=cl1_host,
-            data_l1_host=dl1_host,
+            currency_l1_host=currency_l1_host,
+            data_l1_host=data_l1_host,
             token_decimals=token_decimals,
         )
 
