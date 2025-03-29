@@ -173,8 +173,10 @@ async def test_add_tokens(key_manager):
     print(account.get_tokens())
     print(account)
     """ Below is the way."""
-    wallet = key_manager.get_wallet_for_account(secret.from_address)
+    wallet = key_manager.get_wallet_for_account(from_address)
     print(wallet)
+    accounts = wallet.get_accounts()
+    print(accounts)
 
 
 
