@@ -1,6 +1,7 @@
 import pytest
 
 from pypergraph.keyring import KeyringManager, MultiKeyWallet, MultiAccountWallet
+from pypergraph.keyring.accounts.eth_asset_library import eth_asset_library
 from pypergraph.keyring.tests.secret import mnemo
 from pypergraph.keystore import KeyStore
 
@@ -98,6 +99,7 @@ async def test_create_wallet_ids(key_manager):
 async def test_manager_login(key_manager):
     """Retrieves data from encryted json storage"""
     await key_manager.login("super_S3cretP_Asswo0rd")
+    print(key_manager.get_accounts())
     assert [wallet.model_dump() for wallet in key_manager.wallets] == [
         {
             'type': 'SAW',
@@ -126,6 +128,33 @@ async def test_manager_login(key_manager):
             ]
         }
     ]
+
+@pytest.mark.asyncio
+async def test_add_tokens(key_manager):
+    """Retrieves data from encryted json storage"""
+    # TODO: Check Stargazer to see how this is used.
+    await key_manager.login("super_S3cretP_Asswo0rd")
+    print(key_manager.get_accounts()[0])
+    account = key_manager.get_accounts()[0]
+    # Assume eth_asset_library is already defined and initialized.
+    # And account is an instance of EthEcdsaAccount that uses eth_asset_library.
+
+    # List of token symbols you want to set.
+    requested_tokens = ["ETH", "LTX", "INVALID"]
+
+    # Filter tokens: use the asset library to check if each token is recognized.
+    valid_tokens = []
+    for symbol in requested_tokens:
+        asset = eth_asset_library.get_asset_by_symbol(symbol)
+        if asset is not None:
+            valid_tokens.append(symbol)
+        else:
+            print(f"Token {symbol} is not recognized by the asset library.")
+    print(key_manager.get_accounts())
+
+    # Use set_tokens to update the account's token list.
+    account.set_tokens(valid_tokens)
+    print("Account tokens after set_tokens:", account.get_tokens())
 
 
 @pytest.mark.asyncio
