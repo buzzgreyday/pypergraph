@@ -1,8 +1,10 @@
 import pytest
 
 from pypergraph.keyring import KeyringManager, MultiKeyWallet, MultiAccountWallet
+from pypergraph.keyring.accounts.dag_asset_library import dag_asset_library
 from pypergraph.keyring.accounts.eth_asset_library import eth_asset_library
-from pypergraph.keyring.tests.secret import mnemo
+from pypergraph.keyring.models.kcs import KeyringAssetInfo
+from pypergraph.keyring.tests.secret import mnemo, from_address
 from pypergraph.keystore import KeyStore
 
 # We need to write some more tests
@@ -155,6 +157,25 @@ async def test_add_tokens(key_manager):
     # Use set_tokens to update the account's token list.
     account.set_tokens(valid_tokens)
     print("Account tokens after set_tokens:", account.get_tokens())
+
+    token = KeyringAssetInfo(
+        id='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43',
+        address='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43',
+        label='El Paca',
+        symbol='PACA',
+        network='mainnet',
+        decimals=8
+    )
+    if dag_asset_library.import_token(token):
+        print("Token added:", token)
+
+    account.set_tokens(dag_asset_library.imported_assets)
+    print(account.get_tokens())
+    print(account)
+    """ Below is the way."""
+    wallet = key_manager.get_wallet_for_account(secret.from_address)
+    print(wallet)
+
 
 
 @pytest.mark.asyncio
