@@ -136,7 +136,6 @@ async def test_add_tokens(key_manager):
     """Retrieves data from encryted json storage"""
     # TODO: Check Stargazer to see how this is used.
     await key_manager.login("super_S3cretP_Asswo0rd")
-
     token = KeyringAssetInfo(
         id='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43',
         address='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43',
@@ -145,23 +144,20 @@ async def test_add_tokens(key_manager):
         network='mainnet',
         decimals=8
     )
-    if dag_asset_library.import_token(token):
-        print("Token added:", token)
+    assert dag_asset_library.import_token(token)
     token = KeyringAssetInfo(
         id='DAG0CyySf35ftDQDQBnd1bdQ9aPyUdacMghpnCuM',
         address='DAG0CyySf35ftDQDQBnd1bdQ9aPyUdacMghpnCuM',
-        label='El Paca',
+        label='Dor',
         symbol='DOR',
         network='mainnet',
         decimals=8
     )
-    dag_asset_library.import_token(token)
+    assert dag_asset_library.import_token(token)
     wallet = key_manager.get_wallet_for_account(from_address)
-    print(wallet)
     account = wallet.get_accounts()[0]
-    account.set_tokens(dag_asset_library.imported_assets)
-    print(account.get_tokens())
-    print(account)
+    account.set_tokens(dag_asset_library.imported_assets) # One would probably want to rely on different controllers for a wallet build
+    assert account.get_state() == {'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', 'supported_assets': ['DAG'], 'tokens': {'PACA': KeyringAssetInfo(id='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43', label='El Paca', symbol='PACA', decimals=8, native=None, network='mainnet', address='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'), 'DOR': KeyringAssetInfo(id='DAG0CyySf35ftDQDQBnd1bdQ9aPyUdacMghpnCuM', label='Dor', symbol='DOR', decimals=8, native=None, network='mainnet', address='DAG0CyySf35ftDQDQBnd1bdQ9aPyUdacMghpnCuM')}}
 
 
 
