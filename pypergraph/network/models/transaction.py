@@ -52,7 +52,7 @@ class PendingTransaction(BaseModel):
     ordinal: Optional[int] = None
     status: Optional[TransactionStatus] = None
     pending: Optional[bool] = None
-    pendingMsg: Optional[str] = None
+    pending_msg: Optional[str] = None
     timestamp: int
     fee: Optional[int] = None
 

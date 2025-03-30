@@ -1,12 +1,11 @@
-#
-# NOT DONE YET
-#
+# TODO: wait_for
+#       Storage path
 
 import asyncio
 import logging
 import time
 import json
-from dataclasses import dataclass
+# from dataclasses import dataclass
 from typing import Dict, Union, List, Optional, Any
 
 from pydantic import BaseModel, Field
@@ -14,10 +13,8 @@ from rx import operators as ops, of, empty
 from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import BehaviorSubject
 
-from pypergraph import DagAccount
-# from pypergraph.account.tests import secret
-from pypergraph.keyring.storage.state_storage_db import StateStorageDb
 from pypergraph.account.tests import secret
+from pypergraph.keyring.storage.state_storage_db import StateStorageDb
 from pypergraph.network.models.network import NetworkInfo
 from pypergraph.network.models.transaction import TransactionStatus, PendingTransaction
 from pypergraph.network.models.block_explorer import Transaction
@@ -25,10 +22,10 @@ from pypergraph.network.models.block_explorer import Transaction
 TWELVE_MINUTES = 12 * 60 * 1000
 
 
-@dataclass
-class WaitFor:
-    future: asyncio.Future
-    resolve: callable
+# @dataclass
+# class WaitFor:
+#     future: asyncio.Future
+#     resolve: callable
 
 
 class DagWalletMonitorUpdate(BaseModel):
@@ -45,8 +42,8 @@ class Monitor:
         self.mem_pool_change = BehaviorSubject(DagWalletMonitorUpdate().model_dump())
         self.last_timer = 0.0
         self.pending_timer = 0.0
-        self.wait_for_map: Dict[str, WaitFor] = {}
-        self.cache_utils = StateStorageDb()
+        # self.wait_for_map: Dict[str, WaitFor] = {}
+        self.cache_utils = StateStorageDb(file_path="store.json")
         self.cache_utils.set_prefix('pypergraph-')
 
         self.account._session_change.pipe(
@@ -208,10 +205,10 @@ class Monitor:
                             tx_changed = True
                             pending_tx.pending = False
                             pending_tx.status = TransactionStatus.CONFIRMED.value
-                            pending_tx.pendingMsg = 'Confirmed'
-                            if tx_hash in self.wait_for_map:
-                                self.wait_for_map[tx_hash].resolve(True)
-                                del self.wait_for_map[tx_hash]
+                            pending_tx.pending_msg = 'Confirmed'
+                            # if tx_hash in self.wait_for_map:
+                            #     self.wait_for_map[tx_hash].resolve(True)
+                            #     del self.wait_for_map[tx_hash]
                         else:
                             if (pending_tx.status != 'CHECKPOINT_ACCEPTED' and
                                     pending_tx.status != TransactionStatus.GLOBAL_STATE_PENDING.value and
@@ -222,11 +219,11 @@ class Monitor:
                             else:
                                 if pending_tx.status != TransactionStatus.GLOBAL_STATE_PENDING.value:
                                     pending_tx.status = TransactionStatus.GLOBAL_STATE_PENDING.value
-                                    pending_tx.pendingMsg = 'Will confirm shortly...'
+                                    pending_tx.pending_msg = 'Will confirm shortly...'
                                     tx_changed = True
                                 elif not pending_tx.status:
                                     pending_tx.status = 'UNKNOWN'
-                                    pending_tx.pendingMsg = 'Transaction not found...'
+                                    pending_tx.pending_msg = 'Transaction not found...'
                                 next_pool.append(pending_tx)
                     except Exception as e:
                         logging.error(f"Monitor :: {e}", exc_info=True)
@@ -245,17 +242,17 @@ class Monitor:
         except Exception as e:
             logging.error(f"Monitor :: {e}", exc_info=True)
 
-    async def wait_for_transaction(self, hash: str) -> asyncio.Future:
-        """Execute function after transaction has finished."""
-        # TODO
-        if hash not in self.wait_for_map:
-            loop = asyncio.get_event_loop()
-            future = loop.create_future()
-            self.wait_for_map[hash] = WaitFor(
-                future=future,
-                resolve=lambda result: future.set_result(result)
-            )
-        return self.wait_for_map[hash].future
+    # async def wait_for_transaction(self, hash: str) -> asyncio.Future:
+    #     """Execute function after transaction has finished."""
+    #     # TODO
+    #     if hash not in self.wait_for_map:
+    #         loop = asyncio.get_event_loop()
+    #         future = loop.create_future()
+    #         self.wait_for_map[hash] = WaitFor(
+    #             future=future,
+    #             resolve=lambda result: future.set_result(result)
+    #         )
+    #     return self.wait_for_map[hash].future
 
     def start_monitor(self):
         asyncio.create_task(self.poll_pending_txs())
@@ -273,19 +270,21 @@ class Monitor:
         return pending_transactions + c_txs if c_txs else pending_transactions + []
 
 
-# async def main():
-#     account = DagAccount()
-#     monitor = Monitor(account)
-#     # monitor.start_monitor()
-#     account.connect('testnet')
-#     account.login_with_seed_phrase(secret.mnemo)
-#     pending_tx = await account.transfer(secret.to_address, 50000, 200000)
-#     await monitor.add_to_mem_pool_monitor(pending_tx)
-#     txs = await monitor.get_latest_transactions(address=account.address, limit=20)
-#     print(txs)
-#     await asyncio.sleep(60)
-#     account.logout()
+async def main():
+    from pypergraph import DagAccount
+
+    account = DagAccount()
+    monitor = Monitor(account)
+    # monitor.start_monitor()
+    account.connect('testnet')
+    account.login_with_seed_phrase(secret.mnemo)
+    pending_tx = await account.transfer(secret.to_address, 50000, 200000)
+    await monitor.add_to_mem_pool_monitor(pending_tx)
+    txs = await monitor.get_latest_transactions(address=account.address, limit=20)
+    print(txs)
+    await asyncio.sleep(60)
+    account.logout()
 
 
-# if __name__ == "__main__":
-#     asyncio.run(main)
+if __name__ == "__main__":
+    asyncio.run(main())
