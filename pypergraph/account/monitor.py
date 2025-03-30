@@ -36,14 +36,20 @@ class DagWalletMonitorUpdate(BaseModel):
 
 class Monitor:
 
-    def __init__(self, account):
+    def __init__(self, account, state_storage_file_path: str):
+        """
+        Monitors events and stores states.
+
+        :param account: DagAccount()
+        :param state_storage_file_path: Full path and filename to storage (with file extension).
+        """
         self.account = account
         self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())
         self.mem_pool_change = BehaviorSubject(DagWalletMonitorUpdate().model_dump())
         self.last_timer = 0.0
         self.pending_timer = 0.0
         # self.wait_for_map: Dict[str, WaitFor] = {}
-        self.cache_utils = StateStorageDb(file_path="store.json")
+        self.cache_utils = StateStorageDb(file_path=state_storage_file_path)
         self.cache_utils.set_prefix('pypergraph-')
 
         self.account._session_change.pipe(

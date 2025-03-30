@@ -120,6 +120,8 @@ class MetagraphTokenClient:
                 "status": "POSTED",
             }
 
+
+
     async def wait_for_balance_change(self, initial_value: Optional[int] = None):
         """
         Check if active account balance changes (around 2 minutes).

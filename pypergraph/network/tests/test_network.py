@@ -11,6 +11,8 @@ from pypergraph.core.exceptions import NetworkError
 from pypergraph.keystore import KeyStore
 from pypergraph.network.models.network import NetworkInfo
 from pypergraph.network import DagTokenNetwork
+from pypergraph.network.models.transaction import SignedData, TransactionReference, SignatureProof
+
 
 @pytest.fixture
 def network():
@@ -515,6 +517,9 @@ async def test_post_metagraph_data_transaction(network):
         proof
     ]
     }
+
+    #tx = SignedData(value=msg, proofs=[SignatureProof(**proof)])
+
     encoded_msg = keystore.encode_data(msg=msg, prefix=False)
     assert keystore.verify_data(public_key, encoded_msg, signature)
     false_msg = {

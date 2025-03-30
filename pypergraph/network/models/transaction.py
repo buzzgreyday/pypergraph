@@ -154,6 +154,7 @@ class DelegatedStakeReference(BaseModel):
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
 
 class CreateDelegatedStake(BaseModel):
+    source: str
     node_id: constr(pattern=r"^[a-fA-F0-9]{128}$") = Field(alias="nodeId")
     amount: int = Field(ge=0)
     fee: int = Field(ge=0)
@@ -165,6 +166,7 @@ class SignedCreateDelegatedStake(BaseModel):
     proofs: List[SignatureProof]
 
 class WithdrawDelegatedStake(BaseModel):
+    source: str = Field()
     stake_ref: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="stakeRef")
 
 class SignedWithdrawDelegatedStake(BaseModel):
@@ -186,6 +188,7 @@ class DelegatedStakesInfo(BaseModel):
     pending_withdrawals: List[DelegatedStakeInfo]
 
 class CreateNodeCollateral(BaseModel):
+    source: str
     node_id: constr(pattern=r"^[a-fA-F0-9]{128}$") = Field(alias="nodeId")
     amount: int = Field(ge=0)
     fee: int = Field(ge=0)
@@ -197,6 +200,7 @@ class SignedCreateNodeCollateral(BaseModel):
     proofs: List[SignatureProof]
 
 class WithdrawNodeCollateral(BaseModel):
+    source: str
     collateral_ref: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="collateralRef")
 
 class SignedWithdrawNodeCollateral(BaseModel):
