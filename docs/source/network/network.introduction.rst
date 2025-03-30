@@ -27,7 +27,7 @@ A network object is instantiated like this:
    _network_change    BehaviorSubject()  RxPy BehaviorSubject that stores the emitted events.
    =================  =================  =============================================================
 
-Additional properties of ``DagTokenNetwork`` and ``NetworkInfo``:
+Additional properties of ``DagTokenNetwork``. These are configurable variables of ``NetworkInfo``:
 
 .. code-block:: python
 
