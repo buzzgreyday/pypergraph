@@ -14,8 +14,10 @@ from rx import operators as ops, of, empty
 from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import BehaviorSubject
 
+from pypergraph import DagAccount
 # from pypergraph.account.tests import secret
 from pypergraph.keyring.storage.state_storage_db import StateStorageDb
+from pypergraph.account.tests import secret
 from pypergraph.network.models.network import NetworkInfo
 from pypergraph.network.models.transaction import TransactionStatus, PendingTransaction
 from pypergraph.network.models.block_explorer import Transaction
@@ -244,6 +246,7 @@ class Monitor:
             logging.error(f"Monitor :: {e}", exc_info=True)
 
     async def wait_for_transaction(self, hash: str) -> asyncio.Future:
+        """Execute function after transaction has finished."""
         # TODO
         if hash not in self.wait_for_map:
             loop = asyncio.get_event_loop()
@@ -285,5 +288,4 @@ class Monitor:
 
 
 # if __name__ == "__main__":
-#     asyncio.run(main())
-
+#     asyncio.run(main)
