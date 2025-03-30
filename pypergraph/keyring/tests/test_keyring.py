@@ -16,6 +16,7 @@ def key_manager():
 @pytest.mark.asyncio
 async def test_create_or_restore_wallet(key_manager):
     wallet = await key_manager.create_or_restore_vault(password="super_S3cretP_Asswo0rd", seed=mnemo)
+    assert wallet.id == "MCW1"
     assert wallet.model_dump() == {
         'type': 'MCW',
         'label': 'Wallet #1',
@@ -74,6 +75,7 @@ async def test_create_hd_wallet(key_manager):
             }
         ]
     }
+    assert wallet.id == "MCW2"
 
 
 @pytest.mark.asyncio
@@ -87,6 +89,8 @@ async def test_create_single_account_wallet(key_manager):
         'network': 'Constellation',
         'secret': '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'
     }
+    assert wallet.id == "SAW3"
+    await key_manager.logout()
 
 
 @pytest.mark.asyncio
@@ -95,7 +99,8 @@ async def test_create_wallet_ids(key_manager):
     pk = KeyStore.get_private_key_from_mnemonic(mnemo)
     await key_manager.create_single_account_wallet(label="New SAW", private_key=pk)
     await key_manager.create_multi_chain_hd_wallet(seed=mnemo)
-    assert [wallet.id for wallet in key_manager.wallets] == ['SAW4', 'MCW5']
+    assert [wallet.id for wallet in key_manager.wallets] == ['SAW1', 'MCW2']
+    await key_manager.logout()
 
 @pytest.mark.asyncio
 async def test_manager_login(key_manager):
@@ -130,13 +135,13 @@ async def test_manager_login(key_manager):
             ]
         }
     ]
+    await key_manager.logout()
 
 @pytest.mark.asyncio
 async def test_add_tokens(key_manager):
     """Retrieves data from encryted json storage"""
     # TODO: Check Stargazer to see how this is used.
     await key_manager.login("super_S3cretP_Asswo0rd")
-    pytest.exit(key_manager.wallets)
     token = KeyringAssetInfo(
         id='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43',
         address='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43',
@@ -159,9 +164,8 @@ async def test_add_tokens(key_manager):
     w_state = wallet.get_state()
     w_network = wallet.get_network()
     w_label = wallet.get_label()
-    if not w_state == {'id': 'SAW1', 'type': 'SAW', 'label': 'New SAW', 'supported_assets': ['DAG'], 'accounts': [{'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', 'network': 'Constellation', 'tokens': []}]}:
-        print(wallet.id)
-        pytest.exit(key_manager.wallets)
+    print(key_manager.get_accounts())
+    assert w_state == {'id': 'SAW1', 'type': 'SAW', 'label': 'New SAW', 'supported_assets': ['DAG'], 'accounts': [{'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', 'network': 'Constellation', 'tokens': []}]}
     assert w_network == "Constellation"
     assert w_label == "New SAW"
     account = wallet.get_accounts()[0]
