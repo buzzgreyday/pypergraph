@@ -90,7 +90,7 @@ async def test_create_single_account_wallet(key_manager):
         'secret': '18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710'
     }
     assert wallet.id == "SAW3"
-    await key_manager.logout()
+    await key_manager.logout() # Resets SID
 
 
 @pytest.mark.asyncio
