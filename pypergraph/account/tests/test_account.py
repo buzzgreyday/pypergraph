@@ -77,7 +77,7 @@ async def test_metagraph_account_connect():
     }
     metagraph_account = account.create_metagraph_token_client(
         metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
-        cl1_host='http://123.123.123.123:9010'
+        currency_l1_host='http://123.123.123.123:9010'
     )
     assert metagraph_account.network.get_network() == {
         'data_l1_host': None,

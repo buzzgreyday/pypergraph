@@ -136,6 +136,7 @@ async def test_add_tokens(key_manager):
     """Retrieves data from encryted json storage"""
     # TODO: Check Stargazer to see how this is used.
     await key_manager.login("super_S3cretP_Asswo0rd")
+    pytest.exit(key_manager.wallets)
     token = KeyringAssetInfo(
         id='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43',
         address='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43',
@@ -158,7 +159,9 @@ async def test_add_tokens(key_manager):
     w_state = wallet.get_state()
     w_network = wallet.get_network()
     w_label = wallet.get_label()
-    assert w_state == {'id': 'SAW1', 'type': 'SAW', 'label': 'New SAW', 'supported_assets': ['DAG'], 'accounts': [{'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', 'network': 'Constellation', 'tokens': []}]}
+    if not w_state == {'id': 'SAW1', 'type': 'SAW', 'label': 'New SAW', 'supported_assets': ['DAG'], 'accounts': [{'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', 'network': 'Constellation', 'tokens': []}]}:
+        print(wallet.id)
+        pytest.exit(key_manager.wallets)
     assert w_network == "Constellation"
     assert w_label == "New SAW"
     account = wallet.get_accounts()[0]
