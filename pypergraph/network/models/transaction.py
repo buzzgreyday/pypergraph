@@ -221,4 +221,4 @@ class NodeCollateralsInfo(BaseModel):
     active_node_collaterals: List[NodeCollateralInfo]
     pending_withdrawals: List[NodeCollateralInfo]
 
-# TODO: Node_params
+# TODO: Node_params, see cluster_info
