@@ -2,5 +2,6 @@ sphinx-autodoc-typehints
 sphinxcontrib-napoleon
 sphinx
 sphinx-design
-sphinx-rtd-theme
-sphinx_rtd_dark_mode
+# sphinx-rtd-theme
+# sphinx_rtd_dark_mode
+furo

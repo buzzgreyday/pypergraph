@@ -31,7 +31,7 @@ class BlockReference(BaseModel):
 
 class Block(BaseModel):
     parent: List[BlockReference]
-    transactions: List[Transaction]
+    transactions: List[Optional[Transaction]]
 
 class SignedBlock(BaseModel):
     value: Optional[Block]

@@ -25,7 +25,7 @@ The package is not yet available through PyPi. You can use the following method 
 
     .\venv\Scripts\activate
 
-4. Install dependencies:
+4. Install package:
 
 .. code-block:: bash
 
