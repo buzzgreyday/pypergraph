@@ -34,6 +34,7 @@ class Block(BaseModel):
     transactions: List[Optional[SignedTransaction]]
 
 class SignedBlock(BaseModel):
+    # TODO: This is optional?
     value: Optional[Block]
     proofs: Optional[List[SignatureProof]]
 
