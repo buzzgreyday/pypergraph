@@ -3,7 +3,7 @@ from typing import Optional, List, Dict
 from pydantic import BaseModel, Field, constr
 
 from pypergraph.network.models.reward import RewardTransaction
-from pypergraph.network.models.transaction import SignatureProof, Transaction
+from pypergraph.network.models.transaction import SignatureProof, SignedTransaction
 
 
 class LastCurrencySnapshotProof(BaseModel):
@@ -31,7 +31,7 @@ class BlockReference(BaseModel):
 
 class Block(BaseModel):
     parent: List[BlockReference]
-    transactions: List[Optional[Transaction]]
+    transactions: List[Optional[SignedTransaction]]
 
 class SignedBlock(BaseModel):
     value: Optional[Block]
