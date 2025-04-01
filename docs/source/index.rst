@@ -39,6 +39,9 @@ Use it to send data to Metagraph, build a wallet and more.
 
    network/network.introduction
    network/network.configuration
+   network/network.dag_token_network
+   network/network.metagraph_token_network
+   network/api/network.api.l0
 
 .. toctree::
    :maxdepth: 1

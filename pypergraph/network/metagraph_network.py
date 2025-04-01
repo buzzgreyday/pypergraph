@@ -149,6 +149,7 @@ class MetagraphTokenNetwork:
 
         :return: Data extracted from the response or None.
         """
+        # TODO: is it return in "data" key?
         try:
             response = await self.dl1_api.get_data()
         except AttributeError:

@@ -112,9 +112,9 @@ class DagTokenNetwork:
         except NetworkError as e:
             # NOOP for 404 or other exceptions
             if e.status == 404:
-                logger.debug("No transaction pending.")
+                logger.debug("DagTokenNetwork :: No transaction pending.")
             else:
-                logger.error(f"{e}")
+                logger.error(f"DagTokenNetwork :: {e}")
                 raise e
 
     async def get_transactions_by_address(
@@ -135,7 +135,7 @@ class DagTokenNetwork:
             return await self.be_api.get_transactions_by_address(address, limit, search_after)
         except Exception:
             # NOOP for 404 or other exceptions
-            logger.info(f"No transactions found for {address}.")
+            logger.info(f"DagTokenNetwork :: No transactions found for {address}.")
 
     async def get_transaction(self, hash: str) -> Transaction:
         """

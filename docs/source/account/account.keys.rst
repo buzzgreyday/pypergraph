@@ -17,12 +17,14 @@ Keys
 Create New Secrets
 ^^^^^^^^^^^^^^^^^^
 
+New secrets are generated using methods imported from the sub-package ``keystore``. For an in-depth documentation of the ``keystore`` sub-package, see [missing link].
+
 Mnemonic Hierarchical Deterministic Key
 ---------------------------------------
 
 .. code-block:: python
 
-    from pypergraph.keystore import KeyStore
+    from pypergraph import KeyStore
 
     # Initialize the keystore and generate a BIP-39 compliant mnemonic phrase.
     keystore = KeyStore()
@@ -113,9 +115,11 @@ DAG Address
 .. dropdown:: Generate DAG Address Lifecycle
     :animate: fade-in
 
-    See keystore [missing link]
+    See keystore [missing link].
 
     .. code-block:: python
+
+        from pypergraph import DagAccount
 
         def get_dag_address_from_public_key(public_key: str) -> str:
             """
@@ -143,4 +147,6 @@ DAG Address
             address = f"DAG{check_digit}{public_key}"
             return address
 
-        dag_address = get_dag_address_from_public_key(account.public_key)
+        account = DagAccount()
+
+        dag_address = account.get_dag_address_from_public_key(account.public_key)
