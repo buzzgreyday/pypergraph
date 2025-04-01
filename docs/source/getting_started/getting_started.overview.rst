@@ -9,7 +9,7 @@ Overview
   **Wish to contribute?** Please reach out on `GitHub <https://github.com/buzzgreyday>`_.
 
 
-Pypergraph consists of 5 subpackages.
+Pypergraph consists of 5 sub-packages.
 
 -----
 
@@ -25,6 +25,4 @@ Dependency Graph
                  Keystore
                  |
                  Account
-
-
 
