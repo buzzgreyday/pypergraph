@@ -1,10 +1,9 @@
 import logging
-import warnings
 from typing import List, Dict, Any
 
 from prometheus_client.parser import text_string_to_metric_families
 
-from pypergraph.core.rest_api_client import RestAPIClient
+from pypergraph.core.cross_platform.rest_api_client import RestAPIClient
 from pypergraph.network.models.network import PeerInfo
 from pypergraph.network.models.transaction import SignedTransaction
 

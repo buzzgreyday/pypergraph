@@ -1,6 +1,6 @@
 from typing import Union, List, Optional, Dict
 
-from pypergraph.core.rest_api_client import RestAPIClient
+from pypergraph.core.cross_platform.rest_api_client import RestAPIClient
 from pypergraph.network.models.block_explorer import Snapshot, Transaction, CurrencySnapshot
 from pypergraph.network.models.reward import RewardTransaction
 from pypergraph.network.models.account import Balance

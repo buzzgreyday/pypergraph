@@ -7,7 +7,7 @@ from rx.subject import BehaviorSubject, Subject
 from pypergraph.core import KeyringWalletType, NetworkId
 from pypergraph.keyring import Encryptor
 
-from .storage.state_storage_db import StateStorageDb
+from pypergraph.core.cross_platform.state_storage_db import StateStorageDb
 from .storage.observable_store import ObservableStore
 from .accounts.dag_account import DagAccount
 from .accounts.eth_account import EthAccount

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .json_storage import JsonStorage
+from pypergraph.core.cross_platform.json_storage import JsonStorage
 
 
 class StateStorageDb:
