@@ -20,11 +20,9 @@ DAG Token Network
                        ``"integrationnet"``,
                        ``"testnet"``
    l0_host             ``self.connected_network.l0_host``             Set a custom layer 0 API URL for ``self.connected_network``
-                                                                      used to configure the ``MetagraphLayer0Api`` object ``self.l0_api``.
+                                                                      used to configure the ``Layer0Api`` object ``self.l0_api``.
    currency_l1_host    ``self.connected_network.currency_l1_host``    Set a custom layer 1 currency API URL for ``self.connected_network``
-                                                                      used to configure the ``MetagraphCurrencyLayerApi`` object ``self.cl1_api``.
-   data_l1_host        ``self.connected_network.data_l1_host``        Set a custom layer 1 data API URL for ``self.connected_network``
-                                                                      used to configure the ``MetagraphDataLayerApi`` object ``self.dl1_api``.
+                                                                      used to configure the ``Layer1Api`` object ``self.cl1_api``.
    block_explorer_url  ``self.connected_network.block_explorer_url``  Set a custom block explorer API URL for ``self.connected_network``
                                                                       used to configure the ``BlockExplorerApi`` object ``self.be_url``.
    ==================  =============================================  =============================================================
@@ -44,10 +42,12 @@ Metagraph Token Network
                        ``"integrationnet"``,
                        ``"testnet"``
    l0_host             ``self.connected_network.l0_host``             Set a custom layer 0 API URL for ``self.connected_network``
-                                                                      used to configure the ``Layer0Api`` object ``self.l0_api``.
+                                                                      used to configure the ``MetagraphLayer0Api`` object ``self.l0_api``.
    currency_l1_host    ``self.connected_network.currency_l1_host``    Set a custom layer 1 currency API URL for ``self.connected_network``
-                                                                      used to configure the ``Layer1Api`` object ``self.cl1_api``.
-   data_l1_host        ``self.connected_network.data_l1_host``
+                                                                      used to configure the ``MetagraphCurrencyLayerApi`` object ``self.cl1_api``.
+
+   data_l1_host        ``self.connected_network.data_l1_host``        Set a custom layer 1 currency API URL for ``self.connected_network``
+                                                                      used to configure the ``MetagraphDataLayerApi`` object ``self.dl1_api``.
    block_explorer_url  ``self.connected_network.block_explorer_url``  Set a custom block explorer API URL for ``self.connected_network``
                                                                       used to configure the ``BlockExplorerApi`` object ``self.be_url``.
    ==================  =============================================  =============================================================
