@@ -14,13 +14,14 @@ This section documents the ``DagAccount`` class. The object is instantiated as f
 .. table::
    :widths: auto
 
-   ===============  ===================  =================================================================================================================
-   Variable         Value                Description
-   ===============  ===================  =================================================================================================================
+   ===============  ===================  ======================================================================
+   **Variable**     **Value**            **Description**
+   ===============  ===================  ======================================================================
    network          DagTokenNetwork()    References the network configuration used to interact with APIs.
    _session_change  Subject()            RxPy emitter.
-   key_trio         KeyTrio()            Pydantic model that validates and stores ``private_key``, ``public_key``, and ``address`` after a ``login(...)``.
-   ===============  ===================  =================================================================================================================
+   key_trio         KeyTrio()            Pydantic model validates and stores
+                                         ``private_key``, ``public_key``, and ``address`` after ``login(...)``.
+   ===============  ===================  ======================================================================
 
 -----
 
@@ -37,12 +38,12 @@ An event is emitted when the session changes upon invoking ``DagAccount().login(
 .. table::
    :widths: auto
 
-   ======  ============================
-   Key     Value
-   ======  ============================
-   module  ``"account"``
-   event   ``"login"`` or ``"logout"``
-   ======  ============================
+   =======  ============================
+   **Key**  **Value**
+   =======  ============================
+   module   ``"account"``
+   event    ``"login"`` or ``"logout"``
+   =======  ============================
 
 See also the ``Monitor`` [missing link].
 

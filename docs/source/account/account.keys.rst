@@ -84,22 +84,6 @@ Get Account Keys
 
 After logging in, the following values become available:
 
-DAG Address
------------
-
-.. code-block:: python
-
-    # Retrieve the DAG address.
-    dag_address = account.address
-
-Public Key (Node ID)
---------------------
-
-.. code-block:: python
-
-    # Retrieve the public key (Node ID).
-    public_key = account.public_key
-
 Private Key
 -----------
 .. note::
@@ -109,3 +93,54 @@ Private Key
 
     # Retrieve the private key if available.
     private_key = account.private_key
+
+Public Key (Node ID)
+--------------------
+
+.. code-block:: python
+
+    # Retrieve the public key (Node ID).
+    public_key = account.public_key
+
+DAG Address
+-----------
+
+.. code-block:: python
+
+    # Retrieve the DAG address.
+    dag_address = account.address
+
+.. dropdown:: Generate DAG Address Lifecycle
+    :animate: fade-in
+
+    See keystore [missing link]
+
+    .. code-block:: python
+
+        def get_dag_address_from_public_key(public_key: str) -> str:
+            """
+            :param public_key: The private key as a hexadecimal string.
+            :return: The DAG address corresponding to the public key (node ID).
+            """
+            if len(public_key) == 128:
+                public_key = PKCS_PREFIX + "04" + public_key
+            elif len(public_key) == 130 and public_key[:2] == "04":
+                public_key = PKCS_PREFIX + public_key
+            else:
+                raise ValueError("KeyStore :: Not a valid public key.")
+
+            public_key = hashlib.sha256(bytes.fromhex(public_key)).hexdigest()
+            public_key = base58.b58encode(bytes.fromhex(public_key)).decode()
+            public_key = public_key[len(public_key) - 36 :]
+
+            check_digits = "".join([char for char in public_key if char.isdigit()])
+            check_digit = 0
+            for n in check_digits:
+                check_digit += int(n)
+                if check_digit >= 9:
+                    check_digit = check_digit % 9
+
+            address = f"DAG{check_digit}{public_key}"
+            return address
+
+        dag_address = get_dag_address_from_public_key(account.public_key)

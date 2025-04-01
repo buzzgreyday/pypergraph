@@ -38,6 +38,7 @@ Use it to send data to Metagraph, build a wallet and more.
    :caption: Network:
 
    network/network.introduction
+   network/network.configuration
 
 .. toctree::
    :maxdepth: 1
