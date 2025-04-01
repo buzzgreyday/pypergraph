@@ -21,10 +21,10 @@ Dependency Graph
             Core
            /    \
     Keyring      Network
-                  \
-                   Keystore
-                    \
-                     Account
+                 |
+                 Keystore
+                 |
+                 Account
 
 
 
