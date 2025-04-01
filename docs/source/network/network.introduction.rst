@@ -15,7 +15,6 @@ A network object is instantiated like this:
     from pypergraph import DagTokenNetwork()
 
     network = DagTokenNetwork(network_id="mainnet")
-    network.config("testnet") # Change network
 
 .. table::
    :widths: auto

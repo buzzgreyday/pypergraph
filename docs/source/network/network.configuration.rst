@@ -8,46 +8,59 @@ and emits an event stored in the variable ``self._network_change`` as a RxPy ``B
 DAG Token Network
 ^^^^^^^^^^^^^^^^^
 
+.. code-block:: python
+
+    from pypergraph import DagTokenNetwork()
+
+    network = DagTokenNetwork(network_id="mainnet")
+    network.config("testnet") # Change network
+
 ``DagTokenNetwork`` is configurable with the following parameters:
 
 .. table::
    :widths: auto
 
-   ==================  =============================================  =============================================================
-   **Parameter**       **Value**                                      **Description**
-   ==================  =============================================  =============================================================
-   network_id          ``"mainnet" (default)``,                       Specify the connected network by setting this value.
+   ==================  ===================================================================  =============================================================
+   **Parameter**       **Value**                                                            **Description**
+   ==================  ===================================================================  =============================================================
+   network_id          ``"mainnet" (default)``,                                             Specify the connected network by setting this value.
                        ``"integrationnet"``,
                        ``"testnet"``
-   l0_host             ``self.connected_network.l0_host``             Set a custom layer 0 API URL for ``self.connected_network``
-                                                                      used to configure the ``Layer0Api`` object ``self.l0_api``.
-   currency_l1_host    ``self.connected_network.currency_l1_host``    Set a custom layer 1 currency API URL for ``self.connected_network``
-                                                                      used to configure the ``Layer1Api`` object ``self.cl1_api``.
-   block_explorer_url  ``self.connected_network.block_explorer_url``  Set a custom block explorer API URL for ``self.connected_network``
-                                                                      used to configure the ``BlockExplorerApi`` object ``self.be_url``.
-   ==================  =============================================  =============================================================
+   l0_host             ``f"https://l0-lb-{network_id}.constellationnetwork.io" (default)``  Set a custom layer 0 API URL for ``self.connected_network``
+                                                                                            used to configure the ``Layer0Api`` object ``self.l0_api``.
+   currency_l1_host    ``f"https://l1-lb-{network_id}.constellationnetwork.io" (default)``  Set a custom layer 1 currency API URL for ``self.connected_network``
+                                                                                            used to configure the ``Layer1Api`` object ``self.cl1_api``.
+   block_explorer_url  ``f"https://be-{network_id}.constellationnetwork.io" (default)``     Set a custom block explorer API URL for ``self.connected_network``
+                                                                                            used to configure the ``BlockExplorerApi`` object ``self.be_url``.
+   ==================  ===================================================================  =============================================================
 
 Metagraph Token Network
 ^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    from pypergraph import MetagraphTokenNetwork()
+
+    metagraph_network = MetagraphTokenNetwork(...)
 
 ``MetagraphTokenNetwork`` is configurable with the following parameters:
 
 .. table::
    :widths: auto
 
-   ==================  =============================================  =============================================================
-   **Parameter**       **Value**                                      **Description**
-   ==================  =============================================  =============================================================
-   network_id          ``"mainnet" (default)``,                       Specify the connected network by setting this value.
+   ==================  ===============================================================  =============================================================
+   **Parameter**       **Value**                                                        **Description**
+   ==================  ===============================================================  =============================================================
+   network_id          ``"mainnet" (default)``,                                          Specify the connected network by setting this value.
                        ``"integrationnet"``,
                        ``"testnet"``
-   l0_host             ``self.connected_network.l0_host``             Set a custom layer 0 API URL for ``self.connected_network``
-                                                                      used to configure the ``MetagraphLayer0Api`` object ``self.l0_api``.
-   currency_l1_host    ``self.connected_network.currency_l1_host``    Set a custom layer 1 currency API URL for ``self.connected_network``
-                                                                      used to configure the ``MetagraphCurrencyLayerApi`` object ``self.cl1_api``.
+   l0_host             ``None (default)``                                                Set a custom layer 0 API URL for ``self.connected_network``
+                                                                                         used to configure the ``MetagraphLayer0Api`` object ``self.l0_api``.
+   currency_l1_host    ``None (default)``                                                Set a custom layer 1 currency API URL for ``self.connected_network``
+                                                                                         used to configure the ``MetagraphCurrencyLayerApi`` object ``self.cl1_api``.
 
-   data_l1_host        ``self.connected_network.data_l1_host``        Set a custom layer 1 currency API URL for ``self.connected_network``
-                                                                      used to configure the ``MetagraphDataLayerApi`` object ``self.dl1_api``.
-   block_explorer_url  ``self.connected_network.block_explorer_url``  Set a custom block explorer API URL for ``self.connected_network``
-                                                                      used to configure the ``BlockExplorerApi`` object ``self.be_url``.
-   ==================  =============================================  =============================================================
+   data_l1_host        ``None (default)``                                                Set a custom layer 1 currency API URL for ``self.connected_network``
+                                                                                         used to configure the ``MetagraphDataLayerApi`` object ``self.dl1_api``.
+   block_explorer_url  ``f"https://be-{network_id}.constellationnetwork.io" (default)``  Set a custom block explorer API URL for ``self.connected_network``
+                                                                                         used to configure the ``BlockExplorerApi`` object ``self.be_url``.
+   ==================  ================================================================  =============================================================
