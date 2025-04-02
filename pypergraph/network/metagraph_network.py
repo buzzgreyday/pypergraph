@@ -52,9 +52,9 @@ class MetagraphTokenNetwork:
             if block_explorer
             else BlockExplorerApi(host=self.connected_network.block_explorer_url)
         )
-        self.l0_api = MetagraphLayer0Api(host=l0_host)
-        self.cl1_api = MetagraphCurrencyLayerApi(host=currency_l1_host)  # Currency layer
-        self.dl1_api = MetagraphDataLayerApi(host=data_l1_host)  # Data layer
+        self.l0_api = MetagraphLayer0Api(host=l0_host) if l0_host else None
+        self.cl1_api = MetagraphCurrencyLayerApi(host=currency_l1_host)  if currency_l1_host else None # Currency layer
+        self.dl1_api = MetagraphDataLayerApi(host=data_l1_host) if data_l1_host else None # Data layer
 
     def get_network(self) -> Dict:
         """

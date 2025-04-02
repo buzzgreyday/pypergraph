@@ -1,8 +1,9 @@
 import logging
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Optional
 
 from prometheus_client.parser import text_string_to_metric_families
 
+from pypergraph.core.cross_platform.di.rest_client import RESTClient, HttpxClient
 from pypergraph.core.cross_platform.rest_api_client import RestAPIClient
 from pypergraph.network.models.network import PeerInfo
 from pypergraph.network.models.transaction import PendingTransaction, SignedTransaction, TransactionReference, \
@@ -29,22 +30,25 @@ def _handle_metrics(response: str) -> List[Dict[str, Any]]:
     return metrics
 
 class L1Api:
-    def __init__(self, host: str):
+    def __init__(self, host: str, client: Optional[RESTClient] = None):
         if not host:
             logging.warning("L1Api | ML1 :: Layer 1 API object not set.")
         self._host = host
+        self.client = client or HttpxClient(timeout=10)
 
-    def config(self, host: str):
-        """Reconfigure the RestAPIClient's base URL."""
-        if not host:
-            logging.warning("L1Api | ML1 :: Layer 1 API object not set.")
-        self._host = host
+    def config(self, host: Optional[str] = None, client: Optional[RESTClient] = None):
+        """Reconfigure the RestAPIClient."""
+        if host:
+            self._host = host
+        if client:
+            self.client = client
+
 
     async def _make_request(self, method: str, endpoint: str, params: Dict[str, Any] = None, payload: Dict[str, Any] = None) -> Union[Dict, List, str]:
         """
         Helper function to create a new RestAPIClient instance and make a request.
         """
-        async with RestAPIClient(base_url=self._host) as client:
+        async with RestAPIClient(base_url=self._host, client=self.client) as client:
             return await client.request(method=method, endpoint=endpoint, params=params, payload=payload)
 
     async def get_cluster_info(self) -> List[PeerInfo]:

@@ -32,13 +32,9 @@ class DagTokenNetwork:
         self.connected_network = NetworkInfo(
             network_id=network_id, l0_host=l0_host, currency_l1_host=currency_l1_host
         )
-        self.be_api = BlockExplorerApi(host=self.connected_network.block_explorer_url)
-        self.l0_api = (
-            Layer0Api(host=self.connected_network.l0_host or f"https://l0-lb-{network_id}.constellationnetwork.io")
-        )
-        self.cl1_api = (
-            Layer1Api(host=self.connected_network.currency_l1_host or f"https://l1-lb-{network_id}.constellationnetwork.io")
-        )
+        self.be_api = BlockExplorerApi(host=self.connected_network.block_explorer_url) if self.connected_network.block_explorer_url else None
+        self.l0_api = Layer0Api(host=self.connected_network.l0_host or f"https://l0-lb-{network_id}.constellationnetwork.io")
+        self.cl1_api = Layer1Api(host=self.connected_network.currency_l1_host or f"https://l1-lb-{network_id}.constellationnetwork.io")
 
         self._network_change = BehaviorSubject({
             "module": "network",

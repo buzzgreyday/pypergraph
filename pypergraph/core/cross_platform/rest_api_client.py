@@ -30,6 +30,9 @@ class RestAPIClient:
         """Updates the base URL."""
         self._base_url = value.rstrip("/")
 
+    def config(self, client: RESTClient):
+        self.client = client
+
     async def request(
         self,
         method: str,
