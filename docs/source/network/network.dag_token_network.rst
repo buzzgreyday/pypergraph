@@ -1,6 +1,8 @@
 DAG Token Network
 =================
 
+Inject REST client
+
 -----
 
 Get Network Info
