@@ -9,10 +9,10 @@ sys.path.insert(0, os.path.abspath('../../pypergraph/'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'pypergraph'
+project = 'Pypergraph'
 copyright = '2025, Michael Brummer Ringdal'
 author = 'Michael Brummer Ringdal'
-release = '0.0.1'
+release = '0.0.2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -90,7 +90,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v${{ env.VERSION }}"
-          name: "Release v${{ env.VERSION }}"
+          name: "Pypergraph v${{ env.VERSION }}"
           draft: false
           prerelease: ${{ github.ref == 'refs/heads/dev' }}  # ✅ Pre-release if on 'dev'
           files: ./dist/*
