@@ -2,6 +2,7 @@ from typing import Optional, Dict, List
 
 from rx.subject import BehaviorSubject
 
+from pypergraph.core.cross_platform.di.rest_client import RESTClient
 from pypergraph.network.models.account import Balance
 from pypergraph.network.api import Layer0Api
 from pypergraph.network.api import Layer1Api
@@ -27,14 +28,15 @@ class DagTokenNetwork:
         network_id: str = "mainnet",
         l0_host: Optional[str] = None,
         currency_l1_host: Optional[str] = None,
+        client: Optional[RESTClient] = None
     ):
         # Initialize connected network info
         self.connected_network = NetworkInfo(
             network_id=network_id, l0_host=l0_host, currency_l1_host=currency_l1_host
         )
-        self.be_api = BlockExplorerApi(host=self.connected_network.block_explorer_url) if self.connected_network.block_explorer_url else None
-        self.l0_api = Layer0Api(host=self.connected_network.l0_host or f"https://l0-lb-{network_id}.constellationnetwork.io")
-        self.cl1_api = Layer1Api(host=self.connected_network.currency_l1_host or f"https://l1-lb-{network_id}.constellationnetwork.io")
+        self.be_api = BlockExplorerApi(host=self.connected_network.block_explorer_url, client=client) if self.connected_network.block_explorer_url else None
+        self.l0_api = Layer0Api(host=self.connected_network.l0_host or f"https://l0-lb-{network_id}.constellationnetwork.io", client=client)
+        self.cl1_api = Layer1Api(host=self.connected_network.currency_l1_host or f"https://l1-lb-{network_id}.constellationnetwork.io", client=client)
 
         self._network_change = BehaviorSubject({
             "module": "network",

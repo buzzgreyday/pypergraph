@@ -1,5 +1,6 @@
 from typing import Optional, Dict, List
 
+from pypergraph.core.cross_platform.di.rest_client import RESTClient
 from pypergraph.network.models.account import Balance
 from pypergraph.network.models.transaction import TransactionReference
 from pypergraph.network.api import MetagraphLayer0Api
@@ -33,6 +34,7 @@ class MetagraphTokenNetwork:
             data_l1_host: Optional[str] = None,
             network_id: Optional[str] = "mainnet",
             block_explorer: Optional[str] = None,
+            client: Optional[RESTClient] = None
     ):
         # Validate connected network
         if not metagraph_id:
@@ -48,13 +50,13 @@ class MetagraphTokenNetwork:
             block_explorer_url=block_explorer
         )
         self.be_api = (
-            BlockExplorerApi(host=block_explorer)
+            BlockExplorerApi(host=block_explorer, client=client)
             if block_explorer
-            else BlockExplorerApi(host=self.connected_network.block_explorer_url)
+            else BlockExplorerApi(host=self.connected_network.block_explorer_url, client=client)
         )
-        self.l0_api = MetagraphLayer0Api(host=l0_host) if l0_host else None
-        self.cl1_api = MetagraphCurrencyLayerApi(host=currency_l1_host)  if currency_l1_host else None # Currency layer
-        self.dl1_api = MetagraphDataLayerApi(host=data_l1_host) if data_l1_host else None # Data layer
+        self.l0_api = MetagraphLayer0Api(host=l0_host, client=client) if l0_host else None
+        self.cl1_api = MetagraphCurrencyLayerApi(host=currency_l1_host, client=client)  if currency_l1_host else None # Currency layer
+        self.dl1_api = MetagraphDataLayerApi(host=data_l1_host, client=client) if data_l1_host else None # Data layer
 
     def get_network(self) -> Dict:
         """
