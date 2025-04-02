@@ -39,6 +39,7 @@ class RestAPIClient:
         """
         Makes an HTTP request.
         """
+        # TODO: make request DI
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
 
         response = await self.client.request(
