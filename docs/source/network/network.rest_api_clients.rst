@@ -19,18 +19,4 @@ By default HTTP methods are handled by ``httpx`` but dependencies can be injecte
 
 .. code-block:: python
 
-
-    class RestAPIClient:
-        def __init__(self, base_url: str, client: Optional[RESTClient] = None, timeout: int = 10):
-            """
-            Initializes the RestAPIClient.
-
-            :param base_url: The base URL for the API.
-            :param client: Optional user-provided AsyncClient.
-            :param timeout: Request timeout in seconds.
-            """
-            self.base_url = base_url.rstrip("/")
-            self._external_client = client is not None
-            # If no client is provided, use the default HttpxClient.
-            self.client: RESTClient = client or HttpxClient(timeout=timeout)
-
+    placeholder
