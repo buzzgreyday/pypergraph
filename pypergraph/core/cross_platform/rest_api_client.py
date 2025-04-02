@@ -2,11 +2,12 @@ import httpx
 import json
 from typing import Optional, Any, Dict
 from httpx import Response
+from .di.rest_client import RESTClient, HttpxClient  # default implementation
 from pypergraph.core.exceptions import NetworkError
 
 
 class RestAPIClient:
-    def __init__(self, base_url: str, client: Optional[httpx.AsyncClient] = None, timeout: int = 10):
+    def __init__(self, base_url: str, client: Optional[RESTClient] = None, timeout: int = 10):
         """
         Initializes the RestAPIClient.
 
@@ -15,8 +16,10 @@ class RestAPIClient:
         :param timeout: Request timeout in seconds.
         """
         self.base_url = base_url.rstrip("/")
-        self._external_client = client is not None  # Track if client was user-provided
-        self.client = client or httpx.AsyncClient(timeout=timeout)
+        self._external_client = client is not None
+        # If no client is provided, use the default HttpxClient.
+        self.client: RESTClient = client or HttpxClient(timeout=timeout)
+
 
     @property
     def base_url(self) -> str:
@@ -29,25 +32,23 @@ class RestAPIClient:
         self._base_url = value.rstrip("/")
 
     async def request(
-            self,
-            method: str,
-            endpoint: str,
-            headers: Optional[Dict[str, str]] = None,
-            params: Optional[Dict[str, Any]] = None,
-            payload: Optional[Dict[str, Any]] = None,
+        self,
+        method: str,
+        endpoint: str,
+        headers: Optional[Dict[str, str]] = None,
+        params: Optional[Dict[str, Any]] = None,
+        payload: Optional[Dict[str, Any]] = None,
     ):
         """
         Makes an HTTP request.
         """
-        # TODO: make request DI
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-
         response = await self.client.request(
-            method=method.upper(),
+            method=method,
             url=url,
             headers=headers,
             params=params,
-            json=payload
+            payload=payload
         )
         return self.handle_api_response(response, method, endpoint)
 
@@ -69,10 +70,10 @@ class RestAPIClient:
 
     async def close(self):
         """
-        Closes the AsyncClient session if it was not provided by the user.
+        Closes the HTTPClient session if it was not provided by the user.
         """
         if not self._external_client:
-            await self.client.aclose()
+            await self.client.close()
 
     async def __aenter__(self):
         """Allows usage in async context manager."""
