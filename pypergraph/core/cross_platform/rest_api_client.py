@@ -1,7 +1,7 @@
 import json
 from typing import Optional, Any, Dict
 from httpx import Response
-from .di.rest_client import RESTClient, HttpxClient  # default implementation
+from .di.rest_client import RESTClient, HttpxClient
 from pypergraph.core.exceptions import NetworkError
 
 
