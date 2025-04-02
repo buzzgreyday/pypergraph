@@ -32,6 +32,8 @@ Reconfigure Client and Host
 All Methods
 -----------
 
+Inherits from :doc:`L1Api </network/network.api.l1>`.
+
 .. automodule:: pypergraph.network.api.metagraph_currency_layer_1_api
    :members:
    :no-index:

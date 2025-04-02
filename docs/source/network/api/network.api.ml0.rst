@@ -32,6 +32,8 @@ Reconfigure Client and Host
 All Methods
 -----------
 
+Inherits from :doc:`L0Api </network/network.api.l0>`.
+
 .. automodule:: pypergraph.network.api.metagraph_layer_0_api
    :members:
    :no-index:
