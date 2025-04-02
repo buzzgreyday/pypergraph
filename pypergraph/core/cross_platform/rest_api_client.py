@@ -1,4 +1,3 @@
-import httpx
 import json
 from typing import Optional, Any, Dict
 from httpx import Response
