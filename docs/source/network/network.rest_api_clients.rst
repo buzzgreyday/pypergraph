@@ -19,7 +19,7 @@ Pypergraph relies on 6 REST API classes:
 Inject Non-Default Client
 -------------------------
 
-Each of these classes rely on ``pypergraph.core.rest_api_client.RestAPIClient(...)`` for performing REST operations.
+Each of the classes above rely on ``pypergraph.core.rest_api_client.RestAPIClient(...)`` for performing REST operations.
 By default HTTP methods are handled by ``httpx`` but dependency injection is possible by inheriting from the abstract
 class ``pypergraph.core.cross_platform.api.rest_client.RESTClient()``:
 
