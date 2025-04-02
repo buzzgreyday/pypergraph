@@ -14,8 +14,14 @@ Pypergraph relies on 6 REST API classes:
 :doc:`MDL1Api </network/api/network.api.mdl1>`          Methods for layer 1 Metagraph data operations.
 ======================================================  ===============================
 
+-----
+
+Inject Non-Default Client
+-------------------------
+
 Each of these classes rely on ``pypergraph.core.rest_api_client.RestAPIClient(...)`` for performing REST operations.
-By default HTTP methods are handled by ``httpx`` but dependencies can be injected using the abstract class ``pypergraph.core.api.rest_client.RESTClient()``:
+By default HTTP methods are handled by ``httpx`` but dependency injection is possible by inheriting from the abstract
+class ``pypergraph.core.cross_platform.api.rest_client.RESTClient()``:
 
 .. code-block:: python
 
