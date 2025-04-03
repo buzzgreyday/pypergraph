@@ -22,13 +22,6 @@ The process begins by hashing the transaction hash using SHA-512. Next, the priv
 
 .. code-block:: python
 
-    # Required imports
-    import hashlib
-    from ecdsa import SigningKey, SECP256k1, sigencode_der
-    from pyasn1.codec.der.encoder import encode as der_encode
-    from pyasn1.codec.der.decoder import decode as der_decode
-    from pyasn1.type.univ import Sequence, Integer
-
     from pypergraph import KeyStore
 
     # Generate a signature for a transaction
