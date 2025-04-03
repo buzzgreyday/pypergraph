@@ -303,6 +303,7 @@ Personal Message
 
    Prepends ``"\u0019Constellation Signed Message:\n"`` to the message before signing with private key.
 
+**Example Usage**
 
 .. code-block:: python
 
