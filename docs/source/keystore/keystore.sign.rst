@@ -283,7 +283,7 @@ Custom Metagraph data is signed using the same method as for transaction signing
            encoding=encode
        )
 
----
+-----
 
 Personal Message
 ----------------
