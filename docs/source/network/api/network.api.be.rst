@@ -19,7 +19,7 @@ Reconfigure Client and Host
     from pypergraph import DagTokenNetwork
     from pypergraph.core.cross_platform.di.RESTClient
 
-    class InjectClass(RESTClient)
+    class InjectClient(RESTClient)
         ...
 
     inject_client = InjectClient()
