@@ -85,7 +85,7 @@ class KeyStore:
     def encode_data(
         self,
         msg: dict,
-        prefix: bool = True,
+        prefix: Union[bool, str] = True,
         encoding: Optional[
             Union[Literal["base64"], Callable[[dict], str], None]
         ] = None,
@@ -112,15 +112,17 @@ class KeyStore:
             # Default: used in the TO-DO, SOCIAL and WATER AND ENERGY metagraph examples
             msg = json.dumps(msg, separators=(",", ":"))
 
-        if prefix:
+        if prefix is True:
             msg = f"{self.DATA_SIGN_PREFIX}{len(msg)}\n{msg}"
+        elif isinstance(prefix, str):
+            msg = f"{prefix}{len(msg)}\n{msg}"
         return msg
 
     def data_sign(
         self,
         private_key,
         msg: dict,
-        prefix: bool = True,
+        prefix: Union[bool, str] = True,
         encoding: Optional[
             Union[Literal["base64"], Callable[[dict], str], None]
         ] = None,
@@ -130,7 +132,7 @@ class KeyStore:
 
         :param private_key:
         :param msg: Dictionary (the content of 'value' in a SignedTransaction).
-        :param prefix: Enable or disable the default prefix '\u0019Constellation Signed Data:\n' to the encoded msg.
+        :param prefix: Enable or disable the default prefix '\u0019Constellation Signed Data:\n' to the encoded msg or inject custom string.
         :param encoding: Can be None (default), 'base64' or a custom encoding function.
         :return: signature, transaction hash.
         """
@@ -193,13 +195,13 @@ class KeyStore:
         return self.sign(private_key, message)
 
     @staticmethod
-    def sign(private_key: str, tx_hash: str) -> str:
+    def sign(private_key: str, msg: str) -> str:
         """
         Create transaction signature.
 
         :param private_key: Private key in hex format.
-        :param tx_hash: Transaction hash from prepare_tx.
-        :return: Signature supported by the transaction API (@noble/secp256k1).
+        :param msg: Transaction hash from prepare_tx.
+        :return: Signature supported by the transaction API.
         """
 
         # secp256k1 curve order
@@ -233,7 +235,7 @@ class KeyStore:
             return der_encode(seq)
 
         def _sign_deterministic_canonical(
-            private_key: str, tx_hash: bytes
+            private_key: str, msg: bytes
         ) -> str:
             """
             Create a deterministic and canonical secp256k1 signature.
@@ -244,33 +246,33 @@ class KeyStore:
             )
             # Sign the prehashed message deterministically
             signature_der = sk.sign_digest_deterministic(
-                tx_hash[:32],  # Truncate to 32 bytes if needed
+                msg[:32],  # Truncate to 32 bytes if needed
                 hashfunc=hashlib.sha256,
                 sigencode=sigencode_der,
             )
             canonical_signature_der = _enforce_canonical_signature(signature_der)
             return canonical_signature_der.hex()
 
-        tx_hash = hashlib.sha512(tx_hash.encode("utf-8")).digest()
-        return _sign_deterministic_canonical(private_key=private_key, tx_hash=tx_hash)
+        msg = hashlib.sha512(msg.encode("utf-8")).digest()
+        return _sign_deterministic_canonical(private_key=private_key, msg=msg)
 
     @staticmethod
-    def verify(public_key_hex, tx_hash, signature_hex) -> bool:
+    def verify(public_key_hex, msg, signature_hex) -> bool:
         """
         Verify is the signature is valid.
 
         :param public_key_hex:
-        :param tx_hash: Hex format
+        :param msg: Hex format
         :param signature_hex:
         :return: True or False
         """
-        tx_hash = hashlib.sha512(tx_hash.encode("utf-8")).digest()
+        msg = hashlib.sha512(msg.encode("utf-8")).digest()
         vk = VerifyingKey.from_string(bytes.fromhex(public_key_hex), curve=SECP256k1)
         try:
             # Use verify_digest for prehashed input
             valid = vk.verify_digest(
                 bytes.fromhex(signature_hex),
-                tx_hash[:32],  # Prehashed hash
+                msg[:32],  # Prehashed hash
                 sigdecode=sigdecode_der,
             )
             return valid

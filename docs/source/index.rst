@@ -48,3 +48,4 @@ Use it to send data to Metagraph, build a wallet and more.
    :caption: Keystore:
 
    keystore/keystore.introduction
+   keystore/keystore.sign
