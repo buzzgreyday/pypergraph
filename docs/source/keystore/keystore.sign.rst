@@ -11,7 +11,7 @@ The process begins by hashing the transaction hash using SHA-512. Next, the priv
 **Parameters**
 
 +--------------+-----------------+----------------------------------------------------------------------------+
-| **Parameter**| **Type**        | **Description**                                                            |
+|**Parameter** | **Type**        | **Description**                                                            |
 +==============+=================+============================================================================+
 | private_key  | ``str``         | The private key used for signing, in hexadecimal format.                   |
 +--------------+-----------------+----------------------------------------------------------------------------+

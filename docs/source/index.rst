@@ -49,3 +49,4 @@ Use it to send data to Metagraph, build a wallet and more.
 
    keystore/keystore.introduction
    keystore/keystore.sign
+   keystore/keystore.verify_and_validate

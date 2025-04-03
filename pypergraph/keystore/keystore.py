@@ -164,7 +164,7 @@ class KeyStore:
         return signature, hash_
 
     def verify_data(
-        self, public_key, encoded_msg: str, signature: str,
+        self, public_key: str, encoded_msg: str, signature: str,
     ):
         # Encode the message the same way as in data_sign
         serialized = encoded_msg.encode("utf-8")
@@ -257,21 +257,21 @@ class KeyStore:
         return _sign_deterministic_canonical(private_key=private_key, msg=msg)
 
     @staticmethod
-    def verify(public_key_hex, msg, signature_hex) -> bool:
+    def verify(public_key: str, msg: str, signature: str) -> bool:
         """
         Verify is the signature is valid.
 
-        :param public_key_hex:
+        :param public_key:
         :param msg: Hex format
-        :param signature_hex:
+        :param signature:
         :return: True or False
         """
         msg = hashlib.sha512(msg.encode("utf-8")).digest()
-        vk = VerifyingKey.from_string(bytes.fromhex(public_key_hex), curve=SECP256k1)
+        vk = VerifyingKey.from_string(bytes.fromhex(public_key), curve=SECP256k1)
         try:
             # Use verify_digest for prehashed input
             valid = vk.verify_digest(
-                bytes.fromhex(signature_hex),
+                bytes.fromhex(signature),
                 msg[:32],  # Prehashed hash
                 sigdecode=sigdecode_der,
             )
