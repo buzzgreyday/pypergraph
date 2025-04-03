@@ -302,19 +302,19 @@ class KeyStore:
         return valid_len and valid_prefix and valid_parity and valid_base58
 
     @staticmethod
-    def validate_mnemonic(mnemonic_phrase: str) -> bool:
+    def validate_mnemonic(phrase: str) -> bool:
         """
         Returns True is phrase is valid, False if invalid.
 
-        :param mnemonic_phrase: String of words (default: 12).
+        :param phrase: String of words (default: 12).
         :return: Boolean value.
         """
-        return Bip39Helper.validate_mnemonic(mnemonic_phrase=mnemonic_phrase)
+        return Bip39Helper.validate_mnemonic(mnemonic_phrase=phrase)
 
     @staticmethod
     def generate_mnemonic() -> str:
         """
-        :return: Mnemonic values in a dictionary with keys: mnemo, words, seed, entropy
+        :return: 12 word mnemonic phrase
         """
         bip39 = Bip39Helper()
         return bip39.mnemonic()
