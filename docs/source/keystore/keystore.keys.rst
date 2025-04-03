@@ -103,7 +103,7 @@ This will derive a private key (account) from a hierarchical deterministic maste
 +=======================+===========================+===============================================================+
 | ``master_key``        | ``BIP32Key``              |                                                               |
 +-----------------------+---------------------------+---------------------------------------------------------------+
-| ``index``             | ``int``. ``0 (default)``. | Derive the private key of account index number ``X``.         |
+| ``index``             | ``int``: ``0 (default)``. | Derive the private key of account index number ``X``.         |
 +-----------------------+---------------------------+---------------------------------------------------------------+
 
 **Example Code**
