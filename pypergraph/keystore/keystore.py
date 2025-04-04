@@ -267,7 +267,6 @@ class KeyStore:
         """
         # Compute SHA512 digest of the hex string's UTF-8 bytes and truncate
         sha512_digest = hashlib.sha512(msg.encode("utf-8")).digest()[:32]
-        print(public_key)
         # Step 2: Load public key from hex
         public_key_bytes = bytes.fromhex(public_key)
         if len(public_key_bytes) == 65:
@@ -390,14 +389,14 @@ class KeyStore:
         private_key = private_key or self.generate_private_key()
         return eth_keyfile.create_keyfile_json(
             private_key=bytes.fromhex(private_key),
-            password=password.encode("utf-8"),
+            password=password.encode("utf-8"), # This is right; should be bytes.
             kdf="scrypt",
         )
 
     def decrypt_private_key(self, data: dict, password: str):
         if self.is_valid_json_private_key(data):
             wallet = eth_keyfile.decode_keyfile_json(
-                raw_keyfile_json=data, password=password.encode("utf-8")
+                raw_keyfile_json=data, password=password.encode("utf-8") # This is right; should be bytes.
             )
             return wallet.hex()
 
