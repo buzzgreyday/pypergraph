@@ -109,7 +109,43 @@ Data Signature Verification
 
     from pypergraph import KeyStore()
 
-    valid_signature = KeyStore().verify_data(public_key="e123...", encoded_msg="...", signature="f123...")
+    import time
+    import json
+
+    from pypergraph import KeyStore
+
+    pk = KeyStore.get_private_key_from_mnemonic("abandon ...")
+    pub_k = KeyStore.get_public_key_from_private(pk)
+    address = KeyStore.get_dag_address_from_public_key(pub_k)
+
+    # Sample data to sign
+    water_and_energy_usage = {
+        "address": address,
+        "energyUsage": {
+            "usage": 7,
+            "timestamp": int(time.time() * 1000),
+        },
+        "waterUsage": {
+            "usage": 7,
+            "timestamp": int(time.time() * 1000),
+        },
+    }
+
+    # Custom encoding function example
+    def encode(data: dict) -> str:
+        return json.dumps(data, separators=(',', ':'))
+
+    # Generate a signature and hash for the custom data
+    signature, hash_value = KeyStore().data_sign(
+        private_key=pk,
+        msg=water_and_energy_usage,
+        prefix=False,
+        encoding=encode
+    )
+
+    # Same encoding as used to sign
+    encoded_msg = encode(water_and_energy_usage)
+    valid_signature = KeyStore().verify_data(public_key=pub_k, encoded_msg=encoded_msg, signature=signature)
 
     if not valid_signature:
         print("Invalid signature.")

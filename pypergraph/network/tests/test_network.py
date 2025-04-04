@@ -4,6 +4,7 @@ import httpx
 import pytest
 import random
 
+import requests
 from httpx import ReadTimeout
 
 import pypergraph.account
@@ -480,7 +481,6 @@ async def test_post_metagraph_data_transaction(network):
     L0 = "http://localhost:9200"
     CL1 = "http://localhost:9300"
     DL1 = "http://localhost:9400"
-    # print(requests.get(f"https://faucet.constellationnetwork.io/testnet/faucet/{from_address}").text)
     account = pypergraph.account.DagAccount()
     account.login_with_seed_phrase(mnemo)
     account_metagraph_client = pypergraph.account.MetagraphTokenClient(
@@ -561,3 +561,8 @@ async def test_get_metrics(network):
     except httpx.ReadTimeout:
         pytest.skip("Timeout")
 
+
+#def test_get_money():
+#    from .secret import from_address
+#    print(requests.get(f"https://faucet.constellationnetwork.io/testnet/faucet/{from_address}").text)
+#    print(requests.get(f"https://faucet.constellationnetwork.io/integrationnet/faucet/{from_address}").text)

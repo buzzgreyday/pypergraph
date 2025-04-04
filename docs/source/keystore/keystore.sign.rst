@@ -1,14 +1,12 @@
 Sign
 ====
 
-``KeyStore.sign(..)`` relies on `pyca/cryptography <https://cryptography.io/en/latest/>_` for secure signing and enforce canonical DER signatures.
+``KeyStore.sign(..)`` relies on `pyca/cryptography <https://cryptography.io/en/latest/>_` for secure SECP256K1 curve private key signing canonical, deterministic DER signatures (akin to RFC 6979).
 
 -----
 
 Currency Transaction
 --------------------
-
-The process begins by hashing the transaction hash using SHA-512. Next, the private key (provided in hexadecimal format) is converted into a signing key using the secp256k1 curve. Then, employing a deterministic signing method (akin to RFC6979), the first 32 bytes of the hash are signed. Finally, the signature is adjusted to enforce canonical form and encoded in DER format before being returned.
 
 **Parameters**
 

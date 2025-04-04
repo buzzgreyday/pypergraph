@@ -163,22 +163,19 @@ async def test_currency_transfer():
         assert isinstance(r, PendingTransaction)
     except (NetworkError, httpx.ReadError) as e:
         failed.append(e)
-        pass
 
-    print(e if e else f'Success: {r}')
+    metagraph_account = MetagraphTokenClient(
+        account=account,
+        metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
+        # l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
+        currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+    )
 
-    #metagraph_account = MetagraphTokenClient(
-    #    account=account,
-    #    metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
-    #    # l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
-    #    currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
-    #)
-
-    #try:
-    #    r = await metagraph_account.transfer(to_address=to_address, amount=10000000, fee=2000000)
-    #    assert isinstance(r, dict)
-    #except (NetworkError, httpx.ReadTimeout) as e:
-    #    failed.append(e)
+    try:
+        r = await metagraph_account.transfer(to_address=to_address, amount=10000000, fee=2000000)
+        assert isinstance(r, dict)
+    except (NetworkError, httpx.ReadTimeout) as e:
+        failed.append(e)
 
     if failed:
         pytest.skip(', '.join(str(x) for x in failed))
