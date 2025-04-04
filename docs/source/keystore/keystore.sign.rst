@@ -1,6 +1,8 @@
 Sign
 ====
 
+``KeyStore.sign(..)`` relies on `ecdsa <https://pypi.org/project/ecdsa/>_` for signing (for security reasons I will need to look into using `pyca/cryptography <https://cryptography.io/en/latest/>`_) and `PyASN1 <https://github.com/etingof/pyasn1>`_ for enforcement of canonical signatures.
+
 -----
 
 Currency Transaction
