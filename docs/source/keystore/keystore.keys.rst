@@ -5,20 +5,6 @@ Mnemonic phrase, private keys, address, hierarchical derivation.
 
 -----
 
-`Private Keys`_
-
-* `Generate Mnemonic`_
-
-* `Validate Mnemonic`_
-
-* `Generate Private Key`_
-
-* `Get Master Key from Mnemonic Phrase`_
-
-* `Derive Private Key from Master Key`_
-
------
-
 Private Keys
 ^^^^^^^^^^^^
 
