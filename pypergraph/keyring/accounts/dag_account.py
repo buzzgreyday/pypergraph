@@ -2,6 +2,7 @@ import hashlib
 from typing import List
 
 import base58
+from cryptography.hazmat.primitives import serialization
 
 from pypergraph.core.constants import PKCS_PREFIX, KeyringAssetType, NetworkId
 from .ecdsa_account import EcdsaAccount
@@ -41,7 +42,12 @@ class DagAccount(EcdsaAccount):
         return valid_len and valid_prefix and valid_parity and valid_base58
 
     def get_public_key(self) -> str:
-        return self.wallet.get_verifying_key().to_string().hex()
+        public_key = self.wallet.public_key()
+        public_bytes = public_key.public_bytes(
+            encoding=serialization.Encoding.X962,
+            format=serialization.PublicFormat.UncompressedPoint
+        )
+        return public_bytes.hex()
 
     def get_address(self) -> str:
         return self.get_address_from_public_key(self.get_public_key())

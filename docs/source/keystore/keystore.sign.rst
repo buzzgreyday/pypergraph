@@ -1,7 +1,7 @@
 Sign
 ====
 
-``KeyStore.sign(..)`` relies on `ecdsa <https://pypi.org/project/ecdsa/>_` for signing (for security reasons I will need to look into using `pyca/cryptography <https://cryptography.io/en/latest/>`_) and `PyASN1 <https://github.com/etingof/pyasn1>`_ for enforcement of canonical signatures.
+``KeyStore.sign(..)`` relies on `pyca/cryptography <https://cryptography.io/en/latest/>_` for secure signing and enforce canonical DER signatures.
 
 -----
 
@@ -35,57 +35,56 @@ The process begins by hashing the transaction hash using SHA-512. Next, the priv
 
    .. code-block:: python
 
-       from typing import Union, Optional, Callable, Tuple
-       import hashlib
-       import json
-       import base64
+    import hashlib
 
-       from ecdsa import SigningKey, SECP256k1, sigencode_der
-       from pyasn1.codec.der.encoder import encode as der_encode
-       from pyasn1.codec.der.decoder import decode as der_decode
-       from pyasn1.type.univ import Sequence, Integer
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from cryptography.hazmat.primitives.asymmetric.utils import (
+        decode_dss_signature,
+        encode_dss_signature,
+        Prehashed
+    )
 
-       class KeyStore:
-           DATA_SIGN_PREFIX = "\u0019Constellation Signed Data:\n"
+    from pypergraph.core.constants.SECP256K1_ORDER
 
-           @staticmethod
-           def sign(private_key: str, msg: str) -> str:
+    class KeyStore:
+        @staticmethod
+        def sign(private_key: str, msg: str) -> str:
+            """
+            Create transaction signature using the `cryptography` library.
 
-               SECP256K1_ORDER = SECP256k1.order
+            :param private_key: Private key in hex format.
+            :param msg: Transaction message (string).
+            :return: Canonical DER signature in hex.
+            """
 
-               def _enforce_canonical_signature(signature: bytes) -> bytes:
-                   r, s = _decode_der(signature)
-                   if s > SECP256K1_ORDER // 2:
-                       s = SECP256K1_ORDER - s
-                   return _encode_der(r, s)
+            # Convert hex private key to cryptography object
+            private_key_bytes = bytes.fromhex(private_key)
+            private_key_int = int.from_bytes(private_key_bytes, byteorder='big')
+            private_key = ec.derive_private_key(
+                private_key_int, ec.SECP256K1(), default_backend()
+            )
 
-               def _decode_der(signature: bytes):
-                   seq, _ = der_decode(signature, asn1Spec=Sequence())
-                   r = int(seq[0])
-                   s = int(seq[1])
-                   return r, s
+            # Prehash message with SHA-512 and truncate to 32 bytes
+            msg_digest = hashlib.sha512(msg.encode("utf-8")).digest()[:32]
 
-               def _encode_der(r: int, s: int) -> bytes:
-                   seq = Sequence()
-                   seq.setComponentByPosition(0, Integer(r))
-                   seq.setComponentByPosition(1, Integer(s))
-                   return der_encode(seq)
+            # Sign deterministically (RFC 6979) and enforce canonical form
+            signature = private_key.sign(
+                msg_digest,
+                ec.ECDSA(Prehashed(hashes.SHA256())))  # Prehashed for raw digest
 
-               def _sign_deterministic_canonical(private_key: str, msg: bytes) -> str:
-                   sk = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
-                   signature_der = sk.sign_digest_deterministic(
-                       msg[:32],
-                       hashfunc=hashlib.sha256,
-                       sigencode=sigencode_der,
-                   )
-                   canonical_signature_der = _enforce_canonical_signature(signature_der)
-                   return canonical_signature_der.hex()
+            # Decode signature to (r, s) and enforce canonical `s`
+            r, s = decode_dss_signature(signature)
+            if s > SECP256K1_ORDER // 2:
+                s = SECP256K1_ORDER - s
 
-               msg_bytes = hashlib.sha512(msg.encode("utf-8")).digest()
-               return _sign_deterministic_canonical(private_key=private_key, msg=msg_bytes)
+            # Re-encode as canonical DER signature
+            canonical_signature = encode_dss_signature(r, s)
+            return canonical_signature.hex()
 
-       # Example usage of signing a transaction
-       signature = KeyStore().sign(private_key="e123...", msg="f123...")
+    # Example usage of signing a transaction
+    signature = KeyStore().sign(private_key="e123...", msg="f123...")
 
 
 -----
@@ -221,39 +220,39 @@ Custom Metagraph data is signed using the same method as for transaction signing
 
            @staticmethod
            def sign(private_key: str, msg: str) -> str:
+            """
+            Create transaction signature using the `cryptography` library.
 
-               SECP256K1_ORDER = SECP256k1.order
+            :param private_key: Private key in hex format.
+            :param msg: Transaction message (string).
+            :return: Canonical DER signature in hex.
+            """
 
-               def _enforce_canonical_signature(signature: bytes) -> bytes:
-                   r, s = _decode_der(signature)
-                   if s > SECP256K1_ORDER // 2:
-                       s = SECP256K1_ORDER - s
-                   return _encode_der(r, s)
+            # Convert hex private key to cryptography object
+            private_key_bytes = bytes.fromhex(private_key)
+            private_key_int = int.from_bytes(private_key_bytes, byteorder='big')
+            private_key = ec.derive_private_key(
+                private_key_int, ec.SECP256K1(), default_backend()
+            )
 
-               def _decode_der(signature: bytes):
-                   seq, _ = der_decode(signature, asn1Spec=Sequence())
-                   r = int(seq[0])
-                   s = int(seq[1])
-                   return r, s
+            # Prehash message with SHA-512 and truncate to 32 bytes
+            msg_digest = hashlib.sha512(msg.encode("utf-8")).digest()[:32]
 
-               def _encode_der(r: int, s: int) -> bytes:
-                   seq = Sequence()
-                   seq.setComponentByPosition(0, Integer(r))
-                   seq.setComponentByPosition(1, Integer(s))
-                   return der_encode(seq)
+            # Sign deterministically (RFC 6979) and enforce canonical form
+            signature = private_key.sign(
+                msg_digest,
+                ec.ECDSA(Prehashed(hashes.SHA256())))  # Prehashed for raw digest
 
-               def _sign_deterministic_canonical(private_key: str, msg: bytes) -> str:
-                   sk = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
-                   signature_der = sk.sign_digest_deterministic(
-                       msg[:32],
-                       hashfunc=hashlib.sha256,
-                       sigencode=sigencode_der,
-                   )
-                   canonical_signature_der = _enforce_canonical_signature(signature_der)
-                   return canonical_signature_der.hex()
+            # Decode signature to (r, s) and enforce canonical `s`
+            r, s = decode_dss_signature(signature)
+            if s > SECP256K1_ORDER // 2:
+                s = SECP256K1_ORDER - s
 
-               msg_bytes = hashlib.sha512(msg.encode("utf-8")).digest()
-               return _sign_deterministic_canonical(private_key=private_key, msg=msg_bytes)
+            # Re-encode as canonical DER signature
+            canonical_signature = encode_dss_signature(r, s)
+            return canonical_signature.hex()
+
+
 
        # Example usage of data signing
        water_and_energy_usage = {

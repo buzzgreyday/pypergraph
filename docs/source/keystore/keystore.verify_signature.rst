@@ -34,11 +34,17 @@ Transaction Signature Verification
 .. dropdown:: Lifecycle
    :animate: fade-in
 
-   .. code-block:: python
+    .. code-block:: python
 
-        from ecdsa import SECP256k1, VerifyingKey
-        from ecdsa.util import sigdecode_der
+        import hashlib
 
+        from cryptography.hazmat.backends import default_backend
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric import ec
+        from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
+        from cryptography.exceptions import InvalidSignature
+
+        @staticmethod
         def verify(public_key: str, msg: str, signature: str) -> bool:
             """
             Verify is the signature is valid.
@@ -48,17 +54,34 @@ Transaction Signature Verification
             :param signature:
             :return: True or False
             """
-            msg = hashlib.sha512(msg.encode("utf-8")).digest()
-            vk = VerifyingKey.from_string(bytes.fromhex(public_key), curve=SECP256k1)
+            # TODO
+            # Compute SHA512 digest of the hex string's UTF-8 bytes and truncate
+            sha512_digest = hashlib.sha512(msg.encode("utf-8")).digest()[:32]
+            print(public_key)
+            # Step 2: Load public key from hex
+            public_key_bytes = bytes.fromhex(public_key)
+            if len(public_key_bytes) == 65:
+                public_key_bytes = public_key_bytes[1:] # Remove 04
+            if len(public_key_bytes) != 64:
+                raise ValueError("Public key must be 64 bytes (uncompressed SECP256k1).")
+
+            # Split into x and y coordinates (32 bytes each)
+            x = int.from_bytes(public_key_bytes[:32], byteorder="big")
+            y = int.from_bytes(public_key_bytes[32:], byteorder="big")
+
+            # Create public key object
+            public_numbers = ec.EllipticCurvePublicNumbers(x, y, ec.SECP256K1())
+            public_key = public_numbers.public_key(default_backend())
+
+            # Step 3: Verify the signature
             try:
-                # Use verify_digest for prehashed input
-                valid = vk.verify_digest(
+                public_key.verify(
                     bytes.fromhex(signature),
-                    msg[:32],  # Prehashed hash
-                    sigdecode=sigdecode_der,
+                    sha512_digest,
+                    ec.ECDSA(Prehashed(hashes.SHA256()))  # Treat digest as SHA256-sized
                 )
-                return valid
-            except Exception:
+                return True
+            except InvalidSignature:
                 return False
 
 -----

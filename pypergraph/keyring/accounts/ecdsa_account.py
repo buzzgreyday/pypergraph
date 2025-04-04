@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List, Any, Dict
 
-from ecdsa import SigningKey, SECP256k1
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
+
 from eth_utils import keccak, to_checksum_address
 from eth_keys import keys
 from pydantic import BaseModel, Field, ConfigDict
@@ -9,7 +12,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class EcdsaAccount(BaseModel, ABC):
     tokens: List[str] = Field(default_factory=list)
-    wallet: Optional[SigningKey] = None
+    wallet: Optional[ec.EllipticCurvePrivateKey] = None
     assets: List[Any] = Field(default_factory=list)
     bip44_index: Optional[int] = None
     provider: Any = None
@@ -49,9 +52,14 @@ class EcdsaAccount(BaseModel, ABC):
 
     def create(self, private_key: Optional[str]):
         if private_key:
-            self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
+            # Convert hex private key to cryptography object
+            private_key_bytes = bytes.fromhex(private_key)
+            private_key_int = int.from_bytes(private_key_bytes, byteorder='big')
+            self.wallet = ec.derive_private_key(
+                private_value=private_key_int, curve=ec.SECP256K1(), backend=default_backend()
+            )
         else:
-            self.wallet = SigningKey.generate(curve=SECP256k1)
+            self.wallet = ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend())
         return self
 
     def save_token_info(self, address: str):
@@ -109,12 +117,15 @@ class EcdsaAccount(BaseModel, ABC):
         self.tokens = tokens or self.tokens
 
         if private_key:
-            private_key = bytes.fromhex(private_key)
-            self.wallet = SigningKey.from_string(private_key, curve=SECP256k1)
+            # Convert hex private key to cryptography object
+            private_key_bytes = bytes.fromhex(private_key)
+            private_key_int = int.from_bytes(private_key_bytes, byteorder='big')
+            self.wallet = ec.derive_private_key(
+                private_value=private_key_int, curve=ec.SECP256K1(), backend=default_backend()
+            )
         else:
             raise NotImplementedError("EcdsaAccount :: Wallet instance from public key isn't supported.")
             # TODO: This doesn't work since the library doens't seem to have any equivalent
-            #self.wallet = Wallet.from_public_key(bytes.fromhex(public_key))
 
         return self
 
@@ -149,20 +160,28 @@ class EcdsaAccount(BaseModel, ABC):
         return public_key.to_hex()
 
     def get_address(self) -> str:
-        #return self.wallet.get_checksum_address_string()
-        vk = self.wallet.get_verifying_key().to_string()
+        public_key = self.wallet.public_key()
+        public_bytes = public_key.public_bytes(
+            encoding=serialization.Encoding.X962,
+            format=serialization.PublicFormat.UncompressedPoint
+        )
 
-        # Compute the keccak hash of the public key (last 20 bytes is the address)
-        public_key = b"\x04" + vk  # Add the uncompressed prefix
-        address = keccak(public_key[1:])[-20:]  # Drop the first byte (x-coord prefix)
+        # Take keccak of everything except the first byte (0x04)
+        address = keccak(public_bytes[1:])[-20:]
 
         return to_checksum_address("0x" + address.hex())
 
     def get_public_key(self) -> str:
-        return self.wallet.get_verifying_key().to_string().hex()
+        public_key = self.wallet.public_key()
+        public_bytes = public_key.public_bytes(
+            encoding=serialization.Encoding.X962,
+            format=serialization.PublicFormat.UncompressedPoint
+        )
+        return public_bytes.hex()
 
     def get_private_key(self) -> str:
-        return self.wallet.to_string().hex()
+        private_bytes = self.wallet.private_numbers().private_value.to_bytes(32, 'big')
+        return private_bytes.hex()
 
     def get_private_key_buffer(self):
-        return self.wallet.to_string()
+        return self.wallet.private_numbers().private_value.to_bytes(32, 'big')

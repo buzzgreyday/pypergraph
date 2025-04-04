@@ -1,5 +1,4 @@
 import base64
-import hashlib
 import json
 import random
 from decimal import Decimal
@@ -8,12 +7,19 @@ from typing import Tuple, Callable, Optional, Union, Literal, Dict, Any
 import base58
 import eth_keyfile
 from bip32utils import BIP32Key
-from ecdsa import SigningKey, SECP256k1, VerifyingKey
-from ecdsa.util import sigencode_der, sigdecode_der
+from cryptography.exceptions import InvalidSignature
+
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.utils import (
+    decode_dss_signature,
+    encode_dss_signature,
+    Prehashed
+)
+from cryptography.hazmat.backends import default_backend
+import hashlib
+
 import eth_utils
-from pyasn1.codec.der.decoder import decode as der_decode
-from pyasn1.codec.der.encoder import encode as der_encode
-from pyasn1.type.univ import Sequence, Integer
 
 from pypergraph.core.constants import PKCS_PREFIX
 from pypergraph.network.models.transaction import Transaction, TransactionReference
@@ -21,7 +27,7 @@ from .kryo import Kryo
 from .bip_helpers.bip32_helper import Bip32Helper
 from .bip_helpers.bip39_helper import Bip39Helper
 from .v3_keystore import V3KeystoreCrypto, V3Keystore
-from ..core import BIP_44_PATHS
+from ..core.constants import BIP_44_PATHS, SECP256K1_ORDER
 
 MIN_SALT = int(Decimal("1e8"))
 
@@ -166,24 +172,45 @@ class KeyStore:
     def verify_data(
         self, public_key: str, encoded_msg: str, signature: str,
     ):
-        # Encode the message the same way as in data_sign
+        """
+        Verify a signature using the `cryptography` library.
+
+        :param public_key: Public key in hex format (64-byte uncompressed, no 0x04 prefix).
+        :param encoded_msg: Original message string to verify.
+        :param signature: Canonical DER signature in hex.
+        :return: True if valid, False otherwise.
+        """
+        # Step 1: Replicate message preprocessing
         serialized = encoded_msg.encode("utf-8")
-
-        # Compute SHA256 hash of the serialized message as hex
+        # Compute SHA256 hash of the serialized message
         sha256_hash_hex = hashlib.sha256(serialized).hexdigest()
-        # Compute SHA512 digest of the hex string's UTF-8 bytes
-        sha512_digest = hashlib.sha512(sha256_hash_hex.encode("utf-8")).digest()
+        # Compute SHA512 digest of the hex string's UTF-8 bytes and truncate
+        sha512_digest = hashlib.sha512(sha256_hash_hex.encode("utf-8")).digest()[:32]
 
+        # Step 2: Load public key from hex
+        public_key_bytes = bytes.fromhex(public_key)
+        if len(public_key_bytes) == 65:
+            public_key_bytes = public_key_bytes[1:] # Remove 04
+        if len(public_key_bytes) != 64:
+            raise ValueError("Public key must be 64 bytes (uncompressed SECP256k1).")
+
+        # Split into x and y coordinates (32 bytes each)
+        x = int.from_bytes(public_key_bytes[:32], byteorder="big")
+        y = int.from_bytes(public_key_bytes[32:], byteorder="big")
+
+        # Create public key object
+        public_numbers = ec.EllipticCurvePublicNumbers(x, y, ec.SECP256K1())
+        public_key = public_numbers.public_key(default_backend())
+
+        # Step 3: Verify the signature
         try:
-            vk = VerifyingKey.from_string(
-                bytes.fromhex(public_key), curve=SECP256k1
-            )
-            return vk.verify_digest(
+            public_key.verify(
                 bytes.fromhex(signature),
-                sha512_digest[:32],
-                sigdecode=sigdecode_der,
+                sha512_digest,
+                ec.ECDSA(Prehashed(hashes.SHA256()))  # Treat digest as SHA256-sized
             )
-        except Exception:
+            return True
+        except InvalidSignature:
             return False
 
     # def serialize(self, msg: str):
@@ -197,64 +224,36 @@ class KeyStore:
     @staticmethod
     def sign(private_key: str, msg: str) -> str:
         """
-        Create transaction signature.
+        Create transaction signature using the `cryptography` library.
 
         :param private_key: Private key in hex format.
-        :param msg: Transaction hash from prepare_tx.
-        :return: Signature supported by the transaction API.
+        :param msg: Transaction message (string).
+        :return: Canonical DER signature in hex.
         """
 
-        # secp256k1 curve order
-        SECP256K1_ORDER = SECP256k1.order
+        # Convert hex private key to cryptography object
+        private_key_bytes = bytes.fromhex(private_key)
+        private_key_int = int.from_bytes(private_key_bytes, byteorder='big')
+        private_key = ec.derive_private_key(
+            private_key_int, ec.SECP256K1(), default_backend()
+        )
 
-        def _enforce_canonical_signature(signature: bytes) -> bytes:
-            """
-            Adjust the signature to ensure canonical form (s < curve_order / 2).
-            """
-            r, s = _decode_der(signature)
-            if s > SECP256K1_ORDER // 2:
-                s = SECP256K1_ORDER - s
-            return _encode_der(r, s)
+        # Prehash message with SHA-512 and truncate to 32 bytes
+        msg_digest = hashlib.sha512(msg.encode("utf-8")).digest()[:32]
 
-        def _decode_der(signature: bytes):
-            """
-            Decode a DER-encoded signature to (r, s).
-            """
-            seq, _ = der_decode(signature, asn1Spec=Sequence())
-            r = int(seq[0])
-            s = int(seq[1])
-            return r, s
+        # Sign deterministically (RFC 6979) and enforce canonical form
+        signature = private_key.sign(
+            msg_digest,
+            ec.ECDSA(Prehashed(hashes.SHA256())))  # Prehashed for raw digest
 
-        def _encode_der(r: int, s: int) -> bytes:
-            """
-            Encode (r, s) back into DER format.
-            """
-            seq = Sequence()
-            seq.setComponentByPosition(0, Integer(r))
-            seq.setComponentByPosition(1, Integer(s))
-            return der_encode(seq)
+        # Decode signature to (r, s) and enforce canonical `s`
+        r, s = decode_dss_signature(signature)
+        if s > SECP256K1_ORDER // 2:
+            s = SECP256K1_ORDER - s
 
-        def _sign_deterministic_canonical(
-            private_key: str, msg: bytes
-        ) -> str:
-            """
-            Create a deterministic and canonical secp256k1 signature.
-            """
-            # Create SigningKey object from private key hex
-            sk = SigningKey.from_string(
-                bytes.fromhex(private_key), curve=SECP256k1
-            )
-            # Sign the prehashed message deterministically
-            signature_der = sk.sign_digest_deterministic(
-                msg[:32],  # Truncate to 32 bytes if needed
-                hashfunc=hashlib.sha256,
-                sigencode=sigencode_der,
-            )
-            canonical_signature_der = _enforce_canonical_signature(signature_der)
-            return canonical_signature_der.hex()
-
-        msg = hashlib.sha512(msg.encode("utf-8")).digest()
-        return _sign_deterministic_canonical(private_key=private_key, msg=msg)
+        # Re-encode as canonical DER signature
+        canonical_signature = encode_dss_signature(r, s)
+        return canonical_signature.hex()
 
     @staticmethod
     def verify(public_key: str, msg: str, signature: str) -> bool:
@@ -266,17 +265,33 @@ class KeyStore:
         :param signature:
         :return: True or False
         """
-        msg = hashlib.sha512(msg.encode("utf-8")).digest()
-        vk = VerifyingKey.from_string(bytes.fromhex(public_key), curve=SECP256k1)
+        # Compute SHA512 digest of the hex string's UTF-8 bytes and truncate
+        sha512_digest = hashlib.sha512(msg.encode("utf-8")).digest()[:32]
+        print(public_key)
+        # Step 2: Load public key from hex
+        public_key_bytes = bytes.fromhex(public_key)
+        if len(public_key_bytes) == 65:
+            public_key_bytes = public_key_bytes[1:] # Remove 04
+        if len(public_key_bytes) != 64:
+            raise ValueError("Public key must be 64 bytes (uncompressed SECP256k1).")
+
+        # Split into x and y coordinates (32 bytes each)
+        x = int.from_bytes(public_key_bytes[:32], byteorder="big")
+        y = int.from_bytes(public_key_bytes[32:], byteorder="big")
+
+        # Create public key object
+        public_numbers = ec.EllipticCurvePublicNumbers(x, y, ec.SECP256K1())
+        public_key = public_numbers.public_key(default_backend())
+
+        # Step 3: Verify the signature
         try:
-            # Use verify_digest for prehashed input
-            valid = vk.verify_digest(
+            public_key.verify(
                 bytes.fromhex(signature),
-                msg[:32],  # Prehashed hash
-                sigdecode=sigdecode_der,
+                sha512_digest,
+                ec.ECDSA(Prehashed(hashes.SHA256()))  # Treat digest as SHA256-sized
             )
-            return valid
-        except Exception:
+            return True
+        except InvalidSignature:
             return False
 
     @staticmethod
@@ -325,7 +340,7 @@ class KeyStore:
 
         :return: Private key hex.
         """
-        return SigningKey.generate(SECP256k1).to_string().hex()
+        return ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend()).private_numbers().private_value.to_bytes(32, byteorder='big').hex()
 
     @staticmethod
     def is_valid_json_private_key(data: dict) -> bool:

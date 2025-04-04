@@ -1,7 +1,9 @@
 from typing import Dict
 
 from bip32utils import BIP32Key
-from ecdsa import SigningKey, SECP256k1
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
 
 from pypergraph.core import BIP_44_PATHS
 from .bip39_helper import Bip39Helper
@@ -20,7 +22,7 @@ class Bip32Helper:
         """
         Derive the HD root/master key from a seed entropy in bytes format.
 
-        :param seed_bytes: The seed entropy in bytes format.
+        :param seed: The seed entropy in bytes format.
         :return: The root/master key.
         """
         return BIP32Key.fromEntropy(seed)
@@ -50,9 +52,17 @@ class Bip32Helper:
         """
         Derive the public key from a private key using secp256k1.
 
-        :param private_key_bytes: The private key in hexadecimal format.
-        :return: The public key as a hexadecimal string.
+        :param private_key: The private key in hexadecimal format.
+        :return: The uncompressed public key as a hexadecimal string with 04 prefix.
         """
-        private_key = SigningKey.from_string(private_key, curve=SECP256k1)
-        public_key =  b'\x04' + private_key.get_verifying_key().to_string()
-        return public_key.hex()
+        # Convert hex private key to cryptography object
+        private_key_int = int.from_bytes(private_key, byteorder='big')
+        private_key = ec.derive_private_key(
+            private_key_int, ec.SECP256K1(), default_backend()
+        )
+        public_key = private_key.public_key()
+        public_bytes = public_key.public_bytes(
+            encoding=serialization.Encoding.X962,
+            format=serialization.PublicFormat.UncompressedPoint
+        )
+        return public_bytes.hex() # has 04 prefix

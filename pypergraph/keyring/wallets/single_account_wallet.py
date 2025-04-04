@@ -1,7 +1,8 @@
 import re
 from typing import Optional, List, Dict, Any, Union
 
-from ecdsa import SigningKey, SECP256k1
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import ec
 from pydantic import Field, model_serializer, model_validator, BaseModel
 
 from pypergraph.core import KeyringAssetType, KeyringWalletType, NetworkId
@@ -44,7 +45,8 @@ class SingleAccountWallet(BaseModel):
         :param label:
         :return:
         """
-        private_key = private_key or SigningKey.generate(SECP256k1).to_string().hex()
+
+        private_key = private_key or ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend()).private_numbers().private_value.to_bytes(32, byteorder='big').hex()
         valid = re.fullmatch(r"^[a-fA-F0-9]{64}$", private_key)
         if not valid:
             ValueError("SingleAccountWallet :: Private key is invalid.")
@@ -120,7 +122,7 @@ class SingleAccountWallet(BaseModel):
         raise ValueError("SingleChainWallet :: Does not allow removing accounts.")
 
     def export_secret_key(self) -> str:
-        return self.keyring.get_accounts()[0].wallet.to_string().hex()
+        return self.keyring.get_accounts()[0].wallet.private_numbers().private_value.to_bytes(32, 'big').hex()
 
     @staticmethod
     def reset_sid():

@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from pypergraph import DagTokenNetwork
 from pypergraph.core import BIP_44_PATHS
 from pypergraph.keystore.keystore import KeyStore
 
@@ -89,3 +90,63 @@ def test_get_addresses_from_private_key():
     eth_address = keystore.get_eth_address_from_private_key(eth_private_key)
     assert eth_address == '0x8fbc948ba2dd081a51036de02582f5dcb51a310c'
 
+@pytest.mark.asyncio
+async def test_generate_transaction_and_verify_signature():
+    keystore = KeyStore()
+    phrase = "multiply angle perfect verify behind sibling skirt attract first lift remove fortune"
+    keystore.validate_mnemonic(phrase)
+    pk = keystore.get_private_key_from_mnemonic(phrase)
+    pubk = keystore.get_public_key_from_private(pk)
+    address = keystore.get_dag_address_from_public_key(pubk)
+    last_ref = await DagTokenNetwork().get_address_last_accepted_transaction_ref(address)
+    tx, hash_ = KeyStore.prepare_tx(
+        amount=1000000,
+        to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN",
+        from_address=address,
+        last_ref=last_ref,
+        fee=2000000,
+    )
+    signature = keystore.sign(pk, hash_)
+    assert keystore.verify(pubk, hash_, signature)
+
+def test_generate_custom_data_transaction_and_verify_signature():
+    # Required imports
+    import time
+    import json
+    import base64
+
+    from pypergraph import KeyStore
+
+    phrase = "multiply angle perfect verify behind sibling skirt attract first lift remove fortune"
+    KeyStore.validate_mnemonic(phrase)
+    pk = KeyStore.get_private_key_from_mnemonic(phrase)
+    pubk = KeyStore.get_public_key_from_private(pk)
+    address = KeyStore.get_dag_address_from_public_key(pubk)
+
+    # Sample data to sign
+    water_and_energy_usage = {
+        "address": address,
+        "energyUsage": {
+            "usage": 7,
+            "timestamp": int(time.time() * 1000),
+        },
+        "waterUsage": {
+            "usage": 7,
+            "timestamp": int(time.time() * 1000),
+        },
+    }
+
+    # Custom encoding function example
+    def encode(data: dict) -> str:
+        return json.dumps(data, separators=(',', ':'))
+
+    # Generate a signature and hash for the custom data
+    signature, hash_value = KeyStore().data_sign(
+        private_key=pk,
+        msg=water_and_energy_usage,
+        prefix=False,
+        encoding=encode
+    )
+
+    encoded_msg = encode(water_and_energy_usage)
+    assert KeyStore().verify_data(pubk, encoded_msg, signature)

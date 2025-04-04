@@ -1,4 +1,6 @@
 import pytest
+from cryptography.hazmat.primitives import serialization
+from eth_utils import keccak, to_checksum_address
 
 from pypergraph.keyring import KeyringManager, MultiKeyWallet, MultiAccountWallet
 from pypergraph.keyring.accounts.dag_asset_library import dag_asset_library
@@ -257,7 +259,14 @@ async def test_create_multi_account_wallet(key_manager):
     }
     wallet.create(network="Ethereum", label="New MAW", mnemonic=mnemo, num_of_accounts=1)
     model = wallet.model_dump()
-    vk = model["rings"][0][1][0]["wallet"].get_verifying_key().to_string()
+    vk = model["rings"][0][1][0]["wallet"].public_key().public_bytes(
+            encoding=serialization.Encoding.X962,
+            format=serialization.PublicFormat.UncompressedPoint
+        )
     import eth_keys
-    address = eth_keys.keys.PublicKey(vk).to_address()
+    address = eth_keys.keys.PublicKey(vk[1:]).to_address()
     assert address == '0x8fbc948ba2dd081a51036de02582f5dcb51a310c'
+
+    # Take keccak of everything except the first byte (0x04)
+    address = keccak(vk[1:])[-20:]
+    assert to_checksum_address("0x" + address.hex()).lower() == '0x8fbc948ba2dd081a51036de02582f5dcb51a310c'

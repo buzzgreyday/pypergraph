@@ -5,6 +5,9 @@ STATE_STR_MAX_LEN = 100
 STATE_CHANNEL_SNAPSHOTS_PER_L0_SNAPSHOT = 728 * 100000
 PORT_MAX = 65535
 
+# SECP256k1 curve order (for canonical signature adjustment) from https://asecuritysite.com/secp256k1/
+SECP256K1_ORDER = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
+
 BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 PKCS_PREFIX = "3056301006072a8648ce3d020106052b8104000a034200"  # Removed last 2 digits. 04 is part of Public Key.
 
