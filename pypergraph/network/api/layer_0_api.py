@@ -98,8 +98,8 @@ class L0Api:
     async def put_delegated_stake_withdrawal(self, tx: SignedWithdrawDelegatedStake):
         return await self._make_request("PUT", "/delegated-stake", payload=tx.model_dump())
 
-    async def post_delegated_stake(self, tx: SignedCreateDelegatedStake):
-        return await self._make_request("POST", "/delegated-stake", payload=tx.model_dump())
+    async def post_delegated_stake(self, tx: dict):
+        return await self._make_request("POST", "/delegated-stake", payload=tx)
 
     async def get_node_collateral_last_reference(self, address: str) -> TransactionReference:
         result = await self._make_request("GET", f"/node-collateral/last-reference/{address}")

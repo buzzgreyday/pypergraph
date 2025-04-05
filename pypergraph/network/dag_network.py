@@ -10,7 +10,7 @@ from pypergraph.network.api import BlockExplorerApi
 from pypergraph.network.models.transaction import (
     PendingTransaction,
     SignedTransaction,
-    TransactionReference
+    TransactionReference, SignedCreateDelegatedStake
 )
 from pypergraph.network.models.block_explorer import Snapshot, Transaction
 from pypergraph.network.models.network import NetworkInfo
@@ -167,3 +167,15 @@ class DagTokenNetwork:
         """
         response = await self.be_api.get_latest_snapshot()
         return response
+
+    async def post_delegate_stake(self, tx: dict) -> str:
+        """
+        Delegate stake on L0.
+        I believe this is a one-time thing for node operators to make the node available for delegated stake?
+
+        :param tx: Signed transaction.
+        :return: Transaction hash.
+        """
+        response = await self.l0_api.post_delegated_stake(tx)
+        # Support both data/meta format and object return format
+        return response.get("data", {}).get("hash") or response.get("hash")

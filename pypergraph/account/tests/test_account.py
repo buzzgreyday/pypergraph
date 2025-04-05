@@ -1,6 +1,7 @@
 import httpx
 import pytest
 
+from pypergraph import KeyStore
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.account import DagAccount, MetagraphTokenClient
 from pypergraph.network.models.transaction import PendingTransaction

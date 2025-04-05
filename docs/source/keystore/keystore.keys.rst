@@ -8,8 +8,6 @@ Mnemonic phrase, private keys, address, hierarchical derivation.
 Private Keys
 ^^^^^^^^^^^^
 
------
-
 Generate Mnemonic
 -----------------
 

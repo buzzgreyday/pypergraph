@@ -166,10 +166,16 @@ Custom Metagraph data is signed using the same method as for transaction signing
        import base64
        import time
 
-       from ecdsa import SigningKey, SECP256k1, sigencode_der
-       from pyasn1.codec.der.encoder import encode as der_encode
-       from pyasn1.codec.der.decoder import decode as der_decode
-       from pyasn1.type.univ import Sequence, Integer
+       from cryptography.hazmat.backends import default_backend
+       from cryptography.hazmat.primitives import hashes
+       from cryptography.hazmat.primitives.asymmetric import ec
+       from cryptography.hazmat.primitives.asymmetric.utils import (
+           decode_dss_signature,
+           encode_dss_signature,
+           Prehashed
+       )
+
+       from pypergraph.core.constants.SECP256K1_ORDER
 
        class KeyStore:
            DATA_SIGN_PREFIX = "\u0019Constellation Signed Data:\n"
