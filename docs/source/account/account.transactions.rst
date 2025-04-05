@@ -184,3 +184,44 @@ Transaction values, serialization and encoding should match what is expected by 
             prefix=False,
             encoding=base64_serializer
         )
+
+-----
+
+Other
+^^^^^
+
+Check Pending Transaction
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    import asyncio
+
+    async def accepted(tx: PendingTransaction) -> bool:
+        """
+        Wait until the given transaction is accepted in a checkpoint.
+
+        Args:
+            tx (PendingTransaction): A PendingTransaction instance.
+
+        Returns:
+            bool: True when the transaction is accepted.
+        """
+        while not await account.wait_for_checkpoint_accepted(tx.hash):
+            await asyncio.sleep(6)  # Prevent busy-waiting
+        return True
+
+    async def main():
+        # Initiate a transfer which returns a pending transaction.
+        pending_transaction = await account.transfer(
+            to_address="DAG1...",
+            amount=100000000,  # 1 DAG = 10^8 units
+            fee=200000
+        )
+
+        # Check if the transaction has been accepted.
+        if await accepted(pending_transaction):
+            print("Accepted:", pending_transaction.hash)
+
+    # Execute the async main function.
+    asyncio.run(main())
