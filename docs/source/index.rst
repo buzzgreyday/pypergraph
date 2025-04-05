@@ -32,6 +32,7 @@ Use it to send data to Metagraph, build a wallet and more.
    account/account.network
    account/account.transactions
    account/account.balance
+   account/account.monitor
 
 .. toctree::
    :maxdepth: 1

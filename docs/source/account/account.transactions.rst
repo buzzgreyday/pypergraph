@@ -187,9 +187,6 @@ Transaction values, serialization and encoding should match what is expected by 
 
 -----
 
-Other
-^^^^^
-
 Check Pending Transaction
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
