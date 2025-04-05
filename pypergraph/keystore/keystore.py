@@ -399,7 +399,7 @@ class KeyStore:
         )
 
     def decrypt_private_key(self, data: dict, password: str):
-        if self.is_valid_json_private_key(data):
+        if self.validate_private_key_keystore(data):
             wallet = eth_keyfile.decode_keyfile_json(
                 raw_keyfile_json=data, password=password.encode("utf-8") # This is right; should be bytes.
             )
