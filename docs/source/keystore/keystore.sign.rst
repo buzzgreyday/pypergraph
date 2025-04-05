@@ -3,7 +3,7 @@ Sign
 
 KeyStore.sign(..) uses the pyca/cryptography
 (`https://cryptography.io/en/latest/ <https://cryptography.io/en/latest/>`_) library to securely sign data with
-SECP256K1 private keys. It produces canonical, deterministic DER-encoded signatures in accordance with RFC 6979.
+SECP256K1 EC private keys. It produces canonical, deterministic DER-encoded signatures in accordance with RFC 6979.
 
 -----
 
@@ -91,6 +91,9 @@ Currency Transaction
 
 Data
 ----
+
+.. attention::
+    Encoding should match exactly what the Metagraph expects.
 
 Custom Metagraph data is signed using the same method as for transaction signing, with differences in message serialization and encoding. By default, the transaction ``value`` is taken as the ``msg`` parameter. In addition to JSON encoding, the system supports ``base64`` encoding or injection of custom encoding functions and prefixes.
 
