@@ -520,7 +520,7 @@ async def test_post_metagraph_data_transaction(network):
 
     #tx = SignedData(value=msg, proofs=[SignatureProof(**proof)])
 
-    encoded_msg = keystore.encode_data(msg=msg, prefix=False)
+    encoded_msg = keystore._encode_data(msg=msg, prefix=False)
     assert keystore.verify_data(public_key, encoded_msg, signature)
     false_msg = {
         "address": f"{from_address}",
@@ -533,11 +533,11 @@ async def test_post_metagraph_data_transaction(network):
             "timestamp": int(time.time() * 1000),
         },
     }
-    encoded_msg = keystore.encode_data(msg=false_msg, prefix=False)
+    encoded_msg = keystore._encode_data(msg=false_msg, prefix=False)
     assert not keystore.verify_data(public_key, encoded_msg, signature)
-    encoded_msg = keystore.encode_data(msg=msg, prefix=False, encoding='base64')
+    encoded_msg = keystore._encode_data(msg=msg, prefix=False, encoding='base64')
     assert not keystore.verify_data(public_key, encoded_msg, signature)
-    encoded_msg = keystore.encode_data(msg=msg)
+    encoded_msg = keystore._encode_data(msg=msg)
     assert not keystore.verify_data(public_key, encoded_msg, signature)
 
 
