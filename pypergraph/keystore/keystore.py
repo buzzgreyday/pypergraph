@@ -88,7 +88,7 @@ class KeyStore:
 
         return tx, hash_value
 
-    def encode_data(
+    def _encode_data(
         self,
         msg: dict,
         prefix: Union[bool, str] = True,
@@ -123,6 +123,14 @@ class KeyStore:
         elif isinstance(prefix, str):
             msg = f"{prefix}{len(msg)}\n{msg}"
         return msg
+
+    def _serialize_data(self, encoded_msg: str, serialization: Optional[Callable] = None):
+        """
+        Could be a way to add extra customization but since netmet is working on a signature library... :)
+        """
+        if callable(serialization):
+            return serialization(encoded_msg)
+        return encoded_msg.encode("utf-8")
 
     def data_sign(
         self,
@@ -159,10 +167,10 @@ class KeyStore:
         #
         #     signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
         """ Encode """
-        msg = self.encode_data(encoding=encoding, prefix=prefix, msg=msg)
+        msg = self._encode_data(encoding=encoding, prefix=prefix, msg=msg)
 
         """ Serialize """
-        serialized = msg.encode("utf-8")
+        serialized = self._serialize_data(msg)
 
         hash_ = hashlib.sha256(serialized).hexdigest()
         """ Sign """
@@ -212,9 +220,6 @@ class KeyStore:
             return True
         except InvalidSignature:
             return False
-
-    # def serialize(self, msg: str):
-    #    return msg.encode("utf-8").hex()
 
     def personal_sign(self, msg, private_key) -> str:
         # TODO: How is this used?
@@ -427,12 +432,12 @@ class KeyStore:
         return account_key.PrivateKey().hex()
 
     @staticmethod
-    def get_extended_private_key_from_mnemonic(mnemonic: str):
+    def get_extended_private_key_from_mnemonic(phrase: str):
         # Extended keys can be used to derive child keys
         bip39 = Bip39Helper()
         bip32 = Bip32Helper()
-        if bip39.validate_mnemonic(mnemonic):
-            seed_bytes = bip39.get_seed_from_mnemonic(mnemonic)
+        if bip39.validate_mnemonic(phrase):
+            seed_bytes = bip39.get_seed_from_mnemonic(phrase)
             root_key = bip32.get_root_key_from_seed(seed_bytes)
             return root_key.ExtendedKey()
 
