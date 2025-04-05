@@ -1,7 +1,9 @@
 Sign
 ====
 
-``KeyStore.sign(..)`` relies on `pyca/cryptography <https://cryptography.io/en/latest/>_` for secure SECP256K1 curve private key signing canonical, deterministic DER signatures (akin to RFC 6979).
+KeyStore.sign(..) uses the pyca/cryptography
+(`https://cryptography.io/en/latest/ <https://cryptography.io/en/latest/>`_) library to securely sign data with
+SECP256K1 private keys. It produces canonical, deterministic DER-encoded signatures in accordance with RFC 6979.
 
 -----
 
