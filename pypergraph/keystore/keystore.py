@@ -347,7 +347,7 @@ class KeyStore:
         return ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend()).private_numbers().private_value.to_bytes(32, byteorder='big').hex()
 
     @staticmethod
-    def is_valid_json_private_key(data: dict) -> bool:
+    def validate_private_key_keystore(data: dict) -> bool:
         if not data:
             return False
 
@@ -381,7 +381,7 @@ class KeyStore:
         """
         return await V3KeystoreCrypto.decrypt_phrase(keystore=keystore, password=password)
 
-    def generate_encrypted_private_key(
+    def encrypt_private_key(
         self, password: str, private_key: Optional[str] = None
     ) -> Dict[str, Any]:
         """
