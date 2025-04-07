@@ -104,6 +104,7 @@ class KeyStore:
         :param encoding: Can be None (default), 'base64' or a custom encoding function.
         :return: Encoded data transaction.
         """
+        self._remove_nulls(msg)
         if encoding:
             if callable(encoding):
                 # Use custom encoding function
@@ -131,6 +132,18 @@ class KeyStore:
         if callable(serialization):
             return serialization(encoded_msg)
         return encoded_msg.encode("utf-8")
+
+    def _remove_nulls(self, obj):
+        def process_value(value):
+            if value is None:
+                return None
+            if isinstance(value, list):
+                return [process_value(v) for v in value if process_value(v) is not None]
+            if isinstance(value, dict):
+                return self._remove_nulls(value)
+            return value
+
+        return {k: process_value(v) for k, v in obj.items() if process_value(v) is not None}
 
     def data_sign(
         self,
