@@ -283,7 +283,7 @@ async def main():
     network_sub = monitor.network_subscribe(safe_network_process_event)
     # monitor.start_monitor()
     account_sub = monitor.account_subscribe(safe_account_process_event)
-    account.connect('testnet')
+    account.connect('integrationnet')
     account.login_with_seed_phrase(secret.mnemo)
     pending_tx = await account.transfer(secret.to_address, 50000, 200000)
     await monitor.add_to_mem_pool_monitor(pending_tx)
