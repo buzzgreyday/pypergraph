@@ -290,8 +290,9 @@ async def main():
     txs = await monitor.get_latest_transactions(address=account.address, limit=20)
     print(txs)
     network_sub.dispose()
-    await asyncio.sleep(60)
+    await asyncio.sleep(30)
     account.logout()
+    await asyncio.sleep(1)
     account_sub.dispose()
     network_sub.dispose()
 
