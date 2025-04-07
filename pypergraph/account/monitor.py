@@ -6,10 +6,10 @@ import logging
 import time
 import json
 # from dataclasses import dataclass
-from typing import Dict, Union, List, Optional, Any
+from typing import Dict, Union, List, Optional, Any, Callable
 
 from pydantic import BaseModel, Field
-from rx import operators as ops, of, empty
+from rx import operators as ops, of, empty, Observable
 from rx.scheduler.eventloop import AsyncIOScheduler
 from rx.subject import BehaviorSubject
 
@@ -52,57 +52,105 @@ class Monitor:
         self.cache_utils = StateStorageDb(file_path=state_storage_file_path)
         self.cache_utils.set_prefix('pypergraph-')
 
-        self.account._session_change.pipe(
+        # self.account._session_change.pipe(
+        #     ops.observe_on(self._scheduler),
+        #     ops.flat_map(self._safe_event_processing)  # Ensures event processing continues
+        # ).subscribe()
+        #
+        # self.account.network._network_change.pipe(
+        #     ops.observe_on(self._scheduler),
+        #     ops.flat_map(self._safe_event_processing)  # Ensures event processing continues
+        # ).subscribe()
+
+    # @property
+    # def transactions(self) -> Observable[DagWalletMonitorUpdate]:
+    #     """Stream of transaction state updates (confirmations, failures, etc.)"""
+    #     return self.mem_pool_change.pipe(
+    #         ops.filter(lambda update: update["tx_changed"]),
+    #         ops.distinct_until_changed()
+    #     )
+    #
+    # @property
+    # def network_status(self) -> Observable[NetworkInfo]:
+    #     """Stream of network connectivity changes"""
+    #     return self.account.network._network_change.pipe(
+    #         ops.map(lambda event: event.get("data")),
+    #         ops.filter(lambda data: isinstance(data, NetworkInfo))
+    #     )
+
+    def account_subscribe(self, callback: Callable[[Any], Observable]) -> Any:
+        """
+        Listen for account events like login and logout.
+        Event = {"module": "account", "event": "logout"}
+        """
+        subscription = self.account._session_change.pipe(
             ops.observe_on(self._scheduler),
-            ops.flat_map(self._safe_event_processing)  # Ensures event processing continues
+            ops.flat_map(callback),
+            ops.catch(lambda e, src: (
+                logging.error(f"Monitor :: {e}", exc_info=True),
+                empty()
+            )[1])  # Using tuple indexing to return empty()
         ).subscribe()
+        return subscription # subscription.dispose() to unsub
 
-        self.account.network._network_change.pipe(
+    def network_subscribe(self, callback: Callable[[Any], Observable]) -> Any:
+        """
+        Listen for network events like network_change.
+        Event = {
+                    "module": "network",
+                    "type": "network_change",
+                    "event": self.get_network(),
+                }
+        """
+        subscription = self.account.network._network_change.pipe(
             ops.observe_on(self._scheduler),
-            ops.flat_map(self._safe_event_processing)  # Ensures event processing continues
+            ops.flat_map(callback),
+            ops.catch(lambda e, src: (
+                logging.error(f"Monitor :: {e}", exc_info=True),
+                empty()
+            )[1])  # Using tuple indexing to return empty()
         ).subscribe()
+        return subscription # subscription.dispose() to unsub
 
-    def _safe_account_process_event(self, observable):
-        try:
-            if observable["event"] == "logout":
-                logging.debug("Monitor :: Logout signal received.")
-            elif observable["event"] == "login":
-                logging.debug("Monitor :: Login signal received.")
-            elif observable["type"] == "add_transaction":
-                asyncio.create_task(self.add_to_mem_pool_monitor(observable["event"]))
-            else:
-                logging.warning(f"Monitor :: Unknown signal received: {observable}")
-            return of(observable)
-        except Exception as e:
-            logging.error(f"Monitor :: {e}", exc_info=True)
-            return empty()  # Skip this event and continue the stream
 
-    def _safe_network_process_event(self, observable: dict):
-        """Process an event safely, catching errors."""
-        try:
-            # Simulate event processing (replace with your logic)
-            logging.debug(f"Monitor :: Network changed: {observable.get('event')}")
-            return of(observable)  # Emit the event downstream
-        except Exception as e:
-            logging.error(f"Monitor :: Monitor :: {e}", exc_info=True)
-            return empty()  # Skip this event and continue the stream
-
-    def _safe_event_processing(self, observable: dict):
-        # TODO: Class
-        if isinstance(observable, dict):
-            type_: Optional[str] = observable.get("type", None)
-            event: Optional[Union[str, dict]] = observable.get("event", None)
-            module: Optional[str] = observable.get("module", None)
-            try:
-                if module == "account":
-                    self._safe_account_process_event(observable)
-                elif type_ == "network":
-                    self._safe_network_process_event(observable)
-                return of(observable)  # Ensure an observable is returned
-            except Exception as e:
-                logging.error(f"Monitor :: {e}", exc_info=True)
-                # return of(None)  # Send placeholder down the line
-                return empty()  # End the current stream entirely
+    # def _safe_account_process_event(self, observable):
+    #     try:
+    #         if observable["event"] == "logout":
+    #             logging.debug("Monitor :: Logout signal received.")
+    #         elif observable["event"] == "login":
+    #             logging.debug("Monitor :: Login signal received.")
+    #         else:
+    #             logging.warning(f"Monitor :: Unknown signal received: {observable}")
+    #         return of(observable)
+    #     except Exception as e:
+    #         logging.error(f"Monitor :: {e}", exc_info=True)
+    #         return empty()  # Skip this event and continue the stream
+    #
+    # def _safe_network_process_event(self, observable: dict):
+    #     """Process an event safely, catching errors."""
+    #     try:
+    #         # Simulate event processing (replace with your logic)
+    #         logging.debug(f"Monitor :: Network changed: {observable.get('event')}")
+    #         return of(observable)  # Emit the event downstream
+    #     except Exception as e:
+    #         logging.error(f"Monitor :: {e}", exc_info=True)
+    #         return empty()  # Skip this event and continue the stream
+    #
+    # def _safe_event_processing(self, observable: dict):
+    #     if isinstance(observable, dict):
+    #         type_: Optional[str] = observable.get("type", None)
+    #         event: Optional[Union[str, dict]] = observable.get("event", None)
+    #         module: Optional[str] = observable.get("module", None)
+    #         try:
+    #             if module == "account":
+    #                 self._safe_account_process_event(observable)
+    #             elif module == "account" and type_ == "network":
+    #                 self._safe_network_process_event(observable)
+    #             return of(observable)  # Ensure an observable is returned
+    #         except Exception as e:
+    #             logging.error(f"Monitor :: {e}", exc_info=True)
+    #             # return of(None)  # Send placeholder down the line
+    #             return empty()  # End the current stream entirely
 
     async def set_to_mem_pool_monitor(self, pool: List[PendingTransaction]):
         network_info = self.account.network.get_network()
@@ -280,7 +328,7 @@ async def main():
     from pypergraph import DagAccount
 
     account = DagAccount()
-    monitor = Monitor(account)
+    monitor = Monitor(account, state_storage_file_path="state_storage.json")
     # monitor.start_monitor()
     account.connect('testnet')
     account.login_with_seed_phrase(secret.mnemo)
