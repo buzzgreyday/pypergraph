@@ -134,6 +134,7 @@ class KeyStore:
         return encoded_msg.encode("utf-8")
 
     def _remove_nulls(self, obj):
+
         def process_value(value):
             if value is None:
                 return None
