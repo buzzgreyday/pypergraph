@@ -49,6 +49,8 @@ Event Observer
 Events are emitted and observed using ``RxPy``. There's three ways methods for easily subscribe to ``network_changes``,
 ``account`` ``login`` and ``logout`` and transaction ``mem_pool`` updates.
 
+-----
+
 Transaction Memory Pool
 -----------------------
 
