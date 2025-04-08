@@ -46,14 +46,29 @@ class Monitor:
         """
         self.account = account
         self._scheduler = AsyncIOScheduler(asyncio.get_event_loop())
-        self.mem_pool_change = BehaviorSubject(DagWalletMonitorUpdate().model_dump())
+        self._mem_pool_change = BehaviorSubject(DagWalletMonitorUpdate().model_dump())
         self.last_timer = 0.0
         self.pending_timer = 0.0
         # self.wait_for_map: Dict[str, WaitFor] = {}
         self.cache_utils = StateStorageDb(file_path=state_storage_file_path)
         self.cache_utils.set_prefix('pypergraph-')
 
-    def account_subscribe(self, callback: Callable[[Any], Observable]) -> Disposable:
+    def subscribe_mem_pool(self, callback: Callable[[Any], Observable]) -> Disposable:
+        """
+        Listen for account events like login and logout.
+        Event = {"module": "account", "event": "logout"}
+        """
+        subscription = self._mem_pool_change.pipe(
+            ops.observe_on(self._scheduler),
+            ops.flat_map(callback),
+            ops.catch(lambda e, src: (
+                logging.error(f"Monitor :: {e}", exc_info=True),
+                empty()
+            )[1])  # Using tuple indexing to return empty()
+        ).subscribe()
+        return subscription # subscription.dispose() to unsub
+
+    def subscribe_account(self, callback: Callable[[Any], Observable]) -> Disposable:
         """
         Listen for account events like login and logout.
         Event = {"module": "account", "event": "logout"}
@@ -68,7 +83,7 @@ class Monitor:
         ).subscribe()
         return subscription # subscription.dispose() to unsub
 
-    def network_subscribe(self, callback: Callable[[Any], Observable]) -> Disposable:
+    def subscribe_network(self, callback: Callable[[Any], Observable]) -> Disposable:
         """
         Listen for network events like network_change.
         Event = {
@@ -163,14 +178,14 @@ class Monitor:
             elif pool_count > 0:
                 await self.set_to_mem_pool_monitor([])
 
-            self.mem_pool_change.on_next(
+            self._mem_pool_change.on_next(
                 DagWalletMonitorUpdate(
                     tx_changed=tx_changed,
                     trans_txs=trans_txs,
                     pending_has_confirmed=pending_has_confirmed
                 ).model_dump()
             )
-            logging.debug(f"Monitor :: Memory pool updated: {self.mem_pool_change.value}")
+            logging.debug(f"Monitor :: Memory pool updated: {self._mem_pool_change.value}")
         except Exception as e:
             logging.error(f"Monitor :: {e}", exc_info=True)
 
@@ -280,9 +295,13 @@ async def main():
             print(f"Monitor :: Unknown signal received by injected callable account event: {observable}")
         return of(observable)
 
-    network_sub = monitor.network_subscribe(safe_network_process_event)
+    def safe_mem_pool_process_event(observable):
+        print(f"Observable: {observable}")
+        return of(observable)
+    mem_pool_sub = monitor.subscribe_mem_pool(safe_mem_pool_process_event)
+    network_sub = monitor.subscribe_network(safe_network_process_event)
     # monitor.start_monitor()
-    account_sub = monitor.account_subscribe(safe_account_process_event)
+    account_sub = monitor.subscribe_account(safe_account_process_event)
     account.connect('integrationnet')
     account.login_with_seed_phrase(secret.mnemo)
     pending_tx = await account.transfer(secret.to_address, 50000, 200000)
@@ -290,9 +309,10 @@ async def main():
     txs = await monitor.get_latest_transactions(address=account.address, limit=20)
     print(txs)
     network_sub.dispose()
-    await asyncio.sleep(30)
+    await asyncio.sleep(120)
     account.logout()
     await asyncio.sleep(1)
+    mem_pool_sub.dispose()
     account_sub.dispose()
     network_sub.dispose()
 
