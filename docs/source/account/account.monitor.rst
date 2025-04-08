@@ -41,6 +41,8 @@ Transactions are cached as key ``f"network-{network_info['network_id'].lower()}-
    .. include:: /shared/state_storage.json
       :code: json
 
+-----
+
 Event Observer
 ^^^^^^^^^^^^^^
 
@@ -87,6 +89,8 @@ Transactions state changes are updated in ``DagWalletUpdate``.
     mem_pool_sub.dispose()
 
 The pending transactions will be monitored until confirmed by the network.
+
+-----
 
 Network Changes
 ---------------
