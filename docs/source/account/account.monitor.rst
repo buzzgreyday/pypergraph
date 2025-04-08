@@ -2,10 +2,9 @@ Monitor
 =======
 
 .. note::
+    In the future, we aim to create a more flexible caching solution, similar to the one found in web3.py <https://github.com/ethereum/web3.py/blob/main/web3/utils/caching.py>_.
 
-    In time we might want to create a more flexible caching solution, like the one found in `web3.py <https://github.com/ethereum/web3.py/blob/main/web3/utils/caching.py>`_.
-
-Handles transaction caching and monitors Rx emitted Account events.
+The Monitor class handles transaction caching and observes events emitted by Account instances.
 
 .. code-block:: python
 
@@ -29,11 +28,9 @@ Transactions are added to cache like this:
     pending_tx = await account.transfer(secret.to_address, 50000, 200000)
     await monitor.add_to_mem_pool_monitor(pending_tx) # Add transaction to cache and monitor for state changes.
 
-After adding transaction to cache, it will be monitored for state changes until the transaction is confirmed.
-
-Caching relies on ``StateStorageDB`` which is also used to perform keyring storage operations (keyring data is registered with key ``pypergraph-vault``).
-
-Transactions are cached as key ``f"network-{network_info['network_id'].lower()}-mempool"``, with prefix ``"pypergraph-"`` (e.g. mainnet: ``"pypergraph-network-mainnet-mempool"``, etc.)
+After adding a transaction to the cache, it will be monitored for state changes until the transaction is confirmed.
+The caching mechanism relies on the ``StateStorageDB``, which is also used for keyring storage operations (keyring data is registered with the key pypergraph-vault).
+Transactions are cached with the key format ``"pypergraph-network-{network_id}-mempool"`` (e.g., ``"pypergraph-network-mainnet-mempool"`` for mainnet).
 
 .. dropdown:: Memory Pool Store Content
    :animate: fade-in
@@ -97,7 +94,7 @@ The pending transactions will be monitored until all is confirmed by the network
 Network Changes
 ---------------
 
-The ``DagTokenNetwork`` has a class variable ``_network_change`` ``BehaviorSubject`` is updated with:
+The ``DagTokenNetwork`` has a class variable ``_network_change`` ``BehaviorSubject`` that emits updates with the following structure:
 
 **Observable Event**
 
@@ -176,3 +173,4 @@ Account Events
 Get Pending and Confirmed Transactions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The Monitor class provides methods to retrieve pending and confirmed transactions from the cache and the block explorer.
