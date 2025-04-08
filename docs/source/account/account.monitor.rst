@@ -64,7 +64,7 @@ Transactions state changes are updated in ``DagWalletUpdate``.
 | ``tx_changed``            | ``bool``, ``False (default)``       | If any change occurred (e.g. transaction dropped, confirmed, etc.)  |
 +---------------------------+-------------------------------------+---------------------------------------------------------------------+
 
-**Subscribe to ``mem_pool`` Changes**
+**Subscribe to mem_pool Changes**
 
 .. code-block:: python
 
@@ -74,7 +74,7 @@ Transactions state changes are updated in ``DagWalletUpdate``.
     monitor = Monitor(account, state_storage_file_path="state_storage.json")
 
     def safe_mem_pool_process_event(observable):
-        print(f"Observable: {observable}")
+        print(f"Transaction Memory Pool: {observable}")
         return of(observable)
 
     mem_pool_sub = monitor.subscribe_mem_pool(safe_mem_pool_process_event)
@@ -86,7 +86,9 @@ Transactions state changes are updated in ``DagWalletUpdate``.
     account.logout()
     mem_pool_sub.dispose()
 
-Add Transaction to Cache and Monitor for State Change
------------------------------------------------------
+The pending transactions will be monitored until confirmed by the network.
+
+Network Changes
+---------------
 
 
