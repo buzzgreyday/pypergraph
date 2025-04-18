@@ -147,7 +147,7 @@ Account Events
 
 .. code-block:: python
 
-    from pypergraph import DagAccount
+    from pypergraph import DagAccount, Monitor
 
     account = DagAccount()
     monitor = Monitor(account, state_storage_file_path="state_storage.json")
@@ -174,3 +174,12 @@ Get Pending and Confirmed Transactions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Monitor class provides methods to retrieve pending and confirmed transactions from the cache and the block explorer.
+
+.. code-block:: python
+
+    from pypergraph import DagAccount, Monitor
+
+    account = DagAccount()
+    account.login_with_seed_phrase(secret.mnemo)
+    monitor = Monitor(account, state_storage_file_path="state_storage.json")
+    lst = await monitor.get_latest_transactions(address=account.address, limit=10, search_after=None)

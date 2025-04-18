@@ -88,18 +88,18 @@ class L0Api:
         return await self._make_request("POST", f"/state-channel/{address}/snapshot", payload=snapshot)
 
     async def get_delegated_stake_last_reference(self, address: str) -> TransactionReference:
-        result = await self._make_request("GET", f"/delegated-stake/last-reference/{address}")
+        result = await self._make_request("GET", f"/delegated-stakes/last-reference/{address}")
         return await TransactionReference(**result)
 
     async def get_delegated_stakes_info(self, address) -> DelegatedStakesInfo:
-        result = await self._make_request("GET", f"/delegated-stake/{address}/info")
+        result = await self._make_request("GET", f"/delegated-stakes/{address}/info")
         return DelegatedStakesInfo(**result)
 
     async def put_delegated_stake_withdrawal(self, tx: SignedWithdrawDelegatedStake):
-        return await self._make_request("PUT", "/delegated-stake", payload=tx.model_dump())
+        return await self._make_request("PUT", "/delegated-stakes", payload=tx.model_dump())
 
-    async def post_delegated_stake(self, tx: dict):
-        return await self._make_request("POST", "/delegated-stake", payload=tx)
+    async def post_delegated_stake(self, tx: SignedCreateDelegatedStake):
+        return await self._make_request("POST", "/delegated-stakes", payload=tx.model_dump())
 
     async def get_node_collateral_last_reference(self, address: str) -> TransactionReference:
         result = await self._make_request("GET", f"/node-collateral/last-reference/{address}")
