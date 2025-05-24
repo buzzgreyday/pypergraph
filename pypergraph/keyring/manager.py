@@ -93,7 +93,7 @@ class KeyringManager:
         # Starts fresh
         await self.clear_wallets()
         wallet = await self.create_multi_chain_hd_wallet(label, seed)
-        await self._full_update()
+        # await self._full_update() # Redundant?
         return wallet
 
     # creates a single wallet with one chain, creates first account by default, one per chain.

@@ -53,3 +53,10 @@ Use it to send data to Metagraph, build a wallet and more.
    keystore/keystore.store_secrets
    keystore/keystore.sign
    keystore/keystore.verify_signature
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Keyring:
+
+   keyring/keyring.introduction
+   keyring/keyring.manager

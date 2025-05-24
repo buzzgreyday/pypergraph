@@ -49,7 +49,7 @@ class NetworkId(str, Enum):
   Constellation = 'Constellation'
   Ethereum = 'Ethereum'
 
-class COIN(Enum):
+class COIN(Enum): # "ChainID" makes mor sense
     DAG = 1137
     ETH = 60
 

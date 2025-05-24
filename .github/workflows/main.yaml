@@ -92,13 +92,13 @@ jobs:
           tag_name: "v${{ env.VERSION }}"
           name: "Pypergraph v${{ env.VERSION }}"
           draft: false
-          prerelease: ${{ github.ref == 'refs/heads/dev' }}  # ✅ Pre-release if on 'dev'
+          prerelease: ${{ github.ref == 'refs/heads/dev' }}  # Pre-release if on branch 'dev'
           files: ./dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PYPERGRAPH_PAT }}
 
   publish:
-    needs: [ hatchling, build ]  # ✅ Only runs if tests pass
+    needs: [ hatchling, build ]  # Only runs if tests pass
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
