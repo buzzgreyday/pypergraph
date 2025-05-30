@@ -174,18 +174,18 @@ class KeyringManager:
         self._notify_update()
 
     def remove_empty_wallets(self):
-        self.wallets = [keyring for keyring in self.wallets if len(keyring.get_accounts()) > 0]
+        self.wallets = [w for w in self.wallets if len(w.get_accounts()) > 0]
 
     def get_wallet_for_account(
             self, address: str
     ) -> Union[MultiChainWallet, SingleAccountWallet, MultiAccountWallet, MultiKeyWallet]:
         winner = next(
-            (keyring for keyring in self.wallets if any(a.get_address() == address for a in keyring.get_accounts())),
+            (w for w in self.wallets if any(a.get_address() == address for a in w.get_accounts())),
             None
         )
         if winner:
             return winner
-        raise ValueError('KeyringManager :: No keyring found for the requested account.')
+        raise ValueError('KeyringManager :: No wallet found for the requested account.')
 
 
     def check_password(self, password) -> bool:
@@ -213,7 +213,7 @@ class KeyringManager:
 
     async def _unlock_wallets(
             self, password: str
-    ) -> List[Union[MultiChainWallet, SingleAccountWallet, MultiAccountWallet, MultiKeyWallet]]:
+    ) -> List[Union[MultiChainWallet, SingleAccountWallet, MultiAccountWallet, MultiKeyWallet, Exception]]:
         encrypted_vault = await self.storage.get("vault")
         if not encrypted_vault:
             # Support recovering wallets from migration
