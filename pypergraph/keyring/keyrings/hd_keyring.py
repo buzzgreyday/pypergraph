@@ -91,7 +91,7 @@ class HdKeyring(BaseModel):
         if data:
             self.network = data.get("network")
             self.accounts = []
-            for d in data.get("accounts"):
+            for i, d in enumerate(data.get("accounts")):
                 account = self.add_account_at(d.get("bip44_index"))
                 # TODO: Add ecdsa account and token support
                 account.set_tokens(d.get("tokens"))
@@ -107,12 +107,12 @@ class HdKeyring(BaseModel):
         registry = KeyringRegistry()
         index = index if index >= 0 else len(self.accounts)
         if self.mnemonic:
-            private_key = self.root_key.PrivateKey().hex()
+            private_key = self.root_key.ChildKey(index).PrivateKey().hex()
             account = registry.create_account(self.network)
             account = account.deserialize(private_key=private_key, bip44_index=index)
         else:
             # raise NotImplementedError("HDKeyring :: Wallet from public key isn't supported.")
-            public_key = self.root_key.PublicKey()
+            public_key = self.root_key.ChildKey(index).PublicKey()
             account = registry.create_account(self.network)
             account = account.deserialize(public_key=public_key, bip44_index=index)
 

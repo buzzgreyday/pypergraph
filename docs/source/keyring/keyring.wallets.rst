@@ -173,19 +173,19 @@ Create Multi Account Wallet
         'supported_assets': ['DAG'],
         'accounts': [
             {
-                'address': 'DAG4zpqBmNGPzZJCLSUbBcKwZZqkftshQfmRtXz4', # DAG address associated with account 1
+                'address': 'DAG1ZHaLNLDJoV7yAvjbvLTTKXzHX1A18xEd2zoc',
                 'supported_assets': ['DAG']
             },
             {
-                'address': 'DAG4zpqBmNGPzZJCLSUbBcKwZZqkftshQfmRtXz4', # DAG address associated with account 2
+                'address': 'DAG0mUMDdcQrNnzvZJ7RiY7C5LUUiPBh8YvnAffe',
                 'supported_assets': ['DAG']
             },
             {
-                'address': 'DAG4zpqBmNGPzZJCLSUbBcKwZZqkftshQfmRtXz4', # DAG address associated with account 3
+                'address': 'DAG4q9htCP4CuBo2iPDVRMHxF5cR7fHM4ovfukQe',
                 'supported_assets': ['DAG']
             }
-            ]
-        }
+        ]
+    }
 
 
 -----
