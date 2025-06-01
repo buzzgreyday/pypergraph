@@ -43,11 +43,11 @@ class MultiChainWallet(BaseModel):
         :param rings: Keyrings.
         """
         bip39 = Bip39Helper()
-        if not bip39.is_valid(mnemonic):
-            raise ValueError("MultiAccountWallet :: Not a valid mnemonic phrase.")
         self.label = label
-        self.mnemonic = mnemonic
-        self.deserialize(secret=mnemonic, label=label, rings=rings)
+        self.mnemonic = mnemonic or bip39.generate_mnemonic()
+        if not bip39.is_valid(self.mnemonic):
+            raise ValueError("MultiAccountWallet :: Not a valid mnemonic phrase.")
+        self.deserialize(secret=self.mnemonic, label=label, rings=rings)
 
 
     def set_label(self, label: str):

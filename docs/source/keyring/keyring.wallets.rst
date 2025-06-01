@@ -15,7 +15,8 @@ Minimum one keyring of type :doc:`HdKeyring </keyring/keyrings/keyring.hd_keyrin
 Multi Chain Wallet
 ------------------
 
-This wallet is a hierarchical deterministic wallet type.
+This wallet is a hierarchical deterministic wallet type. Which means private keys are generated from a master/root seed.
+Thus, supports multiple chains and accounts per wallet.
 
 **Parameters**
 
@@ -31,6 +32,8 @@ This wallet is a hierarchical deterministic wallet type.
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | keyrings         | ``List[None]`` (default) or list of ``HdKeyring()``  |                                                                                             |
 |                  |                                                      |                                                                                             |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| label            | ``None`` (default) or ``str``                        | The name of the wallet. Maximum 12 characters.                                              |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | mnemonic         | ``None`` (default) or ``str``                        | 12 words seed phrase.                                                                       |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
@@ -104,3 +107,37 @@ Full List of Multi Chain Wallet Methods
    :members:
    :undoc-members:
    :show-inheritance:
+
+-----
+
+Single Account Wallet
+---------------------
+
+This wallet is **not** a hierarchical deterministic wallet type. Which means the private keys are not
+generated from a master/root seed. Does **not** support multiple chains and accounts per wallet secret, one
+private key per account and/or chain.
+
+**Parameters**
+
++------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| **Parameter**    | **Type**                                                | **Description**                                                                             |
++==================+=========================================================+=============================================================================================+
+| type             | ``str``                                                 | ``SAW``.                                                                                    |
++------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| id               | ``str``                                                 | Wallet type plus appended wallet iteration (e.g. ``SAW2``).                                 |
++------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| supported_assets | ``List[None]`` (default) or ``list`` of ``str``         | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
+|                  |                                                         | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
++------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| keyring          | ``List[None]`` (default) or list of ``SimpleKeyring()`` |                                                                                             |
++------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| network          | ``None`` (default) or ``str``                           | ``Constellation`` or ``Ethereum``.                                                          |
++------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| label            | ``None`` (default) or ``str``                           | The name of the wallet. Maximum 12 characters.                                              |
++------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
+
+-----
+
+Create Single Account Wallet
+----------------------------
+

@@ -18,7 +18,7 @@ class SingleAccountWallet(BaseModel):
     id: str = Field(default=None)
     supported_assets: List = Field(default_factory=list)
     label: Optional[str] = Field(default=None, max_length=12)
-    keyring: Optional[Any] = Field(default=None)
+    keyring: Optional[SimpleKeyring] = Field(default=None)
     network: Optional[str] = Field(default=None)
 
     @model_validator(mode="after")
