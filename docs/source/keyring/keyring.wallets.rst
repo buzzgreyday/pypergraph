@@ -211,7 +211,8 @@ This wallet is **not** a hierarchical deterministic wallet type. Which means the
 generated from a master/root seed.
 
 This wallet type **does not** automatically generate a new account/wallet. Instead, simple accounts (private key accounts)
-are imported into the wallet manually after creation.
+are imported into the wallet manually after creation. For each import a ``label`` and ``network`` is provided and the imported
+private key is added to the list of keyrings.
 
 **Parameters**
 

@@ -18,7 +18,6 @@ class MultiKeyWallet(BaseModel):
     supported_assets: List[str] = Field(default=[])
     label: Optional[str] = Field(default=None, max_length=12)
     keyrings: List[SimpleKeyring] = Field(default=[])
-    private_key: Optional[constr(pattern=r"^[a-fA-F0-9]{64}$")] = Field(default=None)
     network: Optional[str] = Field(default=None)
 
 
@@ -33,7 +32,6 @@ class MultiKeyWallet(BaseModel):
         return {
             "type": self.type,
             "label": self.label,
-            "secret": self.private_key,
             "rings": [ring.model_dump() for ring in self.keyrings]
         }
 
