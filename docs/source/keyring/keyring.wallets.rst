@@ -17,7 +17,7 @@ Every wallet type created will increment the ``sid`` by +1, resulting in an uniq
 Multi Chain Wallet
 ------------------
 
-This wallet is a hierarchical deterministic wallet type. Which means private keys are generated from a master/root seed.
+This wallet is a hierarchical deterministic wallet type. Which means private keys (accounts) are generated from a master/root seed.
 Thus, supports multiple chains and accounts per wallet.
 
 **Parameters**
@@ -32,7 +32,7 @@ Thus, supports multiple chains and accounts per wallet.
 | supported_assets | ``List[None]`` (default) or ``list`` of ``str``      | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
 |                  |                                                      | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| keyrings         | ``List[None]`` (default) or list of ``HdKeyring()``  |                                                                                             |
+| keyrings         | ``List[None]`` (default) or ``list`` of ``HdKeyring``|                                                                                             |
 |                  |                                                      |                                                                                             |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | label            | ``None`` (default) or ``str``                        | The name of the wallet. Maximum 12 characters.                                              |
@@ -116,6 +116,43 @@ Full List of Multi Chain Wallet Methods
    :members:
    :undoc-members:
    :show-inheritance:
+
+----
+
+Multi Account Wallet
+--------------------
+
+This wallet is a hierarchical deterministic wallet type. Which means private keys (accounts) are generated from a master/root seed.
+Thus, supports multiple chains and accounts per wallet. This specific wallet type creates a number of accounts from the mnemonic seed phrase.
+
+**Parameters**
+
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| **Parameter**    | **Type**                                             | **Description**                                                                             |
++==================+======================================================+=============================================================================================+
+| type             | ``str``                                              | ``MCW``.                                                                                    |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| id               | ``str``                                              | Wallet type plus appended wallet iteration (e.g. ``MCW1``).                                 |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| supported_assets | ``List[None]`` (default) or ``list`` of ``str``      | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
+|                  |                                                      | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| keyring         | ``None`` (default) or ``HdKeyring``                   |                                                                                             |
+|                  |                                                      |                                                                                             |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| label            | ``None`` (default) or ``str``                        | The name of the wallet. Maximum 12 characters.                                              |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| network          | ``None`` (default) or ``str``                        | ``Constellation`` or ``Ethereum``.                                                          |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| mnemonic         | ``None`` (default) or ``str``                        | 12 words seed phrase.                                                                       |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+
+-----
+
+Create Multi Account Wallet
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 
 -----
 
@@ -292,7 +329,3 @@ Full List of Multi Key Wallet Methods
    :members:
    :undoc-members:
    :show-inheritance:
-
-----
-
-
