@@ -7,6 +7,8 @@ This will return one or more objects of the classes below.
 A wallet contains a list of supported assets, which can be imported to into the :doc:`asset library </keyring/accounts/keyring.asset_library>`. A name ``label``.
 Minimum one keyring of type :doc:`HdKeyring </keyring/keyrings/keyring.hd_keyring>` or :doc:`SimpleKeyring </keyring/keyrings/keyring.simple_keyring>`
 
+Every wallet type created will increment the ``sid`` by +1, resulting in an unique wallet ``id`` (e.g. ``MCW1``, ``SAW2``, etc.) Each wallet also has the ability to reset ``sid``
+
 .. admonition:: Notice
    :class: note
 
@@ -50,7 +52,7 @@ Create Multi Chain Wallet
 +==================+======================================================+=============================================================================================+
 | label            | ``str``                                              | For example ``Jane Doe's Wallet``.                                                          |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| mnemonic         | ``None`` (default) or``str``                         | 12 word seed phrase. ``None`` will generate a new mnemonic seed.                            |
+| mnemonic         | ``None`` (default) or``str``                         | 12 word seed phrase. ``None`` will create a new wallet from a new generated mnemonic seed.  |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | rings            | ``None`` (default) or ``list`` of ``HdKeyring()``    | A ``HdKeyring`` object is created from the mnemonic seed phrase, hierarchical deterministic |
 |                  | objects.                                             | path and the number of accounts (see: :doc:`keyring accounts </keyring/keyring.keyrings>`). |
@@ -63,7 +65,7 @@ Create Multi Chain Wallet
     from pypergraph.keyring import MultiChainWallet
 
     wallet = MultiChainWallet()
-    wallet.create(label="Jane Doe's Wallet")
+    wallet.create(label="Jane Doe 1")
 
 This will store a list of hierarchical deterministic keyrings, one ``DAG`` and one ``ETH``.
 
@@ -79,7 +81,7 @@ Get Wallet State
     from pypergraph.keyring import MultiChainWallet
 
     wallet = MultiChainWallet()
-    wallet.create(label="Jane Doe's Wallet", mnemonic="abandon abandon ... ")
+    wallet.create(label="Jane Doe 1")
     state = wallet.get_state()
     print(state)
 
@@ -88,13 +90,21 @@ Get Wallet State
 .. code-block:: python
 
     {
-        'id': 'MCW4',
+        'id': 'MCW1',
         'type': 'MCW',
-        'label': "Jane Doe's Wallet",
+        'label': "Jane Doe 1",
         'supported_assets': [],
         'accounts': [
-            {'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', 'network': 'Constellation', 'tokens': []},
-            {'address': '0x8Fbc948ba2dD081A51036dE02582f5DcB51a310c', 'network': 'Ethereum', 'tokens': ['0xa393473d64d2F9F026B60b6Df7859A689715d092']}
+            {
+                'address': 'DAG1...', # The DAG wallet address associated with the HD account
+                'network': 'Constellation',
+                'tokens': []
+            },
+            {
+                'address': '0x1A...', # The ETH wallet address associated with the HD account
+                'network': 'Ethereum',
+                'tokens': ['0xa393473d64d2F9F026B60b6Df7859A689715d092']
+            }
         ]
     }
 
@@ -141,3 +151,53 @@ private key per account and/or chain.
 Create Single Account Wallet
 ----------------------------
 
+**Example Usage**
+
+.. code-block:: python
+
+    from pypergraph.keyring import SingleAccountWallet
+
+    wallet = SingleAccountWallet()
+    wallet.create(label="Jane Doe 2")
+
+-----
+
+Get Wallet State
+^^^^^^^^^^^^^^^^
+
+**Example Usage**
+
+.. code-block:: python
+
+    from pypergraph.keyring import SingleAccountWallet
+
+    wallet = SingleAccountWallet()
+    wallet.create(label="Jane Doe 2")
+    state = wallet.get_state()
+    print(state)
+
+**Return**
+
+.. code-block:: python
+
+   {
+        'id': 'SAW2',
+        'type': 'SAW',
+        'label': 'Jane 2',
+        'supported_assets': ['DAG'],
+        'accounts': [
+            {
+                'address': 'DAG6pmeo33ykpedwVaZqnQo7Kz7x4HUuL9PiqdJH', # The DAG address associated with the wallet/account private key
+                'network': 'Constellation',
+                'tokens': []
+            }
+        ]
+   }
+
+Full List of Single Account Wallet Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: pypergraph.keyring.wallets.single_account_wallet
+   :members:
+   :undoc-members:
+   :show-inheritance:
