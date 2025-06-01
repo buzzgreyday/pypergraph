@@ -139,7 +139,7 @@ private key per account and/or chain.
 | supported_assets | ``List[None]`` (default) or ``list`` of ``str``         | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
 |                  |                                                         | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
 +------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| keyring          | ``List[None]`` (default) or list of ``SimpleKeyring()`` |                                                                                             |
+| keyring          | ``None`` (default) or ``SimpleKeyring()``               |                                                                                             |
 +------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | network          | ``None`` (default) or ``str``                           | ``Constellation`` or ``Ethereum``.                                                          |
 +------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
