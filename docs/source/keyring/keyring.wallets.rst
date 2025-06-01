@@ -152,6 +152,40 @@ Thus, supports multiple chains and accounts per wallet. This specific wallet typ
 Create Multi Account Wallet
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+**Example Usage**
+
+.. code-block:: python
+
+    from pypergraph.keyring import MultiAccountWallet
+
+    wallet = MultiCAccountWallet()
+    wallet.create(label="Jane Doe 4")
+    state = wallet.get_state()
+
+**Return**
+
+.. code-block:: python
+
+    {
+        'id': 'MAW4',
+        'type': 'MAW',
+        'label': 'Jane Doe 4',
+        'supported_assets': ['DAG'],
+        'accounts': [
+            {
+                'address': 'DAG4zpqBmNGPzZJCLSUbBcKwZZqkftshQfmRtXz4', # DAG address associated with account 1
+                'supported_assets': ['DAG']
+            },
+            {
+                'address': 'DAG4zpqBmNGPzZJCLSUbBcKwZZqkftshQfmRtXz4', # DAG address associated with account 2
+                'supported_assets': ['DAG']
+            },
+            {
+                'address': 'DAG4zpqBmNGPzZJCLSUbBcKwZZqkftshQfmRtXz4', # DAG address associated with account 3
+                'supported_assets': ['DAG']
+            }
+            ]
+        }
 
 
 -----

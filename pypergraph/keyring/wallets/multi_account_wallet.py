@@ -31,11 +31,12 @@ class MultiAccountWallet(BaseModel):
         return {
             "type": self.type,
             "label": self.label,
-            "secret": self.mnemonic,
-            "rings": [ring for ring in self.keyring]
+            "network": self.network,
+            "secret": self.export_secret_key(),
+            "rings": [self.keyring.model_serialize()]
         }
 
-    def create(self, network: str, label: str, num_of_accounts: int = 1, mnemonic: str = None):
+    def create(self, network: str, label: str, num_of_accounts: int = 1, mnemonic: Optional[str] = None):
         """
         Creates a wallet with a keyring of hierarchical deterministic accounts based on the number BIP44 indexes (num_of_accounts).
 
@@ -46,7 +47,7 @@ class MultiAccountWallet(BaseModel):
         """
         bip39 = Bip39Helper()
         self.mnemonic = mnemonic or bip39.generate_mnemonic()
-        if not bip39.is_valid(mnemonic):
+        if not bip39.is_valid(self.mnemonic):
             raise ValueError("MultiAccountWallet :: Not a valid mnemonic phrase.")
         self.deserialize(secret=self.mnemonic, label=label, network=network, num_of_accounts=num_of_accounts)
 
@@ -68,12 +69,7 @@ class MultiAccountWallet(BaseModel):
             "label": self.label,
             "supported_assets": self.supported_assets,
             "accounts": [
-                {
-                    "address": a.get_address(),
-                    "network": a.get_network(),
-                    "tokens": a.get_tokens(),
-                }
-                for a in self.get_accounts()
+                a.get_state() for a in self.get_accounts()
             ],
         }
 
@@ -96,10 +92,11 @@ class MultiAccountWallet(BaseModel):
         self.keyring = keyring.create(
             mnemonic=self.mnemonic,
             hd_path=bip44_path,
-            network=NetworkId.Constellation.value,
+            network=self.network,
             number_of_accounts=num_of_accounts
         )
-
+        rings = rings or self.model_serialize().get("rings")
+        print(rings)
         if rings:
             self.keyring.deserialize(rings[0])
 
