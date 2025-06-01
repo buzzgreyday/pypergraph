@@ -83,7 +83,6 @@ Get Wallet State
     wallet = MultiChainWallet()
     wallet.create(label="Jane Doe 1")
     state = wallet.get_state()
-    print(state)
 
 **Return**
 
@@ -174,7 +173,6 @@ Get Wallet State
     wallet = SingleAccountWallet()
     wallet.create(label="Jane Doe 2")
     state = wallet.get_state()
-    print(state)
 
 **Return**
 
@@ -193,6 +191,8 @@ Get Wallet State
             }
         ]
    }
+
+-----
 
 Full List of Single Account Wallet Methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -233,3 +233,62 @@ private key is added to the list of keyrings.
 | label            | ``None`` (default) or ``str``                              | The name of the wallet. Maximum 12 characters.                                              |
 +------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
 
+-----
+
+Create Multi Key Wallet
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Creates an empty wallet by default. Manual import necessary, see method below.
+
+**Example Usage**
+
+.. code-block:: python
+
+    from pypergraph.keyring import MultiKeyWallet
+
+    wallet = MultiKeyWallet()
+    wallet.create(label="Jane Doe 3")
+
+-----
+
+Import Simple Account (Private Key)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Example Usage**
+
+.. code-block:: python
+
+    from pypergraph.keyring import MultiKeyWallet
+
+    wallet = MultiKeyWallet()
+    wallet.create(label="Jane Doe 3", network="Constellation")
+    wallet.import_account(private_key="469f...", label="Account 1")
+    wallet.get_state() # Like the above
+
+**Return**
+
+.. code-block:: python
+
+    {
+        'id': 'MKW3',
+        'type': 'MKW',
+        'label': 'Jane Doe 3',
+        'network': 'Constellation',
+        'supported_assets': ['DAG'],
+        'accounts': [
+            {
+                'address': 'DAG6s6X8BGsLysM6yGtntpkuwKo52QLbTibP6uCR', # The DAG address associated with the private key
+                'label': 'Account 1'
+            }
+        ]
+    }
+
+-----
+
+Full List of Multi Key Wallet Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: pypergraph.keyring.wallets.multi_key_wallet
+   :members:
+   :undoc-members:
+   :show-inheritance:
