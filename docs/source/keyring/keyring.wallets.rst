@@ -158,8 +158,8 @@ Create Multi Account Wallet
 
     from pypergraph.keyring import MultiAccountWallet
 
-    wallet = MultiCAccountWallet()
-    wallet.create(label="Jane Doe 4")
+    wallet = MultiAccountWallet()
+    wallet.create(network="Constellation", label="Jane Doe 4", num_of_accounts=3)
     state = wallet.get_state()
 
 **Return**
@@ -173,15 +173,15 @@ Create Multi Account Wallet
         'supported_assets': ['DAG'],
         'accounts': [
             {
-                'address': 'DAG1ZHaLNLDJoV7yAvjbvLTTKXzHX1A18xEd2zoc',
+                'address': 'DAG1ZHaLNLDJoV7yAvjbvLTTKXzHX1A18xEd2zoc', # DAG address corresponding to mnemonic phrase BIP index 0
                 'supported_assets': ['DAG']
             },
             {
-                'address': 'DAG0mUMDdcQrNnzvZJ7RiY7C5LUUiPBh8YvnAffe',
+                'address': 'DAG0mUMDdcQrNnzvZJ7RiY7C5LUUiPBh8YvnAffe', # ... BIP index 1
                 'supported_assets': ['DAG']
             },
             {
-                'address': 'DAG4q9htCP4CuBo2iPDVRMHxF5cR7fHM4ovfukQe',
+                'address': 'DAG4q9htCP4CuBo2iPDVRMHxF5cR7fHM4ovfukQe', # ... BIP index 2
                 'supported_assets': ['DAG']
             }
         ]
