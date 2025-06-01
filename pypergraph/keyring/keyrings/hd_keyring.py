@@ -54,7 +54,7 @@ class HdKeyring(BaseModel):
         inst.hd_path = hd_path
         # Init from mnemonic
         seed_bytes = bip39.get_seed_bytes_from_mnemonic(mnemonic=inst.mnemonic)
-        inst.root_key = bip32.get_hd_root_key_from_seed(seed_bytes=seed_bytes, hd_path=inst.hd_path)
+        inst.root_key = bip32.get_hd_root_key_from_seed(seed_bytes=seed_bytes, hd_path=inst.hd_path) # Needs to handle indexes
         accounts = inst.create_accounts(number_of_accounts=number_of_accounts)
         inst.deserialize(
             {

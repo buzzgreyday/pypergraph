@@ -96,7 +96,6 @@ class MultiAccountWallet(BaseModel):
             number_of_accounts=num_of_accounts
         )
         rings = rings or self.model_serialize().get("rings")
-        print(rings)
         if rings:
             self.keyring.deserialize(rings[0])
 
