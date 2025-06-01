@@ -45,10 +45,10 @@ class MultiAccountWallet(BaseModel):
         :param mnemonic: Mnemonic phrase.
         """
         bip39 = Bip39Helper()
-        mnemonic = mnemonic or bip39.generate_mnemonic()
+        self.mnemonic = mnemonic or bip39.generate_mnemonic()
         if not bip39.is_valid(mnemonic):
             raise ValueError("MultiAccountWallet :: Not a valid mnemonic phrase.")
-        self.deserialize(secret=mnemonic, label=label, network=network, num_of_accounts=num_of_accounts)
+        self.deserialize(secret=self.mnemonic, label=label, network=network, num_of_accounts=num_of_accounts)
 
     def set_label(self, val: str):
         if not val:
