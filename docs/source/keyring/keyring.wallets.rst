@@ -54,7 +54,7 @@ Create Multi Chain Wallet
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | mnemonic         | ``None`` (default) or``str``                         | 12 word seed phrase. ``None`` will create a new wallet from a new generated mnemonic seed.  |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| rings            | ``None`` (default) or ``list`` of ``HdKeyring()``    | A ``HdKeyring`` object is created from the mnemonic seed phrase, hierarchical deterministic |
+| rings            | ``None`` (default) or ``list`` of ``HdKeyring``      | A ``HdKeyring`` object is created from the mnemonic seed phrase, hierarchical deterministic |
 |                  | objects.                                             | path and the number of accounts (see: :doc:`keyring accounts </keyring/keyring.keyrings>`). |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 
@@ -139,7 +139,7 @@ private key per account and/or chain.
 | supported_assets | ``List[None]`` (default) or ``list`` of ``str``         | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
 |                  |                                                         | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
 +------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| keyring          | ``None`` (default) or ``SimpleKeyring()``               |                                                                                             |
+| keyring          | ``None`` (default) or ``SimpleKeyring``                 |                                                                                             |
 +------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | network          | ``None`` (default) or ``str``                           | ``Constellation`` or ``Ethereum``.                                                          |
 +------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
@@ -201,3 +201,35 @@ Full List of Single Account Wallet Methods
    :members:
    :undoc-members:
    :show-inheritance:
+
+-----
+
+Multi Key Wallet
+----------------
+
+This wallet is **not** a hierarchical deterministic wallet type. Which means the private keys are not
+generated from a master/root seed.
+
+This wallet type **does not** automatically generate a new account/wallet. Instead, simple accounts (private key accounts)
+are imported into the wallet manually after creation.
+
+**Parameters**
+
++------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| **Parameter**    | **Type**                                                   | **Description**                                                                             |
++==================+============================================================+=============================================================================================+
+| type             | ``str``                                                    | ``MKW``.                                                                                    |
++------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| id               | ``str``                                                    | Wallet type plus appended wallet iteration (e.g. ``MKW3``).                                 |
++------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| supported_assets | ``List[None]`` (default) or ``list`` of ``str``            | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
+|                  |                                                            | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
++------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| keyrings         | ``List[None]`` (default) or ``list`` of SimpleKeyring``    |                                                                                             |
++------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| network          | ``None`` (default) or ``str``                              | ``Constellation`` or ``Ethereum``.                                                          |
++------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| private_key      | ``None`` (default) or ``str``                              | Private key hex.                                                                            |
++------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| label            | ``None`` (default) or ``str``                              | The name of the wallet. Maximum 12 characters.                                              |
++------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+

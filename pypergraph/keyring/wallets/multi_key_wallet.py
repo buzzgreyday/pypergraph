@@ -64,15 +64,15 @@ class MultiKeyWallet(BaseModel):
             "id": self.id,
             "type": self.type,
             "label": self.label,
+            "network": self.network,
             "supported_assets": self.supported_assets,
             "accounts": [
                 {
                     "address": a.get_address(),
-                    "network": a.get_network(),
-                    "tokens": a.get_tokens(),
+                    "label": a.get_label(),
                 }
                 for a in self.get_accounts()
-            ],
+            ]
         }
 
 
