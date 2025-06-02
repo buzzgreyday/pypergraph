@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class EcdsaAccount(BaseModel, ABC):
-    tokens: List[str] = Field(default_factory=list)
+    tokens: Dict[str, dict] = Field(default_factory=dict)
     wallet: Optional[ec.EllipticCurvePrivateKey] = None
     assets: List[Any] = Field(default_factory=list)
     bip44_index: Optional[int] = None
@@ -74,7 +74,7 @@ class EcdsaAccount(BaseModel, ABC):
     def get_tokens(self) -> Optional[List[str]]:
         return self.tokens.copy() if self.tokens else []
 
-    def set_tokens(self, tokens: List[str]):
+    def set_tokens(self, tokens: Dict[str, dict]):
         if tokens:
             self.tokens = tokens.copy()
 
