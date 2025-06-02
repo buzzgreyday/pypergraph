@@ -3,6 +3,7 @@ from typing_extensions import Any
 
 from pypergraph.core import NetworkId
 from ..accounts.dag_account import DagAccount
+from ..accounts.ecdsa_account import EcdsaAccount
 from ..accounts.eth_account import EthAccount
 
 class KeyringRegistry:
@@ -35,3 +36,14 @@ class KeyringRegistry:
             raise ValueError(f"KeyringRegistry :: Unsupported network: {network}")
         class_ = self.registry.get(network)
         return class_()
+
+    def add_account(self, network: str, account: EcdsaAccount):
+        """
+        Add account to registry.
+
+        :param network: New chain name (network id).
+        :param account: New account inheriting from EcdsaAccount.
+        """
+        self.registry[network] = account
+
+keyring_registry = KeyringRegistry()

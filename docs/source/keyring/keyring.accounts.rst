@@ -1,14 +1,21 @@
 Keyring Accounts
 ================
 
-.. admonition:: TODO
-   :class: note
-
-   In time I would like to add support for account injection. This will require ``pypergraph.keyrings.registry`` to
-   be refactored.
-
 Accounts contain methods for deriving keys, etc. Besides the default ``dag_account`` and ``eth_account`` modules,
-the ``accounts`` sub-package also contain the an asset library. This can be used to add additional token support.
+the ``accounts`` sub-package also contain the an asset library. This can be used to add additional token support (see,
+:doc:`asset library </keyring/keyring.accounts.asset_library>`
 
-**Add a token to the library**
+All accounts are based on the abstract class ``EcdsaAccount`` (Pydantic model). New account classes can inherit from
+this base model. Right now, new account custom account types can be used by adding them to the account registry.
 
+**Add account to registry**
+
+.. code-block:: python
+
+   from pypergraph.keyring.keyrings.registry import keyring_registry
+   import CustomAccount # Your custom account that inherits from pypergraph.keyring.accounts.ecdsa_account.EcdsaAccount
+
+    keyring_registry.add_account("Custom", CustomAccount)
+
+    wallet = MultiAccountWallet()
+    wallet.create(network="Custom", label="New Custom", mnemonic=mnemo, num_of_accounts=3)
