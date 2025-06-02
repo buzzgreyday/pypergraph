@@ -231,20 +231,6 @@ Create Single Account Wallet
 
     wallet = SingleAccountWallet()
     wallet.create(label="Jane Doe 2")
-
------
-
-Get Wallet State
-^^^^^^^^^^^^^^^^
-
-**Example Usage**
-
-.. code-block:: python
-
-    from pypergraph.keyring import SingleAccountWallet
-
-    wallet = SingleAccountWallet()
-    wallet.create(label="Jane Doe 2")
     state = wallet.get_state()
 
 **Return**
@@ -320,23 +306,9 @@ Creates an empty wallet by default. Manual import necessary, see method below.
     from pypergraph.keyring import MultiKeyWallet
 
     wallet = MultiKeyWallet()
-    wallet.create(label="Jane Doe 3")
-
------
-
-Import Simple Account (Private Key)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-**Example Usage**
-
-.. code-block:: python
-
-    from pypergraph.keyring import MultiKeyWallet
-
-    wallet = MultiKeyWallet()
     wallet.create(label="Jane Doe 3", network="Constellation")
     wallet.import_account(private_key="469f...", label="Account 1")
-    wallet.get_state() # Like the above
+    wallet.get_state()
 
 **Return**
 

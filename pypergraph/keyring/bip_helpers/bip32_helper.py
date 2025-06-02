@@ -27,5 +27,4 @@ class Bip32Helper:
         account = path_parts[2] + 2 ** 31
         change = path_parts[3]
         root_key = self.get_root_key_from_seed(seed_bytes=seed_bytes)
-        return root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change)#.ChildKey(
-        #    index)
+        return root_key.ChildKey(purpose).ChildKey(coin_type).ChildKey(account).ChildKey(change)
