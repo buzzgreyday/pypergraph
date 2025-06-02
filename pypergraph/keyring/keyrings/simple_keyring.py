@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Union
 
 from pydantic import BaseModel, Field, model_serializer
-from typing_extensions import Self
+from typing_extensions import Self, Any
 
 from pypergraph.core.constants import NetworkId
 from pypergraph.keyring.keyrings.registry import KeyringRegistry
@@ -11,8 +11,8 @@ from ..accounts.dag_account import DagAccount
 
 class SimpleKeyring(BaseModel):
 
-    account: Union[DagAccount, EthAccount] = Field(default=None) #IKeyringAccount;
-    network: str = Field(default=NetworkId.Constellation.value)#KeyringNetwork
+    account: Union[DagAccount, EthAccount, Any] = Field(default=None)
+    network: str = Field(default=NetworkId.Constellation.value)
 
     # Serialize all accounts
     @model_serializer
@@ -44,13 +44,25 @@ class SimpleKeyring(BaseModel):
         self.account = account.deserialize(**accounts[0])
 
     def add_account_at(self, index: int):
+        """Not supported for SimpleKeyring"""
         raise NotImplementedError("SimpleKeyring :: Accounts can't be added to SimpleKeyrings.")
 
-    def get_accounts(self) -> List[Union[DagAccount, EthAccount]]:
+    def get_accounts(self) -> List[Union[DagAccount, EthAccount, Any]]:
+        """
+        Get all accounts in the simple keyring.
+
+        :return: List of account classes (only one).
+        """
         return [self.account]
 
     def get_account_by_address(self, address: str):
+        """
+        Get the account matching the specified address.
+
+        :return: Account class or None is nothing matches.
+        """
         return self.account if address == self.account.get_address() else None
 
     def remove_account(self, account):
+        """Not supported for SimpleKeyring"""
         raise NotImplementedError("SimpleKeyring :: Removal of SimpleKeyring accounts isn't supported.")

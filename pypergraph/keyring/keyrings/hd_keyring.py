@@ -39,10 +39,10 @@ class HdKeyring(BaseModel):
         Create a hierarchical deterministic keyring.
 
         :param mnemonic: Mnemonic phrase.
-        :param hd_path: The derivation path for the coin.
+        :param hd_path: The derivation path for the coin chain (without index).
         :param network: The network associated with the coin.
-        :param number_of_accounts: How many accounts to create.
-        :return:
+        :param number_of_accounts: How many accounts (indexes) to create.
+        :return: Hierarchical deterministic keyring.
         """
         bip39 = Bip39Helper()
         bip32 = Bip32Helper()
@@ -67,8 +67,7 @@ class HdKeyring(BaseModel):
         When adding an account (after accounts have been removed), it will add back the ones removed first.
 
         :param number_of_accounts: The number of accounts to create.
-
-        :returns List[dict]: A list of dictionaries wit bip44 index.
+        :returns List[dict]: A list of dictionaries with bip44 index.
         """
         accounts = []
         for i in range(number_of_accounts):
@@ -83,15 +82,14 @@ class HdKeyring(BaseModel):
     def deserialize(self, data: dict):
         """
         Deserialize then add account (bip44_index) to the keyring being constructed.
+
         :param data:
-        :return:
         """
         if data:
             self.network = data.get("network")
             self.accounts = []
             for i, d in enumerate(data.get("accounts")):
                 account = self.add_account_at(d.get("bip44_index"))
-                # TODO: Add ecdsa account and token support
                 account.set_tokens(d.get("tokens"))
                 self.accounts.append(account)
 

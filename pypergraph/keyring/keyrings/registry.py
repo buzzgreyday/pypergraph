@@ -1,4 +1,5 @@
 from typing import Union
+from typing_extensions import Any
 
 from pypergraph.core import NetworkId
 from ..accounts.dag_account import DagAccount
@@ -7,6 +8,7 @@ from ..accounts.eth_account import EthAccount
 class KeyringRegistry:
     def __init__(self):
         # Map network values to their respective account classes
+        # TODO: Don't hardcode registry. Support inject accounts.
         self.registry = {
             NetworkId.Constellation.value: DagAccount,
             NetworkId.Ethereum.value: EthAccount
@@ -21,7 +23,7 @@ class KeyringRegistry:
             raise ValueError(f"KeyringRegistry :: Unsupported type of data: {data}")
         self.registry = data
 
-    def create_account(self, network: str) -> Union[DagAccount, EthAccount]:
+    def create_account(self, network: str) -> Union[DagAccount, EthAccount, Any]:
         """
         Determine the account class dependent on network.
 

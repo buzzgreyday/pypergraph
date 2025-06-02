@@ -158,7 +158,7 @@ Create Multi Account Wallet
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | mnemonic         | ``None`` (default) or ``str``                        | 12 word seed phrase. ``None`` will create a new wallet from a new generated mnemonic seed.  |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| num_of_accounts  | ``int`` = 1 (default)                                | Number of BIP indexes (accounts) to create using the mnemonic phrase.                       |
+| num_of_accounts  | ``int`` = 1 (default)                                | Number of BIP44 indexes (accounts) to create using the mnemonic phrase.                     |
 |                  |                                                      |                                                                                             |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | network          | ``str``                                              | ``Constellation`` or ``Ethereum``.                                                          |
@@ -185,15 +185,15 @@ Create Multi Account Wallet
         'supported_assets': ['DAG'],
         'accounts': [
             {
-                'address': 'DAG1ZHaLNLDJoV7yAvjbvLTTKXzHX1A18xEd2zoc', # DAG address corresponding to mnemonic phrase BIP index 0
+                'address': 'DAG1ZHaLNLDJoV7yAvjbvLTTKXzHX1A18xEd2zoc', # DAG address corresponding to mnemonic phrase BIP44 index 0
                 'supported_assets': ['DAG']
             },
             {
-                'address': 'DAG0mUMDdcQrNnzvZJ7RiY7C5LUUiPBh8YvnAffe', # ... BIP index 1
+                'address': 'DAG0mUMDdcQrNnzvZJ7RiY7C5LUUiPBh8YvnAffe', # ... BIP44 index 1
                 'supported_assets': ['DAG']
             },
             {
-                'address': 'DAG4q9htCP4CuBo2iPDVRMHxF5cR7fHM4ovfukQe', # ... BIP index 2
+                'address': 'DAG4q9htCP4CuBo2iPDVRMHxF5cR7fHM4ovfukQe', # ... BIP44 index 2
                 'supported_assets': ['DAG']
             }
         ]

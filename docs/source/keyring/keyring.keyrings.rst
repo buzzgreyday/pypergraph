@@ -23,7 +23,7 @@ Thus, HD wallets supports multiple chains and accounts per wallet.
 |                  | ``EthAccount``                                       |                                                                                             |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | hd_path          | ``None`` (default) or ``str``                        | Path used to derive accounts from master/root key. The DAG chain has the ID 1137. Thus, the |
-|                  |                                                      | DAG derivation path is "m/44'/1137'/0'/0" + the BIP32 index for the account.                |
+|                  |                                                      | DAG derivation path is "m/44'/1137'/0'/0" + the BIP44 index for the account.                |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | extended_key     | ``None`` (default) or ``str``                        | The extended key can be used to derive accounts.                                            |
 |                  |                                                      |                                                                                             |
@@ -37,3 +37,40 @@ Thus, HD wallets supports multiple chains and accounts per wallet.
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 
 -----
+
+Full List of HD Keyring Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: pypergraph.keyring.keyrings.hd_keyring
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+-----
+
+Simple Keyring
+--------------
+
+The simple keyring stores simple account data and private key. Unlike the HD keyring above, simple keyrings only supports
+one private key per account.
+
+**Parameters**
+
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| **Parameter**    | **Type**                                             | **Description**                                                                             |
++==================+======================================================+=============================================================================================+
+| account          | ``[]`` (default) or ``list`` of ``DagAccount`` or    | Read more about account classes :doc:`here </keyring/keyring.accounts>`.                    |
+|                  | ``EthAccount``                                       |                                                                                             |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| network          | ``str`` = "Constellation" (default)                  | "Constellation" or "Ethereum" is currently supported.                                       |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+
+-----
+
+Full List of Simple Keyring Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: pypergraph.keyring.keyrings.simple_keyring
+   :members:
+   :undoc-members:
+   :show-inheritance:
