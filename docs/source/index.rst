@@ -61,3 +61,4 @@ Use it to send data to Metagraph, build a wallet and more.
    keyring/keyring.introduction
    keyring/keyring.manager
    keyring/keyring.wallets
+   keyring/keyring.keyrings

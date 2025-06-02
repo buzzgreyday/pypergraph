@@ -54,8 +54,7 @@ class MultiChainWallet(BaseModel):
         """
         Set the name of the wallet.
 
-        :param label:
-        :return:
+        :param label: Sets the name of the wallet.
         """
         if not label:
             raise ValueError("MultiChainWallet :: No label set.")
@@ -65,7 +64,7 @@ class MultiChainWallet(BaseModel):
         """
         Get the name on the wallet.
 
-        :return:
+        :return: The name of the wallet.
         """
         return self.label
 
@@ -91,16 +90,15 @@ class MultiChainWallet(BaseModel):
 
     @staticmethod
     def import_account():
-        """Importing account is not supported."""
+        """Importing MCW account is not supported."""
         raise ValueError("MultiChainWallet :: Multi chain wallet does not support importing account.")
 
-    # TODO
-    # getAssets(): string[]
-    #{
-    # return this.keyrings.reduce < string[] > ((res, w) = > res.concat(w.getAssetList()), []);
-    #}
+    def get_accounts(self) -> List[Union[DagAccount, EthAccount]]:
+        """
+        Get all MCW accounts.
 
-    def get_accounts(self) -> List[Union[DagAccount, EthAccount]]: # IKeyringAccount
+        :return: List of accounts with signing key.
+        """
         return [account for keyring in self.keyrings for account in keyring.get_accounts()]
 
     def get_account_by_address(self, address: str) -> Union[DagAccount, EthAccount]: # IKeyringAccount
@@ -112,21 +110,19 @@ class MultiChainWallet(BaseModel):
         return account
 
     @staticmethod
-    def remove_account(): # IKeyAccount {
+    def remove_account():
+        """Remove MCW not supported."""
         raise ValueError("MultiChainWallet :: Does not allow removing accounts.")
 
     def export_secret_key(self) -> str:
+        """
+        Export mnemonic seed phrase.
+
+        :return: Mnemonic seed phrase.
+        """
         return self.mnemonic
 
     def deserialize(self, label: str, secret: str, rings: Optional[list] = None):
-        """
-        Create keyrings.
-
-        :param label:
-        :param secret:
-        :param rings:
-        :return:
-        """
 
         self.set_label(label)
         self.mnemonic = secret

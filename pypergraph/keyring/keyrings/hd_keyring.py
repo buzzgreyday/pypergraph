@@ -15,9 +15,7 @@ from ..bip_helpers.bip39_helper import Bip39Helper
 class HdKeyring(BaseModel):
     """
     Hierarchical Deterministic Keyring: BIP32
-
     """
-
 
     accounts: List[Union[DagAccount, EthAccount]] = Field(default_factory=list)
     hd_path: Optional[str] = Field(default=None)
@@ -111,7 +109,6 @@ class HdKeyring(BaseModel):
             account = registry.create_account(self.network)
             account = account.deserialize(private_key=private_key, bip44_index=index)
         else:
-            # raise NotImplementedError("HDKeyring :: Wallet from public key isn't supported.")
             public_key = self.root_key.ChildKey(index).PublicKey()
             account = registry.create_account(self.network)
             account = account.deserialize(public_key=public_key, bip44_index=index)

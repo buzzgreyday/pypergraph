@@ -11,7 +11,6 @@ from ..accounts.eth_account import EthAccount
 from ..keyrings.simple_keyring import SimpleKeyring
 
 class MultiKeyWallet(BaseModel):
-    # TODO: Check all these
 
     type: str = Field(default=KeyringWalletType.MultiKeyWallet.value)
     id: str = Field(default=None)
@@ -37,24 +36,35 @@ class MultiKeyWallet(BaseModel):
 
     def create(self, network: str, label: str):
         """
-        Create new multi key wallet. These can also be imported.
+        Create new multi key wallet. Accounts must be imported.
 
         :param network: "Constellation" or "Ethereum"
-        :param label: Wallet name.
+        :param label: The wallet name.
         """
 
         self.deserialize(label=label, network=network)
 
     def set_label(self, val: str):
+        """
+        Set the name of the wallet.
+
+        :param val: The wallet name.
+        """
         if not val:
             raise ValueError("MultiKeyWallet :: No label set.")
         self.label = val
 
     def get_label(self) -> str:
+        """
+        Get the name of the wallet.
+
+        :return: The wallet name.
+        """
         return self.label
 
     @staticmethod
     def get_network():
+        """Not supported by MKW."""
         raise NotImplementedError("MultiChainWallet :: Multi key wallets does not support this method.")
 
     def get_state(self) -> Dict[str, Any]:
@@ -75,14 +85,6 @@ class MultiKeyWallet(BaseModel):
 
 
     def deserialize(self, label: str, network: str, accounts: Optional[list] = None):
-        """
-        Create keyrings.
-
-        :param label:
-        :param network:
-        :param accounts:
-        :return:
-        """
 
         self.set_label(label)
         self.network = network
@@ -99,11 +101,11 @@ class MultiKeyWallet(BaseModel):
 
     def import_account(self, private_key: str, label: str) -> Union[DagAccount, EthAccount]:
         """
-        Imports an account using private key and sets a label, creates a keyring and adds it to the keyrings list.
+        Imports an account using private key, sets a label, creates a keyring and adds it to the list of keyrings.
 
         :param private_key: The private key of the account to import.
-        :param label: A label for the account.
-        :return: The account from the keyring.
+        :param label: Name of the account.
+        :return: The account.
         """
         keyring = SimpleKeyring()
         valid = re.fullmatch(r"^[a-fA-F0-9]{64}$", private_key)
@@ -114,10 +116,21 @@ class MultiKeyWallet(BaseModel):
         # Only one account at index 0 present for this wallet type
         return keyring.get_accounts()[0]
 
-    def get_accounts(self) -> List[Union[DagAccount, EthAccount]]: # IKeyringAccount
+    def get_accounts(self) -> List[Union[DagAccount, EthAccount]]:
+        """
+        Get a list of all MKW accounts.
+
+        :return: List of imported MKW accounts.
+        """
+
         return [account for keyring in self.keyrings for account in keyring.get_accounts()]
 
-    def get_account_by_address(self, address: str) -> Union[DagAccount, EthAccount]: # IKeyringAccount
+    def get_account_by_address(self, address: str) -> Union[DagAccount, EthAccount]:
+        """
+        Get the account matching the specified address.
+
+        :param address: The address matching the account.
+        """
         account = None
         for keyring in self.keyrings:
             account = keyring.get_account_by_address(address)
@@ -126,11 +139,13 @@ class MultiKeyWallet(BaseModel):
         return account
 
     @staticmethod
-    def remove_account(): # IKeyAccount {
+    def remove_account():
+        """Not supported by MKW."""
         raise ValueError("MultiKeyWallet :: Does not allow removing accounts.")
 
     @staticmethod
     def export_secret_key():
+        """Not supported by MKW."""
         raise ValueError("MultiKeyWallet :: Does not allow exporting secrets.")
 
     @staticmethod

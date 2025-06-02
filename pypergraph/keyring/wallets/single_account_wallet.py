@@ -40,10 +40,9 @@ class SingleAccountWallet(BaseModel):
         """
         Initiates the creation of a new single key wallet.
 
-        :param network:
-        :param private_key:
-        :param label:
-        :return:
+        :param network: "Constellation" or "Ethereum".
+        :param private_key: Optional, the private key to create account for. Leaving empty will create a new account from new private key.
+        :param label: The name of the wallet.
         """
 
         private_key = private_key or ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend()).private_numbers().private_value.to_bytes(32, byteorder='big').hex()
@@ -56,14 +55,18 @@ class SingleAccountWallet(BaseModel):
         """
         Set the name of the wallet.
 
-        :param label:
-        :return:
+        :param label: The wallet name.
         """
         if not label:
             raise ValueError("SingleAccountWallet :: No label set.")
         self.label = label
 
     def get_label(self) -> str:
+        """
+        Get the name of the wallet.
+
+        :return: The wallet name.
+        """
         return self.label
 
     def get_network(self) -> str:
@@ -86,14 +89,7 @@ class SingleAccountWallet(BaseModel):
         }
 
     def deserialize(self, network: str, label: str, secret: str):
-        """
-        Create keyring.
 
-        :param network:
-        :param label:
-        :param secret:
-        :return:
-        """
         self.set_label(label)
         self.network = network or NetworkId.Constellation.value
         self.keyring = SimpleKeyring()
@@ -109,19 +105,31 @@ class SingleAccountWallet(BaseModel):
 
     @staticmethod
     def import_account ():
-        """Not supported for SingleAccountWallet"""
+        """Not supported for SingleAccountWallet."""
         raise ValueError("SingleAccountWallet :: does not support importing of account.")
 
     def get_accounts(self) -> List[Union[DagAccount, EthAccount]]:
         return self.keyring.get_accounts()
 
     def get_account_by_address(self, address: str) -> Union[DagAccount, EthAccount]:
+        """
+        Get the account matching a specific address.
+
+        :param address: The account address.
+        :return: The account matching the address.
+        """
         return self.keyring.get_account_by_address(address)
 
     def remove_account(self, account):
+        """Not supported by SAW."""
         raise ValueError("SingleChainWallet :: Does not allow removing accounts.")
 
     def export_secret_key(self) -> str:
+        """
+        Get the privat key.
+
+        :return: Private key in hexadecimal string format.
+        """
         return self.keyring.get_accounts()[0].wallet.private_numbers().private_value.to_bytes(32, 'big').hex()
 
     @staticmethod

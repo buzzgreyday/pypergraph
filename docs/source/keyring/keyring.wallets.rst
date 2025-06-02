@@ -1,23 +1,20 @@
-Wallets
-=======
-
-The :doc:`keyring manager </keyring/keyring.manager>` contains methods for easily retrieving wallets associated with a given address or wallet ID.
-This will return one or more objects of the classes below.
-
-A wallet contains a list of supported assets, which can be imported to into the :doc:`asset library </keyring/accounts/keyring.asset_library>`. A name ``label``.
-Minimum one keyring of type :doc:`HdKeyring </keyring/keyrings/keyring.hd_keyring>` or :doc:`SimpleKeyring </keyring/keyrings/keyring.simple_keyring>`
-
-Every wallet type created will increment the ``sid`` by +1, resulting in an unique wallet ``id`` (e.g. ``MCW1``, ``SAW2``, etc.) Each wallet also has the ability to reset ``sid``
+Keyring Wallets
+===============
 
 .. admonition:: Notice
    :class: note
 
-   Most wallet methods can be used from the :doc:`KeyringManager </keyring/keyring.manager>`.
+   The :doc:`keyring manager </keyring/keyring.manager>` contains methods for easily managing wallet operations.
+
+A wallet class stores one or more accounts associated with the wallet type. Each account is stored as a keyring.
+There's two types of accounts stored. Hierarchical deterministic or simple keyring (see, :doc:`HdKeyring </keyring/keyrings/keyring.keyrings>`). In addition, a wallet contains a list of supported assets, which can be imported to into the :doc:`asset library </keyring/accounts/keyring.asset_library>`.
+
+Every wallet type created will increment the ``sid`` by 1, resulting in an unique wallet ``id`` (e.g. ``MCW1``, ``SAW2``, etc.)
 
 Multi Chain Wallet
 ------------------
 
-This wallet is a hierarchical deterministic wallet type. Which means private keys (accounts) are generated from a master/root seed.
+This wallet is a hierarchical deterministic keyring type. Which means private keys (accounts) are generated from a master/root seed.
 Thus, supports multiple chains and accounts per wallet.
 
 **Parameters**
@@ -29,10 +26,10 @@ Thus, supports multiple chains and accounts per wallet.
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | id               | ``str``                                              | Wallet type plus appended wallet iteration (e.g. ``MCW1``).                                 |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| supported_assets | ``List[None]`` (default) or ``list`` of ``str``      | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
+| supported_assets | ``[]`` (default) or ``list`` of ``str``              | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
 |                  |                                                      | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| keyrings         | ``List[None]`` (default) or ``list`` of ``HdKeyring``|                                                                                             |
+| keyrings         | ``[]`` (default) or ``list`` of ``HdKeyring``        |                                                                                             |
 |                  |                                                      |                                                                                             |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | label            | ``None`` (default) or ``str``                        | The name of the wallet. Maximum 12 characters.                                              |
@@ -50,7 +47,7 @@ Create Multi Chain Wallet
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | **Parameter**    | **Type**                                             | **Description**                                                                             |
 +==================+======================================================+=============================================================================================+
-| label            | ``str``                                              | For example ``Jane Doe's Wallet``.                                                          |
+| label            | ``str``                                              | The name of the wallet, for example ``Jane Doe 1``.                                         |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | mnemonic         | ``None`` (default) or``str``                         | 12 word seed phrase. ``None`` will create a new wallet from a new generated mnemonic seed.  |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
@@ -130,14 +127,14 @@ Thus, supports multiple chains and accounts per wallet. This specific wallet typ
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | **Parameter**    | **Type**                                             | **Description**                                                                             |
 +==================+======================================================+=============================================================================================+
-| type             | ``str``                                              | ``MCW``.                                                                                    |
+| type             | ``str``                                              | ``MAW``.                                                                                    |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| id               | ``str``                                              | Wallet type plus appended wallet iteration (e.g. ``MCW1``).                                 |
+| id               | ``str``                                              | Wallet type plus appended wallet iteration (e.g. ``MAW2``).                                 |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| supported_assets | ``List[None]`` (default) or ``list`` of ``str``      | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
+| supported_assets | ``[]`` (default) or ``list`` of ``str``              | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
 |                  |                                                      | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| keyring         | ``None`` (default) or ``HdKeyring``                   |                                                                                             |
+| keyring          | ``None`` (default) or ``HdKeyring``                  |                                                                                             |
 |                  |                                                      |                                                                                             |
 +------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | label            | ``None`` (default) or ``str``                        | The name of the wallet. Maximum 12 characters.                                              |
@@ -151,6 +148,21 @@ Thus, supports multiple chains and accounts per wallet. This specific wallet typ
 
 Create Multi Account Wallet
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Parameters**
+
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| **Parameter**    | **Type**                                             | **Description**                                                                             |
++==================+======================================================+=============================================================================================+
+| label            | ``str``                                              | The name of the wallet, for example ``Jane Doe 2``.                                         |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| mnemonic         | ``None`` (default) or ``str``                        | 12 word seed phrase. ``None`` will create a new wallet from a new generated mnemonic seed.  |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| num_of_accounts  | ``int`` = 1 (default)                                | Number of BIP indexes (accounts) to create using the mnemonic phrase.                       |
+|                  |                                                      |                                                                                             |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| network          | ``str``                                              | ``Constellation`` or ``Ethereum``.                                                          |
++------------------+------------------------------------------------------+---------------------------------------------------------------------------------------------+
 
 **Example Usage**
 
@@ -190,7 +202,15 @@ Create Multi Account Wallet
 
 -----
 
+Full List of Multi Chain Wallet Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. automodule:: pypergraph.keyring.wallets.multi_account_wallet
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+----
 
 Single Account Wallet
 ---------------------
@@ -206,9 +226,9 @@ private key per account and/or chain.
 +==================+=========================================================+=============================================================================================+
 | type             | ``str``                                                 | ``SAW``.                                                                                    |
 +------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| id               | ``str``                                                 | Wallet type plus appended wallet iteration (e.g. ``SAW2``).                                 |
+| id               | ``str``                                                 | Wallet type plus appended wallet iteration (e.g. ``SAW3``).                                 |
 +------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| supported_assets | ``List[None]`` (default) or ``list`` of ``str``         | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
+| supported_assets | ``[]`` (default) or ``list`` of ``str``                 | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
 |                  |                                                         | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
 +------------------+---------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | keyring          | ``None`` (default) or ``SimpleKeyring``                 |                                                                                             |
@@ -221,7 +241,19 @@ private key per account and/or chain.
 -----
 
 Create Single Account Wallet
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Parameters**
+
++------------------+------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| **Parameter**    | **Type**                                             | **Description**                                                                                                                  |
++==================+======================================================+==================================================================================================================================+
+| label            | ``str``                                              | The name of the wallet, for example ``Jane Doe 3``.                                                                              |
++------------------+------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| private_key      | ``None`` (default) or ``str``                        | The private key you wish to create an account/wallet for. ``None`` will create a new wallet from a new generated mnemonic seed.  |
++------------------+------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| network          | ``str``                                              | ``Constellation`` or ``Ethereum``.                                                                                               |
++------------------+------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
 
 **Example Usage**
 
@@ -280,12 +312,12 @@ private key is added to the list of keyrings.
 +==================+============================================================+=============================================================================================+
 | type             | ``str``                                                    | ``MKW``.                                                                                    |
 +------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| id               | ``str``                                                    | Wallet type plus appended wallet iteration (e.g. ``MKW3``).                                 |
+| id               | ``str``                                                    | Wallet type plus appended wallet iteration (e.g. ``MKW4``).                                 |
 +------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| supported_assets | ``List[None]`` (default) or ``list`` of ``str``            | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
+| supported_assets | ``[]`` (default) or ``list`` of ``str``                    | Can be empty ``DAG`` or ``ETH``, depended on the account type associated with               |
 |                  |                                                            | imported asset (see: :doc:`keyring accounts </keyring/keyring.accounts>`).                  |
 +------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
-| keyrings         | ``List[None]`` (default) or ``list`` of SimpleKeyring``    |                                                                                             |
+| keyrings         | ``[]`` (default) or ``list`` of SimpleKeyring``            |                                                                                             |
 +------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
 | network          | ``None`` (default) or ``str``                              | ``Constellation`` or ``Ethereum``.                                                          |
 +------------------+------------------------------------------------------------+---------------------------------------------------------------------------------------------+
@@ -298,6 +330,16 @@ Create Multi Key Wallet
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Creates an empty wallet by default. Manual import necessary, see method below.
+
+**Parameters**
+
++------------------+------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| **Parameter**    | **Type**                                             | **Description**                                                                                                                  |
++==================+======================================================+==================================================================================================================================+
+| label            | ``str``                                              | The name of the wallet, for example ``Jane Doe 4``.                                                                              |
++------------------+------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| network          | ``str``                                              | ``Constellation`` or ``Ethereum``.                                                                                               |
++------------------+------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
 
 **Example Usage**
 

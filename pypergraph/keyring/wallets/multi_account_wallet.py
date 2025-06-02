@@ -40,9 +40,9 @@ class MultiAccountWallet(BaseModel):
         """
         Creates a wallet with a keyring of hierarchical deterministic accounts based on the number BIP44 indexes (num_of_accounts).
 
-        :param network: e.g. "Constellation".
-        :param label: "New MAW".
-        :param num_of_accounts: Number of BIP44 indexes.
+        :param network: "Constellation" or "Ethereum".
+        :param label: Name of the wallet.
+        :param num_of_accounts: Number of BIP44 indexes (accounts) to create.
         :param mnemonic: Mnemonic phrase.
         """
         bip39 = Bip39Helper()
@@ -52,11 +52,21 @@ class MultiAccountWallet(BaseModel):
         self.deserialize(secret=self.mnemonic, label=label, network=network, num_of_accounts=num_of_accounts)
 
     def set_label(self, val: str):
+        """
+        Sets the name of the wallet.
+
+        :param val: The name of the wallet.
+        """
         if not val:
             raise ValueError("MultiAccountWallet :: No label set.")
         self.label = val
 
     def get_label(self) -> str:
+        """
+        Get the name of the wallet.
+
+        :return: The wallet name.
+        """
         return self.label
 
     def get_network(self) -> str:
@@ -74,7 +84,6 @@ class MultiAccountWallet(BaseModel):
         }
 
     def deserialize(self, label: str, network: str, secret: str, num_of_accounts: int, rings: Optional[List] = None):
-        # Creates keyring
 
         keyring = HdKeyring()
         self.set_label(label)
@@ -105,9 +114,19 @@ class MultiAccountWallet(BaseModel):
         raise ValueError("MultiAccountWallet :: Multi account wallets does not support import account.")
 
     def get_accounts(self) -> List:
+        """
+        Get list of MAW accounts.
+
+        :return: List of MAW accounts with signing key.
+        """
         return self.keyring.get_accounts()
 
     def get_account_by_address(self, address: str):
+        """
+        Get the account matching the specified address.
+
+        :param address: The address for the wanted account.
+        """
         return self.keyring.get_account_by_address(address)
 
     def add_account(self):
@@ -122,6 +141,11 @@ class MultiAccountWallet(BaseModel):
         )
 
     def remove_account (self, account):
+        """
+        Remove a specific account.
+
+        :param account: The account to be removed.
+        """
         self.keyring.remove_account(account)
 
     def export_secret_key(self) -> str:
