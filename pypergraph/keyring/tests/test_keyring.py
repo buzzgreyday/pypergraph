@@ -1,7 +1,7 @@
 import pytest
 
 from pypergraph.keyring import KeyringManager, MultiKeyWallet, MultiAccountWallet
-from pypergraph.keyring.accounts.dag_asset_library import dag_asset_library
+from pypergraph.keyring.accounts.dag_asset_library import DagAssetLibrary
 from pypergraph.keyring.models.kcs import KeyringAssetInfo
 from pypergraph.keyring.tests.secret import mnemo, from_address
 from pypergraph.keystore import KeyStore
@@ -139,6 +139,7 @@ async def test_manager_login(key_manager):
 async def test_add_tokens(key_manager):
     """Retrieves data from encryted json storage"""
     # TODO: Check Stargazer to see how this is used.
+    dag_asset_library = DagAssetLibrary()
     await key_manager.login("super_S3cretP_Asswo0rd")
     token = KeyringAssetInfo(
         id='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43',

@@ -24,6 +24,3 @@ class DagAssetLibrary(AssetLibrary):
     @property
     def default_assets(self) -> List[str]:
         return []  # No default symbols are provided in this case
-
-# Create an instance of the DAG asset library
-dag_asset_library = DagAssetLibrary()

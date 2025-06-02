@@ -10,3 +10,5 @@ Keyring Accounts
 Accounts contain methods for deriving keys, etc. Besides the default ``dag_account`` and ``eth_account`` modules,
 the ``accounts`` sub-package also contain the an asset library. This can be used to add additional token support.
 
+**Add a token to the library**
+
