@@ -1,5 +1,5 @@
-Keyring Accounts
-================
+Keyrings
+========
 
 .. admonition:: Notice
    :class: note

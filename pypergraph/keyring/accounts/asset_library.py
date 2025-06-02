@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 from pypergraph.keyring.models.kcs import KeyringAssetInfo
 
 # AssetMap is a dictionary mapping a token symbol to its KeyringAssetInfo.
-AssetMap = Dict[str, KeyringAssetInfo]
+AssetMap = Dict[str, dict]
 
 class AssetLibrary(ABC):
     def __init__(self):
@@ -23,7 +23,7 @@ class AssetLibrary(ABC):
         """Returns a list of default asset symbols."""
         pass
 
-    def serialize(self) -> AssetMap:
+    def serialize(self) -> Dict[str, dict]:
         """Serializes (or exports) the imported assets for saving state."""
         return self.imported_assets
 
@@ -49,6 +49,6 @@ class AssetLibrary(ABC):
         otherwise returns False.
         """
         if token.symbol not in self.imported_assets:
-            self.imported_assets[token.symbol] = token
+            self.imported_assets[token.symbol] = token.__dict__
             return True
         return False

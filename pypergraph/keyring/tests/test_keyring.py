@@ -167,9 +167,7 @@ async def test_add_tokens(key_manager):
     assert w_label == "New SAW"
     account = wallet.get_accounts()[0]
     account.set_tokens(dag_asset_library.imported_assets) # One would probably want to rely on different controllers for a wallet build
-    assert account.get_state() == {'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', 'supported_assets': ['DAG'], 'tokens': {'PACA': KeyringAssetInfo(id='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43', label='El Paca', symbol='PACA', decimals=8, native=None, network='mainnet', address='DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'), 'DOR': KeyringAssetInfo(id='DAG0CyySf35ftDQDQBnd1bdQ9aPyUdacMghpnCuM', label='Dor', symbol='DOR', decimals=8, native=None, network='mainnet', address='DAG0CyySf35ftDQDQBnd1bdQ9aPyUdacMghpnCuM')}} # Should be serialized to JSON
-
-
+    assert account.get_state() == {'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', 'supported_assets': ['DAG'], 'tokens': {'PACA': {'id': 'DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43', 'label': 'El Paca', 'symbol': 'PACA', 'decimals': 8, 'native': None, 'network': 'mainnet', 'address': 'DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43'}, 'DOR': {'id': 'DAG0CyySf35ftDQDQBnd1bdQ9aPyUdacMghpnCuM', 'label': 'Dor', 'symbol': 'DOR', 'decimals': 8, 'native': None, 'network': 'mainnet', 'address': 'DAG0CyySf35ftDQDQBnd1bdQ9aPyUdacMghpnCuM'}}}
 
 
 @pytest.mark.asyncio
