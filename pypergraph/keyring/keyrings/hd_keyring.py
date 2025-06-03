@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, model_serializer, ConfigDict
 from typing_extensions import Self
 
 from pypergraph.core.constants import NetworkId
-from pypergraph.keyring.keyrings.registry import keyring_registry
+from pypergraph.keyring.keyrings.registry import account_registry
 from ..accounts.ecdsa_account import EcdsaAccount
 from ..accounts.eth_account import EthAccount
 from ..accounts.dag_account import DagAccount
@@ -101,15 +101,14 @@ class HdKeyring(BaseModel):
         :param index: Account number (bipIndex).
         :return: EcdsaAccount or DagAccount class object (dag_keyring.accounts) with signing key at self.wallet.
         """
-        registry = keyring_registry
         index = index if index >= 0 else len(self.accounts)
         if self.mnemonic:
             private_key = self.root_key.ChildKey(index).PrivateKey().hex()
-            account = registry.create_account(self.network)
+            account = account_registry.create_account(self.network)
             account = account.deserialize(private_key=private_key, bip44_index=index)
         else:
             public_key = self.root_key.ChildKey(index).PublicKey()
-            account = registry.create_account(self.network)
+            account = account_registry.create_account(self.network)
             account = account.deserialize(public_key=public_key, bip44_index=index)
 
         # self.accounts.append(account)

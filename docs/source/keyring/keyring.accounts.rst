@@ -12,10 +12,10 @@ this base model. Right now, new account custom account types can be used by addi
 
 .. code-block:: python
 
-   from pypergraph.keyring.keyrings.registry import keyring_registry
+   from pypergraph.keyring import account_registry, MultiAccountWallet()
    import CustomAccount # Your custom account that inherits from pypergraph.keyring.accounts.ecdsa_account.EcdsaAccount
 
-    keyring_registry.add_account("Custom", CustomAccount)
+    account_registry.add_account("Custom", CustomAccount)
 
     wallet = MultiAccountWallet()
-    wallet.create(network="Custom", label="New Custom", mnemonic=mnemo, num_of_accounts=3)
+    wallet.create(network="Custom", label="New Custom", mnemonic="abandon abandon abandon ...", num_of_accounts=3)

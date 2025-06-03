@@ -6,7 +6,7 @@ from ..accounts.dag_account import DagAccount
 from ..accounts.ecdsa_account import EcdsaAccount
 from ..accounts.eth_account import EthAccount
 
-class KeyringRegistry:
+class AccountRegistry:
     def __init__(self):
         # Map network values to their respective account classes
         # TODO: Don't hardcode registry. Support inject accounts.
@@ -46,4 +46,4 @@ class KeyringRegistry:
         """
         self.registry[network] = account
 
-keyring_registry = KeyringRegistry()
+account_registry = AccountRegistry()

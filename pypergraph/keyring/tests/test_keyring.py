@@ -192,17 +192,63 @@ async def test_create_multi_account_wallet(key_manager):
 
     wallet = MultiAccountWallet()
     wallet.create(network="Constellation", label="New MAW", mnemonic=mnemo, num_of_accounts=3)
-    assert wallet.get_state() == {'id': 'MAW4', 'type': 'MAW', 'label': 'New MAW', 'supported_assets': ['DAG'], 'accounts': [{'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX', 'supported_assets': ['DAG']}, {'address': 'DAG0LX8bQXduupLy4SuCvQweTGDgYJG2aaBP4Ppq', 'supported_assets': ['DAG']}, {'address': 'DAG3LojBvdri3qytHBRRLaxMYUMzMdxXqkVEgGmn', 'supported_assets': ['DAG']}]}
+    assert wallet.get_state() == {
+        'id': 'MAW4',
+        'type': 'MAW',
+        'label': 'New MAW',
+        'supported_assets': ['DAG'],
+        'accounts': [
+            {
+                'address': 'DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX',
+                'supported_assets': ['DAG']
+            },
+            {
+                'address': 'DAG0LX8bQXduupLy4SuCvQweTGDgYJG2aaBP4Ppq',
+                'supported_assets': ['DAG']
+            },
+            {
+                'address': 'DAG3LojBvdri3qytHBRRLaxMYUMzMdxXqkVEgGmn',
+                'supported_assets': ['DAG']
+            }
+        ]
+    }
     wallet.create(network="Ethereum", label="New MAW", mnemonic=mnemo, num_of_accounts=2)
-    assert wallet.get_state() == {'id': 'MAW4', 'type': 'MAW', 'label': 'New MAW', 'supported_assets': ['DAG', 'ETH', 'ERC20'], 'accounts': [{'address': '0x8Fbc948ba2dD081A51036dE02582f5DcB51a310c', 'supported_assets': ['ETH', 'ERC20'], 'tokens': ['0xa393473d64d2F9F026B60b6Df7859A689715d092']}, {'address': '0xA75E56eee5B790032316d8cd259DeBcf20E671BF', 'supported_assets': ['ETH', 'ERC20'], 'tokens': ['0xa393473d64d2F9F026B60b6Df7859A689715d092']}]}
+    assert wallet.get_state() == {
+        'id': 'MAW4',
+        'type': 'MAW',
+        'label': 'New MAW',
+        'supported_assets': ['DAG', 'ETH', 'ERC20'],
+        'accounts': [
+            {
+                'address': '0x8Fbc948ba2dD081A51036dE02582f5DcB51a310c',
+                'supported_assets': ['ETH', 'ERC20'],
+                'tokens': ['0xa393473d64d2F9F026B60b6Df7859A689715d092']
+            },
+            {
+                'address': '0xA75E56eee5B790032316d8cd259DeBcf20E671BF',
+                'supported_assets': ['ETH', 'ERC20'],
+                'tokens': ['0xa393473d64d2F9F026B60b6Df7859A689715d092']
+            }
+        ]
+    }
 
 @pytest.mark.asyncio
 async def test_create_multi_account_wallet_custom(key_manager):
 
-    from pypergraph.keyring.keyrings.registry import keyring_registry
+    from pypergraph.keyring import account_registry
 
-    keyring_registry.add_account("Custom", CustomAccount)
+    account_registry.add_account("Custom", CustomAccount)
 
     wallet = MultiAccountWallet()
     wallet.create(network="Custom", label="New Custom", mnemonic=mnemo, num_of_accounts=3)
-    print(wallet.get_state())
+    assert wallet.get_state() == {
+        'id': 'MAW5',
+        'type': 'MAW',
+        'label': 'New Custom',
+        'supported_assets': ['ETH', 'ERC20'],
+        'accounts': [
+            {'address': 'FAKE_ADDRESS', 'supported_assets': ['FAKE1', 'FAKE2']},
+            {'address': 'FAKE_ADDRESS', 'supported_assets': ['FAKE1', 'FAKE2']},
+            {'address': 'FAKE_ADDRESS', 'supported_assets': ['FAKE1', 'FAKE2']}
+        ]
+    }

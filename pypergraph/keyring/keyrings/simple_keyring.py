@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, model_serializer
 from typing_extensions import Self, Any
 
 from pypergraph.core.constants import NetworkId
-from pypergraph.keyring.keyrings.registry import keyring_registry
+from pypergraph.keyring.keyrings.registry import account_registry
 
 from ..accounts.eth_account import EthAccount
 from ..accounts.dag_account import DagAccount
@@ -25,8 +25,7 @@ class SimpleKeyring(BaseModel):
     def create_for_network(self, network, private_key: str) -> Self:
         inst = SimpleKeyring()
         inst.network = network
-        registry = keyring_registry
-        account = registry.create_account(network)
+        account = account_registry.create_account(network)
         inst.account = account.create(private_key)
         return inst
 
@@ -39,8 +38,7 @@ class SimpleKeyring(BaseModel):
 
     def deserialize(self, network: str, accounts: list):
         self.network = network
-        registry = keyring_registry
-        account = registry.create_account(network)
+        account = account_registry.create_account(network)
         self.account = account.deserialize(**accounts[0])
 
     def add_account_at(self, index: int):
