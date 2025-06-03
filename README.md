@@ -46,36 +46,7 @@ The package is available through PyPI, but since it is still in development the 
 
          .\venv\Scripts\activate
 
-## Option 1: Install the Latest Version Through GitHub (Recommended)
-
-- **Linux/MacOS:**
-
-       LATEST_WHEEL_URL=$(curl -s https://api.github.com/repos/buzzgreyday/pypergraph/releases \
-           | jq -r '.[] | .assets[].browser_download_url' \
-           | grep '\.whl$' | head -n 1)
-
-       wget -O pypergraph_dag.whl "$LATEST_WHEEL_URL"
-       pip install pypergraph_dag.whl
-
-- **Windows (PowerShell):**
-
-       $LatestWheelUrl = (Invoke-RestMethod -Uri "https://api.github.com/repos/buzzgreyday/pypergraph/releases") `
-           | Select-Object -ExpandProperty assets `
-           | Where-Object { $_.browser_download_url -match '\.whl$' } `
-           | Select-Object -First 1 -ExpandProperty browser_download_url
-
-       Invoke-WebRequest -Uri $LatestWheelUrl -OutFile pypergraph_dag.whl
-       pip install pypergraph_dag.whl
-
-- **OS Agnostic:**
-
-   Go to the [GitHub release page](https://github.com/buzzgreyday/pypergraph/releases/latest).
-
-   Download the latest wheel file (e.g. pypergraph_dag-0.0.*-py3-none-any.whl) and install it with pip:
-
-       pip install /path/to/file/pypergraph_dag-0.0.*-py3-none-any.whl
-
-## Option 2: Install the Latest Version Through PyPI (Easy)
+## Install the Latest Version Through PyPI (Easy)
 
 > **Note:**  
 > This package is currently in alpha. Since changes happen rapidly during development, this method might not provide the absolute latest version for testing if the package version was not bumped between releases.
