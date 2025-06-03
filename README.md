@@ -46,11 +46,11 @@ The package is available through PyPI, but since it is still in development the 
 
          .\venv\Scripts\activate
 
-## Install the Latest Version Through PyPI (Easy)
+## Install Through PyPi
 
 > **Note:**  
 > This package is currently in alpha. Since changes happen rapidly during development, this method might not provide the absolute latest version for testing if the package version was not bumped between releases.
 
-4. **Install the package from PyPI:**
+4. **Install the package from PyPi:**
 
        pip install pypergraph-dag
