@@ -5,13 +5,14 @@ from typing_extensions import Self, Any
 
 from pypergraph.core.constants import NetworkId
 from pypergraph.keyring.keyrings.registry import account_registry
+from ..accounts.ecdsa_account import EcdsaAccount
 
 from ..accounts.eth_account import EthAccount
 from ..accounts.dag_account import DagAccount
 
 class SimpleKeyring(BaseModel):
 
-    account: Union[DagAccount, EthAccount, Any] = Field(default=None)
+    account: EcdsaAccount = Field(default=None)
     network: str = Field(default=NetworkId.Constellation.value)
 
     # Serialize all accounts

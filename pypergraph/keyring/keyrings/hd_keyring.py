@@ -18,7 +18,7 @@ class HdKeyring(BaseModel):
     Hierarchical Deterministic Keyring: BIP32
     """
 
-    accounts: List[Union[DagAccount, EthAccount]] = Field(default_factory=list)
+    accounts: List[EcdsaAccount] = Field(default_factory=list)
     hd_path: Optional[str] = Field(default=None)
     mnemonic: Optional[str] = Field(default=None)
     extended_key: Optional[str] = Field(default=None)
