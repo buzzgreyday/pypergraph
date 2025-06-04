@@ -1,12 +1,10 @@
 import pytest
 
-from pypergraph import DagAccount
 from pypergraph.keyring import KeyringManager, MultiKeyWallet, MultiAccountWallet
 from pypergraph.keyring.accounts.dag_asset_library import DagAssetLibrary
 from pypergraph.keyring.models.kcs import KeyringAssetInfo
 from pypergraph.keyring.tests.secret import mnemo, from_address
 from pypergraph.keyring.tests.test_account import CustomAccount
-from pypergraph.keyring.tests.test_asset_library import fake_asset_library
 from pypergraph.keystore import KeyStore
 
 # We need to write some more tests
@@ -257,13 +255,11 @@ async def test_create_multi_account_wallet_custom():
 @pytest.mark.asyncio
 async def test_create_asset_library_custom():
 
-    from .test_asset_library import FakeAssetLibrary
+    from .test_asset_library import CustomAssetLibrary
     from .test_account import CustomAccount
-    from pypergraph.keyring import account_registry
     from pypergraph.keyring import KeyringAssetInfo
-    from pypergraph.keyring import MultiChainWallet
 
-    fake_asset_library = FakeAssetLibrary()
+    custom_asset_library = CustomAssetLibrary()
 
     token = KeyringAssetInfo(
         id='0xa000000000000000000000000000000000000000',
@@ -273,18 +269,23 @@ async def test_create_asset_library_custom():
         network='testnet',
         decimals=8
     )
-    fake_asset_library.import_token(token)
+    custom_asset_library.import_token(token)
     custom_account = CustomAccount()
-    custom_account.set_tokens(fake_asset_library.serialize())
-    print(custom_account.get_state())
-    # assert wallet.get_state() == {
-    #     'id': 'MAW5',
-    #     'type': 'MAW',
-    #     'label': 'New Custom',
-    #     'supported_assets': ['ETH', 'ERC20'],
-    #     'accounts': [
-    #         {'address': 'FAKE_ADDRESS', 'supported_assets': ['FAKE1', 'FAKE2']},
-    #         {'address': 'FAKE_ADDRESS', 'supported_assets': ['FAKE1', 'FAKE2']},
-    #         {'address': 'FAKE_ADDRESS', 'supported_assets': ['FAKE1', 'FAKE2']}
-    #     ]
-    # }
+    custom_account.set_tokens(custom_asset_library.serialize())
+    assert custom_account.get_state() == {
+        'address': 'FAKE_ADDRESS',
+        'supported_assets': ['FAKE1', 'FAKE2'],
+        'tokens':
+            {
+                'CUS':
+                    {
+                        'id': '0xa000000000000000000000000000000000000000',
+                        'label': 'Custom Token',
+                        'symbol': 'CUS',
+                        'decimals': 8,
+                        'native': None,
+                        'network': 'testnet',
+                        'address': '0xa000000000000000000000000000000000000000'
+                    }
+            }
+    }

@@ -4,12 +4,12 @@ from typing import Dict, List, Optional
 from pypergraph.keyring.models.kcs import KeyringAssetInfo
 
 # AssetMap is a dictionary mapping a token symbol to its KeyringAssetInfo.
-AssetMap = Dict[str, dict]
+AssetMap = Dict[str, KeyringAssetInfo]
 
 class AssetLibrary(ABC):
     def __init__(self):
         # This holds tokens that are imported at runtime.
-        self.imported_assets: AssetMap = {}
+        self.imported_assets = {}
 
     @property
     @abstractmethod
