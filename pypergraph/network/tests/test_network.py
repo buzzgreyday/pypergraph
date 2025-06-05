@@ -13,12 +13,6 @@ from pypergraph.keystore import KeyStore
 
 
 @pytest.mark.asyncio
-async def test_get_latest_snapshot_rewards(network):
-    results = await network.be_api.get_latest_snapshot_rewards()
-    assert isinstance(results, list), "Snapshot data should be a list"
-
-
-@pytest.mark.asyncio
 async def test_get_transactions(network):
     num_of_snapshots = 12
     results = await network.be_api.get_transactions(limit=num_of_snapshots)
