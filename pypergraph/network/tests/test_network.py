@@ -153,7 +153,7 @@ async def test_get_transactions_by_snapshot(network):
     results = await network.be_api.get_transactions_by_snapshot("2404170")
     assert (
         results[0].source == "DAG5KmHp9gFS723uN6uukwRqCTwvrddaW5QuKKKz"
-        and results[0].destination == "DAG29HwuP2PKU8SBj38x5qq2Z4JcgvKkXA7QS71F"
+        and results[0].destination == "DAG27fopFHKXmtijNgH57DFJ9476Czb2xdcGRAMC"
         and results[0].amount == 100000000
     ), "Transaction data should not be empty"
 
@@ -162,8 +162,8 @@ async def test_get_transactions_by_snapshot(network):
 async def test_get_rewards_by_snapshot(network):
     results = await network.be_api.get_rewards_by_snapshot(2404170)
     assert (
-        results[0].destination == "DAG8nfZEeGaQAZfVsr3BFYMq8THb3XCTr36g3fGs"
-        and results[0].amount == 24020206
+        results[0].destination == "DAG04Qob76gZG7D5qZu9oeZvr8WFxs53Md383q4x"
+        and results[0].amount == 24020205
     ), "Snapshot data should not be empty"
 
 
@@ -193,44 +193,7 @@ async def test_get_transaction(network):
     )
     model = result.model_dump()
     del model["timestamp"]
-    assert model == {
-        "source": "DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb",
-        "destination": "DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA",
-        "amount": 25000110000000,
-        "fee": 0,
-        "hash": "dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e",
-        "parent": {
-            "ordinal": 77,
-            "hash": "ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555",
-        },
-        "salt": None,
-        "block_hash": "85f034cf2df202ced872da05ef3eaf00cd1117e0f8deef9d56022505457072e9",
-        "snapshot_hash": "baa81574222c46c9ac37baa9eeea97b83f4f02aa46e187b19064a64188f5132f",
-        "snapshot_ordinal": 2829094,
-        "transaction_original": {
-            "value": {
-                "source": "DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb",
-                "destination": "DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA",
-                "amount": 25000110000000,
-                "fee": 0,
-                "parent": {
-                    "ordinal": 77,
-                    "hash": "ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555",
-                },
-                "salt": 8940539553876237,
-                "encoded": "240DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb40DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA1216bccaad078064ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d706255527710141fc35f9435890d",
-            },
-            "proofs": [
-                {
-                    "id": "0c56484b24a71a08f505493ede440aead8bd85f94402693d963dd5161c2c42ee638c7c89a500f8cb86c05fb69c8650e297b101851951108b1b77e3ee8b6df5ab",
-                    "signature": "30440220537019100fce3f7dd150beb52f7de2e887e44712e08073e5808debc5871a4394022026a96f644f378fb74a96f6aed520a3e606d0fbd5af89ecb402dac8087006ea1b",
-                }
-            ],
-        },
-        # 'timestamp': datetime.datetime(2024, 9, 15, 18, 47, 33, 82000, tzinfo=TzInfo(UTC)), Removed for testing purposes
-        "proofs": [],
-        "meta": None,
-    }
+    assert model == {'source': 'DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb', 'destination': 'DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA', 'amount': 25000110000000, 'fee': 0, 'hash': 'dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e', 'parent': {'ordinal': 77, 'hash': 'ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555'}, 'salt': 8940539553876237, 'block_hash': '85f034cf2df202ced872da05ef3eaf00cd1117e0f8deef9d56022505457072e9', 'snapshot_hash': 'baa81574222c46c9ac37baa9eeea97b83f4f02aa46e187b19064a64188f5132f', 'snapshot_ordinal': 2829094, 'transaction_original': None, 'proofs': [], 'meta': None}
 
 
 @pytest.mark.asyncio

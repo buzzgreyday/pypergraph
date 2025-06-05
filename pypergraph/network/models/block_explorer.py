@@ -27,7 +27,7 @@ class Transaction(BaseTransaction):
     block_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="blockHash")
     snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="snapshotHash")
     snapshot_ordinal: int = Field(alias="snapshotOrdinal", ge=0)
-    transaction_original: SignedTransaction = Field(alias="transactionOriginal")
+    transaction_original: Optional[SignedTransaction] = Field(alias="transactionOriginal")
     timestamp: datetime
     proofs: List[SignatureProof] = Field(default_factory=list)
     meta: Optional[Dict] = None
