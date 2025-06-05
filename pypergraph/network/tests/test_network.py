@@ -115,10 +115,9 @@ def test_config_network(network):
 
 """ Block Explorer """
 
-
 @pytest.mark.asyncio
 async def test_get_latest_snapshot(network):
-    result = await network.get_latest_snapshot()
+    result = await network.be_api.get_latest_snapshot()
     assert isinstance(result.hash, str)
     assert result.ordinal >= 3921360
 
@@ -141,7 +140,6 @@ async def test_get_snapshot_by_id(network):
             "6846023a1a4fb6a88953fc5ae31e3d9eee2034d27e78efe690f3e19ff88d0063",
             "8983a66675c4787e56f3e5356211ed0e8b9405d3a783dd48a1ffcd24beec2fe3",
         ],  # ,
-        #'timestamp': datetime.datetime(2024, 7, 16, 22, 37, 37, 697000, tzinfo=datetime.timezone.utc)
     }
     assert result.hash and result.timestamp and result.ordinal, (
         "Snapshot data should not be empty"
@@ -358,7 +356,6 @@ async def test_get_cluster_info(network):
 async def test_get_latest_l0_snapshot(network):
     try:
         result = await network.l0_api.get_latest_snapshot()
-        print(result)
     except (httpx.ReadTimeout, NetworkError) as e:
         pytest.skip(f"Error: {e}")
 
