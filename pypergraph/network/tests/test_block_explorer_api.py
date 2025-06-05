@@ -80,7 +80,7 @@ class TestMockedBlockExplorerAPI:
         network.config("mainnet")
 
         httpx_mock.add_response(
-            url="https://be-mainnet.constellationnetwork.io/global-snapshots/33406/transactions",
+            url="https://be-mainnet.constellationnetwork.io/global-snapshots/latest/transactions",
             json=mock_block_explorer_responses["transactions_by_snapshot"]
         )
 
