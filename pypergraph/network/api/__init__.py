@@ -11,5 +11,5 @@ __all__ = [
     "Layer0Api",
     "MetagraphLayer0Api",
     "MetagraphDataLayerApi",
-    "MetagraphCurrencyLayerApi"
+    "MetagraphCurrencyLayerApi",
 ]

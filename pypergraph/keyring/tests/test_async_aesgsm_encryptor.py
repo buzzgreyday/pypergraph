@@ -1,6 +1,9 @@
 import pytest
 import secrets
-from pypergraph.keyring.encryptor import AsyncAesGcmEncryptor, SecurityException  # Adjust import based on your file structure
+from pypergraph.keyring.encryptor import (
+    AsyncAesGcmEncryptor,
+    SecurityException,
+)  # Adjust import based on your file structure
 
 
 @pytest.mark.asyncio
@@ -115,7 +118,9 @@ async def test_multiple_encryptions_different_nonces():
     vault1 = await encryptor.encrypt(password, data)
     vault2 = await encryptor.encrypt(password, data)
 
-    assert vault1["ciphertext"] != vault2["ciphertext"], "Ciphertext should be unique per encryption"
+    assert vault1["ciphertext"] != vault2["ciphertext"], (
+        "Ciphertext should be unique per encryption"
+    )
     assert vault1["nonce"] != vault2["nonce"], "Nonce should be random per encryption"
 
 
@@ -130,4 +135,3 @@ async def test_edge_case_empty_data():
     decrypted_data = await encryptor.decrypt(password, vault)
 
     assert decrypted_data == data, "Empty data should decrypt correctly"
-

@@ -32,10 +32,14 @@ class HdKeyring(BaseModel):
     def model_serialize(self) -> Dict[str, Any]:
         return {
             "network": self.network,
-            "accounts": [acc.serialize(include_private_key=False) for acc in self.accounts]
+            "accounts": [
+                acc.serialize(include_private_key=False) for acc in self.accounts
+            ],
         }
 
-    def create(self, mnemonic: str, hd_path: str, network: str, number_of_accounts: int = 1) -> Self:
+    def create(
+        self, mnemonic: str, hd_path: str, network: str, number_of_accounts: int = 1
+    ) -> Self:
         """
         Create a hierarchical deterministic keyring.
 
@@ -53,14 +57,11 @@ class HdKeyring(BaseModel):
         inst.hd_path = hd_path
         # Init from mnemonic
         seed_bytes = bip39.get_seed_bytes_from_mnemonic(mnemonic=inst.mnemonic)
-        inst.root_key = bip32.get_hd_root_key_from_seed(seed_bytes=seed_bytes, hd_path=inst.hd_path) # Needs to handle indexes
+        inst.root_key = bip32.get_hd_root_key_from_seed(
+            seed_bytes=seed_bytes, hd_path=inst.hd_path
+        )  # Needs to handle indexes
         accounts = inst.create_accounts(number_of_accounts=number_of_accounts)
-        inst.deserialize(
-            {
-                "network": network,
-                "accounts": accounts
-            }
-        )
+        inst.deserialize({"network": network, "accounts": accounts})
         return inst
 
     def create_accounts(self, number_of_accounts: int = 0) -> List[Dict]:
@@ -72,11 +73,7 @@ class HdKeyring(BaseModel):
         """
         accounts = []
         for i in range(number_of_accounts):
-            accounts.append(
-                {
-                    "bip44_index": i
-                }
-            )
+            accounts.append({"bip44_index": i})
 
         return accounts
 
@@ -94,7 +91,9 @@ class HdKeyring(BaseModel):
                 account.set_tokens(d.get("tokens"))
                 self.accounts.append(account)
 
-    def add_account_at(self, index: int = 0) -> Union[DagAccount, EthAccount, EcdsaAccount]:
+    def add_account_at(
+        self, index: int = 0
+    ) -> Union[DagAccount, EthAccount, EcdsaAccount]:
         """
         Add account class object with a signing key to the keyring being constructed.
 
@@ -115,15 +114,14 @@ class HdKeyring(BaseModel):
         return account
 
     # Read-only wallet
-    def create_from_extended_key(self, extended_key: str, network: NetworkId, number_of_accounts: int) -> Self:
+    def create_from_extended_key(
+        self, extended_key: str, network: NetworkId, number_of_accounts: int
+    ) -> Self:
         inst = HdKeyring()
         inst.extendedKey = extended_key
         inst._init_from_extended_key(extended_key)
         inst.deserialize(
-            {
-                "network": network,
-                "accounts": inst.create_accounts(number_of_accounts)
-            }
+            {"network": network, "accounts": inst.create_accounts(number_of_accounts)}
         )
         return inst
 
@@ -142,17 +140,28 @@ class HdKeyring(BaseModel):
     def remove_last_added_account(self):
         self.accounts.pop()
 
-    def export_account (self, account) -> str: # account is IKeyringAccount
+    def export_account(self, account) -> str:  # account is IKeyringAccount
         return account.get_private_key()
 
     def get_accounts(self) -> List:
         return self.accounts
 
-    def get_account_by_address(self, address: str) -> Union[DagAccount, EthAccount]: # account is IKeyringAccount
-        return next((acc for acc in self.accounts if acc.get_address().lower() == address.lower()), None)
+    def get_account_by_address(
+        self, address: str
+    ) -> Union[DagAccount, EthAccount]:  # account is IKeyringAccount
+        return next(
+            (
+                acc
+                for acc in self.accounts
+                if acc.get_address().lower() == address.lower()
+            ),
+            None,
+        )
 
-    def remove_account(self, account): # account is IKeyringAccount
-        self.accounts = [acc for acc in self.accounts if acc != account] # orig. == account
+    def remove_account(self, account):  # account is IKeyringAccount
+        self.accounts = [
+            acc for acc in self.accounts if acc != account
+        ]  # orig. == account
 
-    def _init_from_extended_key (self, extended_key: str):
+    def _init_from_extended_key(self, extended_key: str):
         self.root_key = BIP32Key.fromExtendedKey(extended_key)

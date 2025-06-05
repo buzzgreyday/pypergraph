@@ -12,8 +12,8 @@ from ..accounts.dag_account import DagAccount
 from ..accounts.eth_account import EthAccount
 from ..keyrings.simple_keyring import SimpleKeyring
 
-class SingleAccountWallet(BaseModel):
 
+class SingleAccountWallet(BaseModel):
     type: str = Field(default=KeyringWalletType.SingleAccountWallet.value)
     id: str = Field(default=None)
     supported_assets: List = Field(default_factory=list)
@@ -45,7 +45,13 @@ class SingleAccountWallet(BaseModel):
         :param label: The name of the wallet.
         """
 
-        private_key = private_key or ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend()).private_numbers().private_value.to_bytes(32, byteorder='big').hex()
+        private_key = (
+            private_key
+            or ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend())
+            .private_numbers()
+            .private_value.to_bytes(32, byteorder="big")
+            .hex()
+        )
         valid = re.fullmatch(r"^[a-fA-F0-9]{64}$", private_key)
         if not valid:
             ValueError("SingleAccountWallet :: Private key is invalid.")
@@ -89,24 +95,27 @@ class SingleAccountWallet(BaseModel):
         }
 
     def deserialize(self, network: str, label: str, secret: str):
-
         self.set_label(label)
         self.network = network or NetworkId.Constellation.value
         self.keyring = SimpleKeyring()
 
-        self.keyring.deserialize(network=self.network, accounts=[{ "private_key": secret }])
+        self.keyring.deserialize(
+            network=self.network, accounts=[{"private_key": secret}]
+        )
 
         if self.network == NetworkId.Ethereum.value:
-          self.supported_assets.append(KeyringAssetType.ETH.value)
-          self.supported_assets.append(KeyringAssetType.ERC20.value)
+            self.supported_assets.append(KeyringAssetType.ETH.value)
+            self.supported_assets.append(KeyringAssetType.ERC20.value)
 
         elif self.network == NetworkId.Constellation.value:
-          self.supported_assets.append(KeyringAssetType.DAG.value)
+            self.supported_assets.append(KeyringAssetType.DAG.value)
 
     @staticmethod
-    def import_account ():
+    def import_account():
         """Not supported for SingleAccountWallet."""
-        raise ValueError("SingleAccountWallet :: does not support importing of account.")
+        raise ValueError(
+            "SingleAccountWallet :: does not support importing of account."
+        )
 
     def get_accounts(self) -> List[Union[DagAccount, EthAccount]]:
         return self.keyring.get_accounts()
@@ -130,7 +139,12 @@ class SingleAccountWallet(BaseModel):
 
         :return: Private key in hexadecimal string format.
         """
-        return self.keyring.get_accounts()[0].wallet.private_numbers().private_value.to_bytes(32, 'big').hex()
+        return (
+            self.keyring.get_accounts()[0]
+            .wallet.private_numbers()
+            .private_value.to_bytes(32, "big")
+            .hex()
+        )
 
     @staticmethod
     def reset_sid():

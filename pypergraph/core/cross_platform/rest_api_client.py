@@ -6,7 +6,9 @@ from pypergraph.core.exceptions import NetworkError
 
 
 class RestAPIClient:
-    def __init__(self, base_url: str, client: Optional[RESTClient] = None, timeout: int = 10):
+    def __init__(
+        self, base_url: str, client: Optional[RESTClient] = None, timeout: int = 10
+    ):
         """
         Initializes the RestAPIClient.
 
@@ -18,7 +20,6 @@ class RestAPIClient:
         self._external_client = client is not None
         # If no client is provided, use the default HttpxClient.
         self.client: RESTClient = client or HttpxClient(timeout=timeout)
-
 
     @property
     def base_url(self) -> str:
@@ -46,28 +47,40 @@ class RestAPIClient:
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         response = await self.client.request(
-            method=method,
-            url=url,
-            headers=headers,
-            params=params,
-            payload=payload
+            method=method, url=url, headers=headers, params=params, payload=payload
         )
         return self.handle_api_response(response, method, endpoint)
 
-    async def get(self, endpoint: str, headers: Optional[Dict[str, str]] = None,
-                  params: Optional[Dict[str, Any]] = None):
+    async def get(
+        self,
+        endpoint: str,
+        headers: Optional[Dict[str, str]] = None,
+        params: Optional[Dict[str, Any]] = None,
+    ):
         return await self.request("GET", endpoint, headers=headers, params=params)
 
-    async def post(self, endpoint: str, headers: Optional[Dict[str, str]] = None,
-                   payload: Optional[Dict[str, Any]] = None):
+    async def post(
+        self,
+        endpoint: str,
+        headers: Optional[Dict[str, str]] = None,
+        payload: Optional[Dict[str, Any]] = None,
+    ):
         return await self.request("POST", endpoint, headers=headers, payload=payload)
 
-    async def put(self, endpoint: str, headers: Optional[Dict[str, str]] = None,
-                  payload: Optional[Dict[str, Any]] = None):
+    async def put(
+        self,
+        endpoint: str,
+        headers: Optional[Dict[str, str]] = None,
+        payload: Optional[Dict[str, Any]] = None,
+    ):
         return await self.request("PUT", endpoint, headers=headers, payload=payload)
 
-    async def delete(self, endpoint: str, headers: Optional[Dict[str, str]] = None,
-                     params: Optional[Dict[str, Any]] = None):
+    async def delete(
+        self,
+        endpoint: str,
+        headers: Optional[Dict[str, str]] = None,
+        params: Optional[Dict[str, Any]] = None,
+    ):
         return await self.request("DELETE", endpoint, headers=headers, params=params)
 
     async def close(self):
@@ -95,20 +108,26 @@ class RestAPIClient:
             parsed_data = response.text
 
         if response.status_code != 200:
-            error_detail = parsed_data.get("errors", "Unknown error") if isinstance(parsed_data, dict) else parsed_data
+            error_detail = (
+                parsed_data.get("errors", "Unknown error")
+                if isinstance(parsed_data, dict)
+                else parsed_data
+            )
             raise NetworkError(
                 f"RestAPIClient :: {method} {self.base_url + endpoint} failed with: {error_detail}",
-                status=response.status_code
+                status=response.status_code,
             )
 
         if isinstance(parsed_data, dict) and "errors" in parsed_data:
             error_messages = [
-                err.get("message", "Unknown error") if isinstance(err, dict) else str(err)
+                err.get("message", "Unknown error")
+                if isinstance(err, dict)
+                else str(err)
                 for err in parsed_data["errors"]
             ]
             raise NetworkError(
                 f"RestAPIClient :: {method} {self.base_url + endpoint} returned errors: {error_messages}",
-                status=420
+                status=420,
             )
 
         return parsed_data

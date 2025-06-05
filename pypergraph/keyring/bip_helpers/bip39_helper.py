@@ -3,14 +3,31 @@ from mnemonic import Mnemonic
 
 class Bip39Helper:
     """Generate 12 or 24 words and derive entropy"""
-    LANGUAGES = ("english", "chinese_simplified", "chinese_traditional", "french", "italian",
-                            "japanese", "korean", "spanish", "turkish", "czech", "portuguese")
+
+    LANGUAGES = (
+        "english",
+        "chinese_simplified",
+        "chinese_traditional",
+        "french",
+        "italian",
+        "japanese",
+        "korean",
+        "spanish",
+        "turkish",
+        "czech",
+        "portuguese",
+    )
+
     def __init__(self, words: int = 12, language: str = "english"):
         self.strength = 128 if words == 12 else 256 if words == 24 else None
         if self.strength is None:
-            raise ValueError(f"Bip39 :: The value or Bip39(words={words} is unsupported. Supported: 12 or 24")
+            raise ValueError(
+                f"Bip39 :: The value or Bip39(words={words} is unsupported. Supported: 12 or 24"
+            )
         if language not in Bip39Helper.LANGUAGES:
-            raise ValueError(f"Bip39 :: The language {language} isn't supported. Supported languages: {', '.join(self.LANGUAGES)}")
+            raise ValueError(
+                f"Bip39 :: The language {language} isn't supported. Supported languages: {', '.join(self.LANGUAGES)}"
+            )
         else:
             self.language = language
 

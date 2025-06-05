@@ -9,7 +9,6 @@ from .ecdsa_account import EcdsaAccount
 
 
 class DagAccount(EcdsaAccount):
-
     @property
     def decimals(self) -> int:
         return 8
@@ -36,7 +35,8 @@ class DagAccount(EcdsaAccount):
         valid_parity = address[3].isdigit() and 0 <= int(address[3]) < 10
         base58_part = address[4:]
         valid_base58 = (
-            len(base58_part) == 36 and base58_part == base58.b58encode(base58.b58decode(base58_part)).decode()
+            len(base58_part) == 36
+            and base58_part == base58.b58encode(base58.b58decode(base58_part)).decode()
         )
 
         return valid_len and valid_prefix and valid_parity and valid_base58
@@ -45,7 +45,7 @@ class DagAccount(EcdsaAccount):
         public_key = self.wallet.public_key()
         public_bytes = public_key.public_bytes(
             encoding=serialization.Encoding.X962,
-            format=serialization.PublicFormat.UncompressedPoint
+            format=serialization.PublicFormat.UncompressedPoint,
         )
         return public_bytes.hex()
 
@@ -75,7 +75,7 @@ class DagAccount(EcdsaAccount):
 
         public_key = hashlib.sha256(bytes.fromhex(public_key)).hexdigest()
         public_key = base58.b58encode(bytes.fromhex(public_key)).decode()
-        public_key = public_key[len(public_key) - 36:]
+        public_key = public_key[len(public_key) - 36 :]
 
         check_digits = "".join([char for char in public_key if char.isdigit()])
         check_digit = 0

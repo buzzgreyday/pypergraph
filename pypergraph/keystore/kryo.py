@@ -1,5 +1,4 @@
 class Kryo:
-
     def serialize(self, msg: str, set_references: bool = True) -> str:
         """
         Serialize a message using a custom kryo-like serialization method. Used after encoding the message to sign.
@@ -8,7 +7,11 @@ class Kryo:
         :param set_references: Whether to include references in the prefix.
         :return: The serialized message as a hexadecimal string.
         """
-        prefix = "03" + ("01" if set_references else "") + self._utf8_length(len(msg) + 1).hex()
+        prefix = (
+            "03"
+            + ("01" if set_references else "")
+            + self._utf8_length(len(msg) + 1).hex()
+        )
         coded = msg.encode("utf-8").hex()
         return prefix + coded
 

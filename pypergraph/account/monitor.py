@@ -5,6 +5,7 @@ import asyncio
 import logging
 import time
 import json
+
 # from dataclasses import dataclass
 from typing import Dict, Union, List, Optional, Any, Callable
 
@@ -36,7 +37,6 @@ class DagWalletMonitorUpdate(BaseModel):
 
 
 class Monitor:
-
     def __init__(self, account, state_storage_file_path: str):
         """
         Monitors events and stores states.
@@ -51,7 +51,7 @@ class Monitor:
         self.pending_timer = 0.0
         # self.wait_for_map: Dict[str, WaitFor] = {}
         self.cache_utils = StateStorageDb(file_path=state_storage_file_path)
-        self.cache_utils.set_prefix('pypergraph-')
+        self.cache_utils.set_prefix("pypergraph-")
 
     def subscribe_mem_pool(self, callback: Callable[[Any], Observable]) -> Disposable:
         """
@@ -61,12 +61,14 @@ class Monitor:
         subscription = self._mem_pool_change.pipe(
             ops.observe_on(self._scheduler),
             ops.flat_map(callback),
-            ops.catch(lambda e, src: (
-                logging.error(f"Monitor :: {e}", exc_info=True),
-                empty()
-            )[1])  # Using tuple indexing to return empty()
+            ops.catch(
+                lambda e, src: (
+                    logging.error(f"Monitor :: {e}", exc_info=True),
+                    empty(),
+                )[1]
+            ),  # Using tuple indexing to return empty()
         ).subscribe()
-        return subscription # subscription.dispose() to unsub
+        return subscription  # subscription.dispose() to unsub
 
     def subscribe_account(self, callback: Callable[[Any], Observable]) -> Disposable:
         """
@@ -76,12 +78,14 @@ class Monitor:
         subscription = self.account._session_change.pipe(
             ops.observe_on(self._scheduler),
             ops.flat_map(callback),
-            ops.catch(lambda e, src: (
-                logging.error(f"Monitor :: {e}", exc_info=True),
-                empty()
-            )[1])  # Using tuple indexing to return empty()
+            ops.catch(
+                lambda e, src: (
+                    logging.error(f"Monitor :: {e}", exc_info=True),
+                    empty(),
+                )[1]
+            ),  # Using tuple indexing to return empty()
         ).subscribe()
-        return subscription # subscription.dispose() to unsub
+        return subscription  # subscription.dispose() to unsub
 
     def subscribe_network(self, callback: Callable[[Any], Observable]) -> Disposable:
         """
@@ -95,39 +99,58 @@ class Monitor:
         subscription = self.account.network._network_change.pipe(
             ops.observe_on(self._scheduler),
             ops.flat_map(callback),
-            ops.catch(lambda e, src: (
-                logging.error(f"Monitor :: {e}", exc_info=True),
-                empty()
-            )[1])  # Using tuple indexing to return empty()
+            ops.catch(
+                lambda e, src: (
+                    logging.error(f"Monitor :: {e}", exc_info=True),
+                    empty(),
+                )[1]
+            ),  # Using tuple indexing to return empty()
         ).subscribe()
-        return subscription # subscription.dispose() to unsub
+        return subscription  # subscription.dispose() to unsub
 
     async def set_to_mem_pool_monitor(self, pool: List[PendingTransaction]):
         network_info = self.account.network.get_network()
         key = f"network-{network_info['network_id'].lower()}-mempool"
         await self.cache_utils.set(key, [tx.model_dump() for tx in pool])
 
-    async def get_mem_pool_from_monitor(self, address: Optional[str] = None) -> List[PendingTransaction]:
+    async def get_mem_pool_from_monitor(
+        self, address: Optional[str] = None
+    ) -> List[PendingTransaction]:
         address = address or self.account.address
         network_info = self.account.network.get_network()
 
         try:
-            txs: List[json] = await self.cache_utils.get(
-                f"network-{network_info['network_id'].lower()}-mempool"
-            ) or []
-            txs = [
-                PendingTransaction(**json.loads(tx)) if not isinstance(tx, dict) else PendingTransaction(**tx)
-                for tx in txs
-            ] if txs else []
+            txs: List[json] = (
+                await self.cache_utils.get(
+                    f"network-{network_info['network_id'].lower()}-mempool"
+                )
+                or []
+            )
+            txs = (
+                [
+                    PendingTransaction(**json.loads(tx))
+                    if not isinstance(tx, dict)
+                    else PendingTransaction(**tx)
+                    for tx in txs
+                ]
+                if txs
+                else []
+            )
         except Exception as e:
             logging.warning(f"Monitor :: {e}, will return empty list.", exc_info=True)
             return []
         return [
-            tx for tx in txs
-            if not address or not tx.receiver or tx.receiver == address or tx.sender == address
+            tx
+            for tx in txs
+            if not address
+            or not tx.receiver
+            or tx.receiver == address
+            or tx.sender == address
         ]
 
-    async def add_to_mem_pool_monitor(self, value: PendingTransaction):  # 'value' can be a dict or string
+    async def add_to_mem_pool_monitor(
+        self, value: PendingTransaction
+    ):  # 'value' can be a dict or string
         network_info = NetworkInfo(**self.account.network.get_network())
         key = f"network-{network_info.network_id}-mempool"
 
@@ -138,7 +161,9 @@ class Monitor:
 
         # Create transaction object
         if isinstance(value, str):
-            tx = PendingTransaction(**{"hash": value, "timestamp": int(time.time() * 1000)})
+            tx = PendingTransaction(
+                **{"hash": value, "timestamp": int(time.time() * 1000)}
+            )
         elif isinstance(value, PendingTransaction):
             tx = value
         else:
@@ -182,10 +207,12 @@ class Monitor:
                 DagWalletMonitorUpdate(
                     tx_changed=tx_changed,
                     trans_txs=trans_txs,
-                    pending_has_confirmed=pending_has_confirmed
+                    pending_has_confirmed=pending_has_confirmed,
                 ).model_dump()
             )
-            logging.debug(f"Monitor :: Memory pool updated: {self._mem_pool_change.value}")
+            logging.debug(
+                f"Monitor :: Memory pool updated: {self._mem_pool_change.value}"
+            )
         except Exception as e:
             logging.error(f"Monitor :: {e}", exc_info=True)
 
@@ -204,30 +231,41 @@ class Monitor:
                     try:
                         be_tx = await self.account.network.get_transaction(tx_hash)
                         if be_tx:
-                            pending_tx.timestamp = int(be_tx.timestamp.timestamp() * 1000)
+                            pending_tx.timestamp = int(
+                                be_tx.timestamp.timestamp() * 1000
+                            )
                             pending_has_confirmed = True
                             tx_changed = True
                             pending_tx.pending = False
                             pending_tx.status = TransactionStatus.CONFIRMED.value
-                            pending_tx.pending_msg = 'Confirmed'
+                            pending_tx.pending_msg = "Confirmed"
                             # if tx_hash in self.wait_for_map:
                             #     self.wait_for_map[tx_hash].resolve(True)
                             #     del self.wait_for_map[tx_hash]
                         else:
-                            if (pending_tx.status != 'CHECKPOINT_ACCEPTED' and
-                                    pending_tx.status != TransactionStatus.GLOBAL_STATE_PENDING.value and
-                                    pending_tx.timestamp + TWELVE_MINUTES < int(time.time() * 1000)):
+                            if (
+                                pending_tx.status != "CHECKPOINT_ACCEPTED"
+                                and pending_tx.status
+                                != TransactionStatus.GLOBAL_STATE_PENDING.value
+                                and pending_tx.timestamp + TWELVE_MINUTES
+                                < int(time.time() * 1000)
+                            ):
                                 pending_tx.status = TransactionStatus.DROPPED.value
                                 pending_tx.pending = False
                                 tx_changed = True
                             else:
-                                if pending_tx.status != TransactionStatus.GLOBAL_STATE_PENDING.value:
-                                    pending_tx.status = TransactionStatus.GLOBAL_STATE_PENDING.value
-                                    pending_tx.pending_msg = 'Will confirm shortly...'
+                                if (
+                                    pending_tx.status
+                                    != TransactionStatus.GLOBAL_STATE_PENDING.value
+                                ):
+                                    pending_tx.status = (
+                                        TransactionStatus.GLOBAL_STATE_PENDING.value
+                                    )
+                                    pending_tx.pending_msg = "Will confirm shortly..."
                                     tx_changed = True
                                 elif not pending_tx.status:
-                                    pending_tx.status = 'UNKNOWN'
-                                    pending_tx.pending_msg = 'Transaction not found...'
+                                    pending_tx.status = "UNKNOWN"
+                                    pending_tx.pending_msg = "Transaction not found..."
                                 next_pool.append(pending_tx)
                     except Exception as e:
                         logging.error(f"Monitor :: {e}", exc_info=True)
@@ -237,11 +275,11 @@ class Monitor:
                     logging.error(f"Monitor :: {e}", exc_info=True)
 
             return {
-                'pending_txs': next_pool,
-                'tx_changed': tx_changed,
-                'trans_txs': trans_txs,
-                'pending_has_confirmed': pending_has_confirmed,
-                'pool_count': len(pool)
+                "pending_txs": next_pool,
+                "tx_changed": tx_changed,
+                "trans_txs": trans_txs,
+                "pending_has_confirmed": pending_has_confirmed,
+                "pool_count": len(pool),
             }
         except Exception as e:
             logging.error(f"Monitor :: {e}", exc_info=True)
@@ -265,9 +303,11 @@ class Monitor:
         self,
         address: str,
         limit: Optional[int] = None,
-        search_after: Optional[str] = None
+        search_after: Optional[str] = None,
     ) -> List[Union[PendingTransaction, Transaction]]:
-        c_txs = await self.account.network.get_transactions_by_address(address, limit, search_after)
+        c_txs = await self.account.network.get_transactions_by_address(
+            address, limit, search_after
+        )
         pending_result = await self.process_pending_txs()
         pending_transactions = [p for p in pending_result["pending_txs"]]
 
@@ -292,17 +332,20 @@ async def main():
         elif observable["event"] == "login":
             print("Monitor :: Injected callable account event: login signal received.")
         else:
-            print(f"Monitor :: Unknown signal received by injected callable account event: {observable}")
+            print(
+                f"Monitor :: Unknown signal received by injected callable account event: {observable}"
+            )
         return of(observable)
 
     def safe_mem_pool_process_event(observable):
         print(f"Observable: {observable}")
         return of(observable)
+
     mem_pool_sub = monitor.subscribe_mem_pool(safe_mem_pool_process_event)
     network_sub = monitor.subscribe_network(safe_network_process_event)
     # monitor.start_monitor()
     account_sub = monitor.subscribe_account(safe_account_process_event)
-    account.connect('integrationnet')
+    account.connect("integrationnet")
     account.login_with_seed_phrase(secret.mnemo)
     pending_tx = await account.transfer(secret.to_address, 50000, 200000)
     await monitor.add_to_mem_pool_monitor(pending_tx)

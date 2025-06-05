@@ -11,7 +11,9 @@ class ObservableStore(BaseModel):
     def get_state(self):
         return {"is_unlocked": self.is_unlocked, "wallets": self.wallets}
 
-    def update_state(self, is_unlocked: Optional[bool] = None, wallets: Optional[List[dict]] = None):
+    def update_state(
+        self, is_unlocked: Optional[bool] = None, wallets: Optional[List[dict]] = None
+    ):
         if is_unlocked is not None:
             self.is_unlocked = is_unlocked
         if wallets is not None:

@@ -4,25 +4,41 @@ from pydantic import Field, BaseModel, IPvAnyNetwork, conint, constr
 
 from pypergraph.core.constants import ALIAS_MAX_LEN, PORT_MAX
 
+
 class NetworkInfo:
-    def __init__(self, network_id="mainnet", block_explorer_url=None, l0_host=None, currency_l1_host=None, data_l1_host=None, metagraph_id=None):
+    def __init__(
+        self,
+        network_id="mainnet",
+        block_explorer_url=None,
+        l0_host=None,
+        currency_l1_host=None,
+        data_l1_host=None,
+        metagraph_id=None,
+    ):
         self.data_l1_host = None
         self.network_id = network_id.lower()
 
         if self.network_id in ("mainnet", "integrationnet", "testnet"):
-            self.block_explorer_url = block_explorer_url or f"https://be-{self.network_id}.constellationnetwork.io"
+            self.block_explorer_url = (
+                block_explorer_url
+                or f"https://be-{self.network_id}.constellationnetwork.io"
+            )
         else:
             self.block_explorer_url = block_explorer_url
 
         self.l0_host = l0_host or f"https://l0-lb-{network_id}.constellationnetwork.io"
-        self.currency_l1_host = currency_l1_host or f"https://l1-lb-{network_id}.constellationnetwork.io"
+        self.currency_l1_host = (
+            currency_l1_host or f"https://l1-lb-{network_id}.constellationnetwork.io"
+        )
         self.data_l1_host = data_l1_host or self.data_l1_host
         self.metagraph_id = metagraph_id
 
     def __repr__(self):
-        return (f"NetworkInfo(network_id={self.network_id}, block_explorer_url={self.block_explorer_url}, "
-                f"l0_host={self.l0_host}, cl1_host={self.currency_l1_host}, dl1_host={self.data_l1_host}, "
-                f"l0_lb_url={f'https://l0-lb-{self.network_id}.constellationnetwork.io'}, l1_lb_url={f'https://l1-lb-{self.network_id}.constellationnetwork.io'}, metagraph_id={self.metagraph_id})")
+        return (
+            f"NetworkInfo(network_id={self.network_id}, block_explorer_url={self.block_explorer_url}, "
+            f"l0_host={self.l0_host}, cl1_host={self.currency_l1_host}, dl1_host={self.data_l1_host}, "
+            f"l0_lb_url={f'https://l0-lb-{self.network_id}.constellationnetwork.io'}, l1_lb_url={f'https://l1-lb-{self.network_id}.constellationnetwork.io'}, metagraph_id={self.metagraph_id})"
+        )
 
 
 class PeerInfo(BaseModel):

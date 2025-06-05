@@ -5,7 +5,6 @@ from pypergraph.keyring.accounts.ecdsa_account import EcdsaAccount
 
 
 class CustomAccount(EcdsaAccount):
-
     @property
     def decimals(self) -> int:
         return 8
@@ -40,5 +39,4 @@ class CustomAccount(EcdsaAccount):
         return hashlib.sha256(data).hexdigest()
 
     def get_address_from_public_key(self) -> str:
-
         return "FAKE_ADDRESS"

@@ -1,5 +1,6 @@
 import threading
 
+
 class SIDManager:
     def __init__(self):
         self._sid = 0
@@ -13,6 +14,7 @@ class SIDManager:
     def reset_sid(self):
         with self._lock:
             self._sid = 0
+
 
 # Create a global instance
 sid_manager = SIDManager()

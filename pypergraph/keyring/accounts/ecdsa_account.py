@@ -54,12 +54,16 @@ class EcdsaAccount(BaseModel, ABC):
         if private_key:
             # Convert hex private key to cryptography object
             private_key_bytes = bytes.fromhex(private_key)
-            private_key_int = int.from_bytes(private_key_bytes, byteorder='big')
+            private_key_int = int.from_bytes(private_key_bytes, byteorder="big")
             self.wallet = ec.derive_private_key(
-                private_value=private_key_int, curve=ec.SECP256K1(), backend=default_backend()
+                private_value=private_key_int,
+                curve=ec.SECP256K1(),
+                backend=default_backend(),
             )
         else:
-            self.wallet = ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend())
+            self.wallet = ec.generate_private_key(
+                curve=ec.SECP256K1(), backend=default_backend()
+            )
         return self
 
     def save_token_info(self, address: str):
@@ -108,10 +112,13 @@ class EcdsaAccount(BaseModel, ABC):
         return result
 
     def deserialize(
-            self, bip44_index: Optional[int] = None, label: Optional[str] = None,
-            private_key: Optional[str] = None, public_key: Optional[str] = None, tokens: Optional[List[str]] = None
+        self,
+        bip44_index: Optional[int] = None,
+        label: Optional[str] = None,
+        private_key: Optional[str] = None,
+        public_key: Optional[str] = None,
+        tokens: Optional[List[str]] = None,
     ):
-
         self.label = label
         self.bip44_index = bip44_index
         self.tokens = tokens or self.tokens
@@ -119,12 +126,16 @@ class EcdsaAccount(BaseModel, ABC):
         if private_key:
             # Convert hex private key to cryptography object
             private_key_bytes = bytes.fromhex(private_key)
-            private_key_int = int.from_bytes(private_key_bytes, byteorder='big')
+            private_key_int = int.from_bytes(private_key_bytes, byteorder="big")
             self.wallet = ec.derive_private_key(
-                private_value=private_key_int, curve=ec.SECP256K1(), backend=default_backend()
+                private_value=private_key_int,
+                curve=ec.SECP256K1(),
+                backend=default_backend(),
             )
         else:
-            raise NotImplementedError("EcdsaAccount :: Wallet instance from public key isn't supported.")
+            raise NotImplementedError(
+                "EcdsaAccount :: Wallet instance from public key isn't supported."
+            )
             # TODO: This doesn't work since the library doens't seem to have any equivalent
 
         return self
@@ -146,13 +157,19 @@ class EcdsaAccount(BaseModel, ABC):
         msg_hash = keccak(text=f"\x19Ethereum Signed Message:\n{len(msg)}{msg}")
 
         # Decode the signature (remove '0x' prefix if present)
-        signature_bytes = bytes.fromhex(signature[2:] if signature.startswith("0x") else signature)
+        signature_bytes = bytes.fromhex(
+            signature[2:] if signature.startswith("0x") else signature
+        )
         v, r, s = signature_bytes[-1], signature_bytes[:32], signature_bytes[32:64]
 
         # Recover the public key
         try:
-            public_key = keys.ecdsa_recover(msg_hash,
-                                            keys.Signature(vrs=(v, int.from_bytes(r, 'big'), int.from_bytes(s, 'big'))))
+            public_key = keys.ecdsa_recover(
+                msg_hash,
+                keys.Signature(
+                    vrs=(v, int.from_bytes(r, "big"), int.from_bytes(s, "big"))
+                ),
+            )
         except Exception as e:
             raise ValueError(f"EcdsaAccount :: Failed to recover public key: {e}")
 
@@ -163,7 +180,7 @@ class EcdsaAccount(BaseModel, ABC):
         public_key = self.wallet.public_key()
         public_bytes = public_key.public_bytes(
             encoding=serialization.Encoding.X962,
-            format=serialization.PublicFormat.UncompressedPoint
+            format=serialization.PublicFormat.UncompressedPoint,
         )
 
         # Take keccak of everything except the first byte (0x04)
@@ -175,13 +192,13 @@ class EcdsaAccount(BaseModel, ABC):
         public_key = self.wallet.public_key()
         public_bytes = public_key.public_bytes(
             encoding=serialization.Encoding.X962,
-            format=serialization.PublicFormat.UncompressedPoint
+            format=serialization.PublicFormat.UncompressedPoint,
         )
         return public_bytes.hex()
 
     def get_private_key(self) -> str:
-        private_bytes = self.wallet.private_numbers().private_value.to_bytes(32, 'big')
+        private_bytes = self.wallet.private_numbers().private_value.to_bytes(32, "big")
         return private_bytes.hex()
 
     def get_private_key_buffer(self):
-        return self.wallet.private_numbers().private_value.to_bytes(32, 'big')
+        return self.wallet.private_numbers().private_value.to_bytes(32, "big")

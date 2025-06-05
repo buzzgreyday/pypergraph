@@ -1,7 +1,7 @@
 import re
 from typing import Optional, List, Dict, Any, Union
 
-from pydantic import Field, model_serializer, model_validator, constr, BaseModel
+from pydantic import Field, model_serializer, model_validator, BaseModel
 
 from pypergraph.core import KeyringAssetType, KeyringWalletType, NetworkId
 
@@ -10,15 +10,14 @@ from ..accounts.dag_account import DagAccount
 from ..accounts.eth_account import EthAccount
 from ..keyrings.simple_keyring import SimpleKeyring
 
-class MultiKeyWallet(BaseModel):
 
+class MultiKeyWallet(BaseModel):
     type: str = Field(default=KeyringWalletType.MultiKeyWallet.value)
     id: str = Field(default=None)
     supported_assets: List[str] = Field(default=[])
     label: Optional[str] = Field(default=None, max_length=12)
     keyrings: List[SimpleKeyring] = Field(default=[])
     network: Optional[str] = Field(default=None)
-
 
     @model_validator(mode="after")
     def compute_id(self):
@@ -31,7 +30,7 @@ class MultiKeyWallet(BaseModel):
         return {
             "type": self.type,
             "label": self.label,
-            "rings": [ring.model_dump() for ring in self.keyrings]
+            "rings": [ring.model_dump() for ring in self.keyrings],
         }
 
     def create(self, network: str, label: str):
@@ -65,7 +64,9 @@ class MultiKeyWallet(BaseModel):
     @staticmethod
     def get_network():
         """Not supported by MKW."""
-        raise NotImplementedError("MultiChainWallet :: Multi key wallets does not support this method.")
+        raise NotImplementedError(
+            "MultiChainWallet :: Multi key wallets does not support this method."
+        )
 
     def get_state(self) -> Dict[str, Any]:
         return {
@@ -80,12 +81,10 @@ class MultiKeyWallet(BaseModel):
                     "label": a.get_label(),
                 }
                 for a in self.get_accounts()
-            ]
+            ],
         }
 
-
     def deserialize(self, label: str, network: str, accounts: Optional[list] = None):
-
         self.set_label(label)
         self.network = network
         self.keyrings = []
@@ -95,11 +94,15 @@ class MultiKeyWallet(BaseModel):
                 self.import_account(account.get("private_key"), account.get("label"))
 
         if self.network == NetworkId.Ethereum:
-            self.supported_assets.extend([KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value])
+            self.supported_assets.extend(
+                [KeyringAssetType.ETH.value, KeyringAssetType.ERC20.value]
+            )
         elif self.network == NetworkId.Constellation:
             self.supported_assets.append(KeyringAssetType.DAG.value)
 
-    def import_account(self, private_key: str, label: str) -> Union[DagAccount, EthAccount]:
+    def import_account(
+        self, private_key: str, label: str
+    ) -> Union[DagAccount, EthAccount]:
         """
         Imports an account using private key, sets a label, creates a keyring and adds it to the list of keyrings.
 
@@ -111,7 +114,10 @@ class MultiKeyWallet(BaseModel):
         valid = re.fullmatch(r"^[a-fA-F0-9]{64}$", private_key)
         if not valid:
             ValueError("MultiAccountWallet :: Private key is invalid.")
-        keyring.deserialize(network=self.network, accounts=[{"private_key": private_key, "label": label}])
+        keyring.deserialize(
+            network=self.network,
+            accounts=[{"private_key": private_key, "label": label}],
+        )
         self.keyrings.append(keyring)
         # Only one account at index 0 present for this wallet type
         return keyring.get_accounts()[0]
@@ -123,7 +129,9 @@ class MultiKeyWallet(BaseModel):
         :return: List of imported MKW accounts.
         """
 
-        return [account for keyring in self.keyrings for account in keyring.get_accounts()]
+        return [
+            account for keyring in self.keyrings for account in keyring.get_accounts()
+        ]
 
     def get_account_by_address(self, address: str) -> Union[DagAccount, EthAccount]:
         """

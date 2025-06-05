@@ -14,7 +14,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.utils import (
     decode_dss_signature,
     encode_dss_signature,
-    Prehashed
+    Prehashed,
 )
 from cryptography.hazmat.backends import default_backend
 import hashlib
@@ -125,7 +125,9 @@ class KeyStore:
             msg = f"{prefix}{len(msg)}\n{msg}"
         return msg
 
-    def _serialize_data(self, encoded_msg: str, serialization: Optional[Callable] = None):
+    def _serialize_data(
+        self, encoded_msg: str, serialization: Optional[Callable] = None
+    ):
         """
         Could be a way to add extra customization but since netmet is working on a signature library... :)
         """
@@ -134,7 +136,6 @@ class KeyStore:
         return encoded_msg.encode("utf-8")
 
     def _remove_nulls(self, obj):
-
         def process_value(value):
             if value is None:
                 return None
@@ -144,7 +145,9 @@ class KeyStore:
                 return self._remove_nulls(value)
             return value
 
-        return {k: process_value(v) for k, v in obj.items() if process_value(v) is not None}
+        return {
+            k: process_value(v) for k, v in obj.items() if process_value(v) is not None
+        }
 
     def data_sign(
         self,
@@ -192,7 +195,10 @@ class KeyStore:
         return signature, hash_
 
     def verify_data(
-        self, public_key: str, encoded_msg: str, signature: str,
+        self,
+        public_key: str,
+        encoded_msg: str,
+        signature: str,
     ):
         """
         Verify a signature using the `cryptography` library.
@@ -212,7 +218,7 @@ class KeyStore:
         # Step 2: Load public key from hex
         public_key_bytes = bytes.fromhex(public_key)
         if len(public_key_bytes) == 65:
-            public_key_bytes = public_key_bytes[1:] # Remove 04
+            public_key_bytes = public_key_bytes[1:]  # Remove 04
         if len(public_key_bytes) != 64:
             raise ValueError("Public key must be 64 bytes (uncompressed SECP256k1).")
 
@@ -229,7 +235,7 @@ class KeyStore:
             public_key.verify(
                 bytes.fromhex(signature),
                 sha512_digest,
-                ec.ECDSA(Prehashed(hashes.SHA256()))  # Treat digest as SHA256-sized
+                ec.ECDSA(Prehashed(hashes.SHA256())),  # Treat digest as SHA256-sized
             )
             return True
         except InvalidSignature:
@@ -252,7 +258,7 @@ class KeyStore:
 
         # Convert hex private key to cryptography object
         private_key_bytes = bytes.fromhex(private_key)
-        private_key_int = int.from_bytes(private_key_bytes, byteorder='big')
+        private_key_int = int.from_bytes(private_key_bytes, byteorder="big")
         private_key = ec.derive_private_key(
             private_key_int, ec.SECP256K1(), default_backend()
         )
@@ -262,8 +268,8 @@ class KeyStore:
 
         # Sign deterministically (RFC 6979) and enforce canonical form
         signature = private_key.sign(
-            msg_digest,
-            ec.ECDSA(Prehashed(hashes.SHA256())))  # Prehashed for raw digest
+            msg_digest, ec.ECDSA(Prehashed(hashes.SHA256()))
+        )  # Prehashed for raw digest
 
         # Decode signature to (r, s) and enforce canonical `s`
         r, s = decode_dss_signature(signature)
@@ -289,7 +295,7 @@ class KeyStore:
         # Step 2: Load public key from hex
         public_key_bytes = bytes.fromhex(public_key)
         if len(public_key_bytes) == 65:
-            public_key_bytes = public_key_bytes[1:] # Remove 04
+            public_key_bytes = public_key_bytes[1:]  # Remove 04
         if len(public_key_bytes) != 64:
             raise ValueError("Public key must be 64 bytes (uncompressed SECP256k1).")
 
@@ -306,7 +312,7 @@ class KeyStore:
             public_key.verify(
                 bytes.fromhex(signature),
                 sha512_digest,
-                ec.ECDSA(Prehashed(hashes.SHA256()))  # Treat digest as SHA256-sized
+                ec.ECDSA(Prehashed(hashes.SHA256())),  # Treat digest as SHA256-sized
             )
             return True
         except InvalidSignature:
@@ -358,7 +364,12 @@ class KeyStore:
 
         :return: Private key hex.
         """
-        return ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend()).private_numbers().private_value.to_bytes(32, byteorder='big').hex()
+        return (
+            ec.generate_private_key(curve=ec.SECP256K1(), backend=default_backend())
+            .private_numbers()
+            .private_value.to_bytes(32, byteorder="big")
+            .hex()
+        )
 
     @staticmethod
     def validate_private_key_keystore(data: dict) -> bool:
@@ -393,7 +404,9 @@ class KeyStore:
         :param password:
         :return:
         """
-        return await V3KeystoreCrypto.decrypt_phrase(keystore=keystore, password=password)
+        return await V3KeystoreCrypto.decrypt_phrase(
+            keystore=keystore, password=password
+        )
 
     def encrypt_private_key(
         self, password: str, private_key: Optional[str] = None
@@ -408,14 +421,15 @@ class KeyStore:
         private_key = private_key or self.generate_private_key()
         return eth_keyfile.create_keyfile_json(
             private_key=bytes.fromhex(private_key),
-            password=password.encode("utf-8"), # This is right; should be bytes.
+            password=password.encode("utf-8"),  # This is right; should be bytes.
             kdf="scrypt",
         )
 
     def decrypt_private_key(self, data: dict, password: str):
         if self.validate_private_key_keystore(data):
             wallet = eth_keyfile.decode_keyfile_json(
-                raw_keyfile_json=data, password=password.encode("utf-8") # This is right; should be bytes.
+                raw_keyfile_json=data,
+                password=password.encode("utf-8"),  # This is right; should be bytes.
             )
             return wallet.hex()
 
@@ -457,7 +471,7 @@ class KeyStore:
 
     @staticmethod
     def get_private_key_from_mnemonic(
-        phrase: str, derivation_path = BIP_44_PATHS.CONSTELLATION_PATH.value
+        phrase: str, derivation_path=BIP_44_PATHS.CONSTELLATION_PATH.value
     ) -> str:
         """
         Get private key from phrase. Returns the first account.
@@ -520,5 +534,7 @@ class KeyStore:
         return "0x" + eth_address.hex()
 
     def get_eth_address_from_private_key(self, private_key: str) -> str:
-        public_key = self.get_public_key_from_private(private_key=private_key)[2:]  # Removes the 04 prefix from public key
+        public_key = self.get_public_key_from_private(private_key=private_key)[
+            2:
+        ]  # Removes the 04 prefix from public key
         return self.get_eth_address_from_public_key(public_key=public_key)

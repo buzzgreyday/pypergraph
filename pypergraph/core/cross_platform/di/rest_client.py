@@ -3,6 +3,7 @@ from typing import Dict, Any, Optional
 import httpx
 from httpx import Response  # or define your own response type if needed
 
+
 class RESTClient(ABC):
     @abstractmethod
     async def request(
@@ -21,6 +22,7 @@ class RESTClient(ABC):
         """Clean up the client (close connections, etc.)."""
         pass
 
+
 class HttpxClient(RESTClient):
     def __init__(self, timeout: int = 10):
         self.client = httpx.AsyncClient(timeout=timeout)
@@ -34,11 +36,7 @@ class HttpxClient(RESTClient):
         payload: Optional[Dict[str, Any]] = None,
     ) -> Response:
         return await self.client.request(
-            method=method.upper(),
-            url=url,
-            headers=headers,
-            params=params,
-            json=payload
+            method=method.upper(), url=url, headers=headers, params=params, json=payload
         )
 
     async def close(self):

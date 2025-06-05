@@ -13,8 +13,10 @@ import argon2
 
 _executor = ThreadPoolExecutor(max_workers=4)  # Adjust as needed
 
+
 class SecurityConstants:
     """Cryptographic parameters meeting wallet security standards"""
+
     AES_KEY_SIZE = 32  # 256-bit
     ARGON_TIME_COST = 3  # OWASP recommended minimum
     ARGON_MEMORY_COST = 65536  # 64MB per hash
@@ -59,8 +61,8 @@ class AsyncAesGcmEncryptor:
                 "algorithm": "argon2id",
                 "time_cost": SecurityConstants.ARGON_TIME_COST,
                 "memory_cost": SecurityConstants.ARGON_MEMORY_COST,
-                "parallelism": SecurityConstants.ARGON_PARALLELISM
-            }
+                "parallelism": SecurityConstants.ARGON_PARALLELISM,
+            },
         }
 
         vault["hmac"] = (await self._calculate_hmac(hmac_key, vault)).hex()
@@ -80,8 +82,7 @@ class AsyncAesGcmEncryptor:
 
         # Verify HMAC before decryption
         if not secrets.compare_digest(
-                await self._calculate_hmac(hmac_key, vault),
-                stored_hmac
+            await self._calculate_hmac(hmac_key, vault), stored_hmac
         ):
             raise SecurityException("HMAC validation failed")
 
@@ -116,13 +117,13 @@ class AsyncAesGcmEncryptor:
             length=SecurityConstants.AES_KEY_SIZE + SecurityConstants.HMAC_KEY_SIZE,
             salt=salt,
             info=b"wallet-key-derivation",
-            backend=default_backend()
+            backend=default_backend(),
         )
         expanded_key = await loop.run_in_executor(None, hkdf.derive, raw_hash)
 
         return (
-            expanded_key[:SecurityConstants.AES_KEY_SIZE],
-            expanded_key[SecurityConstants.AES_KEY_SIZE:]
+            expanded_key[: SecurityConstants.AES_KEY_SIZE],
+            expanded_key[SecurityConstants.AES_KEY_SIZE :],
         )
 
     async def _calculate_hmac(self, key: bytes, vault: Dict[str, Any]) -> bytes:
@@ -154,7 +155,7 @@ async def main():
     sensitive_data = {
         "private_key": "0x...",
         "wallet_address": "0x...",
-        "balance": "100 ETH"
+        "balance": "100 ETH",
     }
 
     # Encrypt

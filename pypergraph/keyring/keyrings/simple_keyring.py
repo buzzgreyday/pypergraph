@@ -10,18 +10,15 @@ from ..accounts.ecdsa_account import EcdsaAccount
 from ..accounts.eth_account import EthAccount
 from ..accounts.dag_account import DagAccount
 
-class SimpleKeyring(BaseModel):
 
+class SimpleKeyring(BaseModel):
     account: EcdsaAccount = Field(default=None)
     network: str = Field(default=NetworkId.Constellation.value)
 
     # Serialize all accounts
     @model_serializer
     def model_serialize(self) -> Dict[str, Any]:
-        return {
-            "network": self.network,
-            "accounts": [self.account.serialize(True)]
-        }
+        return {"network": self.network, "accounts": [self.account.serialize(True)]}
 
     def create_for_network(self, network, private_key: str) -> Self:
         inst = SimpleKeyring()
@@ -30,12 +27,8 @@ class SimpleKeyring(BaseModel):
         inst.account = account.create(private_key)
         return inst
 
-
     def get_state(self):
-        return {
-          "network": self.network,
-          "account": self.account.serialize(False)
-        }
+        return {"network": self.network, "account": self.account.serialize(False)}
 
     def deserialize(self, network: str, accounts: list):
         self.network = network
@@ -44,7 +37,9 @@ class SimpleKeyring(BaseModel):
 
     def add_account_at(self, index: int):
         """Not supported for SimpleKeyring"""
-        raise NotImplementedError("SimpleKeyring :: Accounts can't be added to SimpleKeyrings.")
+        raise NotImplementedError(
+            "SimpleKeyring :: Accounts can't be added to SimpleKeyrings."
+        )
 
     def get_accounts(self) -> List[Union[DagAccount, EthAccount, Any]]:
         """
@@ -64,4 +59,6 @@ class SimpleKeyring(BaseModel):
 
     def remove_account(self, account):
         """Not supported for SimpleKeyring"""
-        raise NotImplementedError("SimpleKeyring :: Removal of SimpleKeyring accounts isn't supported.")
+        raise NotImplementedError(
+            "SimpleKeyring :: Removal of SimpleKeyring accounts isn't supported."
+        )

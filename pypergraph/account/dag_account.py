@@ -8,7 +8,13 @@ from rx.subject import Subject
 from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.keystore import KeyStore
 from pypergraph.network import DagTokenNetwork
-from pypergraph.network.models.transaction import TransactionStatus, TransactionReference, SignedTransaction, SignatureProof, PendingTransaction
+from pypergraph.network.models.transaction import (
+    TransactionStatus,
+    TransactionReference,
+    SignedTransaction,
+    SignatureProof,
+    PendingTransaction,
+)
 
 
 class DagAccount:
@@ -22,7 +28,7 @@ class DagAccount:
         network_id: Optional[str] = "mainnet",
         be_url: Optional[str] = None,
         l0_host: Optional[str] = None,
-        cl1_host: Optional[str] = None
+        cl1_host: Optional[str] = None,
     ) -> "DagAccount":
         """
         Configure the DagAccount network instance. Parameter 'network_id' can be used to change between 'testnet',
@@ -48,7 +54,9 @@ class DagAccount:
         :return: DAG address.
         """
         if not self.key_trio or not self.key_trio.address:
-            raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
+            raise ValueError(
+                "DagAccount :: Need to login before calling methods on DagAccount."
+            )
         return self.key_trio.address
 
     @property
@@ -62,7 +70,9 @@ class DagAccount:
         :return: Public key.
         """
         if not self.key_trio or not self.key_trio.public_key:
-            raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
+            raise ValueError(
+                "DagAccount :: Need to login before calling methods on DagAccount."
+            )
         return self.key_trio.public_key
 
     @property
@@ -74,7 +84,9 @@ class DagAccount:
         :return: Private key.
         """
         if not self.key_trio or not self.key_trio.private_key:
-            raise ValueError("DagAccount :: Need to login before calling methods on DagAccount.")
+            raise ValueError(
+                "DagAccount :: Need to login before calling methods on DagAccount."
+            )
         return self.key_trio.private_key
 
     def login_with_seed_phrase(self, phrase: str):
@@ -132,8 +144,12 @@ class DagAccount:
             # logger.error(f"Error in network change handler: {e}")
             print(f"Error in DagAccount session change handler: {e}")
 
-    def _set_keys_and_address(self, private_key: Optional[str], public_key: str, address: str):
-        self.key_trio = KeyTrio(private_key=private_key, public_key=public_key, address=address)
+    def _set_keys_and_address(
+        self, private_key: Optional[str], public_key: str, address: str
+    ):
+        self.key_trio = KeyTrio(
+            private_key=private_key, public_key=public_key, address=address
+        )
         try:
             self._session_change.on_next({"module": "account", "event": "login"})
         except Exception as e:
@@ -178,7 +194,12 @@ class DagAccount:
         """
         if isinstance(last_ref, dict):
             last_ref = TransactionReference(**last_ref)
-        last_ref = last_ref or await self.network.get_address_last_accepted_transaction_ref(self.address)
+        last_ref = (
+            last_ref
+            or await self.network.get_address_last_accepted_transaction_ref(
+                self.address
+            )
+        )
         tx, hash_ = KeyStore.prepare_tx(
             amount=amount,
             to_address=to_address,
@@ -207,9 +228,13 @@ class DagAccount:
         :return:
         """
         # TODO: API fee estimate endpoint
-        last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+        last_ref = await self.network.get_address_last_accepted_transaction_ref(
+            self.address
+        )
 
-        signed_tx, hash_ = await self.generate_signed_transaction(to_address, amount, fee)
+        signed_tx, hash_ = await self.generate_signed_transaction(
+            to_address, amount, fee
+        )
         tx_hash = await self.network.post_transaction(signed_tx)
 
         if tx_hash:
@@ -288,7 +313,9 @@ class DagAccount:
         if isinstance(last_ref, dict):
             last_ref = TransactionReference(**last_ref)
         if not last_ref:
-            last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+            last_ref = await self.network.get_address_last_accepted_transaction_ref(
+                self.address
+            )
 
         txns = []
         for transfer in transfers:
@@ -367,7 +394,8 @@ class DagAccount:
         return MetagraphTokenClient(
             account=account or self,
             metagraph_id=metagraph_id or self.network.connected_network.metagraph_id,
-            block_explorer_url=block_explorer_url or self.network.connected_network.block_explorer_url,
+            block_explorer_url=block_explorer_url
+            or self.network.connected_network.block_explorer_url,
             l0_host=l0_host,
             currency_l1_host=currency_l1_host,
             data_l1_host=data_l1_host,

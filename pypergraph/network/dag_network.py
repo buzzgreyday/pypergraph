@@ -10,7 +10,7 @@ from pypergraph.network.api import BlockExplorerApi
 from pypergraph.network.models.transaction import (
     PendingTransaction,
     SignedTransaction,
-    TransactionReference, SignedCreateDelegatedStake
+    TransactionReference,
 )
 from pypergraph.network.models.block_explorer import Snapshot, Transaction
 from pypergraph.network.models.network import NetworkInfo
@@ -28,21 +28,37 @@ class DagTokenNetwork:
         network_id: str = "mainnet",
         l0_host: Optional[str] = None,
         currency_l1_host: Optional[str] = None,
-        client: Optional[RESTClient] = None
+        client: Optional[RESTClient] = None,
     ):
         # Initialize connected network info
         self.connected_network = NetworkInfo(
             network_id=network_id, l0_host=l0_host, currency_l1_host=currency_l1_host
         )
-        self.be_api = BlockExplorerApi(host=self.connected_network.block_explorer_url, client=client) if self.connected_network.block_explorer_url else None
-        self.l0_api = Layer0Api(host=self.connected_network.l0_host or f"https://l0-lb-{network_id}.constellationnetwork.io", client=client)
-        self.cl1_api = Layer1Api(host=self.connected_network.currency_l1_host or f"https://l1-lb-{network_id}.constellationnetwork.io", client=client)
+        self.be_api = (
+            BlockExplorerApi(
+                host=self.connected_network.block_explorer_url, client=client
+            )
+            if self.connected_network.block_explorer_url
+            else None
+        )
+        self.l0_api = Layer0Api(
+            host=self.connected_network.l0_host
+            or f"https://l0-lb-{network_id}.constellationnetwork.io",
+            client=client,
+        )
+        self.cl1_api = Layer1Api(
+            host=self.connected_network.currency_l1_host
+            or f"https://l1-lb-{network_id}.constellationnetwork.io",
+            client=client,
+        )
 
-        self._network_change = BehaviorSubject({
-            "module": "network",
-            "type": "network_change",
-            "event": self.get_network(),
-        })
+        self._network_change = BehaviorSubject(
+            {
+                "module": "network",
+                "type": "network_change",
+                "event": self.get_network(),
+            }
+        )
 
     def config(
         self,
@@ -58,12 +74,17 @@ class DagTokenNetwork:
             network_id=network_id,
             block_explorer_url=block_explorer_url,
             l0_host=l0_host,
-            currency_l1_host=currency_l1_host
+            currency_l1_host=currency_l1_host,
         )
         self.set_network(new_info)
 
     def set_network(self, network_info: NetworkInfo):
-        if network_info.network_id not in ("mainnet", "integrationnet", "testnet", None):
+        if network_info.network_id not in (
+            "mainnet",
+            "integrationnet",
+            "testnet",
+            None,
+        ):
             raise ValueError("DagTokenNetwork :: Invalid network id.")
         if self.connected_network.__dict__ != network_info.__dict__:
             self.connected_network = network_info
@@ -72,11 +93,13 @@ class DagTokenNetwork:
             self.cl1_api.config(network_info.currency_l1_host)  # Currency layer
 
             # Emit a network change event
-            self._network_change.on_next({
-                "module": "network",
-                "type": "network_change",
-                "event": self.get_network(),
-            })
+            self._network_change.on_next(
+                {
+                    "module": "network",
+                    "type": "network_change",
+                    "event": self.get_network(),
+                }
+            )
 
     def get_network(self) -> Dict:
         """
@@ -89,7 +112,9 @@ class DagTokenNetwork:
     async def get_address_balance(self, address: str) -> Balance:
         return await self.l0_api.get_address_balance(address)
 
-    async def get_address_last_accepted_transaction_ref(self, address: str) -> TransactionReference:
+    async def get_address_last_accepted_transaction_ref(
+        self, address: str
+    ) -> TransactionReference:
         """
         Get the last transaction hash and ordinal from DAG address.
 
@@ -130,7 +155,9 @@ class DagTokenNetwork:
         :return: List of BlockExplorerTransaction objects.
         """
         try:
-            return await self.be_api.get_transactions_by_address(address, limit, search_after)
+            return await self.be_api.get_transactions_by_address(
+                address, limit, search_after
+            )
         except Exception:
             # NOOP for 404 or other exceptions
             logger.info(f"DagTokenNetwork :: No transactions found for {address}.")

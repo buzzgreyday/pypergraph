@@ -16,6 +16,7 @@ from mnemonic import Mnemonic
 
 _executor = ThreadPoolExecutor(max_workers=4)  # Adjust as needed
 
+
 # Type definitions for type hinting
 class KDFParamsPhrase(TypedDict):
     prf: str
@@ -23,8 +24,10 @@ class KDFParamsPhrase(TypedDict):
     salt: str
     c: int
 
+
 class CipherParams(TypedDict):
     iv: str
+
 
 class CryptoStruct(TypedDict):
     cipher: str
@@ -34,11 +37,13 @@ class CryptoStruct(TypedDict):
     kdfparams: KDFParamsPhrase
     mac: str
 
+
 class V3Keystore(TypedDict):
     crypto: CryptoStruct
     id: str
     version: int
     meta: NotRequired[str]
+
 
 ENCRYPT = {
     "cipher": "aes-128-ctr",
@@ -46,8 +51,9 @@ ENCRYPT = {
     "prf": "hmac-sha256",
     "dklen": 32,
     "c": 262144,
-    "hash": hashes.SHA256().name
+    "hash": hashes.SHA256().name,
 }
+
 
 def type_check_jphrase(keystore: V3Keystore) -> bool:
     params = keystore.get("crypto", {}).get("kdfparams")
@@ -55,32 +61,27 @@ def type_check_jphrase(keystore: V3Keystore) -> bool:
         return True
     raise TypeError("V3Keystore :: Invalid JSON Keystore format.")
 
+
 def blake256(data: bytes) -> str:
     return hashlib.blake2b(data, digest_size=hashlib.blake2b().digest_size).hexdigest()
 
+
 async def pbkdf2_async(
-    passphrase: bytes,
-    salt: bytes,
-    iterations: int,
-    keylen: int,
-    digest: str
+    passphrase: bytes, salt: bytes, iterations: int, keylen: int, digest: str
 ) -> bytes:
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
-        _executor,
-        hashlib.pbkdf2_hmac,
-        digest,
-        passphrase,
-        salt,
-        iterations,
-        keylen
+        _executor, hashlib.pbkdf2_hmac, digest, passphrase, salt, iterations, keylen
     )
+
 
 class V3KeystoreCrypto:
     @staticmethod
     async def encrypt_phrase(phrase: str, password: str) -> V3Keystore:
         if not isinstance(phrase, str) or not isinstance(password, str):
-            raise TypeError("V3KeystoreCrypto :: Both phrase and password must be strings.")
+            raise TypeError(
+                "V3KeystoreCrypto :: Both phrase and password must be strings."
+            )
         mnemo = Mnemonic("english")
         if not mnemo.check(phrase):
             raise TypeError("V3KeystoreCrypto :: Invalid BIP39 phrase.")
@@ -93,18 +94,12 @@ class V3KeystoreCrypto:
 
         # Key derivation
         derived_key = await pbkdf2_async(
-            password_bytes,
-            salt,
-            ENCRYPT["c"],
-            ENCRYPT["dklen"],
-            ENCRYPT["hash"]
+            password_bytes, salt, ENCRYPT["c"], ENCRYPT["dklen"], ENCRYPT["hash"]
         )
 
         # AES-128-CTR encryption
         cipher = Cipher(
-            algorithms.AES(derived_key[:16]),
-            modes.CTR(iv),
-            backend=default_backend()
+            algorithms.AES(derived_key[:16]), modes.CTR(iv), backend=default_backend()
         )
         encryptor = cipher.encryptor()
         ciphertext = encryptor.update(phrase_bytes) + encryptor.finalize()
@@ -114,24 +109,26 @@ class V3KeystoreCrypto:
         mac = keccak256(mac_data).hex()
 
         # Build the keystore structure
-        return V3Keystore(**{
-            "crypto": {
-                "cipher": ENCRYPT["cipher"],
-                "ciphertext": ciphertext.hex(),
-                "cipherparams": {"iv": iv.hex()},
-                "kdf": ENCRYPT["kdf"],
-                "kdfparams": {
-                    "prf": ENCRYPT["prf"],
-                    "dklen": ENCRYPT["dklen"],
-                    "salt": salt.hex(),
-                    "c": ENCRYPT["c"]
+        return V3Keystore(
+            **{
+                "crypto": {
+                    "cipher": ENCRYPT["cipher"],
+                    "ciphertext": ciphertext.hex(),
+                    "cipherparams": {"iv": iv.hex()},
+                    "kdf": ENCRYPT["kdf"],
+                    "kdfparams": {
+                        "prf": ENCRYPT["prf"],
+                        "dklen": ENCRYPT["dklen"],
+                        "salt": salt.hex(),
+                        "c": ENCRYPT["c"],
+                    },
+                    "mac": mac,
                 },
-                "mac": mac
-            },
-            "id": keystore_id,
-            "version": 3,
-            "meta": "stardust-collective/pypergraph"
-        })
+                "id": keystore_id,
+                "version": 3,
+                "meta": "stardust-collective/pypergraph",
+            }
+        )
 
     @staticmethod
     async def decrypt_phrase(keystore: V3Keystore, password: str) -> str:
@@ -146,11 +143,7 @@ class V3KeystoreCrypto:
 
         # Key derivation
         derived_key = await pbkdf2_async(
-            password_bytes,
-            salt,
-            kdfparams["c"],
-            kdfparams["dklen"],
-            ENCRYPT["hash"]
+            password_bytes, salt, kdfparams["c"], kdfparams["dklen"], ENCRYPT["hash"]
         )
 
         # MAC verification
@@ -163,7 +156,7 @@ class V3KeystoreCrypto:
             cipher = Cipher(
                 algorithms.AES(derived_key[:16]),
                 modes.CTR(iv),
-                backend=default_backend()
+                backend=default_backend(),
             )
             decryptor = cipher.decryptor()
             phrase_bytes = decryptor.update(ciphertext) + decryptor.finalize()
@@ -172,9 +165,12 @@ class V3KeystoreCrypto:
         except Exception as e:
             raise ValueError(f"V3KeystoreCrypto :: Decryption failed: {str(e)}")
 
+
 # Example usage
 async def main():
-    phrase = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+    phrase = (
+        "legal winner thank year wave sausage worth useful legal winner thank yellow"
+    )
     password = "securepassword123"
 
     # Encryption
@@ -182,10 +178,13 @@ async def main():
     print("Encrypted keystore:", json.dumps(encrypted, indent=2))
 
     # Decryption
-    decrypted_eth_keyfile = eth_keyfile.decode_keyfile_json(encrypted, "securepassword123".encode("utf-8"))
+    decrypted_eth_keyfile = eth_keyfile.decode_keyfile_json(
+        encrypted, "securepassword123".encode("utf-8")
+    )
     print("ETH Keyfile decrypted phrase:", decrypted_eth_keyfile)
     decrypted = await V3KeystoreCrypto.decrypt_phrase(encrypted, password)
     print("\nDecrypted phrase:", decrypted)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

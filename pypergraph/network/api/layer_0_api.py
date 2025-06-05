@@ -9,9 +9,15 @@ from pypergraph.network.models.network import PeerInfo, TotalSupply
 from pypergraph.network.models.account import Balance
 from pypergraph.network.models.network import Ordinal
 from pypergraph.network.models.snapshot import SignedGlobalIncrementalSnapshot
-from pypergraph.network.models.transaction import TransactionReference, DelegatedStakesInfo, \
-    SignedWithdrawDelegatedStake, SignedCreateDelegatedStake, NodeCollateralsInfo, SignedWithdrawNodeCollateral, \
-    SignedCreateNodeCollateral
+from pypergraph.network.models.transaction import (
+    TransactionReference,
+    DelegatedStakesInfo,
+    SignedWithdrawDelegatedStake,
+    SignedCreateDelegatedStake,
+    NodeCollateralsInfo,
+    SignedWithdrawNodeCollateral,
+    SignedCreateNodeCollateral,
+)
 
 
 def _handle_metrics(response: str) -> List[Dict[str, Any]]:
@@ -24,12 +30,14 @@ def _handle_metrics(response: str) -> List[Dict[str, Any]]:
     metrics = []
     for family in text_string_to_metric_families(response):
         for sample in family.samples:
-            metrics.append({
-                "name": sample[0],
-                "labels": sample[1],
-                "value": sample[2],
-                "type": family.type,
-            })
+            metrics.append(
+                {
+                    "name": sample[0],
+                    "labels": sample[1],
+                    "value": sample[2],
+                    "type": family.type,
+                }
+            )
     return metrics
 
 
@@ -47,12 +55,20 @@ class L0Api:
         if client:
             self.client = client
 
-    async def _make_request(self, method: str, endpoint: str, params: Dict[str, Any] = None, payload: Dict[str, Any] = None) -> Union[Dict, List, str]:
+    async def _make_request(
+        self,
+        method: str,
+        endpoint: str,
+        params: Dict[str, Any] = None,
+        payload: Dict[str, Any] = None,
+    ) -> Union[Dict, List, str]:
         """
         Helper function to create a new RestAPIClient instance and make a request.
         """
         async with RestAPIClient(base_url=self._host, client=self.client) as client:
-            return await client.request(method=method, endpoint=endpoint, params=params, payload=payload)
+            return await client.request(
+                method=method, endpoint=endpoint, params=params, payload=payload
+            )
 
     async def get_cluster_info(self) -> List[PeerInfo]:
         result = await self._make_request("GET", "/cluster/info")
@@ -85,10 +101,16 @@ class L0Api:
 
     async def post_state_channel_snapshot(self, address: str, snapshot: dict):
         # TODO: How to test this?
-        return await self._make_request("POST", f"/state-channel/{address}/snapshot", payload=snapshot)
+        return await self._make_request(
+            "POST", f"/state-channel/{address}/snapshot", payload=snapshot
+        )
 
-    async def get_delegated_stake_last_reference(self, address: str) -> TransactionReference:
-        result = await self._make_request("GET", f"/delegated-stakes/last-reference/{address}")
+    async def get_delegated_stake_last_reference(
+        self, address: str
+    ) -> TransactionReference:
+        result = await self._make_request(
+            "GET", f"/delegated-stakes/last-reference/{address}"
+        )
         return await TransactionReference(**result)
 
     async def get_delegated_stakes_info(self, address) -> DelegatedStakesInfo:
@@ -96,13 +118,21 @@ class L0Api:
         return DelegatedStakesInfo(**result)
 
     async def put_delegated_stake_withdrawal(self, tx: SignedWithdrawDelegatedStake):
-        return await self._make_request("PUT", "/delegated-stakes", payload=tx.model_dump())
+        return await self._make_request(
+            "PUT", "/delegated-stakes", payload=tx.model_dump()
+        )
 
     async def post_delegated_stake(self, tx: SignedCreateDelegatedStake):
-        return await self._make_request("POST", "/delegated-stakes", payload=tx.model_dump())
+        return await self._make_request(
+            "POST", "/delegated-stakes", payload=tx.model_dump()
+        )
 
-    async def get_node_collateral_last_reference(self, address: str) -> TransactionReference:
-        result = await self._make_request("GET", f"/node-collateral/last-reference/{address}")
+    async def get_node_collateral_last_reference(
+        self, address: str
+    ) -> TransactionReference:
+        result = await self._make_request(
+            "GET", f"/node-collateral/last-reference/{address}"
+        )
         return TransactionReference(**result)
 
     async def get_node_collaterals_info(self, address) -> NodeCollateralsInfo:
@@ -110,7 +140,11 @@ class L0Api:
         return NodeCollateralsInfo(**result)
 
     async def put_node_collateral_withdrawal(self, tx: SignedWithdrawNodeCollateral):
-        return await self._make_request("PUT", "/node-collateral", payload=tx.model_dump())
+        return await self._make_request(
+            "PUT", "/node-collateral", payload=tx.model_dump()
+        )
 
     async def post_node_collateral(self, tx: SignedCreateNodeCollateral):
-        return await self._make_request("POST", "/node-collateral", payload=tx.model_dump())
+        return await self._make_request(
+            "POST", "/node-collateral", payload=tx.model_dump()
+        )

@@ -27,14 +27,14 @@ class MetagraphTokenNetwork:
     """
 
     def __init__(
-            self,
-            metagraph_id: str,
-            l0_host: Optional[str] = None,
-            currency_l1_host: Optional[str] = None,
-            data_l1_host: Optional[str] = None,
-            network_id: Optional[str] = "mainnet",
-            block_explorer: Optional[str] = None,
-            client: Optional[RESTClient] = None
+        self,
+        metagraph_id: str,
+        l0_host: Optional[str] = None,
+        currency_l1_host: Optional[str] = None,
+        data_l1_host: Optional[str] = None,
+        network_id: Optional[str] = "mainnet",
+        block_explorer: Optional[str] = None,
+        client: Optional[RESTClient] = None,
     ):
         # Validate connected network
         if not metagraph_id:
@@ -47,16 +47,28 @@ class MetagraphTokenNetwork:
             l0_host=l0_host,
             currency_l1_host=currency_l1_host,
             data_l1_host=data_l1_host,
-            block_explorer_url=block_explorer
+            block_explorer_url=block_explorer,
         )
         self.be_api = (
             BlockExplorerApi(host=block_explorer, client=client)
             if block_explorer
-            else BlockExplorerApi(host=self.connected_network.block_explorer_url, client=client)
+            else BlockExplorerApi(
+                host=self.connected_network.block_explorer_url, client=client
+            )
         )
-        self.l0_api = MetagraphLayer0Api(host=l0_host, client=client) if l0_host else None
-        self.cl1_api = MetagraphCurrencyLayerApi(host=currency_l1_host, client=client)  if currency_l1_host else None # Currency layer
-        self.dl1_api = MetagraphDataLayerApi(host=data_l1_host, client=client) if data_l1_host else None # Data layer
+        self.l0_api = (
+            MetagraphLayer0Api(host=l0_host, client=client) if l0_host else None
+        )
+        self.cl1_api = (
+            MetagraphCurrencyLayerApi(host=currency_l1_host, client=client)
+            if currency_l1_host
+            else None
+        )  # Currency layer
+        self.dl1_api = (
+            MetagraphDataLayerApi(host=data_l1_host, client=client)
+            if data_l1_host
+            else None
+        )  # Data layer
 
     def get_network(self) -> Dict:
         """
@@ -78,7 +90,9 @@ class MetagraphTokenNetwork:
         except AttributeError:
             logging.warning("MetagraphTokenNetwork :: Layer 0 API object not set.")
 
-    async def get_address_last_accepted_transaction_ref(self, address: str) -> TransactionReference:
+    async def get_address_last_accepted_transaction_ref(
+        self, address: str
+    ) -> TransactionReference:
         """
         Get the last transaction hash and ordinal from a DAG address.
 
@@ -88,9 +102,13 @@ class MetagraphTokenNetwork:
         try:
             return await self.cl1_api.get_last_reference(address)
         except AttributeError:
-            logging.warning("MetagraphTokenNetwork :: Currency layer 1 API object not set.")
+            logging.warning(
+                "MetagraphTokenNetwork :: Currency layer 1 API object not set."
+            )
 
-    async def get_pending_transaction(self, hash: Optional[str]) -> Optional[PendingTransaction]:
+    async def get_pending_transaction(
+        self, hash: Optional[str]
+    ) -> Optional[PendingTransaction]:
         """
         Check if the given transaction is pending.
 
@@ -100,14 +118,19 @@ class MetagraphTokenNetwork:
         try:
             return await self.cl1_api.get_pending_transaction(hash)
         except AttributeError:
-            logging.warning("MetagraphTokenNetwork :: Currency layer 1 API object not set.")
+            logging.warning(
+                "MetagraphTokenNetwork :: Currency layer 1 API object not set."
+            )
         except Exception:
             # NOOP for 404 or other exceptions
             logger.debug("No pending transaction.")
             return None
 
     async def get_transactions_by_address(
-            self, address: str, limit: Optional[int] = None, search_after: Optional[str] = None
+        self,
+        address: str,
+        limit: Optional[int] = None,
+        search_after: Optional[str] = None,
     ) -> Optional[List[Transaction]]:
         """
         Get a paginated list of Block Explorer transaction objects.
@@ -175,7 +198,9 @@ class MetagraphTokenNetwork:
             # Support data/meta format and object return format
             return response["data"]["hash"] if "data" in response else response["hash"]
         except AttributeError:
-            logging.warning("MetagraphTokenNetwork :: Currency layer 1 API object not set.")
+            logging.warning(
+                "MetagraphTokenNetwork :: Currency layer 1 API object not set."
+            )
 
     async def post_data(self, tx: Dict[str, Dict]) -> dict:
         """

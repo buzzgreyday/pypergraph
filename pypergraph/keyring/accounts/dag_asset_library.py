@@ -16,6 +16,7 @@ DEFAULT_DAG: AssetMap = {
     # )
 }
 
+
 class DagAssetLibrary(AssetLibrary):
     @property
     def default_assets_map(self) -> AssetMap:

@@ -3,7 +3,10 @@ from datetime import datetime
 
 from typing import Any, Dict, List, Optional, Union
 
-from pypergraph.network.models.transaction import SignedTransaction, TransactionReference
+from pypergraph.network.models.transaction import (
+    SignedTransaction,
+    TransactionReference,
+)
 from pypergraph.network.metagraph_network import MetagraphTokenNetwork
 
 
@@ -11,6 +14,7 @@ class MetagraphTokenClient:
     """
     Create a metagraph account from DagAccount.
     """
+
     from pypergraph.account import DagAccount
 
     def __init__(
@@ -52,7 +56,9 @@ class MetagraphTokenClient:
         :param search_after: Timestamp.
         :return:
         """
-        return await self.network.get_transactions_by_address(self.address, limit, search_after)
+        return await self.network.get_transactions_by_address(
+            self.address, limit, search_after
+        )
 
     async def get_balance(self) -> int:
         """
@@ -75,7 +81,9 @@ class MetagraphTokenClient:
 
     async def get_fee_recommendation(self):
         # TODO: Fee api
-        last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+        last_ref = await self.network.get_address_last_accepted_transaction_ref(
+            self.address
+        )
         if not last_ref.get("hash"):
             return 0
 
@@ -102,9 +110,13 @@ class MetagraphTokenClient:
         :return: Dictionary.
         """
         # TODO: Fee api endpoint
-        last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+        last_ref = await self.network.get_address_last_accepted_transaction_ref(
+            self.address
+        )
 
-        tx, hash_ = await self.account.generate_signed_transaction(to_address, amount, fee, last_ref)
+        tx, hash_ = await self.account.generate_signed_transaction(
+            to_address, amount, fee, last_ref
+        )
 
         tx_hash = await self.network.post_transaction(tx)
         if tx_hash:
@@ -119,8 +131,6 @@ class MetagraphTokenClient:
                 "pending": True,
                 "status": "POSTED",
             }
-
-
 
     async def wait_for_balance_change(self, initial_value: Optional[int] = None):
         """
@@ -156,7 +166,9 @@ class MetagraphTokenClient:
         if isinstance(last_ref, TransactionReference):
             last_ref = last_ref.model_dump()
         if not last_ref:
-            last_ref = await self.network.get_address_last_accepted_transaction_ref(self.address)
+            last_ref = await self.network.get_address_last_accepted_transaction_ref(
+                self.address
+            )
             last_ref = last_ref.model_dump()
 
         txns = []

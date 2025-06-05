@@ -22,6 +22,10 @@ class ML0Api(L0Api):
         result = await self._make_request("GET", f"/currency/{address}/balance")
         return Balance(**result, meta=result.get("meta"))
 
-    async def get_address_balance_at_ordinal(self, ordinal: int, address: str) -> Balance:
-        result = await self._make_request("GET", f"/currency/{ordinal}/{address}/balance")
+    async def get_address_balance_at_ordinal(
+        self, ordinal: int, address: str
+    ) -> Balance:
+        result = await self._make_request(
+            "GET", f"/currency/{ordinal}/{address}/balance"
+        )
         return Balance(**result, meta=result.get("meta"))

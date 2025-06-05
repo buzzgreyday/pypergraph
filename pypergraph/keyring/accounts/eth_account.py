@@ -62,4 +62,6 @@ class EthAccount(EcdsaAccount):
         """Get the public key for encryption."""
         # This is a placeholder. Replace it with the appropriate implementation.
         # For example, if using web3py, you can use `eth_account.Account.encrypt()` for encryption keys.
-        raise NotImplementedError("Encryption public key generation is not yet implemented.")
+        raise NotImplementedError(
+            "Encryption public key generation is not yet implemented."
+        )

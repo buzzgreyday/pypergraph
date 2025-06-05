@@ -2,7 +2,11 @@ from typing import Union, List, Optional, Dict, Any
 
 from pypergraph.core.cross_platform.di.rest_client import RESTClient, HttpxClient
 from pypergraph.core.cross_platform.rest_api_client import RestAPIClient
-from pypergraph.network.models.block_explorer import Snapshot, Transaction, CurrencySnapshot
+from pypergraph.network.models.block_explorer import (
+    Snapshot,
+    Transaction,
+    CurrencySnapshot,
+)
 from pypergraph.network.models.reward import RewardTransaction
 from pypergraph.network.models.account import Balance
 import logging
@@ -24,12 +28,20 @@ class BlockExplorerApi:
         if client:
             self.client = client
 
-    async def _make_request(self, method: str, endpoint: str, params: Dict[str, Any] = None, payload: Dict[str, Any] = None) -> Dict:
+    async def _make_request(
+        self,
+        method: str,
+        endpoint: str,
+        params: Dict[str, Any] = None,
+        payload: Dict[str, Any] = None,
+    ) -> Dict:
         """
         Helper function to create a new RestAPIClient instance and make a request.
         """
         async with RestAPIClient(base_url=self._host, client=self.client) as client:
-            return await client.request(method=method, endpoint=endpoint, params=params, payload=payload)
+            return await client.request(
+                method=method, endpoint=endpoint, params=params, payload=payload
+            )
 
     async def get_snapshot(self, id: Union[str, int]) -> Snapshot:
         """
@@ -41,20 +53,26 @@ class BlockExplorerApi:
         result = await self._make_request("GET", f"/global-snapshots/{id}")
         return Snapshot(**result["data"])
 
-    async def get_transactions_by_snapshot(self, id: Union[str, int]) -> List[Transaction]:
+    async def get_transactions_by_snapshot(
+        self, id: Union[str, int]
+    ) -> List[Transaction]:
         """
         Retrieve transactions for a given snapshot.
 
         :param id: Hash or ordinal identifier.
         :return: List of Transaction objects.
         """
-        results = await self._make_request("GET", f"/global-snapshots/{id}/transactions")
+        results = await self._make_request(
+            "GET", f"/global-snapshots/{id}/transactions"
+        )
         return Transaction.process_transactions(
             data=results["data"],
             meta=results.get("meta"),
         )
 
-    async def get_rewards_by_snapshot(self, id: Union[str, int]) -> List[RewardTransaction]:
+    async def get_rewards_by_snapshot(
+        self, id: Union[str, int]
+    ) -> List[RewardTransaction]:
         """
         Retrieve reward objects for a given snapshot.
 
@@ -79,7 +97,9 @@ class BlockExplorerApi:
 
         :return: List of Transaction objects.
         """
-        results = await self._make_request("GET", "/global-snapshots/latest/transactions")
+        results = await self._make_request(
+            "GET", "/global-snapshots/latest/transactions"
+        )
         return Transaction.process_transactions(
             data=results.get("data"),
             meta=results.get("meta"),
@@ -134,7 +154,9 @@ class BlockExplorerApi:
         request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, False, False, search_before
         )
-        results = await self._make_request("GET", request["path"], params=request["params"])
+        results = await self._make_request(
+            "GET", request["path"], params=request["params"]
+        )
         return Transaction.process_transactions(
             data=results.get("data"),
             meta=results.get("meta"),
@@ -164,7 +186,9 @@ class BlockExplorerApi:
         request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, sent_only, received_only, search_before
         )
-        results = await self._make_request("GET", request["path"], params=request["params"])
+        results = await self._make_request(
+            "GET", request["path"], params=request["params"]
+        )
         return Transaction.process_transactions(
             data=results.get("data"),
             meta=results.get("meta"),
@@ -191,27 +215,49 @@ class BlockExplorerApi:
         return Balance(**result["data"], meta=result.get("meta"))
 
     async def get_latest_currency_snapshot(self, metagraph_id: str) -> CurrencySnapshot:
-        result = await self._make_request("GET", f"/currency/{metagraph_id}/snapshots/latest")
+        result = await self._make_request(
+            "GET", f"/currency/{metagraph_id}/snapshots/latest"
+        )
         return CurrencySnapshot(**result["data"], meta=result.get("meta"))
 
-    async def get_currency_snapshot(self, metagraph_id: str, hash_or_ordinal: str) -> CurrencySnapshot:
-        result = await self._make_request("GET", f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}")
+    async def get_currency_snapshot(
+        self, metagraph_id: str, hash_or_ordinal: str
+    ) -> CurrencySnapshot:
+        result = await self._make_request(
+            "GET", f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}"
+        )
         return CurrencySnapshot(**result["data"], meta=result.get("meta"))
 
-    async def get_latest_currency_snapshot_rewards(self, metagraph_id: str) -> List[RewardTransaction]:
-        result = await self._make_request("GET", f"/currency/{metagraph_id}/snapshots/latest/rewards")
+    async def get_latest_currency_snapshot_rewards(
+        self, metagraph_id: str
+    ) -> List[RewardTransaction]:
+        result = await self._make_request(
+            "GET", f"/currency/{metagraph_id}/snapshots/latest/rewards"
+        )
         return RewardTransaction.process_snapshot_rewards(data=result["data"])
 
-    async def get_currency_snapshot_rewards(self, metagraph_id: str, hash_or_ordinal: str) -> List[RewardTransaction]:
-        results = await self._make_request("GET", f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards")
+    async def get_currency_snapshot_rewards(
+        self, metagraph_id: str, hash_or_ordinal: str
+    ) -> List[RewardTransaction]:
+        results = await self._make_request(
+            "GET", f"/currency/{metagraph_id}/snapshots/{hash_or_ordinal}/rewards"
+        )
         return RewardTransaction.process_snapshot_rewards(data=results["data"])
 
-    async def get_currency_address_balance(self, metagraph_id: str, hash: str) -> Balance:
-        result = await self._make_request("GET", f"/currency/{metagraph_id}/addresses/{hash}/balance")
+    async def get_currency_address_balance(
+        self, metagraph_id: str, hash: str
+    ) -> Balance:
+        result = await self._make_request(
+            "GET", f"/currency/{metagraph_id}/addresses/{hash}/balance"
+        )
         return Balance(**result["data"], meta=result.get("meta"))
 
-    async def get_currency_transaction(self, metagraph_id: str, hash: str) -> Transaction:
-        result = await self._make_request("GET", f"/currency/{metagraph_id}/transactions/{hash}")
+    async def get_currency_transaction(
+        self, metagraph_id: str, hash: str
+    ) -> Transaction:
+        result = await self._make_request(
+            "GET", f"/currency/{metagraph_id}/transactions/{hash}"
+        )
         return Transaction(**result["data"], meta=result.get("meta"))
 
     async def get_currency_transactions(
@@ -225,7 +271,9 @@ class BlockExplorerApi:
         request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, False, False, search_before
         )
-        results = await self._make_request("GET", request["path"], params=request["params"])
+        results = await self._make_request(
+            "GET", request["path"], params=request["params"]
+        )
         return Transaction.process_transactions(results["data"])
 
     async def get_currency_transactions_by_address(
@@ -242,7 +290,9 @@ class BlockExplorerApi:
         request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, sent_only, received_only, search_before
         )
-        results = await self._make_request("GET", request["path"], params=request["params"])
+        results = await self._make_request(
+            "GET", request["path"], params=request["params"]
+        )
         return Transaction.process_transactions(results["data"])
 
     async def get_currency_transactions_by_snapshot(
@@ -257,5 +307,7 @@ class BlockExplorerApi:
         request = self._get_transaction_search_path_and_params(
             base_path, limit, search_after, False, False, search_before
         )
-        results = await self._make_request("GET", request["path"], params=request["params"])
+        results = await self._make_request(
+            "GET", request["path"], params=request["params"]
+        )
         return Transaction.process_transactions(results["data"])

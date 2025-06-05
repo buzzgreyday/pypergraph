@@ -5,11 +5,12 @@ from ..accounts.dag_account import DagAccount
 from ..accounts.ecdsa_account import EcdsaAccount
 from ..accounts.eth_account import EthAccount
 
+
 class AccountRegistry:
     def __init__(self):
-        self.registry: Dict[str: EcdsaAccount] = {
+        self.registry: Dict[str:EcdsaAccount] = {
             NetworkId.Constellation.value: DagAccount,
-            NetworkId.Ethereum.value: EthAccount
+            NetworkId.Ethereum.value: EthAccount,
         }
 
     def register_account_classes(self, data: dict):
@@ -42,5 +43,6 @@ class AccountRegistry:
         :param account: New account inheriting from EcdsaAccount.
         """
         self.registry[network] = account
+
 
 account_registry = AccountRegistry()

@@ -10,7 +10,6 @@ from ..keyrings.hd_keyring import HdKeyring
 
 
 class MultiAccountWallet(BaseModel):
-
     type: str = Field(default=KeyringWalletType.MultiAccountWallet.value)
     id: str = Field(default=None)
     supported_assets: List[str] = Field(default=[])
@@ -33,10 +32,16 @@ class MultiAccountWallet(BaseModel):
             "label": self.label,
             "network": self.network,
             "secret": self.export_secret_key(),
-            "rings": [self.keyring.model_serialize()]
+            "rings": [self.keyring.model_serialize()],
         }
 
-    def create(self, network: str, label: str, num_of_accounts: int = 1, mnemonic: Optional[str] = None):
+    def create(
+        self,
+        network: str,
+        label: str,
+        num_of_accounts: int = 1,
+        mnemonic: Optional[str] = None,
+    ):
         """
         Creates a wallet with a keyring of hierarchical deterministic accounts based on the number BIP44 indexes (num_of_accounts).
 
@@ -49,7 +54,12 @@ class MultiAccountWallet(BaseModel):
         self.mnemonic = mnemonic or bip39.generate_mnemonic()
         if not bip39.is_valid(self.mnemonic):
             raise ValueError("MultiAccountWallet :: Not a valid mnemonic phrase.")
-        self.deserialize(secret=self.mnemonic, label=label, network=network, num_of_accounts=num_of_accounts)
+        self.deserialize(
+            secret=self.mnemonic,
+            label=label,
+            network=network,
+            num_of_accounts=num_of_accounts,
+        )
 
     def set_label(self, val: str):
         """
@@ -78,13 +88,17 @@ class MultiAccountWallet(BaseModel):
             "type": self.type,
             "label": self.label,
             "supported_assets": self.supported_assets,
-            "accounts": [
-                a.get_state() for a in self.get_accounts()
-            ],
+            "accounts": [a.get_state() for a in self.get_accounts()],
         }
 
-    def deserialize(self, label: str, network: str, secret: str, num_of_accounts: int, rings: Optional[List] = None):
-
+    def deserialize(
+        self,
+        label: str,
+        network: str,
+        secret: str,
+        num_of_accounts: int,
+        rings: Optional[List] = None,
+    ):
         keyring = HdKeyring()
         self.set_label(label)
         self.network = network
@@ -102,7 +116,7 @@ class MultiAccountWallet(BaseModel):
             mnemonic=self.mnemonic,
             hd_path=bip44_path,
             network=self.network,
-            number_of_accounts=num_of_accounts
+            number_of_accounts=num_of_accounts,
         )
         rings = rings or self.model_serialize().get("rings")
         if rings:
@@ -111,7 +125,9 @@ class MultiAccountWallet(BaseModel):
     @staticmethod
     def import_account():
         """Importing is not supported."""
-        raise ValueError("MultiAccountWallet :: Multi account wallets does not support import account.")
+        raise ValueError(
+            "MultiAccountWallet :: Multi account wallets does not support import account."
+        )
 
     def get_accounts(self) -> List:
         """
@@ -137,10 +153,13 @@ class MultiAccountWallet(BaseModel):
             raise ValueError("MultiAccountWallet :: No number of account specified.")
         keyring = HdKeyring()
         self.keyring = keyring.create(
-            mnemonic=self.mnemonic, hd_path=self.keyring.get_hd_path(), network=self.network, number_of_accounts=num
+            mnemonic=self.mnemonic,
+            hd_path=self.keyring.get_hd_path(),
+            network=self.network,
+            number_of_accounts=num,
         )
 
-    def remove_account (self, account):
+    def remove_account(self, account):
         """
         Remove a specific account.
 

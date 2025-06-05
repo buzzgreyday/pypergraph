@@ -31,10 +31,12 @@ class MultiChainWallet(BaseModel):
             "type": self.type,
             "label": self.label,
             "secret": self.mnemonic,
-            "rings": [ring.model_dump() for ring in self.keyrings]
+            "rings": [ring.model_dump() for ring in self.keyrings],
         }
 
-    def create(self, label: str, mnemonic: Optional[str] = None, rings: Optional[list] = None):
+    def create(
+        self, label: str, mnemonic: Optional[str] = None, rings: Optional[list] = None
+    ):
         """
         If mnemonic is set, restore the wallet. Else, generate mnemonic and create new wallet.
 
@@ -48,7 +50,6 @@ class MultiChainWallet(BaseModel):
         if not bip39.is_valid(self.mnemonic):
             raise ValueError("MultiAccountWallet :: Not a valid mnemonic phrase.")
         self.deserialize(secret=self.mnemonic, label=label, rings=rings)
-
 
     def set_label(self, label: str):
         """
@@ -91,7 +92,9 @@ class MultiChainWallet(BaseModel):
     @staticmethod
     def import_account():
         """Importing MCW account is not supported."""
-        raise ValueError("MultiChainWallet :: Multi chain wallet does not support importing account.")
+        raise ValueError(
+            "MultiChainWallet :: Multi chain wallet does not support importing account."
+        )
 
     def get_accounts(self) -> List[Union[DagAccount, EthAccount]]:
         """
@@ -99,9 +102,13 @@ class MultiChainWallet(BaseModel):
 
         :return: List of accounts with signing key.
         """
-        return [account for keyring in self.keyrings for account in keyring.get_accounts()]
+        return [
+            account for keyring in self.keyrings for account in keyring.get_accounts()
+        ]
 
-    def get_account_by_address(self, address: str) -> Union[DagAccount, EthAccount]: # IKeyringAccount
+    def get_account_by_address(
+        self, address: str
+    ) -> Union[DagAccount, EthAccount]:  # IKeyringAccount
         account = None
         for keyring in self.keyrings:
             account = keyring.get_account_by_address(address)
@@ -123,13 +130,22 @@ class MultiChainWallet(BaseModel):
         return self.mnemonic
 
     def deserialize(self, label: str, secret: str, rings: Optional[list] = None):
-
         self.set_label(label)
         self.mnemonic = secret
 
         self.keyrings = [
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value, network=NetworkId.Constellation.value, number_of_accounts=1),
-            HdKeyring().create(mnemonic=self.mnemonic, hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value, network=NetworkId.Ethereum.value, number_of_accounts=1)
+            HdKeyring().create(
+                mnemonic=self.mnemonic,
+                hd_path=BIP_44_PATHS.CONSTELLATION_PATH.value,
+                network=NetworkId.Constellation.value,
+                number_of_accounts=1,
+            ),
+            HdKeyring().create(
+                mnemonic=self.mnemonic,
+                hd_path=BIP_44_PATHS.ETH_WALLET_PATH.value,
+                network=NetworkId.Ethereum.value,
+                number_of_accounts=1,
+            ),
         ]
 
         if rings:

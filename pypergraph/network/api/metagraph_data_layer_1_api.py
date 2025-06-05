@@ -19,12 +19,14 @@ def _handle_metrics(response: str) -> List[Dict[str, Any]]:
     metrics = []
     for family in text_string_to_metric_families(response):
         for sample in family.samples:
-            metrics.append({
-                "name": sample[0],
-                "labels": sample[1],
-                "value": sample[2],
-                "type": family.type,
-            })
+            metrics.append(
+                {
+                    "name": sample[0],
+                    "labels": sample[1],
+                    "value": sample[2],
+                    "type": family.type,
+                }
+            )
     return metrics
 
 
@@ -42,12 +44,20 @@ class MDL1Api:
         if client:
             self.client = client
 
-    async def _make_request(self, method: str, endpoint: str, params: Dict[str, Any] = None, payload: Dict[str, Any] = None) -> Union[Dict, List, str]:
+    async def _make_request(
+        self,
+        method: str,
+        endpoint: str,
+        params: Dict[str, Any] = None,
+        payload: Dict[str, Any] = None,
+    ) -> Union[Dict, List, str]:
         """
         Helper function to create a new RestAPIClient instance and make a request.
         """
         async with RestAPIClient(base_url=self._host, client=self.client) as client:
-            return await client.request(method=method, endpoint=endpoint, params=params, payload=payload)
+            return await client.request(
+                method=method, endpoint=endpoint, params=params, payload=payload
+            )
 
     async def get_metrics(self) -> List[Dict[str, Any]]:
         """

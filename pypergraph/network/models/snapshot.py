@@ -10,14 +10,19 @@ class LastCurrencySnapshotProof(BaseModel):
     leaf_count: int = Field(..., alias="leafCount", ge=0)
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
 
+
 class StateChannelSnapshotBinary(BaseModel):
-    last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="lastSnapshotHash")
+    last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(
+        alias="lastSnapshotHash"
+    )
     content: List[int]
     fee: int = Field(ge=0)
+
 
 class SignedStateChannelSnapshotBinary(BaseModel):
     value: StateChannelSnapshotBinary
     proofs: List[SignatureProof]
+
 
 class StateProof(BaseModel):
     lastStateChannelSnapshotHashesProof: constr(pattern=r"^[a-fA-F0-9]{64}$")
@@ -25,44 +30,58 @@ class StateProof(BaseModel):
     balancesProof: constr(pattern=r"^[a-fA-F0-9]{64}$")
     lastCurrencySnapshotsProof: LastCurrencySnapshotProof
 
+
 class BlockReference(BaseModel):
     height: int = Field(ge=0)
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
 
+
 class Block(BaseModel):
     parent: List[BlockReference]
     transactions: List[Optional[SignedTransaction]]
+
 
 class SignedBlock(BaseModel):
     # TODO: This is optional?
     value: Optional[Block]
     proofs: Optional[List[SignatureProof]]
 
+
 class BlockAsActiveTip(BaseModel):
     block: SignedBlock
     usage_count: int = Field(..., alias="usageCount")
+
 
 class DeprecatedTip(BaseModel):
     block: BlockReference
     deprecated_at: int = Field(alias="deprecatedAt", ge=0)
 
+
 class SnapshotTips(BaseModel):
     deprecated: List
     remained_active: List = Field(alias="remainedActive")
+
 
 class GlobalIncrementalSnapshot(BaseModel):
     ordinal: int = Field(ge=0)
     height: int = Field(ge=0)
     sub_height: int = Field(..., alias="subHeight", ge=0)
-    last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(..., alias="lastSnapshotHash")
+    last_snapshot_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(
+        ..., alias="lastSnapshotHash"
+    )
     blocks: Optional[List[BlockAsActiveTip]] = None
-    state_channel_snapshots: Dict[str, List[SignedStateChannelSnapshotBinary]] = Field(..., alias="stateChannelSnapshots")
-    rewards: List[RewardTransaction] # value: RewardTransaction
+    state_channel_snapshots: Dict[str, List[SignedStateChannelSnapshotBinary]] = Field(
+        ..., alias="stateChannelSnapshots"
+    )
+    rewards: List[RewardTransaction]  # value: RewardTransaction
     epoch_progress: int = Field(..., alias="epochProgress", ge=0)
-    next_facilitators: List[constr(pattern=r"^[a-fA-F0-9]{128}$")] = Field(..., alias="nextFacilitators")
+    next_facilitators: List[constr(pattern=r"^[a-fA-F0-9]{128}$")] = Field(
+        ..., alias="nextFacilitators"
+    )
     tips: SnapshotTips
     state_proof: StateProof = Field(..., alias="stateProof")
     version: str
+
 
 class SignedGlobalIncrementalSnapshot(BaseModel):
     value: GlobalIncrementalSnapshot
@@ -75,7 +94,9 @@ class SignedGlobalIncrementalSnapshot(BaseModel):
             proofs=SignatureProof.process_snapshot_proofs(response["proofs"]),
         )
 
+
 class Ordinal(BaseModel):
     ordinal: int = Field(ge=0, alias="value")
+
 
 """BE MODELS: DTO"""

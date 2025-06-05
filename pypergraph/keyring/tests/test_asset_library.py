@@ -5,15 +5,16 @@ from pypergraph.keyring.accounts import AssetMap, AssetLibrary
 from pypergraph.keyring.models.kcs import KeyringAssetInfo
 
 DEFAULT_FAKE: AssetMap = {
-    'CUS': KeyringAssetInfo(
-        id='custom_asset_id_address',
-        label='Custom',
-        symbol='CUS',
-        network='*',
+    "CUS": KeyringAssetInfo(
+        id="custom_asset_id_address",
+        label="Custom",
+        symbol="CUS",
+        network="*",
         decimals=18,
-        native=True
+        native=True,
     )
 }
+
 
 class CustomAssetLibrary(AssetLibrary):
     @property
@@ -23,7 +24,8 @@ class CustomAssetLibrary(AssetLibrary):
     @property
     def default_assets(self) -> List[str]:
         # Indicates that LTX is a default asset (perhaps a token that the app actively displays)
-        return ['LTX']
+        return ["LTX"]
+
 
 # Create an instance of the Ethereum asset library
 custom_asset_library = CustomAssetLibrary()
