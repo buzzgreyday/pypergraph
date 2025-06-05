@@ -157,7 +157,6 @@ async def test_currency_transfer():
     account.login_with_seed_phrase(mnemo)
     account.connect(network_id='testnet')
     failed = []
-    e = None
     try:
         r = await account.transfer(to_address=to_address, amount=100000000, fee=200000)
         assert isinstance(r, PendingTransaction)
