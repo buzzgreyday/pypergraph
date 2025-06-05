@@ -72,7 +72,7 @@ class KeyringMonitor:
 # Running the setup
 async def main():
     keyring = KeyringManager(storage_file_path="key_storage.json")
-    monitor = KeyringMonitor(keyring)
+    # monitor = KeyringMonitor(keyring)
 
     keyring._event_subject.on_next({"invalid": "error"})  # Logs warning but doesn't crash
     await keyring.login("super_S3cretP_Asswo0rd")

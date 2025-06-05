@@ -1,7 +1,6 @@
 import httpx
 import pytest
 
-from pypergraph import KeyStore
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.account import DagAccount, MetagraphTokenClient
 from pypergraph.network.models.transaction import PendingTransaction
@@ -162,8 +161,8 @@ async def test_currency_transfer():
     try:
         r = await account.transfer(to_address=to_address, amount=100000000, fee=200000)
         assert isinstance(r, PendingTransaction)
-    except (NetworkError, httpx.ReadError) as e:
-        failed.append(e)
+    except (NetworkError, httpx.ReadError):
+        failed.append("Network error or Httpx read error")
 
     metagraph_account = MetagraphTokenClient(
         account=account,

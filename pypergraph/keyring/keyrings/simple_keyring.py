@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Union
 
 from pydantic import BaseModel, Field, model_serializer
 from typing_extensions import Self, Any
