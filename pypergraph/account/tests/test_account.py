@@ -174,8 +174,8 @@ async def test_currency_transfer():
     try:
         r = await metagraph_account.transfer(to_address=to_address, amount=10000000, fee=2000000)
         assert isinstance(r, dict)
-    except (NetworkError, httpx.ReadTimeout) as e:
-        failed.append(e)
+    except (NetworkError, httpx.ReadTimeout):
+        failed.append("Network or Httpx timeout error")
 
     if failed:
         pytest.skip(', '.join(str(x) for x in failed))
