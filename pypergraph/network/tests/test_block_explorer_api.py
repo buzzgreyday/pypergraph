@@ -175,5 +175,4 @@ class TestIntegrationBlockExplorerAPI:
         network.config("integrationnet")
         num_of_snapshots = 12
         results = await network.be_api.get_transactions(limit=num_of_snapshots)
-        print([r.model_dump() for r in results])
         assert len(results) == num_of_snapshots, "Snapshot data should be a list"
