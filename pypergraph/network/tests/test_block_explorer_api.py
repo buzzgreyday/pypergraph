@@ -160,7 +160,7 @@ class TestIntegrationBlockExplorerAPI:
 
     @pytest.mark.asyncio
     async def test_get_latest_snapshot_transactions(self, network):
-        network.config("intergrationnet")
+        network.config("integrationnet")
         results = await network.be_api.get_latest_snapshot_transactions()
         assert isinstance(results, list), f"Snapshot data should be a list, got {type(results)}"
 
