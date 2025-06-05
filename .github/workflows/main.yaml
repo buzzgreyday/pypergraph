@@ -2,12 +2,16 @@ name: "dag-pypergraph"
 
 on:
   push:
-    branches: [ "master", "dev" ]
+    branches: [master, dev]
   pull_request:
-    branches: [ "master", "dev" ]
+    branches: [master, dev]
+
+env:
+  PYTHON_DEFAULT_VERSION: "3.11"
 
 jobs:
-  build:
+  test:
+    name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -15,106 +19,183 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install ruff pytest pytest-asyncio
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with Ruff
-      run: |
-        ruff check . --select=E9,F63,F7,F82 --output-format=full
-        ruff check . --exit-zero --target-version=py39 --fix
-    - name: Test with pytest
-      run: |
-        pytest
-    - name: Install Bandit
-      run: pip install bandit
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Run Bandit security check
-      run: |
-        bandit -r . --exclude "tests/,test_*.py" | tee security_report.txt
-        if grep -E "Severity: (Medium|High)" security_report.txt; then
-          echo "Security issues detected with Medium or High severity"
-          exit 1
-        fi
-
-    - name: Security check report artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: security-report-${{ github.run_id }}-${{ matrix.python-version }}
-        path: security_report.txt
-
-  hatchling:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Install Hatch
-        run: pip install hatch
-      - name: Build package
-        run: hatch build
-      - name: Upload package artifacts
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ruff pytest pytest-asyncio bandit hatch
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint with Ruff
+        run: |
+          ruff check . --output-format=github
+          ruff format --check .
+
+      - name: Security check with Bandit
+        run: |
+          bandit -r . -f json -o bandit-report.json --exclude "tests/,test_*.py" || true
+          bandit -r . --exclude "tests/,test_*.py" --severity-level medium --exit-zero
+
+      - name: Run tests
+        run: pytest --verbose
+
+      - name: Upload security report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: package-build
+          name: security-report-py${{ matrix.python-version }}
+          path: bandit-report.json
+          retention-days: 30
+
+  build:
+    name: Build package
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+          cache: 'pip'
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install hatch build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-dist
           path: dist/
+          retention-days: 7
+
+  version-and-tag:
+    name: Version and tag
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      new_version: ${{ steps.version.outputs.new_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+
+      - name: Install hatch
+        run: pip install hatch
+
+      - name: Configure git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Version bump and tag
+        id: version
+        run: |
+          CURRENT_VERSION=$(hatch version)
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            # For dev branch: bump to beta if not already beta, otherwise just bump beta
+            if [[ "$CURRENT_VERSION" == *"b"* ]]; then
+              hatch version b
+            else
+              hatch version minor,b
+            fi
+          elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            # For master branch: release (remove beta suffix)
+            if [[ "$CURRENT_VERSION" == *"b"* ]]; then
+              hatch version release
+            else
+              hatch version patch
+            fi
+          fi
+          
+          NEW_VERSION=$(hatch version)
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+          # Only commit and tag if version changed
+          if [[ "$CURRENT_VERSION" != "$NEW_VERSION" ]]; then
+            git add .
+            git commit -m "Bump version: $CURRENT_VERSION → $NEW_VERSION"
+            git tag "v$NEW_VERSION"
+            git push origin HEAD --follow-tags
+          fi
 
   release:
-    needs: hatchling
+    name: Create GitHub release
     runs-on: ubuntu-latest
-    if: contains('refs/heads/dev refs/heads/master', github.ref)
+    needs: [version-and-tag]
+    if: needs.version-and-tag.outputs.new_version != needs.version-and-tag.outputs.version
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.11'
-      - name: Extract version from pyproject.toml
-        id: get_version
-        run: echo "VERSION=$(sed -n 's/version = \"\(.*\)\"/\1/p' pyproject.toml)" >> $GITHUB_ENV
-      - name: Download package artifacts
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: package-build
+          name: package-dist
           path: ./dist
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v${{ env.VERSION }}"
-          name: "Pypergraph v${{ env.VERSION }}"
+          tag_name: "v${{ needs.version-and-tag.outputs.new_version }}"
+          name: "Pypergraph v${{ needs.version-and-tag.outputs.new_version }}"
           draft: false
-          prerelease: ${{ github.ref == 'refs/heads/dev' }}  # Pre-release if on branch 'dev'
+          prerelease: ${{ github.ref == 'refs/heads/dev' }}
           files: ./dist/*
+          generate_release_notes: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PYPERGRAPH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  publish:
-    needs: [ hatchling, build ]  # Only runs if tests pass
+  publish-pypi:
+    name: Publish to PyPI
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    needs: [version-and-tag]
+    if: |
+      needs.version-and-tag.outputs.new_version != needs.version-and-tag.outputs.version &&
+      (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/dag-pypergraph
+    permissions:
+      id-token: write  # For trusted publishing
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.11'
-      - name: Download package artifacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: package-build
+          name: package-dist
           path: ./dist
-      - name: Install Twine
-        run: pip install twine
+
       - name: Publish to PyPI
-        env:
-          PYPI_PYPERGRAPH_TOKEN: ${{ secrets.PYPI_PYPERGRAPH_TOKEN }}
-        run: twine upload dist/* -u __token__ -p "$PYPI_PYPERGRAPH_TOKEN"
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: ${{ github.ref == 'refs/heads/dev' && 'https://test.pypi.org/legacy/' || '' }}
