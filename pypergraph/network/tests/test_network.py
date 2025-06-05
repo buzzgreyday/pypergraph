@@ -193,7 +193,24 @@ async def test_get_transaction(network):
     )
     model = result.model_dump()
     del model["timestamp"]
-    assert model == {'source': 'DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb', 'destination': 'DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA', 'amount': 25000110000000, 'fee': 0, 'hash': 'dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e', 'parent': {'ordinal': 77, 'hash': 'ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555'}, 'salt': 8940539553876237, 'block_hash': '85f034cf2df202ced872da05ef3eaf00cd1117e0f8deef9d56022505457072e9', 'snapshot_hash': 'baa81574222c46c9ac37baa9eeea97b83f4f02aa46e187b19064a64188f5132f', 'snapshot_ordinal': 2829094, 'transaction_original': None, 'proofs': [], 'meta': None}
+    assert model == {
+        "source": "DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb",
+        "destination": "DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA",
+        "amount": 25000110000000,
+        "fee": 0,
+        "hash": "dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e",
+        "parent": {
+            "ordinal": 77,
+            "hash": "ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555",
+        },
+        "salt": 8940539553876237,
+        "block_hash": "85f034cf2df202ced872da05ef3eaf00cd1117e0f8deef9d56022505457072e9",
+        "snapshot_hash": "baa81574222c46c9ac37baa9eeea97b83f4f02aa46e187b19064a64188f5132f",
+        "snapshot_ordinal": 2829094,
+        "transaction_original": None,
+        "proofs": [],
+        "meta": None,
+    }
 
 
 @pytest.mark.asyncio
