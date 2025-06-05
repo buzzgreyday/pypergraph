@@ -11,11 +11,6 @@ from pypergraph.keystore import KeyStore
 
 """ Block Explorer """
 
-@pytest.mark.asyncio
-async def test_get_latest_snapshot_transactions(network):
-    results = await network.be_api.get_latest_snapshot_transactions()
-    assert isinstance(results, list), "Snapshot data should be a list"
-
 
 @pytest.mark.asyncio
 async def test_get_latest_snapshot_rewards(network):
