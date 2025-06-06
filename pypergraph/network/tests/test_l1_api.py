@@ -1,11 +1,12 @@
 import re
 from ipaddress import IPv4Network
 
+import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
 from .conf import mock_l1_api_responses, network, l1_transaction_error_msgs
-from pypergraph.account import DagAccount
+from pypergraph.account import DagAccount, MetagraphTokenClient
 from .secret import mnemo, to_address
 from ...core.exceptions import NetworkError
 
@@ -42,7 +43,7 @@ class TestMockedL1API:
         assert not result # This transaction isn't pending.
 
     @pytest.mark.asyncio
-    async def test_post_transaction(self, network, httpx_mock: HTTPXMock, mock_l1_api_responses):
+    async def test_post_transaction_success(self, network, httpx_mock: HTTPXMock, mock_l1_api_responses):
         network.config("integrationnet")
         httpx_mock.add_response(
             url="https://l1-lb-integrationnet.constellationnetwork.io/transactions/last-reference/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX",
@@ -100,10 +101,37 @@ class TestIntegrationL1API:
         try:
             response = await account.network.post_transaction(tx)
             assert bool(re.fullmatch(r"[a-fA-F0-9]{64}", response))
-            print(response)
         except NetworkError as e:
             for error, description in l1_transaction_error_msgs.items():
                 if error in str(e):
                     pytest.skip(f"Skipping due to expected error '{error}': {description}")
             raise
 
+    @pytest.mark.asyncio
+    async def test_post_metagraph_currency_transaction(self, network, l1_transaction_error_msgs):
+        from .secret import mnemo, to_address, from_address
+
+        account = DagAccount()
+        account.login_with_seed_phrase(mnemo)
+        account_metagraph_client = MetagraphTokenClient(
+            account=account,
+            metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
+            l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
+            currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200",
+        )
+        try:
+            # Generate signed tx
+            last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(
+                address=from_address
+            )
+            tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(
+                to_address=to_address, amount=10000000, fee=2000000, last_ref=last_ref
+            )
+            await account_metagraph_client.network.post_transaction(tx=tx)
+        except NetworkError as e:
+            for error, description in l1_transaction_error_msgs.items():
+                if error in str(e):
+                    pytest.skip(f"Skipping due to expected error '{error}': {description}")
+            raise
+        except httpx.ReadTimeout:
+            pytest.skip("Skipping due to timeout")
