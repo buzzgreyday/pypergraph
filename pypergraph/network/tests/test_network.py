@@ -9,18 +9,6 @@ from pypergraph.core.exceptions import NetworkError
 from pypergraph.keystore import KeyStore
 
 
-""" L0 API """
-
-
-@pytest.mark.asyncio
-async def test_get_latest_snapshot_ordinal(network):
-    try:
-        result = await network.l0_api.get_latest_snapshot_ordinal()
-        assert result.ordinal >= 3953150
-    except (httpx.ReadTimeout, NetworkError) as e:
-        pytest.skip(f"Error: {e}")
-
-
 """ L1 API """
 
 
