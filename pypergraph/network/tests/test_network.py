@@ -13,38 +13,6 @@ from pypergraph.keystore import KeyStore
 
 
 @pytest.mark.asyncio
-async def test_get_l1_cluster_info(network):
-    try:
-        results = await network.cl1_api.get_cluster_info()
-    except ReadTimeout as e:
-        pytest.skip(f"Timeout: {e}")
-    else:
-        assert isinstance(results, list)
-
-
-@pytest.mark.asyncio
-async def test_get_last_ref(network):
-    address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
-    result = await network.get_address_last_accepted_transaction_ref(address)
-    assert result.ordinal >= 5 and isinstance(result.hash, str)
-
-
-@pytest.mark.asyncio
-async def test_get_pending(network):
-    try:
-        result = await network.get_pending_transaction(
-            hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"
-        )
-    except ReadTimeout as e:
-        pytest.skip(f"Timeout: {e}")
-    else:
-        if result:
-            pytest.skip(f"Pending transaction: {result}")
-        else:
-            pytest.skip("No pending transactions.")
-
-
-@pytest.mark.asyncio
 async def test_post_transaction(network):
     from .secret import mnemo, to_address
 

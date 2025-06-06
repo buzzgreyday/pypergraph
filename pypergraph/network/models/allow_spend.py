@@ -4,13 +4,13 @@ from pydantic import BaseModel, Field
 
 from pypergraph.network.models.transaction import SignatureProof
 
-class AllowSpendReference(BaseModel):
 
+class AllowSpendReference(BaseModel):
     ordinal: int
     hash: str
 
-class AllowSpend(BaseModel):
 
+class AllowSpend(BaseModel):
     source: str
     destination: str
     currency: str
@@ -21,29 +21,29 @@ class AllowSpend(BaseModel):
     approvers: List[str]
     ordinal: int
 
-class SignedAllowSpend(BaseModel):
 
+class SignedAllowSpend(BaseModel):
     value: AllowSpend
     proofs: List[SignatureProof]
 
-class AllowSpendBlock(BaseModel):
 
+class AllowSpendBlock(BaseModel):
     round_id: str = Field(..., alias="roundId")
     transactions: List[SignedAllowSpend]
 
-class SignedAllowSpendBlock(BaseModel):
 
+class SignedAllowSpendBlock(BaseModel):
     value: AllowSpendBlock
     proofs: List[SignatureProof]
 
-class SpendTransaction(BaseModel):
 
+class SpendTransaction(BaseModel):
     allowSpendRef: str
     currency: str
     amount: int
     destination: str
 
-class SpendAction(BaseModel):
 
+class SpendAction(BaseModel):
     input: SpendTransaction
     output: SpendTransaction
