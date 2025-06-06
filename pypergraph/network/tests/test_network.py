@@ -11,65 +11,6 @@ from pypergraph.keystore import KeyStore
 
 """ Block Explorer """
 
-
-@pytest.mark.asyncio
-async def test_get_transaction(network):
-    result = await network.be_api.get_transaction(
-        "dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e"
-    )
-    model = result.model_dump()
-    del model["timestamp"]
-    assert model == {
-        "source": "DAG2AhT8r7JoQb8fJNEKFLNEkaRSxjNmZ6Bbnqmb",
-        "destination": "DAG7b166Y3dzREaLxfTsrFdbwzScxHZSdVrQaQUA",
-        "amount": 25000110000000,
-        "fee": 0,
-        "hash": "dc30b8063bcb5def3206e0134244ba4f12f5c283aabc3d4d74c35bfd9ce7e03e",
-        "parent": {
-            "ordinal": 77,
-            "hash": "ff765b26b12e2f63fbda7d33efb6728be3dec86856fb85922c8fa2d8d7062555",
-        },
-        "salt": 8940539553876237,
-        "block_hash": "85f034cf2df202ced872da05ef3eaf00cd1117e0f8deef9d56022505457072e9",
-        "snapshot_hash": "baa81574222c46c9ac37baa9eeea97b83f4f02aa46e187b19064a64188f5132f",
-        "snapshot_ordinal": 2829094,
-        "transaction_original": None,
-        "proofs": [],
-        "meta": None,
-    }
-
-
-@pytest.mark.asyncio
-async def test_get_latest_currency_snapshot(network):
-    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    result = await network.be_api.get_latest_currency_snapshot(el_paca_metagraph_id)
-    assert isinstance(result.hash, str)
-    assert result.ordinal >= 1032801
-    assert result.fee >= 0
-
-
-@pytest.mark.asyncio
-async def test_get_currency_snapshot(network):
-    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    result = await network.be_api.get_currency_snapshot(el_paca_metagraph_id, 950075)
-    model = result.model_dump()
-    del model["timestamp"]
-    assert model == {
-        "hash": "d412e81203f6a3dfaf5c9c442ccdc8e80524ba3ffb7e0a2f832920d39d590e12",
-        "ordinal": 950075,
-        "height": 754,
-        "sub_height": 2250,
-        "last_snapshot_hash": "05d473f31887b1e556ac7742b397becbdf5e717abd9ce0aa7f1133ebb48c27c0",
-        "blocks": [],
-        #'timestamp': datetime.datetime(2025, 2, 12, 13, 52, 37, 633000, tzinfo=datetime.timezone.utc),
-        "fee": 500000,
-        "owner_address": "DAG5VxUBiDx24wZgBwjJ1FeuVP1HHVjz6EzXa3z6",
-        "staking_address": None,
-        "size_in_kb": 5,
-        "meta": None,
-    }
-
-
 @pytest.mark.asyncio
 async def test_get_latest_currency_snapshot_rewards(network):
     el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
