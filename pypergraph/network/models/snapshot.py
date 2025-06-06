@@ -1,7 +1,9 @@
 from typing import Optional, List, Dict
 
+from docutils.nodes import field
 from pydantic import BaseModel, Field, constr
 
+from pypergraph.network.models.allow_spend import AllowSpendBlock
 from pypergraph.network.models.reward import RewardTransaction
 from pypergraph.network.models.transaction import SignatureProof, SignedTransaction
 
@@ -80,6 +82,15 @@ class GlobalIncrementalSnapshot(BaseModel):
     )
     tips: SnapshotTips
     state_proof: StateProof = Field(..., alias="stateProof")
+    allow_spend_blocks: List = Field(..., alias="allowSpendBlocks")
+    token_lock_blocks: List = Field(..., alias="tokenLockBlocks")
+    spend_actions: Dict = Field(..., alias="spendActions")
+    update_node_parameters: Dict = Field(..., alias="updateNodeParameters")
+    artifacts: List
+    active_delegated_stakes: Dict = Field(..., alias="activeDelegatedStakes")
+    delegated_stakes_withdrawals: Dict = Field(..., alias="delegatedStakesWithdrawals")
+    active_node_collaterals: Dict = Field(..., alias="activeNodeCollaterals")
+    node_collateral_withdrawals: Dict = Field(..., alias="nodeCollateralWithdrawals")
     version: str
 
 
