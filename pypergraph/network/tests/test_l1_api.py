@@ -27,6 +27,7 @@ class TestMockedL1API:
 
     @pytest.mark.asyncio
     async def test_get_not_pending(self, network, httpx_mock: HTTPXMock, mock_l1_api_responses):
+        # TODO: This might be deprecated
         network.config("integrationnet")
         httpx_mock.add_response(status_code=404,
                                 url="https://l1-lb-integrationnet.constellationnetwork.io/transactions/fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429")
@@ -54,6 +55,7 @@ class TestIntegrationL1API:
 
     @pytest.mark.asyncio
     async def test_get_pending(self, network):
+        # TODO: This might be deprecated
         network.config("integrationnet")
         result = await network.get_pending_transaction(
             hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"

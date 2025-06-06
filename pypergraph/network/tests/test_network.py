@@ -2,7 +2,6 @@ import time
 
 import httpx
 import pytest
-from httpx import ReadTimeout
 
 import pypergraph.account
 from pypergraph.core.exceptions import NetworkError
