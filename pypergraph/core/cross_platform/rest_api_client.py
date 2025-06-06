@@ -7,7 +7,7 @@ from pypergraph.core.exceptions import NetworkError
 
 class RestAPIClient:
     def __init__(
-        self, base_url: str, client: Optional[RESTClient] = None, timeout: int = 10
+        self, base_url: str, client: Optional[RESTClient] = None, timeout: int = 30
     ):
         """
         Initializes the RestAPIClient.

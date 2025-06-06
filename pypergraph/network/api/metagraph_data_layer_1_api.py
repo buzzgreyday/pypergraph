@@ -35,7 +35,7 @@ class MDL1Api:
         if not host:
             logging.warning("MDL1 :: Metagraph layer 1 data API object not set.")
         self._host = host
-        self.client = client or HttpxClient(timeout=10)
+        self.client = client or HttpxClient(timeout=30)
 
     def config(self, host: Optional[str] = None, client: Optional[RESTClient] = None):
         """Reconfigure the RestAPIClient."""

@@ -45,7 +45,7 @@ class L1Api:
         if not host:
             logging.warning("L1Api | ML1 :: Layer 1 API object not set.")
         self._host = host
-        self.client = client or HttpxClient(timeout=10)
+        self.client = client or HttpxClient(timeout=30)
 
     def config(self, host: Optional[str] = None, client: Optional[RESTClient] = None):
         """Reconfigure the RestAPIClient."""
