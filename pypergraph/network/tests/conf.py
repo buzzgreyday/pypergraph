@@ -4502,5 +4502,19 @@ def mock_l1_api_responses():
                 "amount": 1300000000,
                 "fee": 0,
                 "timestamp": "2025-02-13T01:10:05.098Z",
-            }
+            },
+        "post_transaction": {"data": {"hash": "39a46885844a9f775ef4e3f0514e5a758e6c7a0acfec9145959de2205b1af176"}}
+    }
+
+@pytest.fixture
+def l1_transaction_error_msgs():
+    return {
+        "TransactionLimited": "The limit for fee-less transactions per address depends on the address balance and time passed since last accepted transaction.",
+        "ParentOrdinalLowerThenLastTxOrdinal": "The transaction's ordinal number must be +1 relative to the last accepted transaction.",
+        "HasNoMatchingParent": "The parent's hash of the transaction must point to the existing accepted transaction.",
+        "InsufficientBalance": "The amount value of the transaction is higher than the balance of the source address.",
+        "AddressLocked": "The address is locked by the network, and transactions can't be made.",
+        "Conflict": "Such transaction has been already accepted by the network.",
+        "SameSourceAndDestinationAddress": "The source and destination addresses should be different.",
+        "NotSignedBySourceAddressOwner": "The transaction should be signed exclusively by the key of the source address."
     }

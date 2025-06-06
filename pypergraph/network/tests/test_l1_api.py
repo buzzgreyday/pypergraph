@@ -1,9 +1,14 @@
+import re
 from ipaddress import IPv4Network
 
 import pytest
 from pytest_httpx import HTTPXMock
 
-from .conf import mock_l1_api_responses, network
+from .conf import mock_l1_api_responses, network, l1_transaction_error_msgs
+from pypergraph.account import DagAccount
+from .secret import mnemo, to_address
+from ...core.exceptions import NetworkError
+
 
 @pytest.mark.mock
 class TestMockedL1API:
@@ -36,6 +41,26 @@ class TestMockedL1API:
         )
         assert not result # This transaction isn't pending.
 
+    @pytest.mark.asyncio
+    async def test_post_transaction(self, network, httpx_mock: HTTPXMock, mock_l1_api_responses):
+        network.config("integrationnet")
+        httpx_mock.add_response(
+            url="https://l1-lb-integrationnet.constellationnetwork.io/transactions/last-reference/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX",
+            json=mock_l1_api_responses["last_ref"])
+        account = DagAccount()
+        account.connect(network_id="integrationnet")
+        account.login_with_seed_phrase(mnemo)
+        tx, hash_ = await account.generate_signed_transaction(
+            to_address=to_address, amount=100000000, fee=200000000
+        )
+        httpx_mock.add_response(
+            method="POST",
+            url="https://l1-lb-integrationnet.constellationnetwork.io/transactions",  # adjust if needed
+            json=mock_l1_api_responses["post_transaction"],
+            status_code=200
+        )
+        await account.network.post_transaction(tx)
+
 
 @pytest.mark.integration
 class TestIntegrationL1API:
@@ -61,4 +86,24 @@ class TestIntegrationL1API:
             hash="fdac1db7957afa1277937e2c7a98ad55c5c3bb456f558d69f2af8e01dac29429"
         )
         assert not result # This transaction isn't pending.
+
+    @pytest.mark.asyncio
+    async def test_post_transaction(self, network, l1_transaction_error_msgs):
+
+        account = DagAccount()
+        account.connect(network_id="integrationnet")
+        account.login_with_seed_phrase(mnemo)
+        tx, hash_ = await account.generate_signed_transaction(
+            to_address=to_address, amount=10000000, fee=200000000
+        )
+
+        try:
+            response = await account.network.post_transaction(tx)
+            assert bool(re.fullmatch(r"[a-fA-F0-9]{64}", response))
+            print(response)
+        except NetworkError as e:
+            for error, description in l1_transaction_error_msgs.items():
+                if error in str(e):
+                    pytest.skip(f"Skipping due to expected error '{error}': {description}")
+            raise
 

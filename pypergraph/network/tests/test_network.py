@@ -12,29 +12,6 @@ from pypergraph.keystore import KeyStore
 
 
 @pytest.mark.asyncio
-async def test_post_transaction(network):
-    from .secret import mnemo, to_address
-
-    account = pypergraph.account.DagAccount()
-    account.connect(network_id="integrationnet")
-
-    if account.network.connected_network.network_id == "integrationnet":
-        account.login_with_seed_phrase(mnemo)
-        tx, hash_ = await account.generate_signed_transaction(
-            to_address=to_address, amount=100000000, fee=200000000
-        )
-
-        try:
-            await account.network.post_transaction(tx)
-        except (httpx.NetworkError, NetworkError) as e:
-            if any(
-                msg in str(e) for msg in ["InsufficientBalance", "TransactionLimited"]
-            ):
-                pytest.skip(f"Skipping due to expected error: {e}")
-            raise
-
-
-@pytest.mark.asyncio
 async def test_post_metagraph_currency_transaction(network):
     from .secret import mnemo, to_address, from_address
 
