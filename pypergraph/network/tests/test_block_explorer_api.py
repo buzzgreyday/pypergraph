@@ -339,5 +339,4 @@ class TestIntegrationBlockExplorerAPI:
         results = await network.be_api.get_currency_transactions_by_snapshot(
             metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394, limit=3
         )
-        print([r.model_dump() for r in results])
-        assert len(results) == 1
+        assert [r.model_dump() for r in results] == [{'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'hash': '121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7', 'parent': {'ordinal': 19, 'hash': 'd29fdbc9b560f49387d0d8539ecdeca12314c6c5829919a0cdac0e6ab24d1f7a'}, 'salt': 8896174606352968, 'block_hash': '3f78913ae81bb1a288fa859c2901c00587960c8555e40978ae1b4dbcbf9c4478', 'snapshot_hash': 'c1c9215f51e8016e7fcf3714b6118bda8349348207fb40f7e6fb6ec27cfc2b33', 'snapshot_ordinal': 952394, 'transaction_original': None, 'timestamp': datetime(2025, 2, 13, 1, 10, 5, 98000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}]
