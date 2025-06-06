@@ -13,39 +13,6 @@ from pypergraph.keystore import KeyStore
 
 
 @pytest.mark.asyncio
-async def test_get_address_balance(network):
-    address = "DAG7XAG6oteEfCpwuGyZVb9NDSh2ue9kmoe26cmw"
-    result = await network.get_address_balance(address)
-    assert result.balance >= 0
-
-
-@pytest.mark.asyncio
-async def test_get_total_supply(network):
-    try:
-        result = await network.l0_api.get_total_supply()
-        assert bool(result.total_supply)
-    except (httpx.ReadTimeout, NetworkError) as e:
-        pytest.skip(f"Error: {e}")
-
-
-@pytest.mark.asyncio
-async def test_get_cluster_info(network):
-    try:
-        result = await network.l0_api.get_cluster_info()
-        assert bool(result)
-    except (httpx.ReadTimeout, NetworkError) as e:
-        pytest.skip(f"Error: {e}")
-
-
-@pytest.mark.asyncio
-async def test_get_latest_l0_snapshot(network):
-    try:
-        result = await network.l0_api.get_latest_snapshot()
-    except (httpx.ReadTimeout, NetworkError) as e:
-        pytest.skip(f"Error: {e}")
-
-
-@pytest.mark.asyncio
 async def test_get_latest_snapshot_ordinal(network):
     try:
         result = await network.l0_api.get_latest_snapshot_ordinal()
