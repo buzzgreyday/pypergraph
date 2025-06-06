@@ -9,58 +9,6 @@ from pypergraph.core.exceptions import NetworkError
 from pypergraph.keystore import KeyStore
 
 
-""" Block Explorer """
-
-
-@pytest.mark.asyncio
-async def test_get_currency_address_balance(network):
-    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    result = await network.be_api.get_currency_address_balance(
-        metagraph_id=el_paca_metagraph_id,
-        hash="b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
-    )
-    assert hasattr(result, "balance")
-
-
-@pytest.mark.asyncio
-async def test_get_currency_transaction(network):
-    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    result = await network.be_api.get_currency_transaction(
-        metagraph_id=el_paca_metagraph_id,
-        hash="121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7",
-    )
-    assert hasattr(result, "destination")
-
-
-@pytest.mark.asyncio
-async def test_get_currency_transactions(network):
-    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    results = await network.be_api.get_currency_transactions(
-        metagraph_id=el_paca_metagraph_id, limit=10
-    )
-    assert len(results) == 10
-
-
-@pytest.mark.asyncio
-async def test_get_currency_transactions_by_address(network):
-    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    results = await network.be_api.get_currency_transactions_by_address(
-        metagraph_id=el_paca_metagraph_id,
-        address="DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY",
-        limit=10,
-    )
-    assert len(results) == 10
-
-
-@pytest.mark.asyncio
-async def test_get_currency_transactions_by_snapshot(network):
-    el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
-    results = await network.be_api.get_currency_transactions_by_snapshot(
-        metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394, limit=10
-    )
-    assert len(results) == 1
-
-
 """ L0 API """
 
 

@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
@@ -156,6 +157,60 @@ class TestMockedBlockExplorerAPI:
         )
         assert [r.model_dump() for r in results] == [{'destination': 'DAG2ACig4MuEPit149J1mEjhYqwn8SBvXgVuy2aX', 'amount': 300000000}, {'destination': 'DAG2YaNbtUv35YVjJ5U6PR9r8obVunEky2RDdGJb', 'amount': 100000000}, {'destination': 'DAG3dQwyG69DmcXxqAQzfPEp39FEfepc3iaGGQVg', 'amount': 200000000}, {'destination': 'DAG4eVyr7kUzr7r2oPoxnUfLDgugdXYXLDh6gxZS', 'amount': 200000000}]
 
+    @pytest.mark.asyncio
+    async def test_get_currency_address_balance(self, network, httpx_mock: HTTPXMock, mock_block_explorer_responses):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        httpx_mock.add_response(url="https://be-mainnet.constellationnetwork.io/currency/DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43/addresses/b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364/balance",
+                                json=mock_block_explorer_responses["paca_address_balance"])
+        result = await network.be_api.get_currency_address_balance(
+            metagraph_id=el_paca_metagraph_id,
+            hash="b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
+        )
+        assert result.model_dump() == {'ordinal': 1488505, 'balance': 0, 'address': 'b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364', 'meta': None}
+
+    @pytest.mark.asyncio
+    async def test_get_currency_transaction(self, network, httpx_mock: HTTPXMock, mock_block_explorer_responses):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        httpx_mock.add_response(url="https://be-mainnet.constellationnetwork.io/currency/DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43/transactions/121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7",
+                                json=mock_block_explorer_responses["paca_transaction"])
+        result = await network.be_api.get_currency_transaction(
+            metagraph_id=el_paca_metagraph_id,
+            hash="121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7",
+        )
+        assert result.model_dump() == {'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'hash': '121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7', 'parent': {'ordinal': 19, 'hash': 'd29fdbc9b560f49387d0d8539ecdeca12314c6c5829919a0cdac0e6ab24d1f7a'}, 'salt': 8896174606352968, 'block_hash': '3f78913ae81bb1a288fa859c2901c00587960c8555e40978ae1b4dbcbf9c4478', 'snapshot_hash': 'c1c9215f51e8016e7fcf3714b6118bda8349348207fb40f7e6fb6ec27cfc2b33', 'snapshot_ordinal': 952394, 'transaction_original': None, 'timestamp': datetime(2025, 2, 13, 1, 10, 5, 98000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}
+
+    @pytest.mark.asyncio
+    async def test_get_currency_transactions(self, network, httpx_mock: HTTPXMock, mock_block_explorer_responses):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        httpx_mock.add_response(url="https://be-mainnet.constellationnetwork.io/currency/DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43/transactions?limit=3",
+                                json=mock_block_explorer_responses["paca_transactions_limit_3"])
+        results = await network.be_api.get_currency_transactions(
+            metagraph_id=el_paca_metagraph_id, limit=3
+        )
+        assert [r.model_dump() for r in results] == [{'source': 'DAG6zf62WYMWeVwgUNhFix8Mthg7kx1QNwhB9gZi', 'destination': 'DAG37nSDXT4dvy8oGD4v57DbnyjZvQJW22adPios', 'amount': 600000000, 'fee': 0, 'hash': '511d91ef0eb9ba1a5e429272ecaa2a0cde0e8f374190bf90918864f206bfd8b9', 'parent': {'ordinal': 78, 'hash': '8815bd4ca675b1d409c95593971b615536a10749f7016090dff78624080f0be9'}, 'salt': 8990155151566018, 'block_hash': '08249a2552505ac4708164f406528277a884d91ab3cc2fb7e55cfd72cd0dc54a', 'snapshot_hash': '4bd1782b4a46bd28427bc1255f424fc46ff8ac8cb48a629ab0e2ca1cbc3d7535', 'snapshot_ordinal': 1488077, 'transaction_original': {'value': {'source': 'DAG6zf62WYMWeVwgUNhFix8Mthg7kx1QNwhB9gZi', 'destination': 'DAG37nSDXT4dvy8oGD4v57DbnyjZvQJW22adPios', 'amount': 600000000, 'fee': 0, 'parent': {'ordinal': 78, 'hash': '8815bd4ca675b1d409c95593971b615536a10749f7016090dff78624080f0be9'}, 'salt': 8990155151566018, 'encoded': '240DAG6zf62WYMWeVwgUNhFix8Mthg7kx1QNwhB9gZi40DAG37nSDXT4dvy8oGD4v57DbnyjZvQJW22adPios823c34600648815bd4ca675b1d409c95593971b615536a10749f7016090dff78624080f0be927810141ff07f9c48e4c2'}, 'proofs': [{'id': '3bb65c6b143a05f51f9fa6118f1b435327965f5a421221f8e067910fb10e91b59e17a3b2ed71cff2f2ddee0f44a354e6205a335be8032edab8f400f079832a89', 'signature': '30450220162203840f95a1427974e5db7996f52d54a4b1cb33f18bbc50def617e1c783a9022100c8fe884ab93882200e0a04d34380dd157cf18ddc5f661c3f7a348b749503852f'}]}, 'timestamp': datetime(2025, 6, 6, 5, 30, 19, 874000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}, {'source': 'DAG6hATvmSysoj6CBFizXd45rcDPEMGDVKagSEch', 'destination': 'DAG821Nrd3Rhf3JeejwXyDyKZ1TDqeJax25RvHxw', 'amount': 600000000, 'fee': 0, 'hash': '75a08637d324da7204d69eb4e8cc5d01c06b59645936ef1523aeb3e443673725', 'parent': {'ordinal': 39, 'hash': '6241965526b087be3f9044210579167f354c430aebb5b4ae3e567b0a7f51f3fc'}, 'salt': 8937389281996647, 'block_hash': '640df3556d5963f000a6516cf9f357270ef15ab2c52e47cec1ff72f23a66ac40', 'snapshot_hash': '10fb5b65f9de9eb1fedd45629f43ded72e4b137236064efed03cd13270c97695', 'snapshot_ordinal': 1487734, 'transaction_original': {'value': {'source': 'DAG6hATvmSysoj6CBFizXd45rcDPEMGDVKagSEch', 'destination': 'DAG821Nrd3Rhf3JeejwXyDyKZ1TDqeJax25RvHxw', 'amount': 600000000, 'fee': 0, 'parent': {'ordinal': 39, 'hash': '6241965526b087be3f9044210579167f354c430aebb5b4ae3e567b0a7f51f3fc'}, 'salt': 8937389281996647, 'encoded': '240DAG6hATvmSysoj6CBFizXd45rcDPEMGDVKagSEch40DAG821Nrd3Rhf3JeejwXyDyKZ1TDqeJax25RvHxw823c34600646241965526b087be3f9044210579167f354c430aebb5b4ae3e567b0a7f51f3fc23910141fc082195f6f67'}, 'proofs': [{'id': '42a0a36f8354d64d511627538ea63413cfddfd0588723c6f91f10d0d06708aa42382f6911f77c30883118ec3fb31af60984c2d8602698adcfb41844f47606138', 'signature': '3045022100d0b9d5ad16efbc29a3fd2a0c5bd5d5b11f95672a3ea1c644756357a963f8bb1502206ca4e3043bbd88b6bf7e20161145166cb1dc0fdbf4d46c99b540bf96e5cb99d9'}]}, 'timestamp': datetime(2025, 6, 6, 4, 8, 33, 912000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}, {'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'hash': 'a5505d5b664e03388eb4e7000995acaf3145e4c392a052ab441cb6c49df30189', 'parent': {'ordinal': 68, 'hash': '72f0d835343f4b28c5c3439b6e064f8a5ad175c59252fdd91ac09d515b337a6c'}, 'salt': 8770718881675292, 'block_hash': 'd904916e35376fa588276da71c06d4ba37979ead03a08d8a907cdd0e6910c436', 'snapshot_hash': '01c9f0803e665b63b025bc555628a0c5a8c8d9c06439fd1ddf214ea2e8fd1f21', 'snapshot_ordinal': 1487440, 'transaction_original': {'value': {'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'parent': {'ordinal': 68, 'hash': '72f0d835343f4b28c5c3439b6e064f8a5ad175c59252fdd91ac09d515b337a6c'}, 'salt': 8770718881675292, 'encoded': '240DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY40DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK84d7c6d006472f0d835343f4b28c5c3439b6e064f8a5ad175c59252fdd91ac09d515b337a6c26810141f28ec1f5df81c'}, 'proofs': [{'id': '82cba6939d21f2009d7f13fe685f8096c51b8d53446ceac502c8979450efb0d5aec35b315c38464d96cac3a5b4c69181fe00292a5b940c78b1111aee6f58ada4', 'signature': '3044022056a0d2200dfbaa2cbf8f32cd6593333f68560c134e512f7bd37cdb64f2990ece02207e0674636688cc30620dda27fec422d19e029ee82665a86a04e4c3f197869ae0'}]}, 'timestamp': datetime(2025, 6, 6, 2, 42, 39, 224000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}]
+
+    @pytest.mark.asyncio
+    async def test_get_currency_transactions_by_address(self, network, httpx_mock: HTTPXMock, mock_block_explorer_responses):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        httpx_mock.add_response(url="https://be-mainnet.constellationnetwork.io/currency/DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43/addresses/DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY/transactions?limit=3",
+                                json=mock_block_explorer_responses["paca_transactions_limit_3"])
+        results = await network.be_api.get_currency_transactions_by_address(
+            metagraph_id=el_paca_metagraph_id,
+            address="DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY",
+            limit=3,
+        )
+        assert [r.model_dump() for r in results] == [{'source': 'DAG6zf62WYMWeVwgUNhFix8Mthg7kx1QNwhB9gZi', 'destination': 'DAG37nSDXT4dvy8oGD4v57DbnyjZvQJW22adPios', 'amount': 600000000, 'fee': 0, 'hash': '511d91ef0eb9ba1a5e429272ecaa2a0cde0e8f374190bf90918864f206bfd8b9', 'parent': {'ordinal': 78, 'hash': '8815bd4ca675b1d409c95593971b615536a10749f7016090dff78624080f0be9'}, 'salt': 8990155151566018, 'block_hash': '08249a2552505ac4708164f406528277a884d91ab3cc2fb7e55cfd72cd0dc54a', 'snapshot_hash': '4bd1782b4a46bd28427bc1255f424fc46ff8ac8cb48a629ab0e2ca1cbc3d7535', 'snapshot_ordinal': 1488077, 'transaction_original': {'value': {'source': 'DAG6zf62WYMWeVwgUNhFix8Mthg7kx1QNwhB9gZi', 'destination': 'DAG37nSDXT4dvy8oGD4v57DbnyjZvQJW22adPios', 'amount': 600000000, 'fee': 0, 'parent': {'ordinal': 78, 'hash': '8815bd4ca675b1d409c95593971b615536a10749f7016090dff78624080f0be9'}, 'salt': 8990155151566018, 'encoded': '240DAG6zf62WYMWeVwgUNhFix8Mthg7kx1QNwhB9gZi40DAG37nSDXT4dvy8oGD4v57DbnyjZvQJW22adPios823c34600648815bd4ca675b1d409c95593971b615536a10749f7016090dff78624080f0be927810141ff07f9c48e4c2'}, 'proofs': [{'id': '3bb65c6b143a05f51f9fa6118f1b435327965f5a421221f8e067910fb10e91b59e17a3b2ed71cff2f2ddee0f44a354e6205a335be8032edab8f400f079832a89', 'signature': '30450220162203840f95a1427974e5db7996f52d54a4b1cb33f18bbc50def617e1c783a9022100c8fe884ab93882200e0a04d34380dd157cf18ddc5f661c3f7a348b749503852f'}]}, 'timestamp': datetime(2025, 6, 6, 5, 30, 19, 874000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}, {'source': 'DAG6hATvmSysoj6CBFizXd45rcDPEMGDVKagSEch', 'destination': 'DAG821Nrd3Rhf3JeejwXyDyKZ1TDqeJax25RvHxw', 'amount': 600000000, 'fee': 0, 'hash': '75a08637d324da7204d69eb4e8cc5d01c06b59645936ef1523aeb3e443673725', 'parent': {'ordinal': 39, 'hash': '6241965526b087be3f9044210579167f354c430aebb5b4ae3e567b0a7f51f3fc'}, 'salt': 8937389281996647, 'block_hash': '640df3556d5963f000a6516cf9f357270ef15ab2c52e47cec1ff72f23a66ac40', 'snapshot_hash': '10fb5b65f9de9eb1fedd45629f43ded72e4b137236064efed03cd13270c97695', 'snapshot_ordinal': 1487734, 'transaction_original': {'value': {'source': 'DAG6hATvmSysoj6CBFizXd45rcDPEMGDVKagSEch', 'destination': 'DAG821Nrd3Rhf3JeejwXyDyKZ1TDqeJax25RvHxw', 'amount': 600000000, 'fee': 0, 'parent': {'ordinal': 39, 'hash': '6241965526b087be3f9044210579167f354c430aebb5b4ae3e567b0a7f51f3fc'}, 'salt': 8937389281996647, 'encoded': '240DAG6hATvmSysoj6CBFizXd45rcDPEMGDVKagSEch40DAG821Nrd3Rhf3JeejwXyDyKZ1TDqeJax25RvHxw823c34600646241965526b087be3f9044210579167f354c430aebb5b4ae3e567b0a7f51f3fc23910141fc082195f6f67'}, 'proofs': [{'id': '42a0a36f8354d64d511627538ea63413cfddfd0588723c6f91f10d0d06708aa42382f6911f77c30883118ec3fb31af60984c2d8602698adcfb41844f47606138', 'signature': '3045022100d0b9d5ad16efbc29a3fd2a0c5bd5d5b11f95672a3ea1c644756357a963f8bb1502206ca4e3043bbd88b6bf7e20161145166cb1dc0fdbf4d46c99b540bf96e5cb99d9'}]}, 'timestamp': datetime(2025, 6, 6, 4, 8, 33, 912000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}, {'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'hash': 'a5505d5b664e03388eb4e7000995acaf3145e4c392a052ab441cb6c49df30189', 'parent': {'ordinal': 68, 'hash': '72f0d835343f4b28c5c3439b6e064f8a5ad175c59252fdd91ac09d515b337a6c'}, 'salt': 8770718881675292, 'block_hash': 'd904916e35376fa588276da71c06d4ba37979ead03a08d8a907cdd0e6910c436', 'snapshot_hash': '01c9f0803e665b63b025bc555628a0c5a8c8d9c06439fd1ddf214ea2e8fd1f21', 'snapshot_ordinal': 1487440, 'transaction_original': {'value': {'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'parent': {'ordinal': 68, 'hash': '72f0d835343f4b28c5c3439b6e064f8a5ad175c59252fdd91ac09d515b337a6c'}, 'salt': 8770718881675292, 'encoded': '240DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY40DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK84d7c6d006472f0d835343f4b28c5c3439b6e064f8a5ad175c59252fdd91ac09d515b337a6c26810141f28ec1f5df81c'}, 'proofs': [{'id': '82cba6939d21f2009d7f13fe685f8096c51b8d53446ceac502c8979450efb0d5aec35b315c38464d96cac3a5b4c69181fe00292a5b940c78b1111aee6f58ada4', 'signature': '3044022056a0d2200dfbaa2cbf8f32cd6593333f68560c134e512f7bd37cdb64f2990ece02207e0674636688cc30620dda27fec422d19e029ee82665a86a04e4c3f197869ae0'}]}, 'timestamp': datetime(2025, 6, 6, 2, 42, 39, 224000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}]
+
+    @pytest.mark.asyncio
+    async def test_get_currency_transactions_by_snapshot(self, network, httpx_mock: HTTPXMock, mock_block_explorer_responses):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        httpx_mock.add_response(url="https://be-mainnet.constellationnetwork.io/currency/DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43/snapshots/952394/transactions?limit=3",
+                                json=mock_block_explorer_responses["paca_snapshot_by_ordinal"])
+        results = await network.be_api.get_currency_transactions_by_snapshot(
+            metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394, limit=3
+        )
+        assert [r.model_dump() for r in results] == [{'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'hash': '121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7', 'parent': {'ordinal': 19, 'hash': 'd29fdbc9b560f49387d0d8539ecdeca12314c6c5829919a0cdac0e6ab24d1f7a'}, 'salt': 8896174606352968, 'block_hash': '3f78913ae81bb1a288fa859c2901c00587960c8555e40978ae1b4dbcbf9c4478', 'snapshot_hash': 'c1c9215f51e8016e7fcf3714b6118bda8349348207fb40f7e6fb6ec27cfc2b33', 'snapshot_ordinal': 952394, 'transaction_original': None, 'timestamp': datetime(2025, 2, 13, 1, 10, 5, 98000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}]
+
 @pytest.mark.integration
 class TestIntegrationBlockExplorerAPI:
     """Test Block Explorer API endpoints integration responses"""
@@ -235,3 +290,54 @@ class TestIntegrationBlockExplorerAPI:
             el_paca_metagraph_id, 950075
         )
         assert [r.model_dump() for r in results] == [{'destination': 'DAG2ACig4MuEPit149J1mEjhYqwn8SBvXgVuy2aX', 'amount': 300000000}, {'destination': 'DAG2YaNbtUv35YVjJ5U6PR9r8obVunEky2RDdGJb', 'amount': 100000000}, {'destination': 'DAG3dQwyG69DmcXxqAQzfPEp39FEfepc3iaGGQVg', 'amount': 200000000}, {'destination': 'DAG4eVyr7kUzr7r2oPoxnUfLDgugdXYXLDh6gxZS', 'amount': 200000000}]
+
+    @pytest.mark.asyncio
+    async def test_get_currency_address_balance(self, network):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        try:
+            result = await network.be_api.get_currency_address_balance(
+                metagraph_id=el_paca_metagraph_id,
+                hash="b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364",
+            )
+        except httpx.ConnectError:
+            pytest.skip("Connection Error")
+        else:
+            result = result.model_dump()
+            result.pop("ordinal")
+            assert result == {'balance': 0, 'address': 'b54515a603499925d011a86d784749c523905ca492c82d9bf938414918349364', 'meta': None}
+
+    @pytest.mark.asyncio
+    async def test_get_currency_transaction(self, network):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        result = await network.be_api.get_currency_transaction(
+            metagraph_id=el_paca_metagraph_id,
+            hash="121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7",
+        )
+        assert result.model_dump() == {'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'hash': '121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7', 'parent': {'ordinal': 19, 'hash': 'd29fdbc9b560f49387d0d8539ecdeca12314c6c5829919a0cdac0e6ab24d1f7a'}, 'salt': 8896174606352968, 'block_hash': '3f78913ae81bb1a288fa859c2901c00587960c8555e40978ae1b4dbcbf9c4478', 'snapshot_hash': 'c1c9215f51e8016e7fcf3714b6118bda8349348207fb40f7e6fb6ec27cfc2b33', 'snapshot_ordinal': 952394, 'transaction_original': None, 'timestamp': datetime(2025, 2, 13, 1, 10, 5, 98000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}
+
+    @pytest.mark.asyncio
+    async def test_get_currency_transactions(self, network):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        results = await network.be_api.get_currency_transactions(
+            metagraph_id=el_paca_metagraph_id, limit=3
+        )
+        assert [r.model_dump() for r in results] == [{'source': 'DAG6zf62WYMWeVwgUNhFix8Mthg7kx1QNwhB9gZi', 'destination': 'DAG37nSDXT4dvy8oGD4v57DbnyjZvQJW22adPios', 'amount': 600000000, 'fee': 0, 'hash': '511d91ef0eb9ba1a5e429272ecaa2a0cde0e8f374190bf90918864f206bfd8b9', 'parent': {'ordinal': 78, 'hash': '8815bd4ca675b1d409c95593971b615536a10749f7016090dff78624080f0be9'}, 'salt': 8990155151566018, 'block_hash': '08249a2552505ac4708164f406528277a884d91ab3cc2fb7e55cfd72cd0dc54a', 'snapshot_hash': '4bd1782b4a46bd28427bc1255f424fc46ff8ac8cb48a629ab0e2ca1cbc3d7535', 'snapshot_ordinal': 1488077, 'transaction_original': {'value': {'source': 'DAG6zf62WYMWeVwgUNhFix8Mthg7kx1QNwhB9gZi', 'destination': 'DAG37nSDXT4dvy8oGD4v57DbnyjZvQJW22adPios', 'amount': 600000000, 'fee': 0, 'parent': {'ordinal': 78, 'hash': '8815bd4ca675b1d409c95593971b615536a10749f7016090dff78624080f0be9'}, 'salt': 8990155151566018, 'encoded': '240DAG6zf62WYMWeVwgUNhFix8Mthg7kx1QNwhB9gZi40DAG37nSDXT4dvy8oGD4v57DbnyjZvQJW22adPios823c34600648815bd4ca675b1d409c95593971b615536a10749f7016090dff78624080f0be927810141ff07f9c48e4c2'}, 'proofs': [{'id': '3bb65c6b143a05f51f9fa6118f1b435327965f5a421221f8e067910fb10e91b59e17a3b2ed71cff2f2ddee0f44a354e6205a335be8032edab8f400f079832a89', 'signature': '30450220162203840f95a1427974e5db7996f52d54a4b1cb33f18bbc50def617e1c783a9022100c8fe884ab93882200e0a04d34380dd157cf18ddc5f661c3f7a348b749503852f'}]}, 'timestamp': datetime(2025, 6, 6, 5, 30, 19, 874000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}, {'source': 'DAG6hATvmSysoj6CBFizXd45rcDPEMGDVKagSEch', 'destination': 'DAG821Nrd3Rhf3JeejwXyDyKZ1TDqeJax25RvHxw', 'amount': 600000000, 'fee': 0, 'hash': '75a08637d324da7204d69eb4e8cc5d01c06b59645936ef1523aeb3e443673725', 'parent': {'ordinal': 39, 'hash': '6241965526b087be3f9044210579167f354c430aebb5b4ae3e567b0a7f51f3fc'}, 'salt': 8937389281996647, 'block_hash': '640df3556d5963f000a6516cf9f357270ef15ab2c52e47cec1ff72f23a66ac40', 'snapshot_hash': '10fb5b65f9de9eb1fedd45629f43ded72e4b137236064efed03cd13270c97695', 'snapshot_ordinal': 1487734, 'transaction_original': {'value': {'source': 'DAG6hATvmSysoj6CBFizXd45rcDPEMGDVKagSEch', 'destination': 'DAG821Nrd3Rhf3JeejwXyDyKZ1TDqeJax25RvHxw', 'amount': 600000000, 'fee': 0, 'parent': {'ordinal': 39, 'hash': '6241965526b087be3f9044210579167f354c430aebb5b4ae3e567b0a7f51f3fc'}, 'salt': 8937389281996647, 'encoded': '240DAG6hATvmSysoj6CBFizXd45rcDPEMGDVKagSEch40DAG821Nrd3Rhf3JeejwXyDyKZ1TDqeJax25RvHxw823c34600646241965526b087be3f9044210579167f354c430aebb5b4ae3e567b0a7f51f3fc23910141fc082195f6f67'}, 'proofs': [{'id': '42a0a36f8354d64d511627538ea63413cfddfd0588723c6f91f10d0d06708aa42382f6911f77c30883118ec3fb31af60984c2d8602698adcfb41844f47606138', 'signature': '3045022100d0b9d5ad16efbc29a3fd2a0c5bd5d5b11f95672a3ea1c644756357a963f8bb1502206ca4e3043bbd88b6bf7e20161145166cb1dc0fdbf4d46c99b540bf96e5cb99d9'}]}, 'timestamp': datetime(2025, 6, 6, 4, 8, 33, 912000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}, {'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'hash': 'a5505d5b664e03388eb4e7000995acaf3145e4c392a052ab441cb6c49df30189', 'parent': {'ordinal': 68, 'hash': '72f0d835343f4b28c5c3439b6e064f8a5ad175c59252fdd91ac09d515b337a6c'}, 'salt': 8770718881675292, 'block_hash': 'd904916e35376fa588276da71c06d4ba37979ead03a08d8a907cdd0e6910c436', 'snapshot_hash': '01c9f0803e665b63b025bc555628a0c5a8c8d9c06439fd1ddf214ea2e8fd1f21', 'snapshot_ordinal': 1487440, 'transaction_original': {'value': {'source': 'DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY', 'destination': 'DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK', 'amount': 1300000000, 'fee': 0, 'parent': {'ordinal': 68, 'hash': '72f0d835343f4b28c5c3439b6e064f8a5ad175c59252fdd91ac09d515b337a6c'}, 'salt': 8770718881675292, 'encoded': '240DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY40DAG0fNmxAvUJh5133TttDC9tm1Lx4bdY1GuuPZCK84d7c6d006472f0d835343f4b28c5c3439b6e064f8a5ad175c59252fdd91ac09d515b337a6c26810141f28ec1f5df81c'}, 'proofs': [{'id': '82cba6939d21f2009d7f13fe685f8096c51b8d53446ceac502c8979450efb0d5aec35b315c38464d96cac3a5b4c69181fe00292a5b940c78b1111aee6f58ada4', 'signature': '3044022056a0d2200dfbaa2cbf8f32cd6593333f68560c134e512f7bd37cdb64f2990ece02207e0674636688cc30620dda27fec422d19e029ee82665a86a04e4c3f197869ae0'}]}, 'timestamp': datetime(2025, 6, 6, 2, 42, 39, 224000, tzinfo=timezone.utc), 'proofs': [], 'meta': None}]
+
+    @pytest.mark.asyncio
+    async def test_get_currency_transactions_by_address(self, network):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        results = await network.be_api.get_currency_transactions_by_address(
+            metagraph_id=el_paca_metagraph_id,
+            address="DAG6qWERv6BdrEztpc7ufXmpgJAjDKdF2RKZAqXY",
+            limit=3,
+        )
+        assert len(results) == 3
+
+    @pytest.mark.asyncio
+    async def test_get_currency_transactions_by_snapshot(self, network):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        results = await network.be_api.get_currency_transactions_by_snapshot(
+            metagraph_id=el_paca_metagraph_id, hash_or_ordinal=952394, limit=3
+        )
+        print([r.model_dump() for r in results])
+        assert len(results) == 1
