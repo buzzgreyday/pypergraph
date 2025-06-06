@@ -136,6 +136,26 @@ class TestMockedBlockExplorerAPI:
         result = await network.be_api.get_currency_snapshot(el_paca_metagraph_id, 1488009)
         assert result.model_dump() == {'hash': '0eefc8e08edf7a0933a546103c22cbfb090bfc54264977bba0240684150de5f9', 'ordinal': 1488009, 'height': 1119, 'sub_height': 3450, 'last_snapshot_hash': 'c3c7eef84d57df264faff5a0589b6f7049170408131514c1a81db0b6be08ecb2', 'blocks': [], 'timestamp': datetime(2025, 6, 6, 5, 19, 13, 917000, tzinfo=timezone.utc), 'fee': 400000, 'owner_address': 'DAG5VxUBiDx24wZgBwjJ1FeuVP1HHVjz6EzXa3z6', 'staking_address': None, 'size_in_kb': 4, 'meta': None}
 
+    @pytest.mark.asyncio
+    async def test_get_latest_currency_snapshot_rewards(self, network, httpx_mock: HTTPXMock, mock_block_explorer_responses):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        httpx_mock.add_response(url="https://be-mainnet.constellationnetwork.io/currency/DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43/snapshots/latest/rewards",
+                                json=mock_block_explorer_responses["paca_rewards"])
+        results = await network.be_api.get_latest_currency_snapshot_rewards(
+            el_paca_metagraph_id
+        )
+        assert [r.model_dump() for r in results] == [{'destination': 'DAG2ACig4MuEPit149J1mEjhYqwn8SBvXgVuy2aX', 'amount': 300000000}, {'destination': 'DAG2YaNbtUv35YVjJ5U6PR9r8obVunEky2RDdGJb', 'amount': 100000000}, {'destination': 'DAG3dQwyG69DmcXxqAQzfPEp39FEfepc3iaGGQVg', 'amount': 200000000}, {'destination': 'DAG4eVyr7kUzr7r2oPoxnUfLDgugdXYXLDh6gxZS', 'amount': 200000000}]
+
+    @pytest.mark.asyncio
+    async def test_get_currency_snapshot_rewards(self, network, httpx_mock: HTTPXMock, mock_block_explorer_responses):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        httpx_mock.add_response(url="https://be-mainnet.constellationnetwork.io/currency/DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43/snapshots/950075/rewards",
+                                json=mock_block_explorer_responses["paca_rewards"])
+        results = await network.be_api.get_currency_snapshot_rewards(
+            el_paca_metagraph_id, 950075
+        )
+        assert [r.model_dump() for r in results] == [{'destination': 'DAG2ACig4MuEPit149J1mEjhYqwn8SBvXgVuy2aX', 'amount': 300000000}, {'destination': 'DAG2YaNbtUv35YVjJ5U6PR9r8obVunEky2RDdGJb', 'amount': 100000000}, {'destination': 'DAG3dQwyG69DmcXxqAQzfPEp39FEfepc3iaGGQVg', 'amount': 200000000}, {'destination': 'DAG4eVyr7kUzr7r2oPoxnUfLDgugdXYXLDh6gxZS', 'amount': 200000000}]
+
 @pytest.mark.integration
 class TestIntegrationBlockExplorerAPI:
     """Test Block Explorer API endpoints integration responses"""
@@ -199,3 +219,19 @@ class TestIntegrationBlockExplorerAPI:
         el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
         result = await network.be_api.get_currency_snapshot(el_paca_metagraph_id, 1488009)
         assert result.model_dump() == {'hash': '0eefc8e08edf7a0933a546103c22cbfb090bfc54264977bba0240684150de5f9', 'ordinal': 1488009, 'height': 1119, 'sub_height': 3450, 'last_snapshot_hash': 'c3c7eef84d57df264faff5a0589b6f7049170408131514c1a81db0b6be08ecb2', 'blocks': [], 'timestamp': datetime(2025, 6, 6, 5, 19, 13, 917000, tzinfo=timezone.utc), 'fee': 400000, 'owner_address': 'DAG5VxUBiDx24wZgBwjJ1FeuVP1HHVjz6EzXa3z6', 'staking_address': None, 'size_in_kb': 4, 'meta': None}
+
+    @pytest.mark.asyncio
+    async def test_get_latest_currency_snapshot_rewards(self, network):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        results = await network.be_api.get_latest_currency_snapshot_rewards(
+            el_paca_metagraph_id
+        )
+        assert isinstance(results, list)
+
+    @pytest.mark.asyncio
+    async def test_get_currency_snapshot_rewards(self, network):
+        el_paca_metagraph_id = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
+        results = await network.be_api.get_currency_snapshot_rewards(
+            el_paca_metagraph_id, 950075
+        )
+        assert [r.model_dump() for r in results] == [{'destination': 'DAG2ACig4MuEPit149J1mEjhYqwn8SBvXgVuy2aX', 'amount': 300000000}, {'destination': 'DAG2YaNbtUv35YVjJ5U6PR9r8obVunEky2RDdGJb', 'amount': 100000000}, {'destination': 'DAG3dQwyG69DmcXxqAQzfPEp39FEfepc3iaGGQVg', 'amount': 200000000}, {'destination': 'DAG4eVyr7kUzr7r2oPoxnUfLDgugdXYXLDh6gxZS', 'amount': 200000000}]
