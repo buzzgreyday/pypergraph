@@ -7,8 +7,8 @@ from pypergraph.network.models.account import Balance
 
 
 class ML0Api(L0Api):
-    def __init__(self, host: str, client: Optional[RESTClient] = None):
-        super().__init__(host=host, client=client)
+    def __init__(self, host: str, client: Optional[RESTClient] = None, timeout: int = 25):
+        super().__init__(host=host, client=client, timeout=timeout)
 
     async def get_total_supply(self) -> TotalSupply:
         result = await self._make_request("GET", "/currency/total-supply")

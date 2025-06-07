@@ -128,7 +128,7 @@ class TestIntegrationL1API:
                 to_address=to_address, amount=10000000, fee=2000000, last_ref=last_ref
             )
             await account_metagraph_client.network.post_transaction(tx=tx)
-        except NetworkError as e:
+        except (NetworkError, httpx.ReadError) as e:
             for error, description in l1_transaction_error_msgs.items():
                 if error in str(e):
                     pytest.skip(f"Skipping due to expected error '{error}': {description}")

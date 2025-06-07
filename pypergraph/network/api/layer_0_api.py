@@ -42,11 +42,11 @@ def _handle_metrics(response: str) -> List[Dict[str, Any]]:
 
 
 class L0Api:
-    def __init__(self, host: str, client: Optional[RESTClient] = None):
+    def __init__(self, host: str, client: Optional[RESTClient] = None, timeout: int = 25):
         if not host:
             logging.warning("L0Api | ML0 :: Layer 0 API object not set.")
         self._host = host
-        self.client = client or HttpxClient(timeout=30)
+        self.client = client or HttpxClient(timeout=timeout)
 
     def config(self, host: Optional[str] = None, client: Optional[RESTClient] = None):
         """Reconfigure the RestAPIClient."""
