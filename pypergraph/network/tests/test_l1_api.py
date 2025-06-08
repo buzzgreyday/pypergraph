@@ -60,10 +60,11 @@ class TestMockedL1API:
         httpx_mock.add_response(
             method="POST",
             url="https://l1-lb-integrationnet.constellationnetwork.io/transactions",  # adjust if needed
-            json=mock_l1_api_responses["post_transaction"],
+            json={"data": {"hash": hash_}},
             status_code=200
         )
-        await account.network.post_transaction(tx)
+        r = await account.network.post_transaction(tx)
+        assert r == hash_
 
     @pytest.mark.asyncio
     async def test_post_metagraph_currency_transaction(self, network, httpx_mock: HTTPXMock, mock_l1_api_responses):
@@ -90,10 +91,11 @@ class TestMockedL1API:
         httpx_mock.add_response(
             method="POST",
             url="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200/transactions",  # adjust if needed
-            json=mock_l1_api_responses["post_transaction"],
+            json={"data": {"hash": hash_}},
             status_code=200
         )
-        await account_metagraph_client.network.post_transaction(tx=tx)
+        r = await account_metagraph_client.network.post_transaction(tx=tx)
+        assert r == hash_
 
     @pytest.mark.asyncio
     async def test_post_voting_pool_metagraph_data_transaction_with_prefix_base64_encoding(self, network, httpx_mock: HTTPXMock, mock_l1_api_responses):
