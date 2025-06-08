@@ -186,7 +186,7 @@ class TestIntegrationL1API:
 
         try:
             response = await account.network.post_transaction(tx)
-            assert bool(re.fullmatch(r"[a-fA-F0-9]{64}", response))
+            assert response == hash_
         except NetworkError as e:
             for error, description in l1_transaction_error_msgs.items():
                 if error in str(e):
@@ -213,7 +213,8 @@ class TestIntegrationL1API:
             tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(
                 to_address=to_address, amount=10000000, fee=2000000, last_ref=last_ref
             )
-            await account_metagraph_client.network.post_transaction(tx=tx)
+            r = await account_metagraph_client.network.post_transaction(tx=tx)
+            assert r == hash_
         except (NetworkError, httpx.ReadError) as e:
             for error, description in l1_transaction_error_msgs.items():
                 if error in str(e):
@@ -268,7 +269,7 @@ class TestIntegrationL1API:
 
         try:
             r = await account_metagraph_client.network.post_data(tx)
-            assert "hash" in r
+            assert r["hash"] == hash_
             # Returns the full response from the metagraph
         except (httpx.ConnectError, httpx.ReadTimeout):
             pytest.skip("No locally running Metagraph")
@@ -384,7 +385,7 @@ class TestIntegrationL1API:
 
         try:
             r = await account_metagraph_client.network.post_data(tx)
-            assert "hash" in r
+            assert r["hash"] == hash_
             # Returns the full response from the metagraph
         except (httpx.ConnectError, httpx.ReadTimeout):
             pytest.skip("No locally running Metagraph")
