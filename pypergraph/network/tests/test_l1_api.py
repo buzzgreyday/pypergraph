@@ -15,6 +15,7 @@ from ...core.exceptions import NetworkError
 
 @pytest.mark.mock
 class TestMockedL1API:
+    METAGRAPH_ID = "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43"
 
     @pytest.mark.asyncio
     async def test_get_l1_cluster_info(self, network, httpx_mock: HTTPXMock, mock_l1_api_responses):
@@ -93,6 +94,57 @@ class TestMockedL1API:
             status_code=200
         )
         await account_metagraph_client.network.post_transaction(tx=tx)
+
+    @pytest.mark.asyncio
+    async def test_post_voting_pool_metagraph_data_transaction_with_prefix_base64_encoding(self, network, httpx_mock: HTTPXMock, mock_l1_api_responses):
+        """
+        The VOTING and NFT template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
+        encoded = json.dumps(tx_value, separators=(',', ':'))
+        encoded = base64.b64encode(encoded.encode()).decode()
+        signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64") # Default prefix is True
+
+        """
+        from .secret import mnemo, from_address
+
+        account = DagAccount()
+        account.login_with_seed_phrase(mnemo)
+        account_metagraph_client = MetagraphTokenClient(
+            account=account,
+            metagraph_id=self.METAGRAPH_ID,
+            l0_host="http://localhost:9200",
+            currency_l1_host="http://localhost:9300",
+            data_l1_host="http://localhost:9400",
+        )
+        keystore = KeyStore()
+        pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
+
+        msg = {
+            "CreatePoll": {
+                "name": "test_poll",
+                "owner": f"{from_address}",
+                "pollOptions": ["true", "false"],
+                "startSnapshotOrdinal": 1000,  # start_snapshot, you should replace
+                "endSnapshotOrdinal": 100000,  # end_snapshot, you should replace
+            }
+        }
+
+        signature, hash_ = keystore.data_sign(pk, msg, encoding="base64") # Default prefix is True
+
+        public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
+        proof = {"id": public_key, "signature": signature}
+        tx = {"value": msg, "proofs": [proof]}
+
+        # Test verification: to verify msg, encoding must be done the same way
+        encoded_msg = keystore.encode_data(msg=msg, encoding="base64")
+        assert keystore.verify_data(public_key, encoded_msg, signature)
+        httpx_mock.add_response(
+            method="POST",
+            url="http://localhost:9400/data",  # adjust if needed
+            json={"hash": hash_},
+            status_code=200
+        )
+        r = await account_metagraph_client.network.post_data(tx)
+        assert "hash" in r
 
 
 @pytest.mark.integration
