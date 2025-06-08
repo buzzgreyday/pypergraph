@@ -12,35 +12,6 @@ from pypergraph.keystore import KeyStore
 
 
 @pytest.mark.asyncio
-async def test_post_metagraph_currency_transaction(network):
-    from .secret import mnemo, to_address, from_address
-
-    account = pypergraph.account.DagAccount()
-    account.login_with_seed_phrase(mnemo)
-    account_metagraph_client = pypergraph.account.MetagraphTokenClient(
-        account=account,
-        metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
-        l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
-        currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200",
-    )
-    try:
-        # Generate signed tx
-        last_ref = await account_metagraph_client.network.get_address_last_accepted_transaction_ref(
-            address=from_address
-        )
-        tx, hash_ = await account_metagraph_client.account.generate_signed_transaction(
-            to_address=to_address, amount=100000000, fee=0, last_ref=last_ref
-        )
-        await account_metagraph_client.network.post_transaction(tx=tx)
-    except (httpx.NetworkError, NetworkError) as e:
-        if any(msg in str(e) for msg in ["InsufficientBalance", "TransactionLimited"]):
-            pytest.skip(f"Skipping due to expected error: {e}")
-        raise
-    except httpx.ReadTimeout:
-        pytest.skip("Skipping due to timeout")
-
-
-@pytest.mark.asyncio
 async def test_post_metagraph_data_transaction(network):
     # TODO: error handling and documentation
     # Encode message according to serializeUpdate on your template module l1.

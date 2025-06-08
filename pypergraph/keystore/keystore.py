@@ -88,7 +88,7 @@ class KeyStore:
 
         return tx, hash_value
 
-    def _encode_data(
+    def encode_data(
         self,
         msg: dict,
         prefix: Union[bool, str] = True,
@@ -184,7 +184,7 @@ class KeyStore:
         #
         #     signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
         """ Encode """
-        msg = self._encode_data(encoding=encoding, prefix=prefix, msg=msg)
+        msg = self.encode_data(encoding=encoding, prefix=prefix, msg=msg)
 
         """ Serialize """
         serialized = self._serialize_data(msg)
