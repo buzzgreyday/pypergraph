@@ -148,6 +148,117 @@ class TestMockedL1API:
         r = await account_metagraph_client.network.post_data(tx)
         assert "hash" in r
 
+    @pytest.mark.asyncio
+    async def test_post_water_energy_metagraph_data_transaction(self, network, httpx_mock: HTTPXMock, mock_l1_api_responses):
+        # TODO: error handling and documentation
+        # Encode message according to serializeUpdate on your template module l1.
+        #
+        # 1. The TO-DO, SOCIAL and WATER AND ENERGY template doesn't add the signing prefix, it only needs the transaction to be formatted as string without spaces and None values:
+        #     # encoded = json.dumps(tx_value, separators=(',', ':'))
+        #     signature, hash_ = keystore.data_sign(pk, encoded, prefix=False) # Default encoding = "hex"
+        # 2. The VOTING and NFT template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
+        #     # encoded = json.dumps(tx_value, separators=(',', ':'))
+        #     # encoded = base64.b64encode(encoded.encode()).decode()
+        #     signature, hash_ = keystore.data_sign(pk, tx_value, prefix=True, encoding="base64") # Default prefix is True
+        # X. Inject a custom encoding function:
+        #     def encode(msg: dict):
+        #         return json.dumps(tx_value, separators=(',', ':'))
+        #
+        #     signature, hash_ = keystore.data_sign(pk, tx_value, prefix=False, encoding=encode)
+
+        from .secret import mnemo, from_address
+
+        def build_todo_tx():
+            """TO-DO TEMPLATE"""
+            # Build the signature request
+            from datetime import datetime
+
+            now = datetime.now()
+            one_day_in_millis = 24 * 60 * 60 * 1000
+            from datetime import timedelta
+
+            return {
+                "CreateTask": {
+                    "description": "This is a task description",
+                    "dueDate": str(
+                        int(
+                            (now + timedelta(milliseconds=one_day_in_millis)).timestamp()
+                            * 1000
+                        )
+                    ),
+                    "optStatus": {"type": "InProgress"},
+                }
+            }
+
+        def build_water_and_energy_usage_tx():
+            return {
+                "address": f"{from_address}",
+                "energyUsage": {
+                    "usage": 7,
+                    "timestamp": int(time.time() * 1000),
+                },
+                "waterUsage": {
+                    "usage": 7,
+                    "timestamp": int(time.time() * 1000),
+                },
+            }
+
+        account = DagAccount()
+        account.login_with_seed_phrase(mnemo)
+        account_metagraph_client = MetagraphTokenClient(
+            account=account,
+            metagraph_id=self.METAGRAPH_ID,
+            l0_host="http://localhost:9200",
+            currency_l1_host="http://localhost:9300",
+            data_l1_host="http://localhost:9400",
+        )
+        keystore = KeyStore()
+        pk = keystore.get_private_key_from_mnemonic(phrase=mnemo)
+
+        # msg = build_todo_tx()
+        msg = build_water_and_energy_usage_tx()
+
+        """ TO-DO """
+        # signature, hash_ = keystore.data_sign(pk, msg, prefix=False) # Default encoding = json.dumps(msg, separators=(',', ':'))
+        """ WATER AND ENERGY """
+        signature, hash_ = keystore.data_sign(pk, msg, prefix=False)
+        """ TO-DO "CUSTOM" """
+        # def encode(data: dict):
+        #     return json.dumps(msg, separators=(',', ':'))
+        # signature, hash_ = keystore.data_sign(pk, msg, prefix=False, encoding=encode)
+
+        public_key = account_metagraph_client.account.public_key[2:]  # Remove '04' prefix
+        proof = {"id": public_key, "signature": signature}
+        tx = {"value": msg, "proofs": [proof]}
+
+        encoded_msg = keystore.encode_data(msg=msg, prefix=False)
+        assert keystore.verify_data(public_key, encoded_msg, signature)
+        false_msg = {
+            "address": f"{from_address}",
+            "energyUsage": {
+                "usage": 5,
+                "timestamp": int(time.time() * 1000),
+            },
+            "waterUsage": {
+                "usage": 1,
+                "timestamp": int(time.time() * 1000),
+            },
+        }
+        encoded_msg = keystore.encode_data(msg=false_msg, prefix=False)
+        assert not keystore.verify_data(public_key, encoded_msg, signature)
+        encoded_msg = keystore.encode_data(msg=msg, prefix=False, encoding="base64")
+        assert not keystore.verify_data(public_key, encoded_msg, signature)
+        encoded_msg = keystore.encode_data(msg=msg)
+        assert not keystore.verify_data(public_key, encoded_msg, signature)
+        httpx_mock.add_response(
+            method="POST",
+            url="http://localhost:9400/data",  # adjust if needed
+            json={"hash": hash_},
+            status_code=200
+        )
+        r = await account_metagraph_client.network.post_data(tx)
+        assert r["hash"] == hash_
+
 
 @pytest.mark.integration
 class TestIntegrationL1API:
