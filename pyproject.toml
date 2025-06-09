@@ -41,7 +41,7 @@ readme = "README.md"
 license = {file="LICENSE"}
 keywords = ["hypergraph", "dag", "constellation", "metagraph", "constellationnetwork", "cryptography", "crypto", "cryptocurrency", "wallet", "finance", "dag4", "dag4.js", "stardust", "collective"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 2 - Beta",
   "Programming Language :: Python",
   "Intended Audience :: Developers",
   "Topic :: Software Development :: Build Tools",
