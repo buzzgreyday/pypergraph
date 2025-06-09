@@ -1,7 +1,9 @@
 from ipaddress import IPv4Network
 
+import httpx
 import pytest
 from pytest_httpx import HTTPXMock
+from .conf import network
 
 
 @pytest.mark.mock
@@ -3761,3 +3763,13 @@ class TestIntegrationL0API:
         result = await network.l0_api.get_latest_snapshot_ordinal()
         result = result.model_dump()
         assert result.get("ordinal")
+
+    @pytest.mark.asyncio
+    async def test_get_metrics(self, network):
+        try:
+            r = await network.l0_api.get_metrics()
+            for x in r:
+                print(x)
+            assert isinstance(r, list)
+        except httpx.ReadTimeout:
+            pytest.skip("Timeout")
