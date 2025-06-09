@@ -1,9 +1,7 @@
 from typing import Optional, List, Dict
 
-from docutils.nodes import field
 from pydantic import BaseModel, Field, constr
 
-from pypergraph.network.models.allow_spend import AllowSpendBlock
 from pypergraph.network.models.reward import RewardTransaction
 from pypergraph.network.models.transaction import SignatureProof, SignedTransaction
 

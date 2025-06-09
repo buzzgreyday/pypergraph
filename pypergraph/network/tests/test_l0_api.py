@@ -1,10 +1,8 @@
-from datetime import datetime, timezone
 from ipaddress import IPv4Network
 
 import pytest
 from pytest_httpx import HTTPXMock
 
-from .conf import mock_l0_api_responses, network
 
 
 @pytest.mark.mock

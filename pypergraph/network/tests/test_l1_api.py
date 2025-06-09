@@ -1,4 +1,3 @@
-import re
 import time
 from ipaddress import IPv4Network
 
@@ -6,7 +5,6 @@ import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
-from .conf import mock_l1_api_responses, network, l1_transaction_error_msgs
 from pypergraph.account import DagAccount, MetagraphTokenClient
 from .secret import mnemo, to_address
 from ... import KeyStore
