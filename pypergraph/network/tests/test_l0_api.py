@@ -4,7 +4,6 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 
-
 @pytest.mark.mock
 class TestMockedL0API:
     """Test L0 API endpoints with mocked responses"""

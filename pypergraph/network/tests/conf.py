@@ -4495,16 +4495,24 @@ def mock_l1_api_responses():
             }
         ],
         "total_supply": {"ordinal": 3381985, "total": 97227345262286877},
-        "last_ref": {"ordinal":0,"hash":"0000000000000000000000000000000000000000000000000000000000000000"},
+        "last_ref": {
+            "ordinal": 0,
+            "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        },
         "pending_transaction": {
-                "hash": "121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7",
-                "ordinal": 20,
-                "amount": 1300000000,
-                "fee": 0,
-                "timestamp": "2025-02-13T01:10:05.098Z",
-            },
-        "post_transaction": {"data": {"hash": "39a46885844a9f775ef4e3f0514e5a758e6c7a0acfec9145959de2205b1af176"}}
+            "hash": "121b672f1bc4819985f15a416de028cf57efe410d63eec3e6317a5bc53b4c2c7",
+            "ordinal": 20,
+            "amount": 1300000000,
+            "fee": 0,
+            "timestamp": "2025-02-13T01:10:05.098Z",
+        },
+        "post_transaction": {
+            "data": {
+                "hash": "39a46885844a9f775ef4e3f0514e5a758e6c7a0acfec9145959de2205b1af176"
+            }
+        },
     }
+
 
 @pytest.fixture
 def l1_transaction_error_msgs():
@@ -4516,5 +4524,5 @@ def l1_transaction_error_msgs():
         "AddressLocked": "The address is locked by the network, and transactions can't be made.",
         "Conflict": "Such transaction has been already accepted by the network.",
         "SameSourceAndDestinationAddress": "The source and destination addresses should be different.",
-        "NotSignedBySourceAddressOwner": "The transaction should be signed exclusively by the key of the source address."
+        "NotSignedBySourceAddressOwner": "The transaction should be signed exclusively by the key of the source address.",
     }

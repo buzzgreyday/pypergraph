@@ -41,7 +41,9 @@ def _handle_metrics(response: str) -> List[Dict[str, Any]]:
 
 
 class L1Api:
-    def __init__(self, host: str, client: Optional[RESTClient] = None, timeout: int = 25):
+    def __init__(
+        self, host: str, client: Optional[RESTClient] = None, timeout: int = 25
+    ):
         if not host:
             logging.warning("L1Api | ML1 :: Layer 1 API object not set.")
         self._host = host
