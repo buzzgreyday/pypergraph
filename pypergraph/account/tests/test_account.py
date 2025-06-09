@@ -182,13 +182,15 @@ async def test_currency_transfer():
 
     account = DagAccount()
     account.login_with_seed_phrase(mnemo)
-    account.connect(network_id="testnet")
+    account.connect(network_id="integrationnet")
     failed = []
     try:
         r = await account.transfer(to_address=to_address, amount=100000000, fee=200000)
         assert isinstance(r, PendingTransaction)
     except (NetworkError, httpx.ReadError):
-        failed.append("Network error or Httpx read error")
+        failed.append("Integrationnet DAG: Network error or Httpx read error.")
+    except httpx.ReadTimeout:
+        failed.append("Integrationnet DAG: Timeout Error")
 
     metagraph_account = MetagraphTokenClient(
         account=account,
@@ -202,8 +204,8 @@ async def test_currency_transfer():
             to_address=to_address, amount=10000000, fee=2000000
         )
         assert isinstance(r, dict)
-    except (NetworkError, httpx.ReadTimeout):
-        failed.append("Network or Httpx timeout error")
+    except (NetworkError, httpx.ReadError):
+        failed.append("El Paca Metagraph: Network or HTTPX ReadError (timout)")
 
     if failed:
         pytest.skip(", ".join(str(x) for x in failed))

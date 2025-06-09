@@ -376,7 +376,7 @@ class TestIntegrationL1API:
             )
             r = await account_metagraph_client.network.post_transaction(tx=tx)
             assert r == hash_
-        except (NetworkError, httpx.ReadError) as e:
+        except NetworkError as e:
             for error, description in l1_transaction_error_msgs.items():
                 if error in str(e):
                     pytest.skip(
