@@ -218,7 +218,7 @@ jobs:
       (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
     environment:
       name: pypi
-      url: https://pypi.org/p/dag-pypergraph
+      url: https://pypi.org/p/pypergraph-dag
     permissions:
       id-token: write  # For trusted publishing
     steps:
