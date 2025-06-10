@@ -121,7 +121,7 @@ jobs:
     name: Build package
     runs-on: ubuntu-latest
     needs: [test, version-and-tag]
-    if: needs.version-and-tag.outputs.version_changed == 'true'
+    #if: needs.version-and-tag.outputs.version_changed == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -158,7 +158,7 @@ jobs:
     name: Create GitHub release
     runs-on: ubuntu-latest
     needs: [version-and-tag, build]
-    if: needs.version-and-tag.outputs.version_changed == 'true'
+    #if: needs.version-and-tag.outputs.version_changed == 'true'
     permissions:
       contents: write
     steps:
@@ -194,7 +194,7 @@ jobs:
     name: Publish to PyPI
     runs-on: ubuntu-latest
     needs: [version-and-tag, build]
-    if: needs.version-and-tag.outputs.version_changed == 'true' && github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     environment:
       name: pypi
       url: https://pypi.org/p/pypergraph-dag
@@ -221,7 +221,7 @@ jobs:
     name: Publish to Test PyPI
     runs-on: ubuntu-latest
     needs: [version-and-tag, build]
-    if: needs.version-and-tag.outputs.version_changed == 'true' && github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/dev'
     environment:
       name: test-pypi
       url: https://test.pypi.org/p/pypergraph-dag
