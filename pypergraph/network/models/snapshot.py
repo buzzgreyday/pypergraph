@@ -106,6 +106,3 @@ class SignedGlobalIncrementalSnapshot(BaseModel):
 
 class Ordinal(BaseModel):
     ordinal: int = Field(ge=0, alias="value")
-
-
-"""BE MODELS: DTO"""
