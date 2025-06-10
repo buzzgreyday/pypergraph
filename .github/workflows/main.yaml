@@ -2,16 +2,12 @@ name: "dag-pypergraph"
 
 on:
   push:
-    branches: [master, dev]
+    branches: [ "master", "dev" ]
   pull_request:
-    branches: [master, dev]
-
-env:
-  PYTHON_DEFAULT_VERSION: "3.11"
+    branches: [ "master", "dev" ]
 
 jobs:
-  test:
-    name: Test (Python ${{ matrix.python-version }})
+  build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,296 +15,106 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: "${{ needs.version-and-tag.outputs.new_version }}"
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install ruff pytest pytest-asyncio
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Lint with Ruff
+      run: |
+        ruff check . --select=E9,F63,F7,F82 --output-format=full
+        ruff check . --exit-zero --target-version=py39 --fix
+    - name: Test with pytest
+      run: |
+        pytest
+    - name: Install Bandit
+      run: pip install bandit
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+    - name: Run Bandit security check
+      run: |
+        bandit -r . --exclude "tests/,test_*.py" | tee security_report.txt
+        if grep -E "Severity: (Medium|High)" security_report.txt; then
+          echo "Security issues detected with Medium or High severity"
+          exit 1
+        fi
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install ruff pytest pytest-asyncio bandit hatch pytest-httpx
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Install project in editable mode for testing
-          pip install -e . || echo "Editable install failed, continuing with regular install"
+    - name: Security check report artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report-${{ github.run_id }}-${{ matrix.python-version }}
+        path: security_report.txt
 
-      - name: Lint with Ruff
-        run: |
-          # Auto-fix what can be automatically fixed
-          ruff check . --fix --exit-zero
-          # Check for remaining issues
-          ruff check . --output-format=github
-          # Check formatting
-          ruff format --check .
-
-      - name: Security check with Bandit
-        run: |
-          bandit -r . -f json -o bandit-report.json --exclude "tests/,test_*.py" || true
-          bandit -r . --exclude "tests/,test_*.py" --severity-level medium --exit-zero
-
-      - name: Run tests
-        run: pytest -q -m "not integration" --verbose
-
-      - name: Upload security report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-report-py${{ matrix.python-version }}
-          path: bandit-report.json
-          retention-days: 30
-
-  version-and-tag:
-    name: Version and tag
+  hatchling:
     runs-on: ubuntu-latest
-    needs: [test]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
-    permissions:
-      contents: write
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      new_version: ${{ steps.version.outputs.new_version }}
-      version_changed: ${{ steps.version.outputs.version_changed }}
+    needs: build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v3
         with:
-          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
-
-      - name: Install dependencies
-        run: |
-          pip install hatch
-          # Install tomli for version extraction if needed
-          pip install tomli || pip install tomli-w
-
-      - name: Configure git
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-      - name: Version bump and tag
-        id: version
-        run: |
-          # Debug current setup
-          echo "=== Current pyproject.toml structure ==="
-          cat pyproject.toml | grep -A 10 -B 10 version || true
-          
-          # Try to get current version with better fallback
-          CURRENT_VERSION=""
-          if command -v hatch >/dev/null 2>&1 && hatch version 2>/dev/null; then
-            CURRENT_VERSION=$(hatch version)
-          else
-            echo "hatch version failed, trying to extract from pyproject.toml"
-            # Try multiple methods to extract version
-            CURRENT_VERSION=$(python -c "
-              import sys
-              try:
-                  import tomli as tomllib
-              except ImportError:
-                  try:
-                      import tomllib
-                  except ImportError:
-                      try:
-                          import toml as tomllib
-                          tomllib.load = tomllib.load
-                      except ImportError:
-                          print('0.1.0')
-                          sys.exit()
-              
-              try:
-                  with open('pyproject.toml', 'rb') as f:
-                      data = tomllib.load(f)
-                  version = data.get('project', {}).get('version') or data.get('tool', {}).get('hatch', {}).get('version', {}).get('source', '0.1.0')
-                  print(version)
-              except Exception as e:
-                  print('0.1.0')
-              " 2>/dev/null || echo "0.1.0")
-          fi
-
-          echo "Current version: $CURRENT_VERSION"
-          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          
-          # Determine new version based on branch
-          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            # For dev branch: bump to beta if not already beta, otherwise just bump beta
-            if [[ "$CURRENT_VERSION" == *"b"* ]]; then
-              hatch version b 2>/dev/null || echo "Version bump failed"
-            else
-              hatch version minor,b 2>/dev/null || echo "Version bump failed"
-            fi
-          elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            # For master branch: release (remove beta suffix)
-            if [[ "$CURRENT_VERSION" == *"b"* ]]; then
-              hatch version release 2>/dev/null || echo "Version bump failed"
-            else
-              hatch version patch 2>/dev/null || echo "Version bump failed"
-            fi
-          fi
-          
-          # Get new version
-          NEW_VERSION=""
-          if command -v hatch >/dev/null 2>&1 && hatch version 2>/dev/null; then
-            NEW_VERSION=$(hatch version)
-          else
-            NEW_VERSION="$CURRENT_VERSION"
-          fi
-
-          echo "New version: $NEW_VERSION"
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          
-          # Check if version actually changed
-          VERSION_CHANGED="false"
-          if [[ "$CURRENT_VERSION" != "$NEW_VERSION" ]]; then
-            VERSION_CHANGED="true"
-            echo "Version changed from $CURRENT_VERSION to $NEW_VERSION"
-            
-            # Commit and tag the version change
-            git add .
-            git commit -m "Bump version: $CURRENT_VERSION → $NEW_VERSION" || echo "Nothing to commit"
-            git tag "v$NEW_VERSION"
-            git push origin HEAD --follow-tags
-          else
-            echo "Version unchanged: $CURRENT_VERSION"
-          fi
-          
-          echo "version_changed=$VERSION_CHANGED" >> $GITHUB_OUTPUT
-
-  build:
-    name: Build package
-    runs-on: ubuntu-latest
-    needs: [test, version-and-tag]
-    if: needs.version-and-tag.outputs.version_changed == 'true'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
-          cache: 'pip'
-
-      - name: Install build tools
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install hatch build
-          # Debug: Check pyproject.toml structure
-          echo "=== pyproject.toml content ==="
-          cat pyproject.toml
-          echo "=== Current version ==="
-          hatch version || echo "hatch version failed"
-
+          python-version: '3.11'
+      - name: Install Hatch
+        run: pip install hatch
       - name: Build package
-        run: |
-          # Try hatch build first, fallback to python -m build
-          hatch build || python -m build
-
-      - name: Upload build artifacts
+        run: hatch build
+      - name: Upload package artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: package-dist
+          name: package-build
           path: dist/
-          retention-days: 7
 
   release:
-    name: Create GitHub release
+    needs: hatchling
     runs-on: ubuntu-latest
-    needs: [version-and-tag, build]
-    if: needs.version-and-tag.outputs.version_changed == 'true'
-    permissions:
-      contents: write
+    if: contains('refs/heads/dev refs/heads/master', github.ref)
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
         with:
-          fetch-depth: 0
-
-      - name: Download build artifacts
+          python-version: '3.11'
+      - name: Extract version from pyproject.toml
+        id: get_version
+        run: echo "VERSION=$(sed -n 's/version = \"\(.*\)\"/\1/p' pyproject.toml)" >> $GITHUB_ENV
+      - name: Download package artifacts
         uses: actions/download-artifact@v4
         with:
-          name: package-dist
+          name: package-build
           path: ./dist
-
-      - name: List dist contents
-        run: |
-          echo "=== Contents of dist directory ==="
-          ls -la ./dist/ || echo "dist directory is empty or doesn't exist"
-
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v${{ needs.version-and-tag.outputs.new_version }}"
-          name: "Pypergraph v${{ needs.version-and-tag.outputs.new_version }}"
+          tag_name: "v${{ env.VERSION }}"
+          name: "Pypergraph v${{ env.VERSION }}"
           draft: false
-          prerelease: ${{ contains(needs.version-and-tag.outputs.new_version, 'b') || github.ref == 'refs/heads/dev' }}
+          prerelease: ${{ github.ref == 'refs/heads/dev' }}  # Pre-release if on branch 'dev'
           files: ./dist/*
-          generate_release_notes: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PYPERGRAPH_PAT }}
 
-  publish-pypi:
-    name: Publish to PyPI
+  publish:
+    needs: [ hatchling, build ]  # Only runs if tests pass
     runs-on: ubuntu-latest
-    needs: [version-and-tag, build]
-    if: needs.version-and-tag.outputs.version_changed == 'true' && github.ref == 'refs/heads/master'
-    environment:
-      name: pypi
-      url: https://pypi.org/p/pypergraph-dag
-    permissions:
-      id-token: write  # For trusted publishing
+    if: github.ref == 'refs/heads/master'
     steps:
-      - name: Download build artifacts
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.11'
+      - name: Download package artifacts
         uses: actions/download-artifact@v4
         with:
-          name: package-dist
+          name: package-build
           path: ./dist
-
-      - name: List dist contents
-        run: |
-          echo "=== Contents of dist directory ==="
-          ls -la ./dist/ || echo "dist directory is empty or doesn't exist"
-
+      - name: Install Twine
+        run: pip install twine
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          verbose: true
-
-  publish-test-pypi:
-    name: Publish to Test PyPI
-    runs-on: ubuntu-latest
-    needs: [version-and-tag, build]
-    if: needs.version-and-tag.outputs.version_changed == 'true' && github.ref == 'refs/heads/dev'
-    environment:
-      name: test-pypi
-      url: https://test.pypi.org/p/pypergraph-dag
-    permissions:
-      id-token: write  # For trusted publishing
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: package-dist
-          path: ./dist
-
-      - name: List dist contents
-        run: |
-          echo "=== Contents of dist directory ==="
-          ls -la ./dist/ || echo "dist directory is empty or doesn't exist"
-
-      - name: Publish to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-          verbose: true
+        env:
+          PYPI_PYPERGRAPH_TOKEN: ${{ secrets.PYPI_PYPERGRAPH_TOKEN }}
+        run: twine upload dist/* -u __token__ -p "$PYPI_PYPERGRAPH_TOKEN"
