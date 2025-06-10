@@ -130,7 +130,7 @@ class TestMockedL1API:
 
     @pytest.mark.asyncio
     async def test_post_voting_pool_metagraph_data_transaction_with_prefix_base64_encoding(
-        self, network, httpx_mock: HTTPXMock, mock_l1_api_responses
+        self, network, httpx_mock: HTTPXMock
     ):
         """
         The VOTING and NFT template does use the dag4JS dataSign (prefix=True), the encoding (before data_sign) is done first by stringifying, then converting to base64:
@@ -187,7 +187,7 @@ class TestMockedL1API:
 
     @pytest.mark.asyncio
     async def test_post_water_energy_metagraph_data_transaction(
-        self, network, httpx_mock: HTTPXMock, mock_l1_api_responses
+        self, network, httpx_mock: HTTPXMock
     ):
         # TODO: error handling and documentation
         # Encode message according to serializeUpdate on your template module l1.
