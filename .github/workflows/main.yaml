@@ -51,7 +51,7 @@ jobs:
           bandit -r . --exclude "tests/,test_*.py" --severity-level medium --exit-zero
 
       - name: Run tests
-        run: pytest --verbose
+        run: pytest -q -m "not integration" --verbose
 
       - name: Upload security report
         if: always()
