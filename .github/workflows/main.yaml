@@ -221,7 +221,7 @@ jobs:
           name: package-dist
           path: dist/
           retention-days: 7
-          
+
   release:
     name: Create GitHub release
     runs-on: ubuntu-latest
