@@ -146,165 +146,165 @@ jobs:
             echo "hatch version failed, trying to extract from pyproject.toml"
             # Try multiple methods to extract version
             CURRENT_VERSION=$(python -c "
-          import sys
-          try:
-              import tomli as tomllib
-          except ImportError:
+              import sys
               try:
-                  import tomllib
+                  import tomli as tomllib
               except ImportError:
                   try:
-                      import toml as tomllib
-                      tomllib.load = tomllib.load
+                      import tomllib
                   except ImportError:
-                      print('0.1.0')
-                      sys.exit()
+                      try:
+                          import toml as tomllib
+                          tomllib.load = tomllib.load
+                      except ImportError:
+                          print('0.1.0')
+                          sys.exit()
+              
+              try:
+                  with open('pyproject.toml', 'rb') as f:
+                      data = tomllib.load(f)
+                  version = data.get('project', {}).get('version') or data.get('tool', {}).get('hatch', {}).get('version', {}).get('source', '0.1.0')
+                  print(version)
+              except Exception as e:
+                  print('0.1.0')
+              " 2>/dev/null || echo "0.1.0")
+          fi
           
-          try:
-              with open('pyproject.toml', 'rb') as f:
-                  data = tomllib.load(f)
-              version = data.get('project', {}).get('version') or data.get('tool', {}).get('hatch', {}).get('version', {}).get('source', '0.1.0')
-              print(version)
-          except Exception as e:
-              print('0.1.0')
-          " 2>/dev/null || echo "0.1.0")
-                    fi
+          echo "Current version: $CURRENT_VERSION"
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           
-                    echo "Current version: $CURRENT_VERSION"
-                    echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-                    
-                    # Determine new version based on branch
-                    if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-                      # For dev branch: bump to beta if not already beta, otherwise just bump beta
-                      if [[ "$CURRENT_VERSION" == *"b"* ]]; then
-                        hatch version b 2>/dev/null || echo "Version bump failed"
-                      else
-                        hatch version minor,b 2>/dev/null || echo "Version bump failed"
-                      fi
-                    elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-                      # For master branch: release (remove beta suffix)
-                      if [[ "$CURRENT_VERSION" == *"b"* ]]; then
-                        hatch version release 2>/dev/null || echo "Version bump failed"
-                      else
-                        hatch version patch 2>/dev/null || echo "Version bump failed"
-                      fi
-                    fi
-                    
-                    # Get new version
-                    NEW_VERSION=""
-                    if command -v hatch >/dev/null 2>&1 && hatch version 2>/dev/null; then
-                      NEW_VERSION=$(hatch version)
-                    else
-                      NEW_VERSION="$CURRENT_VERSION"
-                    fi
+          # Determine new version based on branch
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            # For dev branch: bump to beta if not already beta, otherwise just bump beta
+            if [[ "$CURRENT_VERSION" == *"b"* ]]; then
+              hatch version b 2>/dev/null || echo "Version bump failed"
+            else
+              hatch version minor,b 2>/dev/null || echo "Version bump failed"
+            fi
+          elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            # For master branch: release (remove beta suffix)
+            if [[ "$CURRENT_VERSION" == *"b"* ]]; then
+              hatch version release 2>/dev/null || echo "Version bump failed"
+            else
+              hatch version patch 2>/dev/null || echo "Version bump failed"
+            fi
+          fi
           
-                    echo "New version: $NEW_VERSION"
-                    echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-                    
-                    # Check if version actually changed
-                    VERSION_CHANGED="false"
-                    if [[ "$CURRENT_VERSION" != "$NEW_VERSION" ]]; then
-                      VERSION_CHANGED="true"
-                      echo "Version changed from $CURRENT_VERSION to $NEW_VERSION"
-                      
-                      # Commit and tag the version change
-                      git add .
-                      git commit -m "Bump version: $CURRENT_VERSION → $NEW_VERSION" || echo "Nothing to commit"
-                      git tag "v$NEW_VERSION"
-                      git push origin HEAD --follow-tags
-                    else
-                      echo "Version unchanged: $CURRENT_VERSION"
-                    fi
-                    
-                    echo "version_changed=$VERSION_CHANGED" >> $GITHUB_OUTPUT
+          # Get new version
+          NEW_VERSION=""
+          if command -v hatch >/dev/null 2>&1 && hatch version 2>/dev/null; then
+            NEW_VERSION=$(hatch version)
+          else
+            NEW_VERSION="$CURRENT_VERSION"
+          fi
           
-            release:
-              name: Create GitHub release
-              runs-on: ubuntu-latest
-              needs: [version-and-tag]
-              if: needs.version-and-tag.outputs.version_changed == 'true'
-              permissions:
-                contents: write
-              steps:
-                - name: Checkout code
-                  uses: actions/checkout@v4
-                  with:
-                    fetch-depth: 0
+          echo "New version: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           
-                - name: Download build artifacts
-                  uses: actions/download-artifact@v4
-                  with:
-                    name: package-dist
-                    path: ./dist
+          # Check if version actually changed
+          VERSION_CHANGED="false"
+          if [[ "$CURRENT_VERSION" != "$NEW_VERSION" ]]; then
+            VERSION_CHANGED="true"
+            echo "Version changed from $CURRENT_VERSION to $NEW_VERSION"
+            
+            # Commit and tag the version change
+            git add .
+            git commit -m "Bump version: $CURRENT_VERSION → $NEW_VERSION" || echo "Nothing to commit"
+            git tag "v$NEW_VERSION"
+            git push origin HEAD --follow-tags
+          else
+            echo "Version unchanged: $CURRENT_VERSION"
+          fi
           
-                - name: List dist contents
-                  run: |
-                    echo "=== Contents of dist directory ==="
-                    ls -la ./dist/ || echo "dist directory is empty or doesn't exist"
-          
-                - name: Create GitHub Release
-                  uses: softprops/action-gh-release@v1
-                  with:
-                    tag_name: "v${{ needs.version-and-tag.outputs.new_version }}"
-                    name: "Pypergraph v${{ needs.version-and-tag.outputs.new_version }}"
-                    draft: false
-                    prerelease: ${{ contains(needs.version-and-tag.outputs.new_version, 'b') || github.ref == 'refs/heads/dev' }}
-                    files: ./dist/*
-                    generate_release_notes: true
-                  env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-            publish-pypi:
-              name: Publish to PyPI
-              runs-on: ubuntu-latest
-              needs: [version-and-tag]
-              if: needs.version-and-tag.outputs.version_changed == 'true' && github.ref == 'refs/heads/master'
-              environment:
-                name: pypi
-                url: https://pypi.org/p/pypergraph-dag
-              permissions:
-                id-token: write  # For trusted publishing
-              steps:
-                - name: Download build artifacts
-                  uses: actions/download-artifact@v4
-                  with:
-                    name: package-dist
-                    path: ./dist
-          
-                - name: List dist contents
-                  run: |
-                    echo "=== Contents of dist directory ==="
-                    ls -la ./dist/ || echo "dist directory is empty or doesn't exist"
-          
-                - name: Publish to PyPI
-                  uses: pypa/gh-action-pypi-publish@release/v1
-                  with:
-                    verbose: true
-          
-            publish-test-pypi:
-              name: Publish to Test PyPI
-              runs-on: ubuntu-latest
-              needs: [version-and-tag]
-              if: needs.version-and-tag.outputs.version_changed == 'true' && github.ref == 'refs/heads/dev'
-              environment:
-                name: test-pypi
-                url: https://test.pypi.org/p/pypergraph-dag
-              permissions:
-                id-token: write  # For trusted publishing
-              steps:
-                - name: Download build artifacts
-                  uses: actions/download-artifact@v4
-                  with:
-                    name: package-dist
-                    path: ./dist
-          
-                - name: List dist contents
-                  run: |
-                    echo "=== Contents of dist directory ==="
-                    ls -la ./dist/ || echo "dist directory is empty or doesn't exist"
-          
-                - name: Publish to Test PyPI
-                  uses: pypa/gh-action-pypi-publish@release/v1
-                  with:
-                    repository-url: https://test.pypi.org/legacy/
-                    verbose: true
+          echo "version_changed=$VERSION_CHANGED" >> $GITHUB_OUTPUT
+
+  release:
+    name: Create GitHub release
+    runs-on: ubuntu-latest
+    needs: [version-and-tag]
+    if: needs.version-and-tag.outputs.version_changed == 'true'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: package-dist
+          path: ./dist
+
+      - name: List dist contents
+        run: |
+          echo "=== Contents of dist directory ==="
+          ls -la ./dist/ || echo "dist directory is empty or doesn't exist"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "v${{ needs.version-and-tag.outputs.new_version }}"
+          name: "Pypergraph v${{ needs.version-and-tag.outputs.new_version }}"
+          draft: false
+          prerelease: ${{ contains(needs.version-and-tag.outputs.new_version, 'b') || github.ref == 'refs/heads/dev' }}
+          files: ./dist/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    needs: [version-and-tag]
+    if: needs.version-and-tag.outputs.version_changed == 'true' && github.ref == 'refs/heads/master'
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pypergraph-dag
+    permissions:
+      id-token: write  # For trusted publishing
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: package-dist
+          path: ./dist
+
+      - name: List dist contents
+        run: |
+          echo "=== Contents of dist directory ==="
+          ls -la ./dist/ || echo "dist directory is empty or doesn't exist"
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+
+  publish-test-pypi:
+    name: Publish to Test PyPI
+    runs-on: ubuntu-latest
+    needs: [version-and-tag]
+    if: needs.version-and-tag.outputs.version_changed == 'true' && github.ref == 'refs/heads/dev'
+    environment:
+      name: test-pypi
+      url: https://test.pypi.org/p/pypergraph-dag
+    permissions:
+      id-token: write  # For trusted publishing
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: package-dist
+          path: ./dist
+
+      - name: List dist contents
+        run: |
+          echo "=== Contents of dist directory ==="
+          ls -la ./dist/ || echo "dist directory is empty or doesn't exist"
+
+      - name: Publish to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          verbose: true
