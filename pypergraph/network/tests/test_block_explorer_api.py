@@ -4,6 +4,7 @@ import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
+from .conf import network, mock_block_explorer_responses
 
 @pytest.mark.mock
 class TestMockedBlockExplorerAPI:
