@@ -5,7 +5,6 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 
-
 @pytest.mark.mock
 class TestMockedBlockExplorerAPI:
     """Test Block Explorer API endpoints with mocked responses"""

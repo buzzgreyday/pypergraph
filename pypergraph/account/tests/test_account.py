@@ -53,7 +53,6 @@ class TestAccount:
             "metagraph_id": None,
         }
 
-
     @pytest.mark.asyncio
     async def test_metagraph_account_connect(self):
         """
@@ -100,7 +99,6 @@ class TestAccount:
         except httpx.ReadTimeout as e:
             pytest.skip(f"Got expected error: {e}")
 
-
     @pytest.mark.asyncio
     async def test_login_logout(self):
         from secret import mnemo
@@ -139,7 +137,6 @@ class TestAccount:
         assert account.key_trio.address == "DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX"
         account.logout()
 
-
     @pytest.mark.asyncio
     async def test_get_balance(self):
         from secret import mnemo
@@ -161,7 +158,6 @@ class TestAccount:
         except (httpx.ReadTimeout, NetworkError) as e:
             pytest.skip(f"Error: {e}")
 
-
     @pytest.mark.asyncio
     async def test_get_currency_transactions(self):
         from secret import mnemo
@@ -177,7 +173,6 @@ class TestAccount:
         r = await metagraph_account.get_transactions(limit=3)
         assert len(r) == 3
 
-
     @pytest.mark.asyncio
     async def test_currency_transfer(self):
         from secret import mnemo, to_address
@@ -187,7 +182,9 @@ class TestAccount:
         account.connect(network_id="integrationnet")
         failed = []
         try:
-            r = await account.transfer(to_address=to_address, amount=100000000, fee=200000)
+            r = await account.transfer(
+                to_address=to_address, amount=100000000, fee=200000
+            )
             assert isinstance(r, PendingTransaction)
         except (NetworkError, httpx.ReadError):
             failed.append("Integrationnet DAG: Network error or Httpx read error.")
@@ -211,7 +208,6 @@ class TestAccount:
 
         if failed:
             pytest.skip(", ".join(str(x) for x in failed))
-
 
     @pytest.mark.asyncio
     async def test_currency_batch_transfer(self):

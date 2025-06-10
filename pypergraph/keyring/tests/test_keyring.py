@@ -9,9 +9,11 @@ from pypergraph.keystore import KeyStore
 
 # We need to write some more tests
 
+
 @pytest.fixture
 def key_manager():
     return KeyringManager(storage_file_path="key_storage.json")
+
 
 @pytest.mark.keyring
 class TestKeyring:
@@ -39,7 +41,6 @@ class TestKeyring:
             ],
         }
 
-
     @pytest.mark.asyncio
     async def test_create_hd_wallet(self, key_manager):
         key_manager.set_password("super_S3cretP_Asswo0rd")
@@ -63,7 +64,6 @@ class TestKeyring:
         }
         assert wallet.id == "MCW2"
 
-
     @pytest.mark.asyncio
     async def test_create_single_account_wallet(self, key_manager):
         key_manager.set_password("super_S3cretP_Asswo0rd")
@@ -80,7 +80,6 @@ class TestKeyring:
         assert wallet.id == "SAW3"
         await key_manager.logout()  # Resets SID
 
-
     @pytest.mark.asyncio
     async def test_create_wallet_ids(self, key_manager):
         key_manager.set_password("super_S3cretP_Asswo0rd")
@@ -89,7 +88,6 @@ class TestKeyring:
         await key_manager.create_multi_chain_hd_wallet(seed=mnemo)
         assert [wallet.id for wallet in key_manager.wallets] == ["SAW1", "MCW2"]
         await key_manager.logout()
-
 
     @pytest.mark.asyncio
     async def test_manager_login(self, key_manager):
@@ -112,7 +110,9 @@ class TestKeyring:
                         "network": "Ethereum",
                         "accounts": [
                             {
-                                "tokens": ["0xa393473d64d2F9F026B60b6Df7859A689715d092"],
+                                "tokens": [
+                                    "0xa393473d64d2F9F026B60b6Df7859A689715d092"
+                                ],
                                 "bip44_index": 0,
                             }
                         ],
@@ -121,7 +121,6 @@ class TestKeyring:
             },
         ]
         await key_manager.logout()
-
 
     @pytest.mark.asyncio
     async def test_add_tokens(self, key_manager):
@@ -195,7 +194,6 @@ class TestKeyring:
             },
         }
 
-
     @pytest.mark.asyncio
     async def test_create_multi_key_wallet(self, key_manager):
         """
@@ -224,7 +222,6 @@ class TestKeyring:
                 },
             ],
         }
-
 
     @pytest.mark.asyncio
     async def test_create_multi_account_wallet(self, key_manager):
@@ -274,7 +271,6 @@ class TestKeyring:
             ],
         }
 
-
     @pytest.mark.asyncio
     async def test_create_multi_account_wallet_custom(self):
         from pypergraph.keyring import account_registry
@@ -296,7 +292,6 @@ class TestKeyring:
                 {"address": "FAKE_ADDRESS", "supported_assets": ["FAKE1", "FAKE2"]},
             ],
         }
-
 
     @pytest.mark.asyncio
     async def test_create_asset_library_custom(self):

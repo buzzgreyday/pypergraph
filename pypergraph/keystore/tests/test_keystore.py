@@ -24,7 +24,6 @@ class TestKeystore:
         )
         assert address == "DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX"
 
-
     def test_new_keys(self):
         keystore = KeyStore()
         mnemo = keystore.generate_mnemonic()
@@ -37,7 +36,6 @@ class TestKeystore:
         pubk = keystore.get_public_key_from_private(pk)
         address = keystore.get_dag_address_from_public_key(pubk)
         keystore.validate_address(address)
-
 
     @pytest.mark.asyncio
     async def test_create_keystores(self):
@@ -59,9 +57,9 @@ class TestKeystore:
             == "18e19114377f0b4ae5b9426105ffa4d18c791f738374b5867ebea836e5722710"
         )
         cn_public_key = keystore.get_public_key_from_private(private_key=cn_private_key)
-        eth_public_key = keystore.get_public_key_from_private(private_key=eth_private_key)[
-            2:
-        ]
+        eth_public_key = keystore.get_public_key_from_private(
+            private_key=eth_private_key
+        )[2:]
         assert (
             "0x" + eth_public_key
             == "0x65879c90895c191fe27bc9fee6b6a6a8d49b41600429e151687b0a274c2174f8c263a55008a3009cd5230fb526141558ee1aace50d54cc24b91fa4e19b79e5a7"
@@ -97,7 +95,6 @@ class TestKeystore:
             == "multiply angle perfect verify behind sibling skirt attract first lift remove fortune"
         )
 
-
     def test_get_accounts_from_master_key(self):
         keystore = KeyStore()
         master_key = keystore.get_master_key_from_mnemonic(
@@ -132,7 +129,6 @@ class TestKeystore:
             == "edaa15ec384bced99e66960d3f0c6be25b00c0322f065c33418459f2228f6724"
         )
 
-
     def test_get_addresses_from_private_key(self):
         keystore = KeyStore()
         eth_private_key = keystore.get_private_key_from_mnemonic(
@@ -141,7 +137,6 @@ class TestKeystore:
         )
         eth_address = keystore.get_eth_address_from_private_key(eth_private_key)
         assert eth_address == "0x8fbc948ba2dd081a51036de02582f5dcb51a310c"
-
 
     @pytest.mark.asyncio
     async def test_generate_transaction_and_verify_signature(self):
@@ -163,7 +158,6 @@ class TestKeystore:
         )
         signature = keystore.sign(pk, hash_)
         assert keystore.verify(pubk, hash_, signature)
-
 
     def test_generate_custom_data_transaction_and_verify_signature(self):
         # Required imports

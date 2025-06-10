@@ -5,6 +5,7 @@ from pypergraph.keyring.encryptor import (
     SecurityException,
 )  # Adjust import based on your file structure
 
+
 @pytest.mark.encryptor
 class TestEncryptor:
     @pytest.mark.asyncio
@@ -19,7 +20,6 @@ class TestEncryptor:
         decrypted_data = await encryptor.decrypt(password, vault)
 
         assert decrypted_data == data, "Decrypted data should match original"
-
 
     @pytest.mark.asyncio
     async def test_hmac_integrity_check(self):
@@ -36,7 +36,6 @@ class TestEncryptor:
         with pytest.raises(SecurityException, match="HMAC validation failed"):
             await encryptor.decrypt(password, vault)
 
-
     @pytest.mark.asyncio
     async def test_incorrect_password(self):
         """Ensures decryption fails with an incorrect password."""
@@ -49,7 +48,6 @@ class TestEncryptor:
 
         with pytest.raises(SecurityException, match="HMAC validation failed"):
             await encryptor.decrypt(wrong_password, vault)
-
 
     @pytest.mark.asyncio
     async def test_vault_structure_validation(self):
@@ -66,7 +64,6 @@ class TestEncryptor:
         with pytest.raises(SecurityException, match="Missing required fields"):
             await encryptor.decrypt(password, vault)
 
-
     @pytest.mark.asyncio
     async def test_version_mismatch(self):
         """Ensures that an outdated or incompatible vault version is rejected."""
@@ -79,7 +76,6 @@ class TestEncryptor:
 
         with pytest.raises(SecurityException, match="Unsupported version"):
             await encryptor.decrypt(password, vault)
-
 
     @pytest.mark.asyncio
     async def test_corrupt_vault_data(self):
@@ -95,7 +91,6 @@ class TestEncryptor:
         with pytest.raises(ValueError):
             await encryptor.decrypt(password, vault)
 
-
     @pytest.mark.asyncio
     async def test_large_data_encryption(self):
         """Ensures large data encryption works properly."""
@@ -107,7 +102,6 @@ class TestEncryptor:
         decrypted_data = await encryptor.decrypt(password, vault)
 
         assert decrypted_data == large_data, "Large data should decrypt correctly"
-
 
     @pytest.mark.asyncio
     async def test_multiple_encryptions_different_nonces(self):
@@ -122,8 +116,9 @@ class TestEncryptor:
         assert vault1["ciphertext"] != vault2["ciphertext"], (
             "Ciphertext should be unique per encryption"
         )
-        assert vault1["nonce"] != vault2["nonce"], "Nonce should be random per encryption"
-
+        assert vault1["nonce"] != vault2["nonce"], (
+            "Nonce should be random per encryption"
+        )
 
     @pytest.mark.asyncio
     async def test_edge_case_empty_data(self):
