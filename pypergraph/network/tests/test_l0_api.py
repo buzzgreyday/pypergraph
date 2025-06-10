@@ -3,6 +3,7 @@ from ipaddress import IPv4Network
 import httpx
 import pytest
 from pytest_httpx import HTTPXMock
+from .conf import network
 
 
 @pytest.mark.mock
