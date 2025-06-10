@@ -6,7 +6,7 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 from pypergraph.account import DagAccount, MetagraphTokenClient
-from pypergraph.network.tests.conf import network, mock_l1_api_responses
+from .conftest import network, mock_l1_api_responses
 from .secret import mnemo, to_address
 from ... import KeyStore
 from ...core.exceptions import NetworkError

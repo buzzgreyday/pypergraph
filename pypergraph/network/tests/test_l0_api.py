@@ -3,7 +3,7 @@ from ipaddress import IPv4Network
 import httpx
 import pytest
 from pytest_httpx import HTTPXMock
-from pypergraph.network.tests.conf import network, mock_l0_api_responses
+from .conftest import network, mock_l0_api_responses
 
 
 @pytest.mark.mock
