@@ -26,6 +26,7 @@ from pypergraph.network.models.transaction import Transaction, TransactionRefere
 from .kryo import Kryo
 from .bip_helpers.bip32_helper import Bip32Helper
 from .bip_helpers.bip39_helper import Bip39Helper
+from .utils import normalize_object, serialize_brotli
 from .v3_keystore import V3KeystoreCrypto, V3Keystore
 from ..core.constants import BIP_44_PATHS, SECP256K1_ORDER
 
@@ -245,6 +246,17 @@ class KeyStore:
         # TODO: How is this used?
         message = f"{self.PERSONAL_SIGN_PREFIX}{len(msg)}\n{msg}"
         return self.sign(private_key, message)
+
+    def brotli_sign(self, public_key: str, private_key: str, body: dict):
+        normalized_msg = normalize_object(body)
+        serialized_tx = serialize_brotli(body)
+        msg_hash = hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest()
+        signature = self.sign(private_key, msg_hash)
+
+        return {
+            "value": normalized_msg,
+            "proofs": [{"id": public_key, "signature": signature}],
+        }
 
     @staticmethod
     def sign(private_key: str, msg: str) -> str:
@@ -503,6 +515,7 @@ class KeyStore:
         :param public_key: The private key as a hexadecimal string.
         :return: The DAG address corresponding to the public key (node ID).
         """
+        # TODO: Use utils.py
         if len(public_key) == 128:
             public_key = PKCS_PREFIX + "04" + public_key
         elif len(public_key) == 130 and public_key[:2] == "04":

@@ -3,6 +3,9 @@ from datetime import datetime
 
 from typing import Any, Dict, List, Optional, Union
 
+from pypergraph.network.shared.operations import allow_spend, token_lock
+from pypergraph.network.models.allow_spend import AllowSpend
+from pypergraph.network.models.token_lock import TokenLock
 from pypergraph.network.models.transaction import (
     SignedTransaction,
     TransactionReference,
@@ -92,6 +95,27 @@ class MetagraphTokenClient:
             return 0
 
         return 1 / self.token_decimals
+
+    async def create_allow_spend(self, body: AllowSpend):
+        # TODO: check logged in and valid private key
+
+        if not body:
+            raise TypeError("MetagraphTokenClient :: Body can't be empty.")
+        body.currency_id = self.network.connected_network.metagraph_id
+        response = allow_spend(body, self.network, self.account.key_trio)
+        return response
+
+    async def create_token_lock(self, body: TokenLock):
+        pass
+        # TODO: check logged in and valid private key
+        # this.account.assertAccountIsActive();
+        # this.account.assertValidPrivateKey();
+        #
+        if not body:
+         raise TypeError("MetagraphTokenClient :: Body can't be empty.")
+        body.currency_id = self.network.connected_network.metagraph_id
+        response = token_lock(body, self.network, self.account.key_trio)
+        return response
 
     async def transfer(
         self,

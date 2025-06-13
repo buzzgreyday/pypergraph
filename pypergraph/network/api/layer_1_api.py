@@ -2,10 +2,13 @@ import logging
 from typing import List, Dict, Any, Union, Optional
 
 from prometheus_client.parser import text_string_to_metric_families
+from pycparser.ply.yacc import resultlimit
 
 from pypergraph.core.cross_platform.di.rest_client import RESTClient, HttpxClient
 from pypergraph.core.cross_platform.rest_api_client import RestAPIClient
+from pypergraph.network.models.allow_spend import AllowSpendReference, SignedAllowSpend
 from pypergraph.network.models.network import PeerInfo
+from pypergraph.network.models.token_lock import TokenLockReference, SignedTokenLock
 from pypergraph.network.models.transaction import (
     PendingTransaction,
     SignedTransaction,
@@ -99,46 +102,18 @@ class L1Api:
             "POST", "/transactions", payload=tx.model_dump()
         )
 
-    async def get_delegated_stake_last_reference(
-        self, address: str
-    ) -> TransactionReference:
-        result = await self._make_request(
-            "GET", f"/delegated-stake/last-reference/{address}"
-        )
-        return await TransactionReference(**result)
+    async def get_allow_spend_last_reference(self, address: str) -> AllowSpendReference:
+        result = await self._make_request("GET", f"/allow-spends/last-reference/{address}")
+        return AllowSpendReference(**result)
 
-    async def get_delegated_stakes_info(self, address) -> DelegatedStakesInfo:
-        result = await self._make_request("GET", f"/delegated-stake/{address}/info")
-        return DelegatedStakesInfo(**result)
+    async def post_allow_spend(self, tx: SignedAllowSpend):
+        result = await self._make_request("POST", "/allow-spends", payload=tx.model_dump())
+        return result
 
-    async def put_delegated_stake_withdrawal(self, tx: SignedWithdrawDelegatedStake):
-        return await self._make_request(
-            "PUT", "/delegated-stake", payload=tx.model_dump()
-        )
+    async def get_token_lock_last_reference(self, address: str) -> TokenLockReference:
+        result = await self._make_request("GET", f"/toke-locks/last-reference/{address}")
+        return TokenLockReference(**result)
 
-    async def post_delegated_stake(self, tx: SignedCreateDelegatedStake):
-        return await self._make_request(
-            "POST", "/delegated-stake", payload=tx.model_dump()
-        )
-
-    async def get_node_collateral_last_reference(
-        self, address: str
-    ) -> TransactionReference:
-        result = await self._make_request(
-            "GET", f"/node-collateral/last-reference/{address}"
-        )
-        return TransactionReference(**result)
-
-    async def get_node_collaterals_info(self, address) -> NodeCollateralsInfo:
-        result = await self._make_request("GET", f"/node-collateral/{address}/info")
-        return NodeCollateralsInfo(**result)
-
-    async def put_node_collateral_withdrawal(self, tx: SignedWithdrawNodeCollateral):
-        return await self._make_request(
-            "PUT", "/node-collateral", payload=tx.model_dump()
-        )
-
-    async def post_node_collateral(self, tx: SignedCreateNodeCollateral):
-        return await self._make_request(
-            "POST", "/node-collateral", payload=tx.model_dump()
-        )
+    async def post_token_lock(self, tx: SignedTokenLock):
+        result = await self._make_request("POST", "/token-locks", payload=tx.model_dump())
+        return result

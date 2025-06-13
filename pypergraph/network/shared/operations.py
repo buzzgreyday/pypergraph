@@ -1,0 +1,122 @@
+from typing import Union
+
+from pypergraph import DagTokenNetwork, KeyStore, MetagraphTokenNetwork
+from pypergraph.account.models.key_trio import KeyTrio
+from pypergraph.account.utils import normalize_public_key
+from pypergraph.network.models.allow_spend import AllowSpend, SignedAllowSpend
+from pypergraph.network.models.token_lock import TokenLock, SignedTokenLock
+
+
+async def allow_spend(
+        body: AllowSpend,
+        network: Union[DagTokenNetwork, MetagraphTokenNetwork],
+        key_trio: KeyTrio
+):
+    # Validate schemas
+    # Validate source address
+    if body.source != key_trio.address:
+        raise ValueError('"source" must be the same as the account address')
+
+    try:
+        # Get last reference
+        allow_spend_last_ref = await network.cl1_api.get_allow_spend_last_ref(
+            key_trio.address
+        )
+        if not allow_spend_last_ref:
+            raise ValueError("Unable to find allow spend last reference")
+
+        allow_spend_body = {
+          "source": body.source,
+          "destination": body.destination,
+          "approvers": body.approvers,
+          "amount": body.amount,
+          "parent": allow_spend_last_ref,
+          "lastValidEpochProgress": body.last_valid_epoch_progress,
+          "currencyId": body.currency_id or None,
+          "fee": body.fee or 0,
+        }
+        # Generate signature
+        signed_allow_spend = await KeyStore().brotli_sign(
+            body=allow_spend_body,
+            public_key=normalize_public_key(key_trio.public_key),
+            private_key=key_trio.private_key
+        )
+        if not signed_allow_spend:
+            raise ValueError("Unable to generate signed allow spend")
+
+        # Submit transaction
+        allow_spend_response = await network.cl1_api.post_allow_spend(
+            SignedAllowSpend(**signed_allow_spend)
+        )
+        if not allow_spend_response or not allow_spend_response.hash:
+            raise ValueError("Unable to get allow spend response")
+
+        return allow_spend_response
+
+    except Exception as e:
+        # Handle specific error cases
+        if "last reference" in str(e):
+            print("Error getting the allow spend last reference")
+        elif "generating" in str(e):
+            print("Error generating the signed allow spend")
+        elif "sending" in str(e):
+            print("Error sending the allow spend transaction")
+        raise
+
+
+async def token_lock(
+        body: TokenLock,
+        network: Union[DagTokenNetwork, MetagraphTokenNetwork],
+        key_trio: KeyTrio
+):
+    # Validate schema
+
+    # Validate source address
+    if body.source != key_trio.address:
+        raise ValueError('"source" must be the same as the account address')
+
+    try:
+        # Get last reference
+        token_lock_last_ref = await network.cl1_api.get_token_lock_last_ref(
+            key_trio.address
+        )
+        if not token_lock_last_ref:
+            raise ValueError("Unable to find token lock last reference")
+
+        # Prepare request body
+        token_lock_body = {
+            "source": body.source,
+            "amount": body.amount,
+            "parent": token_lock_last_ref,
+            "currencyId": getattr(body, "currency_id", None),
+            "fee": getattr(body, "fee", 0),
+            "unlockEpoch": getattr(body, "unlock_epoch", None),
+        }
+
+        # Generate signature
+        signed_token_lock = await KeyStore().brotli_sign(
+            body=token_lock_body,
+            public_key=normalize_public_key(key_trio.public_key),
+            private_key=key_trio.private_key
+        )
+        if not signed_token_lock:
+            raise ValueError("Unable to generate signed token lock")
+
+        # Submit transaction
+        token_lock_response = await network.cl1_api.post_token_lock(
+            SignedTokenLock(**signed_token_lock)
+        )
+        if not token_lock_response or not token_lock_response.hash:
+            raise ValueError("Unable to get token lock response")
+
+        return token_lock_response
+
+    except Exception as e:
+        # Handle specific error cases
+        if "last reference" in str(e):
+            print("Error getting the token lock last reference")
+        elif "generating" in str(e):
+            print("Error generating the signed token lock")
+        elif "sending" in str(e):
+            print("Error sending the token lock transaction")
+        raise

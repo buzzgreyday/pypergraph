@@ -32,3 +32,7 @@ class NodeParametersInfo(BaseModel):
     node_metadata_parameters: NodeMetadataParameters = Field(alias="nodeMetadataParameters")
     total_amount_delegated: int = Field(alias="totalAmountDelegated", ge=0)
     total_addresses_assigned: int = Field(alias="totalAddressesAssigned", ge=0)
+
+    @classmethod
+    def process_node_parameters(cls, data: List[dict]) -> List["NodeParametersInfo"]:
+        return [cls.model_validate(item) for item in data]

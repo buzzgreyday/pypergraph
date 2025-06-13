@@ -32,7 +32,8 @@ dependencies = [
     "aiofiles~=24.1.0",
     "argon2-cffi~=23.1.0",
     "prometheus_client~=0.21.1",
-    "Rx~=3.2.0"
+    "Rx~=3.2.0",
+    "brotlipy~=0.7.0"
 
 ]
 

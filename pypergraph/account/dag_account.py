@@ -6,8 +6,11 @@ from typing_extensions import Self
 from rx.subject import Subject
 
 from pypergraph.account.models.key_trio import KeyTrio
+from pypergraph.network.shared.operations import allow_spend, token_lock
 from pypergraph.keystore import KeyStore
 from pypergraph.network import DagTokenNetwork
+from pypergraph.network.models.allow_spend import AllowSpend
+from pypergraph.network.models.token_lock import TokenLock
 from pypergraph.network.models.transaction import (
     TransactionStatus,
     TransactionReference,
@@ -217,7 +220,7 @@ class DagAccount:
 
     async def transfer(
         self, to_address: str, amount: int, fee: int = 0, auto_estimate_fee=False
-    ) -> PendingTransaction:
+    ) -> Optional[PendingTransaction]:
         """
         Build currency transaction, sign and transfer from the active account.
 
@@ -250,6 +253,27 @@ class DagAccount:
                 status=TransactionStatus.POSTED,
             )
             return pending_tx
+
+    async def create_allow_spend(self, body: AllowSpend):
+        # TODO: check logged in and valid private key
+
+        if not body:
+            raise TypeError("DagAccount :: Body can't be empty.")
+        body.currency_id = self.network.connected_network.metagraph_id
+        response = await allow_spend(body, self.network, self.key_trio)
+        return response
+
+    async def create_token_lock(self, body: TokenLock):
+        pass
+        # TODO: check logged in and valid private key
+        # this.account.assertAccountIsActive();
+        # this.account.assertValidPrivateKey();
+        #
+        if not body:
+         raise TypeError("DagAccount :: Body can't be empty.")
+        body.currency_id = self.network.connected_network.metagraph_id
+        response = await token_lock(body, self.network, self.key_trio)
+        return response
 
     async def wait_for_checkpoint_accepted(self, hash: str):
         """

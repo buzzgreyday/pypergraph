@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -13,13 +13,13 @@ class AllowSpendReference(BaseModel):
 class AllowSpend(BaseModel):
     source: str
     destination: str
-    currency: str
+    currency_id: Optional[str] = Field(..., alias="currencyId")
     amount: int
     fee: int
     parent: AllowSpendReference
     last_valid_epoch_progress: int = Field(..., alias="lastValidEpochProgress")
     approvers: List[str]
-    ordinal: int
+    ordinal: Optional[int]
 
 
 class SignedAllowSpend(BaseModel):

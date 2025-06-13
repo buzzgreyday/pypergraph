@@ -186,7 +186,7 @@ class MetagraphTokenNetwork:
         else:
             return response.get("data", None) if response else None
 
-    async def post_transaction(self, tx: SignedTransaction) -> str:
+    async def post_transaction(self, tx: SignedTransaction) -> Optional[str]:
         """
         Post a signed transaction to Metagraph.
 
@@ -201,6 +201,8 @@ class MetagraphTokenNetwork:
             logging.warning(
                 "MetagraphTokenNetwork :: Currency layer 1 API object not set."
             )
+        finally:
+            return
 
     async def post_data(self, tx: Dict[str, Dict]) -> dict:
         """
