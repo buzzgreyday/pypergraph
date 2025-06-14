@@ -253,12 +253,22 @@ class DagAccount:
                 status=TransactionStatus.POSTED,
             )
             return pending_tx
+        return None
 
-    async def create_allow_spend(self, body: AllowSpend):
+    async def create_allow_spend(self, destination: str, amount: int, approvers: List[str], source: Optional[str] = None, fee: int = 0, currency_id: Optional[str] = None, valid_until_epoch: Optional[int] = None):
+        """
+        Grants permission for another wallet or metagraph to spend up to a specified amount from the user’s wallet in a metagraph token or DAG.
+
+        :param source: Wallet address signing the transaction. Address of logged in account, if left None
+        :param destination: The destination address. This must be a Metagraph address.
+        :param amount: The amount the destination address is allowed to spend.
+        :param approvers: A list with single DAG address that can automatically approve the spend, can be Metagraph or wallet address.
+        :param currency_id: The Metagraph ID used to identify the currency. For DAG, this parameter is left None.
+        :param fee: Default 0.
+        :param valid_until_epoch: The global snapshot epoch progress for which this is valid until. If not provided, the default value will be currentEpoch + 30. Minumum allowed value: currentEpoch + 5. Maximum allowed value: currentEpoch + 60.
+        """
         # TODO: check logged in and valid private key
 
-        if not body:
-            raise TypeError("DagAccount :: Body can't be empty.")
         body.currency_id = self.network.connected_network.metagraph_id
         response = await allow_spend(body, self.network, self.key_trio)
         return response
