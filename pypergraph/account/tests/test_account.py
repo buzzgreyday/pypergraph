@@ -251,6 +251,9 @@ class TestAccount:
         account.login_with_seed_phrase(mnemo)
         account.connect(network_id="integrationnet")
 
-        res = await account.create_token_lock(1000000000000)
-        print(res)
+        latest_snapshot = await account.network.l0_api.get_latest_snapshot()
+        latest_epoch = latest_snapshot.value.epoch_progress
+        print("Latest Epoch:", latest_epoch)
+        res = await account.create_token_lock(500000000000)
+        print("Response:", res)
 

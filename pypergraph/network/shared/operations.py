@@ -102,7 +102,7 @@ async def token_lock(
         token_lock_response = await network.cl1_api.post_token_lock(
             SignedTokenLock(**signed_token_lock)
         )
-        if not token_lock_response or not token_lock_response.hash:
+        if not token_lock_response or not token_lock_response.get("hash"):
             raise ValueError("Unable to get token lock response")
 
         return token_lock_response
