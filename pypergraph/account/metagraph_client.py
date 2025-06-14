@@ -105,16 +105,21 @@ class MetagraphTokenClient:
         response = allow_spend(body, self.network, self.account.key_trio)
         return response
 
-    async def create_token_lock(self, body: TokenLock):
+    async def create_token_lock(self, amount: int, fee: int = 0, unlock_epoch: int = None, source: str = None, currency_id: Optional[str] = None):
         pass
         # TODO: check logged in and valid private key
         # this.account.assertAccountIsActive();
         # this.account.assertValidPrivateKey();
         #
-        if not body:
-         raise TypeError("MetagraphTokenClient :: Body can't be empty.")
-        body.currency_id = self.network.connected_network.metagraph_id
-        response = token_lock(body, self.network, self.account.key_trio)
+        response = await token_lock(
+            source=source,
+            amount=amount,
+            fee=fee,
+            currency_id=currency_id or self.network.connected_network.metagraph_id,
+            unlock_epoch=unlock_epoch,
+            network=self.network,
+            key_trio=self.account.key_trio
+        )
         return response
 
     async def transfer(

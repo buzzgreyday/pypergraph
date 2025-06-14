@@ -1,6 +1,5 @@
-from typing import Union
+from typing import Union, Optional, Any
 
-from pypergraph import DagTokenNetwork, KeyStore, MetagraphTokenNetwork
 from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.account.utils import normalize_public_key
 from pypergraph.network.models.allow_spend import AllowSpend, SignedAllowSpend
@@ -9,9 +8,10 @@ from pypergraph.network.models.token_lock import TokenLock, SignedTokenLock
 
 async def allow_spend(
         body: AllowSpend,
-        network: Union[DagTokenNetwork, MetagraphTokenNetwork],
+        network: Any, # Should be a shared abstract class DagTokenNetwork, MetagraphTokenNetwork
         key_trio: KeyTrio
 ):
+    from pypergraph import KeyStore
     # Validate schemas
     # Validate source address
     if body.source != key_trio.address:
@@ -65,37 +65,33 @@ async def allow_spend(
 
 
 async def token_lock(
-        body: TokenLock,
-        network: Union[DagTokenNetwork, MetagraphTokenNetwork],
+        source: str,
+        amount: int,
+        fee: int,
+        currency_id: Optional[str],
+        unlock_epoch: Optional[int],
+        network: Any,  # Should be a shared abstract class DagTokenNetwork, MetagraphTokenNetwork
         key_trio: KeyTrio
 ):
+    from pypergraph import KeyStore
     # Validate schema
 
     # Validate source address
-    if body.source != key_trio.address:
+    if source != key_trio.address:
         raise ValueError('"source" must be the same as the account address')
 
     try:
         # Get last reference
-        token_lock_last_ref = await network.cl1_api.get_token_lock_last_ref(
+        token_lock_last_ref = await network.cl1_api.get_token_lock_last_reference(
             key_trio.address
         )
         if not token_lock_last_ref:
             raise ValueError("Unable to find token lock last reference")
-
-        # Prepare request body
-        token_lock_body = {
-            "source": body.source,
-            "amount": body.amount,
-            "parent": token_lock_last_ref,
-            "currencyId": getattr(body, "currency_id", None),
-            "fee": getattr(body, "fee", 0),
-            "unlockEpoch": getattr(body, "unlock_epoch", None),
-        }
+        body = TokenLock(source=source, amount=amount, fee=fee, parent=token_lock_last_ref, currency_id=currency_id, unlock_epoch=unlock_epoch)
 
         # Generate signature
-        signed_token_lock = await KeyStore().brotli_sign(
-            body=token_lock_body,
+        signed_token_lock = KeyStore().brotli_sign(
+            body=body.model_dump(),
             public_key=normalize_public_key(key_trio.public_key),
             private_key=key_trio.private_key
         )

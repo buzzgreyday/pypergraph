@@ -3,6 +3,7 @@ import pytest
 
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.account import DagAccount, MetagraphTokenClient
+from pypergraph.network.models.token_lock import TokenLock
 from pypergraph.network.models.transaction import PendingTransaction
 
 
@@ -240,3 +241,16 @@ class TestAccount:
         # last_ref = await metagraph_account.network.get_address_last_accepted_transaction_ref(account.address)
         # r = await metagraph_account.transfer_batch(transfers=txn_data)
         # assert len(r) == 4
+
+    @pytest.mark.asyncio
+    async def test_token_lock(self):
+        from secret import mnemo, to_address
+        from pypergraph.account import DagAccount
+
+        account = DagAccount()
+        account.login_with_seed_phrase(mnemo)
+        account.connect(network_id="integrationnet")
+
+        res = await account.create_token_lock(1000000000000)
+        print(res)
+

@@ -21,6 +21,7 @@ POST_TRANSACTION_ERRORS = (
     "Conflict",
     "SameSourceAndDestinationAddress",
     "NotSignedBySourceAddressOwner",
+    "TokenLockAmountBelowMinimum",
 )
 
 #            $DAG transaction has been rejected. Returned one of rejection reasons:

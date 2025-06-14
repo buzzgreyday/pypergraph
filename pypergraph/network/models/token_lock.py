@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field, constr, field_serializer, ConfigDict
 
 from pypergraph.network.models.transaction import SignatureProof
 
@@ -26,6 +26,9 @@ class TokenLock(BaseModel):
     Token lock transactions are used to create delegated stakes, etc.
     POST /token-locks
     """
+    model_config = ConfigDict(
+        populate_by_name=True  # allow field_name or alias for input
+    )
     source: str
     amount: int
     fee: int
@@ -33,14 +36,15 @@ class TokenLock(BaseModel):
     currency_id: Optional[str] = Field(
         description="Optional currency identifier for the token lock. NULL for DAG.",
         default=None,
-        alias="currencyId"
+        serialization_alias="currencyId"
     )
     unlock_epoch: Optional[int] = Field(
         description="Optional epoch progress value when the tokens will be unlocked. NULL for indefinite lock.",
         default=None,
         ge=0,
-        alias="unlockEpoch"
+        serialization_alias="unlockEpoch"
     )
+
 
 class SignedTokenLock(BaseModel):
     value: TokenLock

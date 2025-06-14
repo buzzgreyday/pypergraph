@@ -263,16 +263,34 @@ class DagAccount:
         response = await allow_spend(body, self.network, self.key_trio)
         return response
 
-    async def create_token_lock(self, body: TokenLock):
-        pass
+    async def create_token_lock(self, amount: int, fee: int = 0, unlock_epoch: int = None, source: Optional[str] = None, currency_id: Optional[str] = None):
+        """
+        Token locking is used for:
+
+        Node collateral staking
+        Delegated staking participation
+        Governance requirements
+        Time-based vesting or escrow models
+        
+        :param source: The wallet signing the transaction. The logged in account is the default if left empty.
+        :param amount: The amount to lock.
+        :param currency_id: The Metagraph identifier address for the currency to lock. Leave None, if currency is DAG.
+        :param fee: The fee. Default when None is 0.
+        :param unlock_epoch: The global snapshot epoch progress to unlock the tokens. If provided, must be greater than the current epoch.
+        """
         # TODO: check logged in and valid private key
         # this.account.assertAccountIsActive();
         # this.account.assertValidPrivateKey();
         #
-        if not body:
-         raise TypeError("DagAccount :: Body can't be empty.")
-        body.currency_id = self.network.connected_network.metagraph_id
-        response = await token_lock(body, self.network, self.key_trio)
+        response = await token_lock(
+            source=source or self.key_trio.address,
+            amount=amount,
+            fee=fee,
+            currency_id=currency_id,
+            unlock_epoch=unlock_epoch,
+            network=self.network,
+            key_trio=self.key_trio
+        )
         return response
 
     async def wait_for_checkpoint_accepted(self, hash: str):

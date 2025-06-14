@@ -250,7 +250,7 @@ class KeyStore:
     def brotli_sign(self, public_key: str, private_key: str, body: dict):
         normalized_msg = normalize_object(body)
         serialized_tx = serialize_brotli(body)
-        msg_hash = hashlib.sha256(bytes.fromhex(serialized_tx)).hexdigest()
+        msg_hash = hashlib.sha256(serialized_tx).hexdigest()
         signature = self.sign(private_key, msg_hash)
 
         return {
