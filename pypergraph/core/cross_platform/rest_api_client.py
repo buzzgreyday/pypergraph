@@ -102,6 +102,7 @@ class RestAPIClient:
         """
         Handles API responses, checking for errors and returning JSON or text.
         """
+        print(response.__dict__)
         try:
             parsed_data = response.json()
         except json.JSONDecodeError:
