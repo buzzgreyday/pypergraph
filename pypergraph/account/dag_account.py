@@ -311,6 +311,15 @@ class DagAccount:
         )
         return response
 
+    async def create_delegate_stake(self):
+        pass
+
+    async def withdraw_delegate_stake(self):
+        pass
+
+    async def set_node_parameters(self):
+        pass
+
     async def wait_for_checkpoint_accepted(self, hash: str):
         """
         Check if transaction has been processed.
