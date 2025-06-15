@@ -304,7 +304,7 @@ class DagAccount:
             source=source or self.key_trio.address,
             amount=amount,
             fee=fee,
-            currency_id=currency_id,
+            currency=currency_id,
             unlock_epoch=unlock_epoch,
             network=self.network,
             key_trio=self.key_trio

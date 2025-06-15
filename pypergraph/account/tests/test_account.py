@@ -269,6 +269,6 @@ class TestAccount:
         latest_snapshot = await account.network.l0_api.get_latest_snapshot()
         latest_epoch = latest_snapshot.value.epoch_progress
         print("Latest Epoch:", latest_epoch)
-        res = await account.create_allow_spend(destination="DAG4dWrdALPQmvF5UBpuXrqdkMHea1H5f7rjb4qY", amount=100000000000, approvers=["DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN"])
+        res = await account.create_allow_spend(destination="DAG4dWrdALPQmvF5UBpuXrqdkMHea1H5f7rjb4qY", amount=100000000000, approvers=["DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN"], valid_until_epoch=latest_epoch + 80)
         print("Response:", res)
 

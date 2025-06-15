@@ -14,7 +14,7 @@ class AllowSpend(BaseModel):
 
     source: str
     destination: str
-    currency_id: Optional[str] = Field(default=None, serialization_alias="currencyId")
+    currency: Optional[str] = Field(default=None)
     amount: int
     fee: int
     parent: AllowSpendReference
