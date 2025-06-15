@@ -1,4 +1,4 @@
-from typing import Union, Optional, Any
+from typing import Union, Optional, Any, List
 
 from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.account.utils import normalize_public_key
@@ -7,37 +7,43 @@ from pypergraph.network.models.token_lock import TokenLock, SignedTokenLock
 
 
 async def allow_spend(
-        body: AllowSpend,
+        destination: str,
+        amount: int,
+        approvers: List[str],
         network: Any, # Should be a shared abstract class DagTokenNetwork, MetagraphTokenNetwork
-        key_trio: KeyTrio
+        key_trio: KeyTrio,
+        source: Optional[str] = None,
+        fee: int = 0,
+        currency_id: Optional[str] = None,
+        valid_until_epoch: Optional[int] = None,
+
 ):
     from pypergraph import KeyStore
     # Validate schemas
     # Validate source address
-    if body.source != key_trio.address:
+    if source != key_trio.address:
         raise ValueError('"source" must be the same as the account address')
 
     try:
         # Get last reference
-        allow_spend_last_ref = await network.cl1_api.get_allow_spend_last_ref(
+        allow_spend_last_ref = await network.cl1_api.get_allow_spend_last_reference(
             key_trio.address
         )
         if not allow_spend_last_ref:
             raise ValueError("Unable to find allow spend last reference")
-
-        allow_spend_body = {
-          "source": body.source,
-          "destination": body.destination,
-          "approvers": body.approvers,
-          "amount": body.amount,
-          "parent": allow_spend_last_ref,
-          "lastValidEpochProgress": body.last_valid_epoch_progress,
-          "currencyId": body.currency_id or None,
-          "fee": body.fee or 0,
-        }
+        body = AllowSpend(
+            source=source,
+            destination=destination,
+            approvers=approvers,
+            amount=amount,
+            fee=fee or 0,
+            parent=allow_spend_last_ref,
+            last_valid_epoch_progress=valid_until_epoch,
+            currency_id=currency_id or None
+        )
         # Generate signature
-        signed_allow_spend = await KeyStore().brotli_sign(
-            body=allow_spend_body,
+        signed_allow_spend = KeyStore().brotli_sign(
+            body=body.model_dump(),
             public_key=normalize_public_key(key_trio.public_key),
             private_key=key_trio.private_key
         )
@@ -48,7 +54,7 @@ async def allow_spend(
         allow_spend_response = await network.cl1_api.post_allow_spend(
             SignedAllowSpend(**signed_allow_spend)
         )
-        if not allow_spend_response or not allow_spend_response.hash:
+        if not allow_spend_response or not allow_spend_response.get("hash"):
             raise ValueError("Unable to get allow spend response")
 
         return allow_spend_response

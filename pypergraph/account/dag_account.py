@@ -269,8 +269,16 @@ class DagAccount:
         """
         # TODO: check logged in and valid private key
 
-        body.currency_id = self.network.connected_network.metagraph_id
-        response = await allow_spend(body, self.network, self.key_trio)
+        response = await allow_spend(
+            destination=destination,
+            amount=amount,
+            approvers=approvers,
+            source=source or self.key_trio.address,
+            fee=fee, currency_id=currency_id or self.network.connected_network.metagraph_id,
+            valid_until_epoch=valid_until_epoch,
+            network=self.network,
+            key_trio=self.key_trio
+        )
         return response
 
     async def create_token_lock(self, amount: int, fee: int = 0, unlock_epoch: int = None, source: Optional[str] = None, currency_id: Optional[str] = None):

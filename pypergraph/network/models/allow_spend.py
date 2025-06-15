@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from pypergraph.network.models.transaction import SignatureProof
 
@@ -11,15 +11,16 @@ class AllowSpendReference(BaseModel):
 
 
 class AllowSpend(BaseModel):
+
     source: str
     destination: str
-    currency_id: Optional[str] = Field(..., alias="currencyId")
+    currency_id: Optional[str] = Field(default=None, serialization_alias="currencyId")
     amount: int
     fee: int
     parent: AllowSpendReference
-    last_valid_epoch_progress: int = Field(..., alias="lastValidEpochProgress")
+    last_valid_epoch_progress: Optional[int] = Field(default=None, serialization_alias="lastValidEpochProgress")
     approvers: List[str]
-    ordinal: Optional[int]
+    #ordinal: Optional[int]
 
 
 class SignedAllowSpend(BaseModel):

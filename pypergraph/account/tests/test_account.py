@@ -257,3 +257,18 @@ class TestAccount:
         res = await account.create_token_lock(500000000000)
         print("Response:", res)
 
+    @pytest.mark.asyncio
+    async def test_allow_spend(self):
+        from secret import mnemo, to_address
+        from pypergraph.account import DagAccount
+
+        account = DagAccount()
+        account.login_with_seed_phrase(mnemo)
+        account.connect(network_id="integrationnet")
+
+        latest_snapshot = await account.network.l0_api.get_latest_snapshot()
+        latest_epoch = latest_snapshot.value.epoch_progress
+        print("Latest Epoch:", latest_epoch)
+        res = await account.create_allow_spend(destination="DAG4dWrdALPQmvF5UBpuXrqdkMHea1H5f7rjb4qY", amount=100000000000, approvers=["DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN"])
+        print("Response:", res)
+
