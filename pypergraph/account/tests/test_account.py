@@ -67,15 +67,15 @@ class TestAccount:
         account = DagAccount()
         account.connect(network_id="testnet")
         account.login_with_seed_phrase(mnemo)
-        metagraph_account = MetagraphTokenClient(
+        metagraph = MetagraphTokenClient(
             account=account,
             l0_host="http://123.123.123.123:9000",
             data_l1_host="http://123.123.123.123:9020",
             currency_l1_host="http://123.123.123.123:9010",
             metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
         )
-        metagraph_account.network.get_network()
-        assert metagraph_account.network.get_network() == {
+        metagraph.network.get_network()
+        assert metagraph.network.get_network() == {
             "data_l1_host": "http://123.123.123.123:9020",
             "network_id": "testnet",
             "block_explorer_url": "https://be-testnet.constellationnetwork.io",
@@ -83,11 +83,11 @@ class TestAccount:
             "currency_l1_host": "http://123.123.123.123:9010",
             "metagraph_id": "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
         }
-        metagraph_account = account.create_metagraph_token_client(
+        metagraph = account.create_metagraph_token_client(
             metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
             currency_l1_host="http://123.123.123.123:9010",
         )
-        assert metagraph_account.network.get_network() == {
+        assert metagraph.network.get_network() == {
             "data_l1_host": None,
             "network_id": "testnet",
             "block_explorer_url": "https://be-testnet.constellationnetwork.io",
@@ -96,7 +96,7 @@ class TestAccount:
             "metagraph_id": "DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
         }
         try:
-            await metagraph_account.get_balance()
+            await metagraph.get_balance()
         except httpx.ReadTimeout as e:
             pytest.skip(f"Got expected error: {e}")
 
