@@ -288,5 +288,6 @@ class TestIntegrationAccount:
                 approvers=["DAG1GH7r7RX1Ca7MbuvqUPT37FAtTfGM1WYQ4otZ"],
                 valid_until_epoch=latest_epoch + 10,
             )
+            assert res == res.get("hash")
         except NetworkError:
             pytest.skip("Expecting status 500.")
