@@ -6,8 +6,6 @@ from pypergraph.core.exceptions import NetworkError
 from pypergraph.account import DagAccount, MetagraphTokenClient
 from pypergraph.network.models.transaction import PendingTransaction
 
-from conftest import dag_account
-from pypergraph.network.tests.conftest import mock_block_explorer_responses, mock_l1_api_responses
 
 
 @pytest.mark.account
@@ -178,8 +176,11 @@ class TestMockAccount:
         assert len(r) == 3
 
     @pytest.mark.asyncio
-    async def test_currency_transfer(self, dag_account, httpx_mock: HTTPXMock, mock_l1_api_responses):
+    async def test_currency_transfer(
+        self, dag_account, httpx_mock: HTTPXMock, mock_l1_api_responses
+    ):
         from secret import to_address
+
         dag_account.connect(network_id="integrationnet")
         httpx_mock.add_response(
             method="GET",
@@ -189,7 +190,11 @@ class TestMockAccount:
         httpx_mock.add_response(
             method="POST",
             url="https://l1-lb-integrationnet.constellationnetwork.io/transactions",  # adjust if needed
-            json={"data": {"hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"}},
+            json={
+                "data": {
+                    "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+                }
+            },
             status_code=200,
         )
         r = await dag_account.transfer(

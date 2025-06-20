@@ -31,4 +31,3 @@ def metagraph_account():
 @pytest.fixture
 def mock_shared_responses():
     return {"balance": {"ordinal": 4493725, "balance": 218000000}}
-
