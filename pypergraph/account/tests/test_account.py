@@ -6,11 +6,6 @@ from pypergraph.core.exceptions import NetworkError
 from pypergraph.account import DagAccount, MetagraphTokenClient
 from pypergraph.network.models.transaction import PendingTransaction
 
-from pypergraph.network.tests.conftest import (
-    mock_l1_api_responses,
-    mock_block_explorer_responses,
-)
-
 
 @pytest.mark.account
 class TestAccount:
@@ -181,7 +176,11 @@ class TestMockAccount:
 
     @pytest.mark.asyncio
     async def test_currency_transfer(
-        self, dag_account, metagraph_account, httpx_mock: HTTPXMock, mock_l1_api_responses
+        self,
+        dag_account,
+        metagraph_account,
+        httpx_mock: HTTPXMock,
+        mock_l1_api_responses,
     ):
         from secret import to_address
 
