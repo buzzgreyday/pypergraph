@@ -7,7 +7,6 @@ from pypergraph.account import DagAccount, MetagraphTokenClient
 from pypergraph.network.models.transaction import PendingTransaction
 
 
-
 @pytest.mark.account
 class TestAccount:
     @pytest.mark.asyncio
