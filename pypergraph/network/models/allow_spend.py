@@ -11,16 +11,17 @@ class AllowSpendReference(BaseModel):
 
 
 class AllowSpend(BaseModel):
-
     source: str
     destination: str
     currency: Optional[str] = Field(default=None, serialization_alias="currencyId")
     amount: int
     fee: int
     parent: AllowSpendReference
-    last_valid_epoch_progress: Optional[int] = Field(default=None, serialization_alias="lastValidEpochProgress")
+    last_valid_epoch_progress: Optional[int] = Field(
+        default=None, serialization_alias="lastValidEpochProgress"
+    )
     approvers: List[str]
-    #ordinal: Optional[int]
+    # ordinal: Optional[int]
 
 
 class SignedAllowSpend(BaseModel):

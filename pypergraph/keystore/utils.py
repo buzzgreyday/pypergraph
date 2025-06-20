@@ -1,6 +1,7 @@
 import json
 import brotli
 
+
 def remove_nulls(obj):
     if obj is None:
         return None
@@ -16,6 +17,7 @@ def remove_nulls(obj):
         }
     return obj
 
+
 def sort_object_keys(obj):
     if isinstance(obj, dict):
         # Sort keys and recursively process values
@@ -25,6 +27,7 @@ def sort_object_keys(obj):
         return [sort_object_keys(item) for item in obj]
     return obj
 
+
 def normalize_object(obj, sort=True, remove=True):
     processed = obj
     if remove:
@@ -33,12 +36,9 @@ def normalize_object(obj, sort=True, remove=True):
         processed = sort_object_keys(processed)
     return processed
 
+
 def serialize_brotli(content, compression_level=2):
     normalized = normalize_object(content)
-    normalized_json = json.dumps(
-        normalized,
-        separators=(',', ':'),
-        ensure_ascii=False
-    )
-    utf8_bytes = normalized_json.encode('utf-8')
+    normalized_json = json.dumps(normalized, separators=(",", ":"), ensure_ascii=False)
+    utf8_bytes = normalized_json.encode("utf-8")
     return brotli.compress(utf8_bytes, quality=compression_level)

@@ -253,7 +253,16 @@ class DagAccount:
             return pending_tx
         return None
 
-    async def create_allow_spend(self, destination: str, amount: int, approvers: List[str], source: Optional[str] = None, fee: int = 0, currency_id: Optional[str] = None, valid_until_epoch: Optional[int] = None):
+    async def create_allow_spend(
+        self,
+        destination: str,
+        amount: int,
+        approvers: List[str],
+        source: Optional[str] = None,
+        fee: int = 0,
+        currency_id: Optional[str] = None,
+        valid_until_epoch: Optional[int] = None,
+    ):
         """
         Grants permission for another wallet or metagraph to spend up to a specified amount from the user’s wallet in a metagraph token or DAG.
 
@@ -276,11 +285,18 @@ class DagAccount:
             currency_id=currency_id or self.network.connected_network.metagraph_id,
             valid_until_epoch=valid_until_epoch,
             network=self.network,
-            key_trio=self.key_trio
+            key_trio=self.key_trio,
         )
         return response
 
-    async def create_token_lock(self, amount: int, fee: int = 0, unlock_epoch: int = None, source: Optional[str] = None, currency_id: Optional[str] = None):
+    async def create_token_lock(
+        self,
+        amount: int,
+        fee: int = 0,
+        unlock_epoch: int = None,
+        source: Optional[str] = None,
+        currency_id: Optional[str] = None,
+    ):
         """
         Token locking is used for:
 
@@ -288,7 +304,7 @@ class DagAccount:
         Delegated staking participation
         Governance requirements
         Time-based vesting or escrow models
-        
+
         :param source: The wallet signing the transaction. The logged in account is the default if left empty.
         :param amount: The amount to lock.
         :param currency_id: The Metagraph identifier address for the currency to lock. Leave None, if currency is DAG.
@@ -306,7 +322,7 @@ class DagAccount:
             currency_id=currency_id,
             unlock_epoch=unlock_epoch,
             network=self.network,
-            key_trio=self.key_trio
+            key_trio=self.key_trio,
         )
         return response
 
