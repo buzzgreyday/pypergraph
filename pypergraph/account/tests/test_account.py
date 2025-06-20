@@ -7,6 +7,7 @@ from pypergraph.account import DagAccount, MetagraphTokenClient
 from pypergraph.network.models.transaction import PendingTransaction
 
 from conftest import dag_account
+from pypergraph.network.tests.conftest import mock_block_explorer_responses, mock_l1_api_responses
 
 
 @pytest.mark.account
@@ -167,14 +168,52 @@ class TestMockAccount:
 
     @pytest.mark.asyncio
     async def test_get_currency_transactions(
-        self, metagraph_account, httpx_mock: HTTPXMock, mock_metagraph_responses
+        self, metagraph_account, httpx_mock: HTTPXMock, mock_block_explorer_responses
     ):
         httpx_mock.add_response(
             url="https://be-mainnet.constellationnetwork.io/currency/DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43/addresses/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX/transactions?limit=3",
-            json=mock_metagraph_responses["transactions_by_address"],
+            json=mock_block_explorer_responses["transactions_limit_3"],
         )
         r = await metagraph_account.get_transactions(limit=3)
         assert len(r) == 3
+
+    @pytest.mark.asyncio
+    async def test_currency_transfer(self, dag_account, httpx_mock: HTTPXMock, mock_l1_api_responses):
+        from secret import to_address
+        dag_account.connect(network_id="integrationnet")
+        httpx_mock.add_response(
+            method="GET",
+            url="https://l1-lb-integrationnet.constellationnetwork.io/transactions/last-reference/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX",
+            json=mock_l1_api_responses["last_ref"],
+        )
+        httpx_mock.add_response(
+            method="POST",
+            url="https://l1-lb-integrationnet.constellationnetwork.io/transactions",  # adjust if needed
+            json={"data": {"hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"}},
+            status_code=200,
+        )
+        r = await dag_account.transfer(
+            to_address=to_address, amount=100000000, fee=200000
+        )
+        assert isinstance(r, PendingTransaction)
+
+        # metagraph_account = MetagraphTokenClient(
+        #     account=account,
+        #     metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
+        #     # l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
+        #     currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200",
+        # )
+        #
+        # try:
+        #     r = await metagraph_account.transfer(
+        #         to_address=to_address, amount=10000000, fee=2000000
+        #     )
+        #     assert isinstance(r, dict)
+        # except (NetworkError, httpx.ReadError):
+        #     failed.append("El Paca Metagraph: Network or HTTPX ReadError (timeout)")
+        #
+        # if failed:
+        #     pytest.skip(", ".join(str(x) for x in failed))
 
 
 @pytest.mark.integration

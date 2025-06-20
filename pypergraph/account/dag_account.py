@@ -234,7 +234,7 @@ class DagAccount:
         )
 
         signed_tx, hash_ = await self.generate_signed_transaction(
-            to_address, amount, fee
+            to_address, amount, fee, last_ref
         )
         tx_hash = await self.network.post_transaction(signed_tx)
 
