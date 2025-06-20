@@ -228,6 +228,59 @@ class TestMockAccount:
         )
         assert isinstance(r, dict)
 
+    @pytest.mark.asyncio
+    async def test_currency_batch_transfer(
+        self,
+        dag_account,
+        metagraph_account,
+        httpx_mock: HTTPXMock,
+        mock_l1_api_responses,
+    ):
+        # TODO: Mock this
+        from secret import to_address
+
+        dag_account.connect(network_id="integrationnet")
+        # last_ref = await account.network.get_address_last_accepted_transaction_ref(account.address)
+
+        txn_data = [
+            {"to_address": to_address, "amount": 10000000, "fee": 200000},
+            {"to_address": to_address, "amount": 5000000, "fee": 200000},
+            {"to_address": to_address, "amount": 2500000, "fee": 200000},
+            {"to_address": to_address, "amount": 1, "fee": 200000},
+        ]
+
+        httpx_mock.add_response(
+            method="GET",
+            url="https://l1-lb-integrationnet.constellationnetwork.io/transactions/last-reference/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX",
+            json=mock_l1_api_responses["last_ref"],
+        )
+        for _ in range(len(txn_data)):
+            httpx_mock.add_response(
+                method="POST",
+                url="https://l1-lb-integrationnet.constellationnetwork.io/transactions",
+                json={
+                    "data": {
+                        "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+                    }
+                },
+                status_code=200,
+            )
+        try:
+            r = await dag_account.transfer_batch(transfers=txn_data)
+            assert len(r) == 4
+        except (NetworkError, httpx.ReadTimeout) as e:
+            pytest.skip(f"Got expected error: {e}")
+        """PACA Metagraph doesn't function well with bulk transfers, it seems"""
+        # metagraph_account = MetagraphTokenClient(
+        #     account=account,
+        #     metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
+        #     l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
+        #     currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+        # )
+        # last_ref = await metagraph_account.network.get_address_last_accepted_transaction_ref(account.address)
+        # r = await metagraph_account.transfer_batch(transfers=txn_data)
+        # assert len(r) == 4
+
 
 @pytest.mark.integration
 class TestIntegrationAccount:
@@ -269,7 +322,6 @@ class TestIntegrationAccount:
 
     @pytest.mark.asyncio
     async def test_currency_transfer(self):
-        # TODO: Mock this
         from secret import mnemo, to_address
 
         account = DagAccount()
@@ -297,7 +349,6 @@ class TestIntegrationAccount:
             r = await metagraph_account.transfer(
                 to_address=to_address, amount=10000000, fee=2000000
             )
-            print(r)
             assert isinstance(r, dict)
         except (NetworkError, httpx.ReadError):
             failed.append("El Paca Metagraph: Network or HTTPX ReadError (timeout)")
@@ -307,7 +358,6 @@ class TestIntegrationAccount:
 
     @pytest.mark.asyncio
     async def test_currency_batch_transfer(self):
-        # TODO: Mock this
         from secret import mnemo, to_address
         from pypergraph.account import DagAccount
 
@@ -332,7 +382,7 @@ class TestIntegrationAccount:
         #     account=account,
         #     metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
         #     l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
-        #     cl1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
+        #     currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200"
         # )
         # last_ref = await metagraph_account.network.get_address_last_accepted_transaction_ref(account.address)
         # r = await metagraph_account.transfer_batch(transfers=txn_data)
