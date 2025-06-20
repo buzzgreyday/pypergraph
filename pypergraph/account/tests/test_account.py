@@ -1,9 +1,12 @@
 import httpx
 import pytest
+from pytest_httpx import HTTPXMock
 
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.account import DagAccount, MetagraphTokenClient
 from pypergraph.network.models.transaction import PendingTransaction
+
+from conftest import dag_account
 
 
 @pytest.mark.account
@@ -140,14 +143,31 @@ class TestAccount:
 
 @pytest.mark.mock
 class TestMockAccount:
-    pass
+    @pytest.mark.asyncio
+    async def test_get_balance(self, dag_account, metagraph_account, httpx_mock: HTTPXMock, mock_shared_responses):
+        assert dag_account.address == "DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX"
+        httpx_mock.add_response(
+            url="https://l0-lb-mainnet.constellationnetwork.io/dag/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX/balance",
+            json=mock_shared_responses["balance"],
+        )
+        r = await dag_account.get_balance()
+        assert r == 218000000
+        httpx_mock.add_response(
+            url="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100/currency/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX/balance",
+            json=mock_shared_responses["balance"],
+        )
+        r = await metagraph_account.get_balance()
+        assert r == 218000000
+
+
+
+
 
 
 @pytest.mark.integration
 class TestIntegrationAccount:
     @pytest.mark.asyncio
     async def test_get_balance(self):
-        # TODO: Mock this
         from secret import mnemo
 
         account = DagAccount()
