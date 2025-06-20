@@ -7,18 +7,18 @@ from pypergraph.network.models.token_lock import TokenLock, SignedTokenLock
 
 
 async def allow_spend(
-        destination: str,
-        amount: int,
-        approvers: List[str],
-        network: Any, # Should be a shared abstract class DagTokenNetwork, MetagraphTokenNetwork
-        key_trio: KeyTrio,
-        source: Optional[str] = None,
-        fee: int = 0,
-        currency_id: Optional[str] = None,
-        valid_until_epoch: Optional[int] = None,
-
+    destination: str,
+    amount: int,
+    approvers: List[str],
+    network: Any,  # Should be a shared abstract class DagTokenNetwork, MetagraphTokenNetwork
+    key_trio: KeyTrio,
+    source: Optional[str] = None,
+    fee: int = 0,
+    currency_id: Optional[str] = None,
+    valid_until_epoch: Optional[int] = None,
 ):
     from pypergraph import KeyStore
+
     # Validate schemas
     # Validate source address
     if source != key_trio.address:
@@ -39,13 +39,13 @@ async def allow_spend(
             fee=fee or 0,
             parent=allow_spend_last_ref,
             last_valid_epoch_progress=valid_until_epoch,
-            currency=currency_id or None
+            currency=currency_id or None,
         )
         # Generate signature
         signed_allow_spend = KeyStore().brotli_sign(
             body=body.model_dump(),
             public_key=normalize_public_key(key_trio.public_key),
-            private_key=key_trio.private_key
+            private_key=key_trio.private_key,
         )
         if not signed_allow_spend:
             raise ValueError("Unable to generate signed allow spend")
@@ -71,13 +71,13 @@ async def allow_spend(
 
 
 async def token_lock(
-        source: str,
-        amount: int,
-        fee: int,
-        currency_id: Optional[str],
-        unlock_epoch: Optional[int],
-        network: Any,  # Should be a shared abstract class DagTokenNetwork, MetagraphTokenNetwork
-        key_trio: KeyTrio
+    source: str,
+    amount: int,
+    fee: int,
+    currency_id: Optional[str],
+    unlock_epoch: Optional[int],
+    network: Any,  # Should be a shared abstract class DagTokenNetwork, MetagraphTokenNetwork
+    key_trio: KeyTrio,
 ):
     from pypergraph import KeyStore
     # Validate schema
@@ -93,13 +93,20 @@ async def token_lock(
         )
         if not token_lock_last_ref:
             raise ValueError("Unable to find token lock last reference")
-        body = TokenLock(source=source, amount=amount, fee=fee, parent=token_lock_last_ref, currency_id=currency_id, unlock_epoch=unlock_epoch)
+        body = TokenLock(
+            source=source,
+            amount=amount,
+            fee=fee,
+            parent=token_lock_last_ref,
+            currency_id=currency_id,
+            unlock_epoch=unlock_epoch,
+        )
 
         # Generate signature
         signed_token_lock = KeyStore().brotli_sign(
             body=body.model_dump(),
             public_key=normalize_public_key(key_trio.public_key),
-            private_key=key_trio.private_key
+            private_key=key_trio.private_key,
         )
         if not signed_token_lock:
             raise ValueError("Unable to generate signed token lock")

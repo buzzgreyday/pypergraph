@@ -11,7 +11,7 @@ from pypergraph.network.models.token_lock import TokenLockReference, SignedToken
 from pypergraph.network.models.transaction import (
     PendingTransaction,
     SignedTransaction,
-    TransactionReference
+    TransactionReference,
 )
 
 
@@ -96,17 +96,25 @@ class L1Api:
         )
 
     async def get_allow_spend_last_reference(self, address: str) -> AllowSpendReference:
-        result = await self._make_request("GET", f"/allow-spends/last-reference/{address}")
+        result = await self._make_request(
+            "GET", f"/allow-spends/last-reference/{address}"
+        )
         return AllowSpendReference(**result)
 
     async def post_allow_spend(self, tx: SignedAllowSpend):
-        result = await self._make_request("POST", "/allow-spends", payload=tx.model_dump())
+        result = await self._make_request(
+            "POST", "/allow-spends", payload=tx.model_dump()
+        )
         return result
 
     async def get_token_lock_last_reference(self, address: str) -> TokenLockReference:
-        result = await self._make_request("GET", f"/token-locks/last-reference/{address}")
+        result = await self._make_request(
+            "GET", f"/token-locks/last-reference/{address}"
+        )
         return TokenLockReference(**result)
 
     async def post_token_lock(self, tx: SignedTokenLock):
-        result = await self._make_request("POST", "/token-locks", payload=tx.model_dump(by_alias=True))
+        result = await self._make_request(
+            "POST", "/token-locks", payload=tx.model_dump(by_alias=True)
+        )
         return result

@@ -4,16 +4,20 @@ from pydantic import constr, BaseModel, Field
 
 from pypergraph.network.models.transaction import SignatureProof
 
+
 class NodeCollateralReference(BaseModel):
     ordinal: int = Field(ge=0)
     hash: constr(pattern=r"^[a-fA-F0-9]{64}$")
+
 
 class CreateNodeCollateral(BaseModel):
     source: str
     node_id: constr(pattern=r"^[a-fA-F0-9]{128}$") = Field(alias="nodeId")
     amount: int = Field(ge=0)
     fee: int = Field(ge=0)
-    token_lock_ref_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(alias="tokenLockRefHash")
+    token_lock_ref_hash: constr(pattern=r"^[a-fA-F0-9]{64}$") = Field(
+        alias="tokenLockRefHash"
+    )
     parent: NodeCollateralReference
 
 
