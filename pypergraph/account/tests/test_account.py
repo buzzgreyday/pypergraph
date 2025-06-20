@@ -181,7 +181,7 @@ class TestMockAccount:
 
     @pytest.mark.asyncio
     async def test_currency_transfer(
-        self, dag_account, httpx_mock: HTTPXMock, mock_l1_api_responses
+        self, dag_account, metagraph_account, httpx_mock: HTTPXMock, mock_l1_api_responses
     ):
         from secret import to_address
 
@@ -201,28 +201,33 @@ class TestMockAccount:
             },
             status_code=200,
         )
+
         r = await dag_account.transfer(
             to_address=to_address, amount=100000000, fee=200000
         )
+
         assert isinstance(r, PendingTransaction)
 
-        # metagraph_account = MetagraphTokenClient(
-        #     account=account,
-        #     metagraph_id="DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43",
-        #     # l0_host="http://elpaca-l0-2006678808.us-west-1.elb.amazonaws.com:9100",
-        #     currency_l1_host="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200",
-        # )
-        #
-        # try:
-        #     r = await metagraph_account.transfer(
-        #         to_address=to_address, amount=10000000, fee=2000000
-        #     )
-        #     assert isinstance(r, dict)
-        # except (NetworkError, httpx.ReadError):
-        #     failed.append("El Paca Metagraph: Network or HTTPX ReadError (timeout)")
-        #
-        # if failed:
-        #     pytest.skip(", ".join(str(x) for x in failed))
+        httpx_mock.add_response(
+            method="GET",
+            url="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200/transactions/last-reference/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX",
+            json=mock_l1_api_responses["last_ref"],
+        )
+        httpx_mock.add_response(
+            method="POST",
+            url="http://elpaca-cl1-1512652691.us-west-1.elb.amazonaws.com:9200/transactions",  # adjust if needed
+            json={
+                "data": {
+                    "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+                }
+            },
+            status_code=200,
+        )
+
+        r = await metagraph_account.transfer(
+            to_address=to_address, amount=10000000, fee=2000000
+        )
+        assert isinstance(r, dict)
 
 
 @pytest.mark.integration
@@ -293,6 +298,7 @@ class TestIntegrationAccount:
             r = await metagraph_account.transfer(
                 to_address=to_address, amount=10000000, fee=2000000
             )
+            print(r)
             assert isinstance(r, dict)
         except (NetworkError, httpx.ReadError):
             failed.append("El Paca Metagraph: Network or HTTPX ReadError (timeout)")

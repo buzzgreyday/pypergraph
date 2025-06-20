@@ -201,8 +201,7 @@ class MetagraphTokenNetwork:
             logging.warning(
                 "MetagraphTokenNetwork :: Currency layer 1 API object not set."
             )
-        finally:
-            return
+            return None
 
     async def post_data(self, tx: Dict[str, Dict]) -> dict:
         """
