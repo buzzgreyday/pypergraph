@@ -16,11 +16,6 @@ View [documentation here](https://pypergraph-dag.readthedocs.io).
 
 # Installation
 
-> **Caution:**  
-> This package is currently in alpha. Changes will happen rapidly during development.  
-> **Do not use it for production purposes** as it may contain bugs or incomplete features.  
->  
-> **Wish to contribute?** Please reach out on [GitHub](https://github.com/buzzgreyday).
 
 The package is available through PyPI, but since it is still in development the latest release is always available for download on GitHub. You can use one of the methods below to test the package.
 
