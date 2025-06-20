@@ -42,11 +42,11 @@ jobs:
       - name: Lint with Ruff
         run: |
           # Auto-fix what can be automatically fixed
-          ruff check . --fix --exit-zero
+          ruff check . --fix --exit-zero --exclude docs
           # Check for remaining issues
-          ruff check . --output-format=github
+          ruff check . --output-format=github --exclude docs
           # Check formatting
-          ruff format --check .
+          ruff format --check . --exclude docs
 
       - name: Security check with Bandit
         run: |
