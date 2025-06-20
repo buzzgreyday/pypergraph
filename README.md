@@ -16,9 +16,6 @@ View [documentation here](https://pypergraph-dag.readthedocs.io).
 
 # Installation
 
-
-The package is available through PyPI, but since it is still in development the latest release is always available for download on GitHub. You can use one of the methods below to test the package.
-
 ## Setup Virtual Environment
 
 1. **Ensure Python 3.9+ is installed.**  
