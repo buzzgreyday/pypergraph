@@ -144,7 +144,13 @@ class TestAccount:
 @pytest.mark.mock
 class TestMockAccount:
     @pytest.mark.asyncio
-    async def test_get_balance(self, dag_account, metagraph_account, httpx_mock: HTTPXMock, mock_shared_responses):
+    async def test_get_balance(
+        self,
+        dag_account,
+        metagraph_account,
+        httpx_mock: HTTPXMock,
+        mock_shared_responses,
+    ):
         assert dag_account.address == "DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX"
         httpx_mock.add_response(
             url="https://l0-lb-mainnet.constellationnetwork.io/dag/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX/balance",
@@ -159,9 +165,16 @@ class TestMockAccount:
         r = await metagraph_account.get_balance()
         assert r == 218000000
 
-
-
-
+    @pytest.mark.asyncio
+    async def test_get_currency_transactions(
+        self, metagraph_account, httpx_mock: HTTPXMock, mock_metagraph_responses
+    ):
+        httpx_mock.add_response(
+            url="https://be-mainnet.constellationnetwork.io/currency/DAG7ChnhUF7uKgn8tXy45aj4zn9AFuhaZr8VXY43/addresses/DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX/transactions?limit=3",
+            json=mock_metagraph_responses["transactions_by_address"],
+        )
+        r = await metagraph_account.get_transactions(limit=3)
+        assert len(r) == 3
 
 
 @pytest.mark.integration
@@ -189,7 +202,6 @@ class TestIntegrationAccount:
 
     @pytest.mark.asyncio
     async def test_get_currency_transactions(self):
-        # TODO: Mock this
         from secret import mnemo
 
         account = DagAccount()
