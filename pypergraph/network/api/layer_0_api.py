@@ -8,11 +8,23 @@ from pypergraph.core.cross_platform.rest_api_client import RestAPIClient
 from pypergraph.network.models.network import PeerInfo, TotalSupply
 from pypergraph.network.models.account import Balance
 from pypergraph.network.models.network import Ordinal
-from pypergraph.network.models.node_param import SignedUpdateNodeParameters, NodeParametersInfo, UpdateNodeParameters
+from pypergraph.network.models.node_param import (
+    SignedUpdateNodeParameters,
+    NodeParametersInfo,
+    UpdateNodeParameters,
+)
 from pypergraph.network.models.snapshot import SignedGlobalIncrementalSnapshot
 from pypergraph.network.models.transaction import TransactionReference
-from pypergraph.network.models.node_collateral import NodeCollateralsInfo, SignedCreateNodeCollateral, SignedWithdrawNodeCollateral
-from pypergraph.network.models.delegated_stake import DelegatedStakesInfo, SignedCreateDelegatedStake, SignedWithdrawDelegatedStake
+from pypergraph.network.models.node_collateral import (
+    NodeCollateralsInfo,
+    SignedCreateNodeCollateral,
+    SignedWithdrawNodeCollateral,
+)
+from pypergraph.network.models.delegated_stake import (
+    DelegatedStakesInfo,
+    SignedCreateDelegatedStake,
+    SignedWithdrawDelegatedStake,
+)
 
 
 def _handle_metrics(response: str) -> List[Dict[str, Any]]:
@@ -151,21 +163,33 @@ class L0Api:
 
     async def post_node_parameters(self, tx: SignedUpdateNodeParameters):
         """Register validator parameters for delegated staking"""
-        return await self._make_request(
-        "POST", "/node-params", payload=tx.model_dump()
-        )
+        return await self._make_request("POST", "/node-params", payload=tx.model_dump())
 
     @staticmethod
     def _get_node_parameters_search_and_sort_path_and_params(
         search_name_or_id: Optional[str],
-        sort: Optional[Literal["name", "peerID", "address", "totalAddressesAssigned", "totalAmountDelegated"]],
-        sort_order: Optional[Literal["ASC", "DESC"]]
+        sort: Optional[
+            Literal[
+                "name",
+                "peerID",
+                "address",
+                "totalAddressesAssigned",
+                "totalAmountDelegated",
+            ]
+        ],
+        sort_order: Optional[Literal["ASC", "DESC"]],
     ) -> Dict:
         params = {}
 
         if isinstance(search_name_or_id, str):
             params["search"] = search_name_or_id
-        if sort in ("name", "peerID", "address", "totalAddressesAssigned", "totalAmountDelegated"):
+        if sort in (
+            "name",
+            "peerID",
+            "address",
+            "totalAddressesAssigned",
+            "totalAmountDelegated",
+        ):
             params["sort"] = sort
         if sort_order in ("ASC", "DESC"):
             params["sortOrder"] = sort_order
@@ -173,12 +197,22 @@ class L0Api:
         return {"params": params}
 
     async def get_node_parameters(
-            self,
-            search_name_or_id: Optional[str] = None,
-            sort: Optional[Literal["name", "peerID", "address", "totalAddressesAssigned", "totalAmountDelegated"]] = None,
-            sort_order: Optional[Literal["ASC", "DESC"]] = None
+        self,
+        search_name_or_id: Optional[str] = None,
+        sort: Optional[
+            Literal[
+                "name",
+                "peerID",
+                "address",
+                "totalAddressesAssigned",
+                "totalAmountDelegated",
+            ]
+        ] = None,
+        sort_order: Optional[Literal["ASC", "DESC"]] = None,
     ):
-        request = self._get_node_parameters_search_and_sort_path_and_params(search_name_or_id, sort, sort_order)
+        request = self._get_node_parameters_search_and_sort_path_and_params(
+            search_name_or_id, sort, sort_order
+        )
         result = await self._make_request(
             "GET", "/node-params", params=request["params"]
         )
