@@ -39,7 +39,7 @@ async def allow_spend(
             fee=fee or 0,
             parent=allow_spend_last_ref,
             last_valid_epoch_progress=valid_until_epoch,
-            currency_id=currency_id or None
+            currency=currency_id or None
         )
         # Generate signature
         signed_allow_spend = KeyStore().brotli_sign(

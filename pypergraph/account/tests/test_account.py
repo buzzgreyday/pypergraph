@@ -140,6 +140,7 @@ class TestAccount:
 
     @pytest.mark.asyncio
     async def test_get_balance(self):
+        # TODO: Mock this
         from secret import mnemo
 
         account = DagAccount()
@@ -161,6 +162,7 @@ class TestAccount:
 
     @pytest.mark.asyncio
     async def test_get_currency_transactions(self):
+        # TODO: Mock this
         from secret import mnemo
 
         account = DagAccount()
@@ -176,6 +178,7 @@ class TestAccount:
 
     @pytest.mark.asyncio
     async def test_currency_transfer(self):
+        # TODO: Mock this
         from secret import mnemo, to_address
 
         account = DagAccount()
@@ -205,13 +208,14 @@ class TestAccount:
             )
             assert isinstance(r, dict)
         except (NetworkError, httpx.ReadError):
-            failed.append("El Paca Metagraph: Network or HTTPX ReadError (timout)")
+            failed.append("El Paca Metagraph: Network or HTTPX ReadError (timeout)")
 
         if failed:
             pytest.skip(", ".join(str(x) for x in failed))
 
     @pytest.mark.asyncio
     async def test_currency_batch_transfer(self):
+        # TODO: Mock this
         from secret import mnemo, to_address
         from pypergraph.account import DagAccount
 
@@ -244,22 +248,24 @@ class TestAccount:
 
     @pytest.mark.asyncio
     async def test_token_lock(self):
-        from secret import mnemo, to_address
+        # TODO: Mock this
+        from secret import mnemo
         from pypergraph.account import DagAccount
 
         account = DagAccount()
         account.login_with_seed_phrase(mnemo)
         account.connect(network_id="integrationnet")
 
-        latest_snapshot = await account.network.l0_api.get_latest_snapshot()
-        latest_epoch = latest_snapshot.value.epoch_progress
-        print("Latest Epoch:", latest_epoch)
+        # latest_snapshot = await account.network.l0_api.get_latest_snapshot()
+        # latest_epoch = latest_snapshot.value.epoch_progress
         res = await account.create_token_lock(500000000000)
-        print("Response:", res)
+        assert res.get("hash")
 
     @pytest.mark.asyncio
     async def test_allow_spend(self):
-        from secret import mnemo, to_address
+        """Receives status 500"""
+        # TODO: Mock this
+        from secret import mnemo
         from pypergraph.account import DagAccount
 
         account = DagAccount()
@@ -269,6 +275,6 @@ class TestAccount:
         latest_snapshot = await account.network.l0_api.get_latest_snapshot()
         latest_epoch = latest_snapshot.value.epoch_progress
         print("Latest Epoch:", latest_epoch)
-        res = await account.create_allow_spend(destination="DAG4dWrdALPQmvF5UBpuXrqdkMHea1H5f7rjb4qY", amount=100000000000, approvers=["DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN"], valid_until_epoch=latest_epoch + 80)
+        res = await account.create_allow_spend(destination="DAG1GH7r7RX1Ca7MbuvqUPT37FAtTfGM1WYQ4otZ", amount=10000000000, approvers=["DAG1GH7r7RX1Ca7MbuvqUPT37FAtTfGM1WYQ4otZ"], valid_until_epoch=latest_epoch + 10)
         print("Response:", res)
 

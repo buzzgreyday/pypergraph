@@ -274,7 +274,8 @@ class DagAccount:
             amount=amount,
             approvers=approvers,
             source=source or self.key_trio.address,
-            fee=fee, currency_id=currency_id or self.network.connected_network.metagraph_id,
+            fee=fee,
+            currency_id=currency_id or self.network.connected_network.metagraph_id,
             valid_until_epoch=valid_until_epoch,
             network=self.network,
             key_trio=self.key_trio
@@ -304,7 +305,7 @@ class DagAccount:
             source=source or self.key_trio.address,
             amount=amount,
             fee=fee,
-            currency=currency_id,
+            currency_id=currency_id,
             unlock_epoch=unlock_epoch,
             network=self.network,
             key_trio=self.key_trio
