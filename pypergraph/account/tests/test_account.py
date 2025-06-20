@@ -137,6 +137,14 @@ class TestAccount:
         assert account.key_trio.address == "DAG0zJW14beJtZX2BY2KA9gLbpaZ8x6vgX4KVPVX"
         account.logout()
 
+@pytest.mark.mock
+class TestMockAccount:
+
+    pass
+
+@pytest.mark.integration
+class TestIntegrationAccount:
+
     @pytest.mark.asyncio
     async def test_get_balance(self):
         # TODO: Mock this
