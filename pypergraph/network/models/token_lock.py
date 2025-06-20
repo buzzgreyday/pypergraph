@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, constr, field_serializer, ConfigDict
+from pydantic import BaseModel, Field, constr, ConfigDict
 
 from pypergraph.network.models.transaction import SignatureProof
 

@@ -1,4 +1,4 @@
-from typing import Union, Optional, Any, List
+from typing import Optional, Any, List
 
 from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.account.utils import normalize_public_key

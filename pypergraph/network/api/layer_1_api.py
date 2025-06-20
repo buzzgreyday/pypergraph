@@ -2,7 +2,6 @@ import logging
 from typing import List, Dict, Any, Union, Optional
 
 from prometheus_client.parser import text_string_to_metric_families
-from pycparser.ply.yacc import resultlimit
 
 from pypergraph.core.cross_platform.di.rest_client import RESTClient, HttpxClient
 from pypergraph.core.cross_platform.rest_api_client import RestAPIClient

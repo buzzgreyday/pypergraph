@@ -4,8 +4,6 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 from pypergraph.network.shared.operations import allow_spend, token_lock
-from pypergraph.network.models.allow_spend import AllowSpend
-from pypergraph.network.models.token_lock import TokenLock
 from pypergraph.network.models.transaction import (
     SignedTransaction,
     TransactionReference,

@@ -3,7 +3,6 @@ import pytest
 
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.account import DagAccount, MetagraphTokenClient
-from pypergraph.network.models.token_lock import TokenLock
 from pypergraph.network.models.transaction import PendingTransaction
 
 

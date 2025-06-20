@@ -9,8 +9,6 @@ from pypergraph.account.models.key_trio import KeyTrio
 from pypergraph.network.shared.operations import allow_spend, token_lock
 from pypergraph.keystore import KeyStore
 from pypergraph.network import DagTokenNetwork
-from pypergraph.network.models.allow_spend import AllowSpend
-from pypergraph.network.models.token_lock import TokenLock
 from pypergraph.network.models.transaction import (
     TransactionStatus,
     TransactionReference,
