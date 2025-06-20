@@ -35,7 +35,7 @@ View [documentation here](https://pypergraph-dag.readthedocs.io).
 
          .\venv\Scripts\activate
 
-## Install Through PyPi
+## Install Through PyPI
 
 > **Note:**  
 > This package is currently in alpha. Since changes happen rapidly during development, this method might not provide the absolute latest version for testing if the package version was not bumped between releases.
