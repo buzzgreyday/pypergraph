@@ -1,6 +1,8 @@
+import asyncio
 import json
 
 import pytest
+from httpx import ReadTimeout
 
 from pypergraph import DagTokenNetwork
 from pypergraph.core import BIP_44_PATHS
@@ -139,16 +141,25 @@ class TestKeystore:
         assert eth_address == "0x8fbc948ba2dd081a51036de02582f5dcb51a310c"
 
     @pytest.mark.asyncio
-    async def test_generate_transaction_and_verify_signature(self):
+    async def test_generate_transaction_and_verify_signature(self, i: int = 1):
         keystore = KeyStore()
         phrase = "multiply angle perfect verify behind sibling skirt attract first lift remove fortune"
         keystore.validate_mnemonic(phrase)
         pk = keystore.get_private_key_from_mnemonic(phrase)
         pubk = keystore.get_public_key_from_private(pk)
         address = keystore.get_dag_address_from_public_key(pubk)
-        last_ref = await DagTokenNetwork().get_address_last_accepted_transaction_ref(
-            address
-        )
+        for i in range(3):
+            try:
+                last_ref = (
+                    await DagTokenNetwork().get_address_last_accepted_transaction_ref(
+                        address
+                    )
+                )
+                break
+            except ReadTimeout:
+                if i == 2:
+                    pytest.skip("Connection timeout reached max attempts")
+                await asyncio.sleep(6)
         tx, hash_ = KeyStore.prepare_tx(
             amount=1000000,
             to_address="DAG5WLxvp7hQgumY7qEFqWZ9yuRghSNzLddLbxDN",

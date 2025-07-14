@@ -381,6 +381,10 @@ class TestIntegrationL1API:
                     pytest.skip(
                         f"Skipping due to expected error '{error}': {description}"
                     )
+            if e.status == 502:
+                pytest.skip(
+                    "Metagraph currency transaction skipped due to 'Bad Gateway'"
+                )
             raise
         except httpx.ReadTimeout:
             pytest.skip("Skipping due to timeout")

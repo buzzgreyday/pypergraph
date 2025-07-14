@@ -27,6 +27,9 @@ class RewardTransaction(BaseModel):
 
             # If any validation fails, raise an error
             if not (valid_len and valid_prefix and valid_parity and valid_base58):
-                raise ValueError(f"CurrencySnapshot :: Invalid address: {address}")
+                if (
+                    address != "DAGSTARDUSTCOLLECTIVEHZOIPHXZUBFGNXWJETZVSPAPAHMLXS"
+                ):  # TODO: do not hardcode
+                    raise ValueError(f"CurrencySnapshot :: Invalid address: {address}")
 
         return address
