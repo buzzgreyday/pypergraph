@@ -1,12 +1,10 @@
 import httpx
 import pytest
 from pytest_httpx import HTTPXMock
-import json
 
 from pypergraph.core.exceptions import NetworkError
 from pypergraph.account import DagAccount, MetagraphTokenClient
 from pypergraph.network.models.transaction import PendingTransaction
-from urllib3.exceptions import HTTPError
 
 
 @pytest.mark.account
