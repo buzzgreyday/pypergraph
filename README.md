@@ -37,9 +37,6 @@ View [documentation here](https://pypergraph-dag.readthedocs.io).
 
 ## Install Through PyPI
 
-> **Note:**  
-> This package is currently in alpha. Since changes happen rapidly during development, this method might not provide the absolute latest version for testing if the package version was not bumped between releases.
-
 4. **Install the package from PyPi:**
 
        pip install pypergraph-dag
