@@ -1,5 +1,3 @@
-
-
 class NetworkError(Exception):
     """Custom exception for transaction-related errors."""
 
